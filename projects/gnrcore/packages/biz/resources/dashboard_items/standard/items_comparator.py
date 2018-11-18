@@ -93,16 +93,18 @@ class Main(BaseDashboardItem):
                 structrow.forEach(function(sn){
                     var cmp_struct_node = cmp_struct_row.setItem(sn.label,null,sn.attr);
                     objectPop(cmp_struct_node.attr,'totalize');
-                    console.log('snattr',sn.attr);
                     if('NLIRF'.indexOf(sn.attr.dtype)>=0 && !sn.attr.group_nobreak){
                         var kf = sn.attr.field+'_sum';
                         if(compare_mode=='diff'){
                             row[kf] = (row1[kf] || 0) - (row2[kf] || 0)
-                        }else if(row2[kf]){
-                            cmp_struct_node.attr.format = '#,###.00;-;<span style="color:red">#,###.00</span>'
-                            row[kf] = (((row1[kf] || 0) - (row2[kf] || 0))/row2[kf]) *100;
                         }else{
-                            row[kf] = null;
+                            console.log('changing format',cmp_struct_node.attr)
+                            cmp_struct_node.attr.format = '#,###.00;-;<span style="color:red">-#,###.00</span>'
+                            if(row2[kf]){
+                                row[kf] = (((row1[kf] || 0) - (row2[kf] || 0))/row2[kf]) *100;
+                            }else{
+                                row[kf] = null;
+                            }
                         }
                         
                     }
