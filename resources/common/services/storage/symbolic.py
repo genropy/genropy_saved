@@ -43,6 +43,7 @@ class Service(BaseLocalService):
         resource_path = self.parent.resources.get(resource_id)
         if resource_path:
             return os.path.join(resource_path, *args)
+        return ''
 
     def path_page(self, connection_id, page_id, *args, **kwargs):
         return os.path.join(self.site_path, 'data', '_connections', connection_id, page_id, *args)
