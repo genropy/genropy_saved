@@ -189,7 +189,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         :param elType: one of the following: schemata, tables, columns, views.
         :param kwargs: schema, table
         :returns: list of object names"""
-        query = getattr(self, '_list_%s' % elType)()
+        handler = getattr(self, '_list_%s' % elType,None)
+        if not handler:
+            return []
+        query = handler()
         result = self.dbroot.execute(query, kwargs).fetchall()
         return [r[0] for r in result]
 
