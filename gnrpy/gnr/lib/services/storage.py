@@ -252,12 +252,12 @@ class StorageNode(object):
         return self.service.delete(self.path)
 
     def move(self, dest=None):
-        self.service.move(source=self.path, dest=dest)
+        dest = self.service.move(source=self, dest=dest)
         self.path = dest.path
         self.service = dest.service
 
     def copy(self, dest=None):
-        return self.service.copy(source=self.path, dest=dest)
+        return self.service.copy(source=self, dest=dest)
 
     def serve(self, environ, start_response, **kwargs):
         return self.service.serve(self.path, environ, start_response, **kwargs)
@@ -397,7 +397,9 @@ class StorageService(GnrBaseService):
 
     def move(self, source=None, dest=None):
         sourceNode = self._getNode(source)
+        print source, sourceNode
         destNode = self._getNode(dest)
+        print dest, destNode
         if destNode.service == sourceNode.service:
             sourceNode.service.renameNode(sourceNode=sourceNode,
                 destNode=destNode)

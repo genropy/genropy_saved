@@ -128,7 +128,7 @@ class Service(StorageService):
                     Key=internalpath)
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
-                return False
+                return self.isdir(*args)
             else:
                 raise
         return True
@@ -246,15 +246,16 @@ class Service(StorageService):
 
 
     def duplicateNode(self, sourceNode=None, destNode=None): # will work only in the same bucket
-        self._s3_copy(source_bucket=sourceNode.bucket,
+        self._s3_copy(source_bucket=sourceNode.service.bucket,
             source_key=sourceNode.internal_path,
-            dest_bucket=destNode.bucket, dest_key=destNode.bucket)
+            dest_bucket=destNode.service.bucket, dest_key=destNode.internal_path)
 
     def renameNode(self, sourceNode=None, destNode=None):
-        self._s3_copy(source_bucket=sourceNode.bucket,
+        self._s3_copy(source_bucket=sourceNode.service.bucket,
             source_key=sourceNode.internal_path,
-            dest_bucket=destNode.bucket, dest_key=destNode.bucket)
+            dest_bucket=destNode.service.bucket, dest_key=destNode.internal_path)
         self.delete(sourceNode.path)
+        return destNode
 
     def serve(self, path, environ, start_response, download=False, download_name=None, **kwargs):
         if download or download_name:
