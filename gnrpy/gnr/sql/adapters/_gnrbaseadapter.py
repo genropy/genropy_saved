@@ -479,25 +479,11 @@ class SqlDbAdapter(object):
 
     def dropExtension(self, extensions):
         """Disable a specific db extension"""
-        extensions = extensions.split(',')
-        enabled = self.listElements('enabled_extensions')
-        commit = False
-        for extension in extensions:
-            if extension in enabled:
-                self.dbroot.execute(self.dropExtensionSql(extension))
-                commit = True
-        return commit
+        pass
 
     def createExtension(self, extensions):
         """Enable a specific db extension"""
-        extensions = extensions.split(',')
-        enabled = self.listElements('enabled_extensions')
-        commit = False
-        for extension in extensions:
-            if not extension in enabled:
-                self.dbroot.execute(self.createExtensionSql(extension))
-                commit = True
-        return commit
+        pass
 
     def createSchemaSql(self, sqlschema):
         """Returns the sql command to create a new database schema"""

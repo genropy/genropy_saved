@@ -482,9 +482,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             filler.setAttribute('class','fillernode');
             sb.appendChild(filler);
         }
+        var vn = dojo.query('table',this.viewsHeaderNode)[0];
+        if(!vn){
+            return;
+        }
 
         filler.style.height = delta+'px';
-        var totalWidth = dojo.query('table',this.viewsHeaderNode)[0].clientWidth;
+        var totalWidth = vn.clientWidth;
         var tdlist = [];
         var colinfo = this.getColumnInfo();
         var cellinfo;
