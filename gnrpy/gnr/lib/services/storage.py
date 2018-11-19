@@ -224,6 +224,8 @@ class StorageNode(object):
     def base_name(self, **kwargs):
         return self.service.base_name(self.path)
 
+ 
+
     @property
     def exists(self):
         return self.service.exists(self.path)
@@ -289,7 +291,7 @@ class StorageService(GnrBaseService):
 
     def extension(self, path=None):
         base_name = self.base_name(path)
-        return os.path.splitext(base_name)[-1]
+        return os.path.splitext(base_name)[-1].strip('.')
 
     def split_path(self, path):
         return path.replace('/','\t').replace(os.path.sep,'/').replace('\t','/').split('/')
