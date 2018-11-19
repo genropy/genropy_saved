@@ -551,9 +551,15 @@ class StorageResolver(BagResolver):
                    'exclude': '',
                    'callback': None,
                    'dropext': False,
-                   'processors': None
+                   'processors': None,
+                   '_page':None
     }
     classArgs = ['storageNode','relocate']
+
+    def resolverSerialize(self):
+        attr = super(StorageResolver, self).resolverSerialize()
+        attr['kwargs'].pop('_page',None)
+        return attr
 
     @property
     def service(self):
@@ -564,6 +570,7 @@ class StorageResolver(BagResolver):
         extensions = dict([((ext.split(':') + (ext.split(':'))))[0:2] for ext in self.ext.split(',')]) if self.ext else dict()
         extensions['directory'] = 'directory'
         result = Bag()
+        self.storageNode = self._page.site.storageNode(self.storageNode)
         try:
             directory = sorted(self.storageNode.listdir())
         except OSError:
@@ -624,7 +631,7 @@ class StorageResolver(BagResolver):
         """TODO
 
         :param path: TODO"""
-        return StorageResolver(storagenode, "%s/%s"%(self.relocate, storagenode.base_name), **self.instanceKwargs)
+        return StorageResolver(storagenode, storagenode.fullpath, **self.instanceKwargs)
 
     def processor_xml(self, storagenode):
         """TODO
