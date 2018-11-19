@@ -281,7 +281,7 @@ class BaseDashboardItem(object):
             else:
                 wdg = fb.textbox(value='^.wherepars_%s' %code,lbl=pars['lbl'],hidden=hidden)
             wherepars.add('wherepars_%s' %code)
-            fb.data('.wherepars_%s' %code,pars['dflt'],wdg_tag=wdg.attributes['tag'],
+            fb.data('.wherepars_%s' %code,pars.get('dflt'),wdg_tag=wdg.attributes['tag'],
                     wdg_dbtable=wdg.attributes.get('dbtable'),autoTopic=autoTopic,aliasTopic=aliasTopic)
         center.dataController("""
         var currconf = this.getRelativeData();

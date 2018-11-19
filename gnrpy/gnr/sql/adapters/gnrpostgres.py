@@ -302,6 +302,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         self.dbroot.execute('NOTIFY %s;' % msg)
         if autocommit:
             self.dbroot.commit()
+
             
     def listElements(self, elType, **kwargs):
         """Get a list of element names
@@ -354,6 +355,28 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                                   AND table_name=:table 
                                   ORDER BY ordinal_position"""
 
+
+    def dropExtension(self, extensions):
+        """Disable a specific db extension"""
+        extensions = extensions.split(',')
+        enabled = self.listElements('enabled_extensions')
+        commit = False
+        for extension in extensions:
+            if extension in enabled:
+                self.dbroot.execute(self.dropExtensionSql(extension))
+                commit = True
+        return commit
+
+    def createExtension(self, extensions):
+        """Enable a specific db extension"""
+        extensions = extensions.split(',')
+        enabled = self.listElements('enabled_extensions')
+        commit = False
+        for extension in extensions:
+            if not extension in enabled:
+                self.dbroot.execute(self.createExtensionSql(extension))
+                commit = True
+        return commit
 
     def createExtensionSql(self,extension):
         return """CREATE extension %s;""" %extension
