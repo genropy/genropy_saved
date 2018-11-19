@@ -631,7 +631,7 @@ class StorageResolver(BagResolver):
         """TODO
 
         :param path: TODO"""
-        return StorageResolver(storagenode, storagenode.fullpath, **self.instanceKwargs)
+        return StorageResolver(storagenode.fullpath, **self.instanceKwargs)
 
     def processor_xml(self, storagenode):
         """TODO
