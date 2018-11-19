@@ -16,7 +16,7 @@ class GnrCustomWebPage(object):
 
         fb.textbox(value='^.url',lbl='Url',width='40em', readOnly=True)
         fb.dataRpc('.url',self.url,filepath='^.path')
-        root.data('.store',StorageResolver(self.site.storage('s3:'),cacheTime=10,
+        root.data('.store',StorageResolver(self.site.storageNode('s3:'),cacheTime=10,
                             include='*.txt', exclude='_*,.*',dropext=True,readOnly=False)()
                             )
         root.tree(storepath='.store', hideValues=True, inspect='shift', draggable=True, dragClass='draggedItem')
