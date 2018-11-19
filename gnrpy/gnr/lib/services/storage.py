@@ -397,9 +397,7 @@ class StorageService(GnrBaseService):
 
     def move(self, source=None, dest=None):
         sourceNode = self._getNode(source)
-        print source, sourceNode
         destNode = self._getNode(dest)
-        print dest, destNode
         if destNode.service == sourceNode.service:
             sourceNode.service.renameNode(sourceNode=sourceNode,
                 destNode=destNode)
