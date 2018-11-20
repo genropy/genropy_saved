@@ -276,7 +276,7 @@ class TableHandlerGroupBy(BaseComponent):
         for v in struct['#0.#0'].digest('#a'):
             if v['field'] =='_grp_count' or v.get('calculated'):
                 continue
-            col = v['field']
+            col = v['queryfield'] or v['field']
             if not col.startswith('@'):
                 col = '$%s' %col
             dtype = v.get('dtype')
@@ -308,7 +308,10 @@ class TableHandlerGroupBy(BaseComponent):
                         col = '%s AS %s' %(col, asName(v['field'],group_aggr))
                     #if dtype in ('T','C','A'):
                 else:
-                    group_list.append(col)
+                    groupcol = col
+                    if ' AS ' in col:
+                        groupcol,asname = col.split(' AS ')
+                    group_list.append(groupcol)
                     caption_field = v.get('caption_field')
                     if caption_field:
                         if not caption_field.startswith('@'):
