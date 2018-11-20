@@ -25,8 +25,8 @@ class S3LocalFile(object):
         self.s3 = self.session.client('s3')
 
     def __getattr__(self, name):
-        file = self.__dict__['file']
-        a = getattr(file, name)
+        local_file = self.__dict__['file']
+        a = getattr(local_file, name)
         if not issubclass(type(a), type(0)):
             setattr(self, name, a)
         return a
@@ -119,7 +119,7 @@ class Service(StorageService):
         internalpath = self.internal_path(*args)
         path_list = internalpath.split('/')
 
-    def exists(self, *args):
+    def isfile(self, *args):
         s3 = self._client
         internalpath = self.internal_path(*args)
         try:
@@ -128,10 +128,13 @@ class Service(StorageService):
                     Key=internalpath)
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
-                return self.isdir(*args)
+                return False
             else:
                 raise
         return True
+
+    def exists(self, *args):
+        return self.isfile(*args) or self.isdir(*args)
 
     def makedirs(self, *args, **kwargs):
         pass

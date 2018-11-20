@@ -486,6 +486,9 @@ class BaseLocalService(StorageService):
     def isdir(self, *args):
         return os.path.isdir(self.internal_path(*args))
 
+    def isfile(self, *args):
+        return os.path.isfile(self.internal_path(*args))
+
     def renameNode(self, sourceNode=None, destNode=None):
         self.autocreate(destNode.internal_path, autocreate=-1)
         shutil.move(sourceNode.internal_path, destNode.internal_path)
