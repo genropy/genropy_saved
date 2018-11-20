@@ -212,6 +212,10 @@ class StorageNode(object):
     def isdir(self):
         return self.service.isdir(self.path)
 
+    def children(self):
+        if self.isdir:
+            return self.service.children(self.path)
+
     def listdir(self):
         if self.isdir:
             return self.service.listdir(self.path)
@@ -432,6 +436,9 @@ class StorageService(GnrBaseService):
         else:
             return self._call(**call_params)
 
+    def listdir(self, *args, **kwargs):
+        return [sn.fullpath for sn in self.children(*args, **kwargs)]
+
 class BaseLocalService(StorageService):
     def __init__(self, parent=None, base_path=None,**kwargs):
         self.parent = parent
@@ -532,7 +539,8 @@ class BaseLocalService(StorageService):
             file_responder.cache_control(max_age=self.parent.cache_max_age)
         return file_responder(environ, start_response)
 
-    def listdir(self, *args, **kwargs):
+
+    def children(self, *args, **kwargs):
         directory = os.listdir(self.internal_path(*args))
         out = []
         for d in directory:
@@ -574,7 +582,7 @@ class StorageResolver(BagResolver):
         result = Bag()
         self.storageNode = self._page.site.storageNode(self.storageNode)
         try:
-            directory = sorted(self.storageNode.listdir())
+            directory = sorted(self.storageNode.children())
         except OSError:
             directory = []
         if not self.invisible:

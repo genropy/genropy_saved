@@ -267,7 +267,7 @@ class Service(StorageService):
         if url:
             return self.parent.redirect(environ, start_response, location=url)
 
-    def listdir(self, path, **kwargs):
+    def children(self, path, **kwargs):
         def strip_prefix(inpath, prefix=None):
             prefix = prefix or self.base_path
             return inpath.replace(prefix,'',1).strip('/')
