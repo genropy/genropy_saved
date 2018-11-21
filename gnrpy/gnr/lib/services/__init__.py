@@ -29,6 +29,7 @@ import sys
 
 from collections import OrderedDict
 from gnr.core.gnrlang import  gnrImport,clonedClassMixin
+from datetime import datetime
 from gnr.core.gnrbag import Bag
 
 import logging
@@ -88,7 +89,7 @@ class BaseServiceType(object):
     def __init__(self, site=None,service_type=None, **kwargs):
         self.site = site
         self.service_type = service_type
-        self.service_instances = {}
+        self.service_instances = {}        
 
     def addService(self, service_name=None, **kwargs):
         service_conf = kwargs or self.getConfiguration(service_name)
@@ -193,8 +194,13 @@ class BaseServiceType(object):
     def __call__(self, service_name=None, **kwargs):
         service_name = service_name or self.default_service_name
         service = self.service_instances.get(service_name)
-        if service is None:
-            service = self.addService(service_name, **kwargs)
+        with self.site.register.globalStore() as gs:
+            cache_key = 'globalServices_lastTS.%s_%s' %(self.service_type,service_name)
+            lastTS = gs.getItem(cache_key)
+            if service is None or (lastTS and service._service_creation_ts<lastTS):
+                service = self.addService(service_name, **kwargs)
+                service._service_creation_ts = datetime.now()
+                gs.setItem(cache_key,service._service_creation_ts)
         return service
 
 

@@ -1,6 +1,7 @@
 # encoding: utf-8
 from gnr.core.gnrbag import Bag,DirectoryResolver
 import os
+from datetime import datetime
 from gnr.core.gnrdecorator import public_method
 
 class Table(object):
@@ -50,3 +51,16 @@ class Table(object):
                                 parameters=parameters)
         self.insert(record)
         return record
+
+    def serviceExpiredTs(self,record=None):
+        site = getattr(self.db.application,'site',None)
+        if site:
+            with site.register.globalStore() as gs:
+                gs.setItem('globalServices_lastTS.%(service_identifier)s' %record,datetime.now())
+
+
+    def trigger_onUpdated(self,record,old_record=None):
+        self.serviceExpiredTs(record)
+
+    def trigger_onDeleted(self,record):
+        self.serviceExpiredTs(record)
