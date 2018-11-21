@@ -15,6 +15,7 @@ class Table(object):
         tbl.column('service_name', size=':30', name_long='!!Service name') #service_name
         tbl.column('implementation', name_long='!!Implementation')
         tbl.column('parameters', dtype='X', name_long='!!Parameters')
+        tbl.column('extrainfo', dtype='X', name_long='!!Extra info')
 
     @public_method
     def getAvailableServiceTree(self):
