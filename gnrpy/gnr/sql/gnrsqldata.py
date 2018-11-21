@@ -701,7 +701,6 @@ class SqlQueryCompiler(object):
         if isinstance(virtual_columns, basestring):
             virtual_columns = gnrstring.splitAndStrip(virtual_columns, ',')
         virtual_columns = uniquify([v[1:] if v.startswith('$') else v for v in virtual_columns])
-        print 'clean_virtual_cols',virtual_columns
         tbl_virtual_columns = self.tblobj.virtual_columns
         for col_name in virtual_columns:
             column = tbl_virtual_columns[col_name]
