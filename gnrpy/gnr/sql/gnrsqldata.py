@@ -700,13 +700,13 @@ class SqlQueryCompiler(object):
     def _handle_virtual_columns(self, virtual_columns):
         if isinstance(virtual_columns, basestring):
             virtual_columns = gnrstring.splitAndStrip(virtual_columns, ',')
+        virtual_columns = uniquify([v[1:] if v.startswith('$') else v for v in virtual_columns])
+        print 'clean_virtual_cols',virtual_columns
         tbl_virtual_columns = self.tblobj.virtual_columns
         for col_name in virtual_columns:
-            if col_name.startswith('$'):
-                col_name = col_name[1:]
             column = tbl_virtual_columns[col_name]
             if column is None:
-                # print 'not existing col:%s' % col_name  # jbe commenting out the print
+                #print 'not existing col:%s' % col_name  # jbe commenting out the print
                 continue
             column_attributes = self.tblobj.virtualColumnAttributes(col_name)
             self._currColKey = col_name
