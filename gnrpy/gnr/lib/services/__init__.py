@@ -197,6 +197,8 @@ class BaseServiceType(object):
         with self.site.register.globalStore() as gs:
             cache_key = 'globalServices_lastTS.%s_%s' %(self.service_type,service_name)
             lastTS = gs.getItem(cache_key)
+            if service and not hasattr(service,'_service_creation_ts'):
+                print 'service_name',service_name,self.service_type
             if service is None or (lastTS and service._service_creation_ts<lastTS):
                 service = self.addService(service_name, **kwargs)
                 service._service_creation_ts = datetime.now()
