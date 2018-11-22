@@ -229,12 +229,16 @@ class Service(StorageService):
     def url(self, *args , **kwargs):
         _content_disposition = kwargs.get('_content_disposition') or 'inline'
         internal_path = self.internal_path(*args)
+        print internal_path
         _content_type = mimetypes.guess_type(internal_path)[0]
+        print _content_type
         expiration = kwargs.pop('expiration', self.url_expiration)
+        params={'Bucket': self.bucket,'Key': internal_path,
+                'ResponseContentDisposition':_content_disposition}
+        if _content_type:
+            params['ResponseContentType'] = _content_type
         return self._client.generate_presigned_url('get_object',
-            Params={'Bucket': self.bucket,'Key': internal_path,
-                'ResponseContentDisposition':_content_disposition,
-                'ResponseContentType':_content_type},
+            Params=params,
             ExpiresIn=expiration)
 
     def upload_url(self, *args, **kwargs):
@@ -317,14 +321,17 @@ class ServiceParameters(BaseComponent):
                         selected_url='=#WORKSPACE.selected_url')
 
         center.dataRpc('#WORKSPACE.store',self.getStorageRes,
-                    selected_url='#WORKSPACE.selected_url',
                     storage_name='^#FORM.record.service_name',_if='storage_name',
-                    _else='return new gnr.GnrBag();')
-        center.center.contentPane(overflow='auto').div(margin='2px').tree(storepath='#WORKSPACE.store', hideValues=True)
+                    _else='return new gnr.GnrBag();',_onBuilt=10)
+        center.center.contentPane(overflow='auto').div(margin='2px').tree(storepath='#WORKSPACE.store',
+                        selected_url='#WORKSPACE.selected_url',
+                        selectedLabelClass='selectedTreeNode',
+                         hideValues=True)
+        center.bottom.div('^#WORKSPACE.selected_url',_class='selectable',height='30px',border_top='1px solid silver')
 
     @public_method
     def getStorageRes(self,storage_name=None):
         result = Bag()
-        result.setItem('root',StorageResolver('%s:' %storage_name,cacheTime=10,
+        result.setItem('root',StorageResolver('%s:' %storage_name,cacheTime=100,
                                                 dropext=True,readOnly=False, _page=self)())
         return result
