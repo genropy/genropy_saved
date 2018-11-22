@@ -312,7 +312,7 @@ class ServiceParameters(BaseComponent):
         fb.textbox(value='^.region_name',lbl='Region Name')
 
         center = bc.roundedGroupFrame(title='Storage tree',region='center',_workspace=True,nodeId='storage_tree_aws')
-        bar = center.top.replaceSlots('#','#,*,downloadSelected,2')
+        bar = center.top.bar.replaceSlots('#','#,*,downloadSelected,2')
         bar.downloadSelected.slotButton('Download selected',action='FIRE gnr.downloadurl = selected_url',
                         selected_url='=#WORKSPACE.selected_url')
 
