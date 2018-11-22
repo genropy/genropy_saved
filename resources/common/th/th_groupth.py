@@ -276,7 +276,7 @@ class TableHandlerGroupBy(BaseComponent):
         for v in struct['#0.#0'].digest('#a'):
             if v['field'] =='_grp_count' or v.get('calculated'):
                 continue
-            col = v['queryfield'] or v['field']
+            col = v.get('queryfield') or v['field']
             if not col.startswith('@'):
                 col = '$%s' %col
             dtype = v.get('dtype')
