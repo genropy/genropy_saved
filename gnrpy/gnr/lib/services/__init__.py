@@ -102,7 +102,6 @@ class BaseServiceType(object):
         service_conf = service_conf or {}
         service = service_factory(self.site,**service_conf)
         service.service_name = service_name
-        service._service_creation_ts = datetime.now()
         self.service_instances[service_name] = service
         return service
 
@@ -200,7 +199,9 @@ class BaseServiceType(object):
             lastTS = gs.getItem(cache_key)
             if service is None or (lastTS and service._service_creation_ts<lastTS):
                 service = self.addService(service_name, **kwargs)
-                gs.setItem(cache_key,service._service_creation_ts)
+                if service:
+                    service._service_creation_ts = datetime.now()
+                    gs.setItem(cache_key,service._service_creation_ts)
         return service
 
 
