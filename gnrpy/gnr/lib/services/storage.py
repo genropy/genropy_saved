@@ -622,7 +622,7 @@ class StorageResolver(BagResolver):
                 m=re.match(r'(\d+) (.*)',caption)
                 caption = '!!%s %s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else caption.capitalize()
                 nodeattr = dict(file_name=fname, file_ext=ext, storage=storagenode.service.service_name,
-                               abs_path=fullpath, mtime=mtime, nodecaption=nodecaption,
+                               abs_path=fullpath,url=storagenode.url, mtime=mtime, nodecaption=nodecaption,
                                caption=caption,size=size)
                 if self.callback:
                     cbres = self.callback(nodeattr=nodeattr)

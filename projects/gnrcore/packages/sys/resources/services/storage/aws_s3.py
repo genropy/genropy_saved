@@ -311,11 +311,16 @@ class ServiceParameters(BaseComponent):
         fb.textbox(value='^.aws_secret_access_key',lbl='Aws Secret Access Key')
         fb.textbox(value='^.region_name',lbl='Region Name')
 
-        center = bc.contentPane(region='center',_workspace=True,nodeId='storage_tree_aws')
+        center = bc.roundedGroupFrame(title='Storage tree',region='center',_workspace=True,nodeId='storage_tree_aws')
+        bar = center.top.replaceSlots('#','#,*,downloadSelected,2')
+        bar.downloadSelected.slotButton('Download selected',action='FIRE gnr.downloadurl = selected_url',
+                        selected_url='=#WORKSPACE.selected_url')
+
         center.dataRpc('#WORKSPACE.store',self.getStorageRes,
+                    selected_url='#WORKSPACE.selected_url',
                     storage_name='^#FORM.record.service_name',_if='storage_name',
                     _else='return new gnr.GnrBag();')
-        center.tree(storepath='#WORKSPACE.store', hideValues=True)
+        center.center.contentPane(overflow='auto').div(margin='2px').tree(storepath='#WORKSPACE.store', hideValues=True)
 
     @public_method
     def getStorageRes(self,storage_name=None):
