@@ -959,6 +959,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             if(isNullOrBlank(attrval) && item.attr._record){
                 attrval = item.attr._record[sel];
             }
+            attributes = objectNotEmpty(attributes)?attributes:null;
             setterNode.setRelativeData(path,attrval , attributes, null, reason);
         }
         if(this.sourceNode.attr.onSelectedFire){
