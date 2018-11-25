@@ -668,7 +668,7 @@ class MultiButtonForm(BaseComponent):
             columnslist.append(store_kwargs['order_by'])
         store_kwargs['columns'] = ','.join(columnslist)
         mb.store(table=table,condition=condition,**store_kwargs)
-        frame.dataController("SET .store = new gnr.GnrBag();",formsubscribe_onLoading=True)
+        #frame.dataController("SET .store = new gnr.GnrBag();",formsubscribe_onLoading=True) #it should be done by store itself
         frame.multiButtonView = mb
         return frame
 
