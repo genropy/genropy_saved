@@ -1038,23 +1038,23 @@ class DbStoresHandler(object):
         if self.config_folder and os.path.isdir(self.config_folder):
             self.config = Bag(self.config_folder)['#0'] or Bag()
             
-    def save_config(self):
+    def save_config(self,stores=None):
         """TODO"""
-        config = self.config.digest('#a.file_name,#v.#0?#')
-        try:
-            if os.path.isdir(self.config_folder):
-                config_files = os.listdir(self.config_folder)
-                for config_file in config_files:
-                    filepath = os.path.join(self.config_folder, config_file)
-                    if os.path.isfile(filepath):
-                        os.remove(filepath)
-        except OSError:
-            pass
-        for name, params in config:
-            dbstore_config = Bag()
-            dbstore_config.setItem('db', None, **params)
-            dbstore_config.toXml(os.path.join(self.config_folder, '%s.xml' % name), autocreate=True)
-            
+        if not stores:
+            try:
+                if os.path.isdir(self.config_folder):
+                    config_files = os.listdir(self.config_folder)
+                    for config_file in config_files:
+                        filepath = os.path.join(self.config_folder, config_file)
+                        if os.path.isfile(filepath):
+                            os.remove(filepath)
+            except OSError:
+                pass
+        for n in self.config:
+            name = n.attr['file_name']
+            if not stores or name in stores:
+                n.value.toXml(os.path.join(self.config_folder, '%s.xml' % name), autocreate=True)
+
     def create_stores(self, check=False):
         """TODO"""
         for name in self.config.digest('#a.file_name'):
@@ -1065,13 +1065,18 @@ class DbStoresHandler(object):
         
         :param storename: TODO
         :param check: TODO"""
-        attr = dbattr or self.config.getAttr('%s_xml.db' % storename)
+        node = self.config.getNode('%s_xml.db' % storename)
+        attr = dbattr or node.attr
+        nosync_tables = []
+        if node and node.value and node.value['nosync']:
+            nosync_tables = [tablename for tablename in node.value['nosync'].digest('#a.tablename')]
         self.dbstores[storename] = dict(database=attr.get('dbname', storename),
                                         host=attr.get('host', self.db.host), user=attr.get('user', self.db.user),
                                         password=attr.get('password', self.db.password),
                                         port=attr.get('port', self.db.port),
                                         remote_host=attr.get('remote_host'),
-                                        remote_port=attr.get('remote_port'))
+                                        remote_port=attr.get('remote_port'),
+                                        nosync_tables=nosync_tables)
         if check:
             self.dbstore_align(storename)
             
@@ -1089,7 +1094,7 @@ class DbStoresHandler(object):
         self.save_config()
         
         
-    def add_dbstore_config(self, storename, dbname=None, host=None, user=None, password=None, port=None, save=True):
+    def add_dbstore_config(self, storename, dbname=None, host=None, user=None, password=None, port=None, save=True,nosync=None):
         """TODO
         
         :param storename: TODO
@@ -1100,10 +1105,11 @@ class DbStoresHandler(object):
         :param port: TODO
         :param save: TODO"""
         self.config.setItem('%s_xml' % storename, None, file_name=storename)
-        self.config.setItem('%s_xml.db' % storename, None, dbname=dbname, host=host, user=user, password=password,
+        content = Bag(dict(nosync=nosync)) if nosync else None
+        self.config.setItem('%s_xml.db' % storename, content, dbname=dbname, host=host, user=user, password=password,
                             port=port)
         if save:
-            self.save_config()
+            self.save_config(stores=[storename])
             self.load_config()
             self.add_store(storename, check=True)
             

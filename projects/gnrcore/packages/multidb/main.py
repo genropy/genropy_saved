@@ -485,7 +485,7 @@ class MultidbTable(object):
             store = self.multidb_getForcedStore(record)
             return [store] if store else []
         elif self.multidb == '*' or record.get('__multidb_default_subscribed'):
-            return self.db.dbstores.keys()
+            return self.getStoresToSync()
         elif multidb is True:
             tablename = self.fullname
             tblsub = self.db.table('multidb.subscription')
@@ -509,6 +509,10 @@ class MultidbTable(object):
                     parentSubscribedStores = set(relatedTable.getSubscribedStores(parentRecord))
                     subscribedStores = subscribedStores.intersection(parentSubscribedStores)
             return list(subscribedStores) if do_sync else []
+        
+    def getStoresToSync(self):
+        return [k for k,v in self.db.stores.items() if self.fullname not in v['nosync_tables']]
+
     
 
     def multidbSubscribe(self,pkey,dbstore=None):

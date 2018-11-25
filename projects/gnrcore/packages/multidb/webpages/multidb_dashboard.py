@@ -5,6 +5,7 @@
 # --------------------------- GnrWebPage subclass ---------------------------
 from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrbag import Bag
+from gnrpkg.multidb.utility import getSyncTables
 import os
 
 
@@ -45,6 +46,7 @@ class GnrCustomWebPage(object):
         fb.button('!!Total sync',
                     hidden='^.multidb_mode?=#v!="complete"',
                     fire='.sync_again')
+        fb.checkbox(value='^.show_always',label='Show always')
         fb.dataRpc('dummy',self.syncAgain,insync_table='=.sync_table',
                     insync_store='=.dbstore',
                     _fired='^.sync_again',
@@ -73,6 +75,7 @@ class GnrCustomWebPage(object):
                                 th_configurable=True,
                                 th_condition='==multidb_mode=="complete"?null:"$pkey IN :subscribed_pkeys"',
                                 th_view_store_multidb_mode ='=main.multidb_mode',
+                                th_view_store_apply_showalways='^main.show_always',
                                 th_condition_subscribed_pkeys='=main.subscribed_pkeys',
                                 nodeId='rootStore',_fired='^main.load_th')
 
@@ -82,6 +85,9 @@ class GnrCustomWebPage(object):
                                  th_view_store_applymethod='checksync_extstore',
                                 th_view_store_currentDbstore='=main.dbstore',
                                 th_view_store_forced_dbstore=True,
+                                
+                                th_view_store_apply_showalways='^main.show_always',
+
                                 th_view_grid_selected__differences='main.selectedrow.differences',
                                 th_view_grid_selected__linked_records='main.selectedrow.linked_records',
                                 th_delrow=True,
@@ -128,15 +134,15 @@ class GnrCustomWebPage(object):
         return Bag()
 
     @public_method
-    def checksync_mainstore(self,selection=None,**kwargs):
-        self._checksync(selection,'main')
+    def checksync_mainstore(self,selection=None,showalways=None,**kwargs):
+        self._checksync(selection,'main',showalways=showalways)
 
     @public_method
-    def checksync_extstore(self,selection=None,**kwargs):
-        self._checksync(selection,'ext')
+    def checksync_extstore(self,selection=None,showalways=None,**kwargs):
+        self._checksync(selection,'ext',showalways=showalways)
 
 
-    def _checksync(self,selection,storemode):
+    def _checksync(self,selection,storemode,showalways=None):
         currentSync = self.pageStore().getItem('currentSync')
         dbtable = selection.dbtable
         def cb(row):
@@ -144,7 +150,7 @@ class GnrCustomWebPage(object):
             if not sync_value:
                 sync_value = 'missing'
             if sync_value == 'equal':
-                return
+                return dict() if showalways else None
             if storemode=='main':
                 return dict()
             differences = None
@@ -169,16 +175,7 @@ class GnrCustomWebPage(object):
             return result,dict(columns='tablename,multidb',headers='Table,Multidb')
         if _querystring:
             _querystring = _querystring.replace('*','')
-
-        for pkgobj in self.db.packages.values():
-            for tableobj in pkgobj.tables.values():
-                tblattr = tableobj.attributes
-                caption = tableobj.fullname
-                if tblattr.get('multidb') and _querystring in caption:
-                    result.setItem('%s_%s' %(pkgobj.id,tableobj.name),None,caption=caption,
-                        multidb='complete' if tblattr['multidb']=='*' else 'partial',
-                        tablename=caption,
-                        _pkey=caption)
+        result = getSyncTables(self.db,_querystring)
         return result,dict(columns='tablename,multidb',headers='Table,Multidb')
 
     @public_method
