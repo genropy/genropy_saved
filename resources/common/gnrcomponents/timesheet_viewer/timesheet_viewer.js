@@ -423,10 +423,24 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         var minute_height = this.minute_height;
         sourceNode.freeze().clearValue();
         var header_container = sourceNode._('div',{background:'gray',position:'absolute',top:'0',left:'0',right:'0',height:'20px'});
-        var header = header_container._('div',{background:'gray',color:'white',_class:'header_wd',position:'absolute',top:'0',left:'0',right:'0',bottom:'0',left:'40px'})
+        var headerNodeId = this.frameCode+'_day_viewer_header';
+        var time_size = 40;
+        var header = header_container._('div',{background:'gray',color:'white',_class:'header_wd',nodeId:headerNodeId,
+                                                position:'absolute',top:'0',left:'0',right:'0',bottom:'0','left':'40px'})
         var container = sourceNode._('div','slotContainer',{background:'whitesmoke',
-                                        position:'absolute',top:'20px',left:'0',right:'0',bottom:'0',overflow:'auto'});
-        var tbox = container._('div',{position:'absolute',top:'-6px',left:'0',width:'40px',bottom:0,z_index:20});
+                                        position:'absolute',top:'20px',
+                                        left:'0',right:'0',bottom:'0',
+                                        onCreated:function(){
+                                            genro.dom.setEventListener(this.domNode,'scroll',function(e){
+                                                var hdn = genro.nodeById(headerNodeId).domNode;
+                                                hdn.style.left = (time_size-e.target.scrollLeft)+'px';
+                                            });
+                                        },
+                                        overflow:'auto'});
+       
+
+
+        var tbox = container._('div',{position:'absolute',top:'-6px',left:'0',width:time_size+'px',bottom:0,z_index:20});
         var that = this;
         var action = function(sn,editActivity){
                             if(sn.attr._cal_attr){
@@ -436,7 +450,7 @@ dojo.declare('gnr.TimesheetViewerController',null,{
                             }
                         }
         
-        var box = container._('div','slotBox',{position:'absolute',top:'0',left:'40px',right:0,bottom:0,
+        var box = container._('div','slotBox',{position:'absolute',top:'0',left:time_size+'px',right:0,bottom:0,
                                     dropTypes:'eventSlot',
                                     connect_ondblclick:function(e){
                                         var sn = genro.dom.getBaseSourceNode(e.target);
