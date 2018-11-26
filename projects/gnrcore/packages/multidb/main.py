@@ -511,7 +511,7 @@ class MultidbTable(object):
             return list(subscribedStores) if do_sync else []
         
     def getStoresToSync(self):
-        return [k for k,v in self.db.stores.items() if self.fullname not in v['nosync_tables']]
+        return [k for k,v in self.db.dbstores.items() if self.fullname not in v['nosync_tables']]
 
     
 
