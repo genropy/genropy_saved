@@ -133,6 +133,11 @@ class SqlDbAdapter(object):
         @param name: db name
         """
         raise NotImplementedException()
+    
+    def importRemoteDb(self, source_dbname,source_ssh_host=None,source_ssh_user=None,
+                                source_ssh_dbuser=None,source_ssh_dbpassword=None,
+                                source_ssh_dbhost=None,dest_dbname=None):
+        raise NotImplementedException()
 
     def defaultMainSchema(self):
         """-- IMPLEMENT THIS --
