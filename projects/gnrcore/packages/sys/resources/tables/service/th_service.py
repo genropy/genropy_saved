@@ -15,7 +15,7 @@ class View(BaseComponent):
         r.fieldcell('service_type')
         r.fieldcell('implementation')
         r.fieldcell('parameters',width='40em')
-        r.fieldcell('extrainfo',width='30em')
+        #r.fieldcell('extrainfo',width='30em')
 
     def th_order(self):
         return 'service_identifier'
@@ -37,6 +37,8 @@ class Form(BaseComponent):
         fb.field('service_type',disabled=True)
         fb.field('implementation',disabled=True)
         fb.field('service_name',colspan=2,validate_notnull=True,width='100%',disabled=True)
+        fb.field('daemon',colspan=1,width='100%')
+        fb.field('disabled',colspan=1,width='100%')
 
         center = bc.roundedGroupFrame(title='Parameters',region='center')
         center.center.contentPane().remote(self.buildServiceParameters,service_type='=.service_type',implementation='=.implementation',

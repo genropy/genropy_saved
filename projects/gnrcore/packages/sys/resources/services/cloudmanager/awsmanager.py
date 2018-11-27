@@ -40,6 +40,14 @@ class Service(CloudManager):
     def get_s3_policy(self, bucket=None, folder=None):
         return self.aws_manager.S3.get_s3_policy(bucket=bucket, folder=folder)
 
+    def get_sqs_policy(self, queue_name=None, full_access=None):
+        return self.aws_manager.SQS.get_sqs_policy(queue_name=queue_name, full_access=full_access)
+
+    def allow_sqs_queue_for_user(self, username=None, queue_name=None, full_access=None):
+        policy = self.get_sqs_policy(queue_name=queue_name, full_access=full_access)
+        self.put_user_policy(username=username, policyname='sqs_policy_%s_%s'%(username, queue_name),
+            policydocument=policy)
+
     def create_s3_for_user(self, username=None, bucket=None, region=None):
         return self.aws_manager.S3.create_s3_for_user(username=username,
             bucket=bucket, region=region)

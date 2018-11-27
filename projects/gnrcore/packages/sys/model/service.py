@@ -16,7 +16,9 @@ class Table(object):
         tbl.column('service_name', size=':30', name_long='!!Service name') #service_name
         tbl.column('implementation', name_long='!!Implementation')
         tbl.column('parameters', dtype='X', name_long='!!Parameters')
-        tbl.column('extrainfo', dtype='X', name_long='!!Extra info')
+        tbl.column('daemon', dtype='B', name_long='!!Daemon')
+        tbl.column('disabled', dtype='B', name_long='!!Disabled')
+
 
     @public_method
     def getAvailableServiceTree(self):
@@ -57,6 +59,7 @@ class Table(object):
         if site:
             with site.register.globalStore() as gs:
                 gs.setItem('globalServices_lastTS.%(service_identifier)s' %record,datetime.now())
+            site.register.reload_services()
 
 
     def trigger_onUpdated(self,record,old_record=None):

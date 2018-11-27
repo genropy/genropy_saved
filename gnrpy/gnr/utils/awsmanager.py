@@ -1,7 +1,7 @@
 import boto3
 import json
 import inspect
-
+import botocore
 import sys
 
 
@@ -124,6 +124,54 @@ class BaseAwsService(object):
     @property
     def ELBV2(self):
         return self.service('elbv2')
+
+    @property
+    def SQS(self):
+        return self.service('sqs')
+
+class SQSManager(BaseAwsService):
+    service_label = 'sqs'
+
+    def create_queue(self, queue_name):
+        sqs = self.resource
+        sqs.create_queue(QueueName=queue_name, Attributes={'DelaySeconds': '5'})
+
+    def queue_by_name(self, queue_name):
+        try:
+            return self.resource.get_queue_by_name(QueueName=queue_name)
+        except botocore.exceptions.ClientError as e:
+            if not e.response['Error']['Code']=='AWS.SimpleQueueService.NonExistentQueue':
+                raise
+
+
+    def queue_arn_by_name(self, queue_name):
+        queue = self.queue_by_name(queue_name)
+        if queue:
+            return queue.attributes.get('QueueArn')
+        
+    def queue_url_by_name(self, queue_name):
+        queue = self.queue_by_name(queue_name)
+        if queue:
+            return queue.url
+
+    def get_sqs_policy(self, queue_name=None, full_access=None):
+        queue_arn = self.queue_arn_by_name(queue_name)
+        policy = { 'Version' : '2012-10-17'}
+        if full_access:
+            action = ["sqs:*"]
+        else:
+            action = [
+                "sqs:DeleteMessage",
+                "sqs:GetQueueUrl",
+                "sqs:ListDeadLetterSourceQueues",
+                "sqs:ReceiveMessage",
+                "sqs:GetQueueAttributes",
+                "sqs:ListQueueTags"
+            ]
+        policy['Statement'] = [{'Sid' : 'AwsQueueAllow%s'%queue_name, 
+                'Effect': 'Allow', 'Action': action, 
+                'Resource': queue_arn}]
+        return json.dumps(policy, indent=2)
 
 class EC2Manager(BaseAwsService):
     service_label = 'ec2'
