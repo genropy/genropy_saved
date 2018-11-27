@@ -92,7 +92,7 @@ class RecordUpdater(object):
                 elif self.insertMode:
                     self.tblobj.raw_insert(self.record)
                 else:
-                    self.tblobj.raw_update(self.record,self.oldrecord)
+                    self.tblobj.raw_update(self.record,self.oldrecord,pkey=self.pkey)
             else:
                 if self.record.get(self.tblobj.pkey) is False:
                     if not self.insertMode:
@@ -1311,6 +1311,9 @@ class SqlTable(GnrObject):
 
     def raw_update(self,record=None,old_record=None,pkey=None,**kwargs):
         self.db.raw_update(self, record,old_record=old_record,pkey=pkey,**kwargs)
+    
+    def changePrimaryKeyValue(self, pkey=None,newpkey=None,**kwargs):
+        self.db.adapter.changePrimaryKeyValue(self,pkey=pkey,newpkey=newpkey)
 
     def delete(self, record, **kwargs):
         """Delete a single record from this table.

@@ -267,6 +267,30 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                                         stdin=ps.stdout)
         ps.wait()
 
+
+    def listRemoteDatabases(self,source_ssh_host=None,source_ssh_user=None,
+                                source_dbuser=None,source_dbpassword=None,
+                                source_dbhost=None,source_dbport=None):
+        import subprocess
+        srcdb = dict(user=source_dbuser or 'postgres',
+                        password=source_dbpassword or 'postgres',
+                        host = source_dbhost or 'localhost',
+                        port = source_dbport or '5432')
+        ps = subprocess.Popen((
+            'ssh','%s@%s' %(source_ssh_user,source_ssh_host),
+            '-C', 'psql','-l','-t', "user=%(user)s password=%(password)s host=%(host)s port=%(port)s" %srcdb
+            ),stdout=subprocess.PIPE)
+        res = ps.stdout.read()
+        ps.wait()
+        result = []
+        if not res:
+            return []
+        for dbr in res.split('\n'):
+            dbname = dbr.split('|')[0].strip()
+            if dbname:
+                result.append(dbname)
+        return result
+
     
     def createTableAs(self, sqltable, query, sqlparams):
         self.dbroot.execute("CREATE TABLE %s WITH OIDS AS %s;" % (sqltable, query), sqlparams)

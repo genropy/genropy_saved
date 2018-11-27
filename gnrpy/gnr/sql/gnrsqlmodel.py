@@ -531,7 +531,7 @@ class DbModelSrc(GnrStructData):
         
     def relation(self, related_column, mode='relation', one_name=None,
                  many_name=None, eager_one=None, eager_many=None, one_one=None, child=None,
-                 one_group=None, many_group=None, onUpdate=None, onUpdate_sql=None, onDelete=None,
+                 one_group=None, many_group=None, onUpdate=None, onUpdate_sql='cascade', onDelete=None,
                  onDelete_sql=None, deferred=None, relation_name=None, **kwargs):
         """Add a relation between two :ref:`tables <table>`. This relation can be traveled in the
         direct direction (check the :ref:`relation` section) or in the inverse direction
