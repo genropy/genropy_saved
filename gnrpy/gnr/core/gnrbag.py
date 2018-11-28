@@ -68,7 +68,6 @@ import os.path
 import logging
 import sys
 import re
-
 gnrlogger = logging.getLogger(__name__)
 
 
@@ -104,7 +103,7 @@ class BagNode(object):
     * *attributes*: dictionary that contains node's metadata"""
 
     def __init__(self, parentbag, label, value=None, attr=None, resolver=None,
-                 validators=None, _removeNullAttributes=True):
+                 validators=None, _removeNullAttributes=True,_attributes=None):
         self.label = label
         self.locked = False
         self._value = None
@@ -112,6 +111,10 @@ class BagNode(object):
         self.parentbag = parentbag
         self._node_subscribers = {}
         self._validators = None
+        if _attributes:
+            self.attr = _attributes
+            self._value = value
+            return
         self.attr = {}
         if attr:
             self.setAttr(attr, trigger=False, _removeNullAttributes=_removeNullAttributes)
@@ -1406,6 +1409,13 @@ class Bag(GnrObject):
                 d[k] = v.asDictDeeply(ascii=ascii, lower=lower)
         return d
 
+    def appendNode(self,label,value,_attributes=None,_removeNullAttributes=None,**kwargs):
+        attr = dict(_attributes or {})
+        attr.update(kwargs)
+        n = BagNode(self, label=label, value=value,attr=attr,_removeNullAttributes=_removeNullAttributes)
+        self._nodes.append(n)
+        return n
+
     #-------------------- addItem --------------------------------
     def addItem(self, item_path, item_value, _attributes=None, _position=">", _validators=None, **kwargs):
         """Add an item to the current Bag using a path in the form "label1.label2. ... .labelN", returning the current Bag.
@@ -1571,8 +1581,8 @@ class Bag(GnrObject):
             value = None
             if resolver.attributes:
                 _attributes = dict(_attributes or ()).update(resolver.attributes)
-        i = self._index(label)
-        if i < 0 or _duplicate:
+        i =  -1 if _duplicate else self._index(label)
+        if i < 0 :
             if label.startswith('#'):
                 raise BagException('Not existing index in #n syntax')
             else:
@@ -1580,7 +1590,6 @@ class Bag(GnrObject):
                                   resolver=resolver, validators=_validators,
                                   _removeNullAttributes=_removeNullAttributes)
                 self._insertNode(bagnode, _position,_reason=_reason)
-
         else:
             node = self._nodes[i]
             if resolver != None:

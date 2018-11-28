@@ -1141,7 +1141,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                     attributes[k] = "%s::X" %v
             if attributes and '__value__' in attributes:
                 value = attributes.pop('__value__')
-            result.setItem(row_key, value, **kw)
+            result.appendNode(row_key, value, **kw)
         return result
     
     @public_method
