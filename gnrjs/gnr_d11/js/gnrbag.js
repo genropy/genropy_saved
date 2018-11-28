@@ -1781,8 +1781,8 @@ dojo.declare("gnr.GnrBag", null, {
             }
         }
 
-        var i = this.index(label);
-        if (i < 0 || _duplicate) {
+        var i = _duplicate?-1:this.index(label);
+        if (i < 0) {
             if ((label != '#id') && (label[0] == '#')) {
                 //raise BagException ('Not existing index in #n syntax')
                 return null;
