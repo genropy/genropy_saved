@@ -170,7 +170,7 @@ class GnrDboPackage(object):
             for r in records:
                 if r[pkeyField] in currentRecords:
                     continue
-                if hasSysCode and r['__syscode'] in currentSysCodes:
+                if hasSysCode and r.get('__syscode') in currentSysCodes:
                     continue
                 recordsToInsert.append(r)
             if recordsToInsert:
