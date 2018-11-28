@@ -1811,7 +1811,7 @@ class SqlSelection(object):
         b = Bag()
         headers = Bag()
         for k in self.columns:
-            headers.setItem(k, None, _attributes=self.colAttrs.get(k, {}))
+            headers.addItem(k, None, _attributes=self.colAttrs.get(k, {}))
         b['headers'] = headers
         b['rows'] = self.buildAsBag(outsource, recordResolver)
         return b
@@ -1839,7 +1839,7 @@ class SqlSelection(object):
             #else:
             #nodecaption = mask % tuple([v for k,v in cols])
             
-            result.setItem('%s' % spkey, row, nodecaption=nodecaption)
+            result.addItem('%s' % spkey, row, nodecaption=nodecaption)
             if pkey and recordResolver:
                 result['%s._' % spkey] = SqlRelatedRecordResolver(db=self.db, cacheTime=-1, mode='bag',
                                                                   target_fld='%s.%s' % (defaultTable, self.dbtable.pkey),
@@ -1859,7 +1859,7 @@ class SqlSelection(object):
         for j, row in enumerate(outsource):
             row = dict(row)
             content = self.dbtable.buildrecord(row)
-            result.setItem('r_%i' % j, content, _pkey=row.get('pkey'))
+            result.addItem('r_%i' % j, content, _pkey=row.get('pkey'))
         return result
         
     def out_baglist(self, outsource, recordResolver=False, labelIsPkey=False):
@@ -1882,7 +1882,7 @@ class SqlSelection(object):
                     content[k] = Bag(content[k])
             if pkey is not None:
                 content['_pkey'] = pkey
-            result.setItem(label,content , _pkey=pkey)
+            result.addItem(label,content , _pkey=pkey)
         return result
         
     def out_selection(self, outsource, recordResolver=False, caption=False):
@@ -1912,7 +1912,7 @@ class SqlSelection(object):
                 else:
                     rowcaption = None
                 row['caption'] = self.dbtable.recordCaption(row, rowcaption=rowcaption)
-            result.setItem('%s' % spkey, content,
+            result.addItem('%s' % spkey, content,
                            _pkey=pkey, _attributes=row, _removeNullAttributes=False)
         return result
             
