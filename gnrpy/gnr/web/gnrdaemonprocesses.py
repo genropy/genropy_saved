@@ -181,8 +181,8 @@ class GnrDaemonServiceManager(object):
     @property
     def site(self):
         if not hasattr(self, '_site'):
-            from gnr.web.gnrwsgisite import GnrDaemonSite
-            self._site = GnrDaemonSite(self.sitename, noclean=True)
+            from gnr.web.gnrwsgisite import GnrWsgiSite
+            self._site = GnrWsgiSite(self.sitename, noclean=True)
         return self._site
 
     def terminate(self):
