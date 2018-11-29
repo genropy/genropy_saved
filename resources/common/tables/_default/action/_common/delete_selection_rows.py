@@ -4,14 +4,14 @@
 # Created by Francesco Porcari on 2010-07-02.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
-from gnr.web.batch.btcexport import BaseResourceExport
+from gnr.web.batch.btcaction import BaseResourceAction
 
 caption = '!!Delete selection rows'
 tags = 'superadmin'
 permissions = 'del'
 description = '!!Delete selection rows'
 
-class Main(BaseResourceExport):
+class Main(BaseResourceAction):
     batch_prefix = 'delete'
     batch_title = 'Delete selection rows'
     batch_cancellable = False
