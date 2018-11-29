@@ -6821,7 +6821,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         var kw = {'table':selectionKw.table,selectionName:selectionKw.selectionName,caption_field:caption_field}
 
 
-        genro.rpc.remoteCall('app.freezedSelectionPkeys', 
+        return genro.rpc.remoteCall('app.freezedSelectionPkeys', 
                                             kw,null,null,null,
                                          function(result){
                                              return result || [];
