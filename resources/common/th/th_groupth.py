@@ -91,7 +91,7 @@ class TableHandlerGroupBy(BaseComponent):
         frame.dataRemote('.dashboardsMenu',self.thg_dashboardsMenu,cacheTime=5,table=table,
                             rootNodeId=rootNodeId,_fired='^.refreshDashboardsMenu')
         configuratorSlot = 'configuratorPalette' if configurable else '2'
-        bar = frame.top.slotToolbar('5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,searchOn,viewsMenu,%s,chartjs,export,dashboardsMenu,5' %configuratorSlot,
+        bar = frame.top.slotToolbar('5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,searchOn,count,viewsMenu,%s,chartjs,export,dashboardsMenu,5' %configuratorSlot,
                                     dashboardsMenu_linkedTo=linkedTo,
                                     stackButtons_stackNodeId=frameCode)
         bar.ctitle.div(title,color='#444',font_weight='bold')
@@ -336,7 +336,7 @@ class TableHandlerGroupBy(BaseComponent):
         group_list_keys = [c.replace('@','_').replace('.','_').replace('$','_') for c in group_list]
         def cb(row):
             resdict = {}
-            resdict['_thgroup_pkey'] = '|'.join([(row.get(c) or '_') for c in group_list_keys])
+            resdict['_thgroup_pkey'] = '|'.join([str(row.get(c) or '_') for c in group_list_keys])
             return resdict
         selection.apply(cb)
         
