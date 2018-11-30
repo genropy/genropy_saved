@@ -24,6 +24,10 @@ class BaseResourceBatch(object):
     virtual_columns = None
     batch_local_cache = True
 
+    batch_selection_where = None
+    batch_selection_kwargs = dict()
+    batch_selection_savedQuery= None
+
     def __init__(self, page=None, resource_table=None):
         self.page = page
         self.db = self.page.db
@@ -222,18 +226,53 @@ class BaseResourceBatch(object):
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section"""
         selection = None
-        if hasattr(self,'selectionName'):
+        selection_kwargs = dict()
+        if self.batch_selection_kwargs:
+            selection_kwargs.update(self.batch_selection_kwargs) 
+        if columns:
+            selection_kwargs['columns'] = columns
+
+        if self.batch_selection_savedQuery:
+            selection = self._selection_from_savedQuery(selection_kwargs)
+
+        elif self.batch_selection_where:                
+            selection = self.tblobj.query(where=self.batch_selection_where,**selection_kwargs).selection()
+
+        elif hasattr(self,'selectionName'):
             selection = self.page.getUserSelection(selectionName=self.selectionName,
                                                     selectedRowidx=self.selectedRowidx, filterCb=self.selectionFilterCb,
-                                                    table=self.tblobj,
-                                                    sortBy=self.sortBy,
-                                                    columns=columns)
+                                                    table=self.tblobj,sortBy=self.sortBy,
+                                                    **selection_kwargs)
         elif self.selectedPkeys:
             selection = self.tblobj.query(where='$%s IN :selectedPkeys' %self.tblobj.pkey,selectedPkeys=self.selectedPkeys,
-                                            excludeDraft=False,columns=columns,
-                                            excludeLogicalDeleted=False,
-                                            ignorePartition=True).selection()
+                                            excludeDraft=False,excludeLogicalDeleted=False,
+                                            ignorePartition=True,
+                                            **selection_kwargs).selection()
         return selection
+
+    def _selection_from_savedQuery(self,selection_kwargs):
+        userobject_tbl = self.db.table('adm.userobject')
+        where = userobject_tbl.loadUserObject(userObjectIdOrCode=self.batch_selection_savedQuery, 
+                        objtype='query', tbl=self.tblobj.fullname)[0]
+        if where['where']:
+            limit = where['queryLimit']
+            customOrderBy = where['customOrderBy']
+            where = where['where']
+            self._selection_from_savedQuery_fill_parameters(where)
+            where,selection_kwargs = self.tblobj.sqlWhereFromBag(where, selection_kwargs)
+            if customOrderBy:
+                selection_kwargs['order_by'] = customOrderBy
+                selection_kwargs['limit'] = limit
+            return self.tblobj.query(where=where,**selection_kwargs).selection()
+
+    def _selection_from_savedQuery_fill_parameters(self,wherebag):
+        def fillpar(n):
+            if n.value is None and n.attr.get('value_caption','').startswith('?'):
+                bp_name = n.attr['value_caption'][1:].lower().replace(' ','_')
+                if bp_name in self.batch_parameters:
+                    n.value = self.batch_parameters[bp_name]
+        wherebag.walk(fillpar)
+
 
     def get_records(self,for_update=None,virtual_columns=None):
         """TODO"""
