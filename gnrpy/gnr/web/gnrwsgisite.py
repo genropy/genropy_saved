@@ -105,35 +105,42 @@ class UrlInfo(object):
             else:
                 self.basepath =  os.path.join(pkg_obj.packageFolder,'webpages')
             self.pkg = pkg_obj.id
+        mobilepath = None
         if self.request_kwargs.pop('_mobile',False):
-            mobilepath= self.basepath.replace('webpages','webpages_mobile')
-            if os.path.exists(mobilepath):
-                self.basepath = mobilepath
-        currpath = []
+            basepath= self.basepath.replace('webpages','webpages_mobile')
+            if os.path.exists(basepath):
+                mobilepath = basepath
         pathfile_cache = self.site.pathfile_cache
-        path_list_copy = list(path_list)
-        while path_list_copy:
-            currpath.append(path_list_copy.pop(0))
-            searchpath = os.path.splitext(os.path.join(self.basepath,*currpath))[0]
-            cached_path = pathfile_cache.get(searchpath)
-            if cached_path is None:
-                cached_path = '%s.py' %searchpath
-                if not os.path.isfile(cached_path):
-                    cached_path = False
-                pathfile_cache[searchpath] = cached_path
-            if cached_path:
-                self.relpath = cached_path
-                self.request_args = path_list_copy
+        for basepath in (mobilepath, self.basepath):
+            if not basepath:
+                continue
+            path_list_copy = list(path_list)
+            currpath = []
+            while path_list_copy:
+                currpath.append(path_list_copy.pop(0))
+                searchpath = os.path.splitext(os.path.join(basepath,*currpath))[0]
+                cached_path = pathfile_cache.get(searchpath)
+                if cached_path is None:
+                    cached_path = '%s.py' %searchpath
+                    if not os.path.isfile(cached_path):
+                        cached_path = False
+                    pathfile_cache[searchpath] = cached_path
+                if cached_path:
+                    self.relpath = cached_path
+                    self.request_args = path_list_copy
+                    self.basepath = basepath
+                    return
+            last_path = os.path.join(basepath,*path_list)
+            last_index_path = os.path.join(last_path,'index.py')
+            if os.path.isfile(last_index_path):
+                pathfile_cache[last_path] = last_index_path
+                pathfile_cache[last_index_path.replace('.py','')] = last_index_path
+                self.relpath = last_index_path
+                self.request_args = []
+                self.basepath = basepath
                 return
-        last_path = os.path.join(self.basepath,*path_list)
-        last_index_path = os.path.join(last_path,'index.py')
-        if os.path.isfile(last_index_path):
-            pathfile_cache[last_path] = last_index_path
-            pathfile_cache[last_index_path.replace('.py','')] = last_index_path
-            self.relpath = last_index_path
-            self.request_args = []
-        else:
-            self.request_args = path_list
+        self.basepath = mobilepath or self.basepath
+        self.request_args = path_list
 
 class SafeEvalException(EvalException):
     def __call__(self, environ, start_response):
@@ -169,7 +176,7 @@ class GnrWsgiSite(object):
             if self.debug:
                 self.force_debug = True
         else:
-            if self.config['wsgi?debug'] is not True and (self.config['wsgi?debug'] or '').lower()=='force':
+            if boolean(self.config['wsgi?debug']) is not True and (self.config['wsgi?debug'] or '').lower()=='force':
                 self.debug = True
                 self.force_debug = True
             else:
@@ -1453,3 +1460,13 @@ class GnrWsgiSite(object):
             return '<a href="%s" target="_blank">%s</a>' %(path,_link if _link is not True else '')
         return path
 
+class GnrDaemonSite(GnrWsgiSite):
+
+
+    def build_wsgiapp(self, options=None):
+        def callme(*args,**kwargs):
+            pass
+        return callme
+    
+    def getService(self, service_type=None,service_name=None, **kwargs):
+        return self.services_handler.getService(service_type=service_type,service_name=service_name or service_type, **kwargs)
