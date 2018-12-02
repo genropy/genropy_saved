@@ -15,16 +15,14 @@ from gnr.core.gnrdict import dictExtract
 class TableHandlerForm(BaseComponent):
     py_requires="gnrcomponents/formhandler:FormHandler,gnrcomponents/batch_handler/batch_handler:TableScriptRunner"
 
+    @extract_kwargs(dfltoption=True)
     @struct_method
     def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,formResource=None,
-                        formInIframe=False,readOnly=False,**kwargs):
+                        formInIframe=False,dfltoption_kwargs=None,**kwargs):
         table = table or pane.attributes.get('table')
         self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form') 
-        options = self._th_hook('options',mangler=frameCode,dflt=dict())()
-        options['readOnly'] = options.get('readOnly',readOnly)
-        #slots = '*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
-        #options['slots'] = options.get('slots',slots)
-        
+        options = dfltoption_kwargs
+        options.update(self._th_hook('options',mangler=frameCode,dflt=dict())())
         options.update(kwargs)
         options['store_startKey'] = options.get('store_startKey') or options.get('startKey')
         linkTo = pane        
