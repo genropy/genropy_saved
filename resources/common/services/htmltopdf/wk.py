@@ -35,7 +35,7 @@ class Service(HtmlToPdfService):
                 if v is not True:
                     args.append(str(v))
         if destPath.isdir:
-            baseName = os.path.splitext(srcPath.base_name)[0]
+            baseName = os.path.splitext(srcPath.basename)[0]
             destPath = destPath.child('%s.pdf' % baseName)
         args.append(srcPath)
         args.append(destPath)

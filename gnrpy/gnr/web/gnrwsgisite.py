@@ -1512,7 +1512,7 @@ class GnrWsgiSite(object):
                     fpath,newname = fpath
                 fpath = self.storageNode(fpath)
                 if not newname:
-                    newname = os.path.basename(fpath.base_name)
+                    newname = os.path.basename(fpath.basename)
                 with fpath.local_path(mode='r') as local_path:
                     zip_archive.write(local_path, newname)
             zip_archive.close()

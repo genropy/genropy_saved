@@ -225,8 +225,8 @@ class StorageNode(object):
         return self.service.internal_path(self.path)
 
     @property
-    def base_name(self, **kwargs):
-        return self.service.base_name(self.path)
+    def basename(self, **kwargs):
+        return self.service.basename(self.path)
 
  
 
@@ -290,12 +290,12 @@ class StorageService(GnrBaseService):
     def local_path(self, *args, **kwargs):
         pass
 
-    def base_name(self, path=None):
+    def basename(self, path=None):
         return self.split_path(path)[-1]
 
     def extension(self, path=None):
-        base_name = self.base_name(path)
-        return os.path.splitext(base_name)[-1].strip('.')
+        basename = self.basename(path)
+        return os.path.splitext(basename)[-1].strip('.')
 
     def split_path(self, path):
         return path.replace('/','\t').replace(os.path.sep,'/').replace('\t','/').split('/')
@@ -589,9 +589,9 @@ class StorageResolver(BagResolver):
         except OSError:
             directory = []
         if not self.invisible:
-            directory = [x for x in directory if not x.base_name.startswith('.')]
+            directory = [x for x in directory if not x.basename.startswith('.')]
         for storagenode in directory:
-            fname = storagenode.base_name
+            fname = storagenode.basename
             nodecaption = fname
             fullpath = storagenode.fullpath
             addIt = True

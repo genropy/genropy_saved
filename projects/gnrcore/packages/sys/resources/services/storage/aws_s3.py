@@ -268,7 +268,7 @@ class Service(StorageService):
 
     def serve(self, path, environ, start_response, download=False, download_name=None, **kwargs):
         if download or download_name:
-            download_name = download_name or self.base_name
+            download_name = download_name or self.basename
             content_disposition = "attachment; filename=%s" % download_name
         else:
             content_disposition = "inline"
