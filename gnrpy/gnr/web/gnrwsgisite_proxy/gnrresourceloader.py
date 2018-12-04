@@ -569,7 +569,7 @@ class ResourceLoader(object):
         :param ext: TODO"""
         result = Bag()
         if pkg:
-            locations = list(self.package_resourceDirs(pkg))
+            locations = list(self.package_resourceDirs(pkg,omitSiteResources=True))
         else:
             locations = page.resourceDirs
         for dpath in locations:
