@@ -405,7 +405,7 @@ class SharedObject(object):
 
     @property
     def savepath(self):
-        return self.server.gnrsite.getStaticPath(self.default_savedir,'%s.xml' %self.shared_id)
+        return self.server.gnrsite.storageNode(self.default_savedir,'%s.xml' %self.shared_id)
 
     @property
     def data(self):
@@ -433,7 +433,8 @@ class SharedObject(object):
                     self.sql_save(tblobj)
                 self.server.db.commit()
             else:
-                self.data.toXml(self.savepath,unresolved=True,autocreate=True)
+                with self.savepath.open(mode='wb') as savefile:
+                    self.data.toXml(savefile,unresolved=True,autocreate=True)
         self.changes=False
 
     @lockedThreadpool
@@ -445,8 +446,9 @@ class SharedObject(object):
                 data = handler(self.shared_id)
             else:
                 data = self.sql_load(tblobj)
-        elif os.path.exists(self.savepath):
-            data =  Bag(self.savepath)
+        elif self.savepath.exists:
+            with self.savepath.open(mode='r') as savefile:
+                data =  Bag(savefile)
         else:
             data = Bag()
         self._data['root'] = data

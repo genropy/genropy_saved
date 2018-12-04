@@ -132,9 +132,9 @@ class DocHandler(BaseComponent):
         html= ''
         title=''
         head = ''
-        path = self.site.getStaticPath(path)
-        if os.path.exists(path):
-            with open(path,'r') as f:
+        storeNode = self.site.storageNode(path)
+        if storeNode.exists:
+            with storeNode.open(mode='r') as f:
                 result = f.read()
                 m = re.search("<body>(.*)</body>", result, re.I | re.S)
                 if m:
@@ -153,11 +153,8 @@ class DocHandler(BaseComponent):
     def de_saveStoreFile(self,path=None,data=None,**kwargs):
         spath = os.path.split(path)
         title = data['title'] or spath[1]
-        path = self.site.getStaticPath(path)
-        destdir = os.path.dirname(path)
-        if not os.path.exists(destdir):
-            os.makedirs(destdir)
-        with open(path,'w') as f:
+        dest = self.site.storageNode(path, autocreate=-1)
+        with dest.open(mode='wb') as f:
             f.write(PAGEHTML %(title,data['body']))
 
     @struct_method
