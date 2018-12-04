@@ -242,8 +242,8 @@ class StorageNode(object):
     def size(self):
         return self.service.size(self.path)
 
-    def base64(self):
-        return self.service.base64(self.path)
+    def base64(self, mime=None):
+        return self.service.base64(self.path, mime=mime)
 
     def open(self, mode='rb'):
         self.service.autocreate(self.path, autocreate=-1)
@@ -330,17 +330,23 @@ class StorageService(GnrBaseService):
                 doneCb(srcNode)
 
 
-    def base64(self, *args):
+    def base64(self, *args, **kwargs):
         """Convert a file (specified by a path) into a data URI."""
         import base64
         import mimetypes
         if not self.exists(*args):
             return u''
-        mime, _ = mimetypes.guess_type(self.internal_path(*args))
+        mime = kwargs.get('mime', False)
+        if mime is True:
+            mime, _ = mimetypes.guess_type(self.internal_path(*args))
         with self.open(*args, mode='rb') as fp:
             data = fp.read()
             data64 = u''.join(base64.encodestring(data).splitlines())
-            return u'data:%s;base64,%s' % (mime, data64)
+            if mime:
+                return u'data:%s;base64,%s' % (mime, data64)
+            else:
+                return u'%s' % data64
+
 
     @property
     def location_identifier(self):
