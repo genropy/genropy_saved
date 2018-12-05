@@ -616,6 +616,7 @@ dojo.declare('gnr.GenroClient', null, {
         //this.loadPersistentData()
         this.loadContext();
         //genro.timeIt('** starting builder **');
+        genro.dom.addClass(dojo.body(),'startingPage');
         this.src.startUp(mainBagPage);
         //genro.timeIt('** end builder **');
         genro.dom.removeClass('mainWindow', 'waiting');
@@ -721,7 +722,6 @@ dojo.declare('gnr.GenroClient', null, {
 
 
         //genro.dom.preventGestureBackForward();
- 
         genro.callAfter(function() {
             if(genro.root_page_id){
                 genro._connectToParentIframe(window.frameElement);
@@ -729,7 +729,7 @@ dojo.declare('gnr.GenroClient', null, {
             genro.windowMessageListener();
             genro.fireEvent('gnr.onStart');
             genro.publish('onPageStart');
-            
+            genro.dom.removeClass(dojo.body(),'startingPage');
             genro._pageStarted = true;
         }, 100);
     },
