@@ -630,7 +630,6 @@ class StorageResolver(BagResolver):
                 nodeattr = dict(file_name=fname, file_ext=ext, storage=storagenode.service.service_name,
                                abs_path=fullpath,url=storagenode.url(), mtime=mtime, nodecaption=nodecaption,
                                caption=caption,size=size)
-                print 'nodeattr',nodeattr
                 if self.callback:
                     cbres = self.callback(nodeattr=nodeattr)
                     if cbres is False:
