@@ -1039,6 +1039,8 @@ class DbStoresHandler(object):
              
     def create_stores(self, check=False):
         """TODO"""
+        if not os.path.exists(self.config_folder):
+            return
         for filename in os.listdir(self.config_folder):
             name,ext = os.path.splitext(filename)
             if ext!='.xml':
