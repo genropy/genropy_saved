@@ -238,7 +238,7 @@ class GnrSqlDb(GnrObject):
             dbname = dbattr.pop('dbname')
             self._autoRestore_one(dbname=dbname,filepath=filepath,sqltextCb=sqltextCb,onRestored=onRestored)
             self.stores_handler.add_dbstore_config(storename,dbname=dbname,save=False,**dbattr)
-        self.stores_handler.save_config()
+        #self.stores_handler.save_config()
         if destroyFolder:
             shutil.rmtree(extractpath)
 
@@ -1029,35 +1029,21 @@ class DbStoresHandler(object):
         else:
             self.config_folder = None
         self.dbstores = {}
-        self.load_config()
         self.create_stores()
-        
-    def load_config(self):
-        """TODO"""
-        self.config = Bag()
-        if self.config_folder and os.path.isdir(self.config_folder):
-            self.config = Bag(self.config_folder)['#0'] or Bag()
-            
-    def save_config(self):
-        """TODO"""
-        config = self.config.digest('#a.file_name,#v.#0?#')
-        try:
-            if os.path.isdir(self.config_folder):
-                config_files = os.listdir(self.config_folder)
-                for config_file in config_files:
-                    filepath = os.path.join(self.config_folder, config_file)
-                    if os.path.isfile(filepath):
-                        os.remove(filepath)
-        except OSError:
-            pass
-        for name, params in config:
-            dbstore_config = Bag()
-            dbstore_config.setItem('db', None, **params)
-            dbstore_config.toXml(os.path.join(self.config_folder, '%s.xml' % name), autocreate=True)
-            
+
+    def get_dbstore(self,storename):
+        if storename in self.dbstores:
+            return self.dbstores[storename]
+        else:
+            return self.add_store(storename)
+        return
+             
     def create_stores(self, check=False):
         """TODO"""
-        for name in self.config.digest('#a.file_name'):
+        for filename in os.listdir(self.config_folder):
+            name,ext = os.path.splitext(filename)
+            if ext!='.xml':
+                continue
             self.add_store(name, check=check)
             
     def add_store(self, storename, check=False,dbattr=None):
@@ -1065,15 +1051,20 @@ class DbStoresHandler(object):
         
         :param storename: TODO
         :param check: TODO"""
-        attr = dbattr or self.config.getAttr('%s_xml.db' % storename)
-        self.dbstores[storename] = dict(database=attr.get('dbname', storename),
-                                        host=attr.get('host', self.db.host), user=attr.get('user', self.db.user),
-                                        password=attr.get('password', self.db.password),
-                                        port=attr.get('port', self.db.port),
-                                        remote_host=attr.get('remote_host'),
-                                        remote_port=attr.get('remote_port'))
+        if not dbattr:
+            storefile = os.path.join(self.config_folder,'%s.xml' %storename)
+            if not os.path.exists(storefile):
+                return
+            dbattr = Bag(os.path.join(self.config_folder,'%s.xml' %storename)).getAttr('db')
+        self.dbstores[storename] = dict(database=dbattr.get('dbname', storename),
+                                        host=dbattr.get('host', self.db.host), user=dbattr.get('user', self.db.user),
+                                        password=dbattr.get('password', self.db.password),
+                                        port=dbattr.get('port', self.db.port),
+                                        remote_host=dbattr.get('remote_host'),
+                                        remote_port=dbattr.get('remote_port'))
         if check:
             self.dbstore_align(storename)
+        return dbattr
             
     def drop_dbstore_config(self, storename):
         """TODO
@@ -1088,8 +1079,7 @@ class DbStoresHandler(object):
         self.db.dropDb(config['db?dbname'])
         self.save_config()
         
-        
-    def add_dbstore_config(self, storename, dbname=None, host=None, user=None, password=None, port=None, save=True):
+    def add_dbstore_config(self, storename, dbname=None, host=None, user=None, password=None, port=None,**kwargs):
         """TODO
         
         :param storename: TODO
@@ -1099,13 +1089,10 @@ class DbStoresHandler(object):
         :param password: the username's password
         :param port: TODO
         :param save: TODO"""
-        self.config.setItem('%s_xml' % storename, None, file_name=storename)
-        self.config.setItem('%s_xml.db' % storename, None, dbname=dbname, host=host, user=user, password=password,
-                            port=port)
-        if save:
-            self.save_config()
-            self.load_config()
-            self.add_store(storename, check=True)
+        b = Bag()
+        b.setItem('db',None,dbname=dbname, host=host, user=user, password=password,port=port)
+        b.toXml(os.path.join(self.config_folder,'%s.xml' %storename))
+        self.add_store(storename, check=True)
             
     def dbstore_check(self, storename, verbose=False):
         """checks if dbstore exists and if it needs to be aligned

@@ -910,9 +910,12 @@ class GnrWsgiSite(object):
             return
         first = path_list[0]
         instanceNode = None
+        dbstore = None
         if first.startswith('@'):
             instanceNode = self.gnrapp.config.getNode('aux_instances.%s' %first[1:])
-        if first in self.dbstores or instanceNode:
+        else:
+            dbstore = self.db.stores_handler.get_dbstore(first)
+        if dbstore or instanceNode:
             request_kwargs.setdefault('temp_dbstore',path_list.pop(0))
         temp_dbstore = request_kwargs.get('temp_dbstore')
         if temp_dbstore and temp_dbstore.startswith('@'):
