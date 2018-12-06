@@ -190,11 +190,10 @@ class StorageNode(object):
             path = '_raw_:%s'%path
         return parent.storageNode(path)
 
-    def __init__(self, parent=None, path=None, service=None, autocreate=None,
-        must_exist=False, mode='r'):
-        self.parent = parent
-        self.path = path
+    def __init__(self, parent=None, path=None, service=None, autocreate=None,must_exist=False, mode='r'):
         self.service = service
+        self.parent = parent
+        self.path = self.service.expandpath(path)
         if must_exist and not self.service.exists(self.path):
             raise NotExistingStorageNode
         self.mode = mode
@@ -219,6 +218,10 @@ class StorageNode(object):
     def listdir(self):
         if self.isdir:
             return self.service.listdir(self.path)
+    
+    def mkdir(self, *args):
+        return self.service.mkdir(self.path, *args)
+
 
     @property
     def internal_path(self, **kwargs):
@@ -251,6 +254,9 @@ class StorageNode(object):
 
     def url(self, **kwargs):
         return self.service.url(self.path, **kwargs)
+
+    def internal_url(self, **kwargs):
+        return self.service.internal_url(self.path, **kwargs)
 
     def delete(self):
         return self.service.delete(self.path)
@@ -289,6 +295,9 @@ class StorageService(GnrBaseService):
 
     def local_path(self, *args, **kwargs):
         pass
+    
+    def expandpath(self,path):
+        return path
 
     def basename(self, path=None):
         return self.split_path(path)[-1]
@@ -347,6 +356,22 @@ class StorageService(GnrBaseService):
             else:
                 return u'%s' % data64
 
+    def internal_url(self, *args, **kwargs):
+        outlist = [self.parent.external_host, '_storage', self.service_name]
+        outlist.extend(args)
+        url = '/'.join(outlist)
+        if not kwargs:
+            return url
+        nocache = kwargs.pop('nocache', None)
+        if nocache:
+            if self.exists(*args):
+                mtime = self.mtime(*args)
+            else:
+                mtime = random.random() * 100000
+            kwargs['mtime'] = '%0.0f' % (mtime)
+
+        url = '%s?%s' % (url, '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()]))
+        return url
 
     @property
     def location_identifier(self):
@@ -489,6 +514,10 @@ class BaseLocalService(StorageService):
     def makedirs(self, *args, **kwargs):
         os.makedirs(self.internal_path(*args))
 
+    def mkdir(self, *args, **kwargs):
+        if not self.exists(*args):
+            os.mkdir(self.internal_path(*args))
+
     def isdir(self, *args):
         return os.path.isdir(self.internal_path(*args))
 
@@ -504,21 +533,7 @@ class BaseLocalService(StorageService):
         shutil.copy2(sourceNode.internal_path, destNode.internal_path)
 
     def url(self, *args, **kwargs):
-        outlist = [self.parent.external_host, '_storage', self.service_name]
-        outlist.extend(args)
-        url = '/'.join(outlist)
-        if not kwargs:
-            return url
-        nocache = kwargs.pop('nocache', None)
-        if nocache:
-            if self.exists(*args):
-                mtime = self.mtime(*args)
-            else:
-                mtime = random.random() * 100000
-            kwargs['mtime'] = '%0.0f' % (mtime)
-
-        url = '%s?%s' % (url, '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()]))
-        return url
+        return self.internal_url(*args, **kwargs)
 
     def serve(self, path, environ, start_response, download=False, download_name=None, **kwargs):
         fullpath = self.internal_path(path)
@@ -629,7 +644,8 @@ class StorageResolver(BagResolver):
                 caption = '!!%s %s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else caption.capitalize()
                 nodeattr = dict(file_name=fname, file_ext=ext, storage=storagenode.service.service_name,
                                abs_path=fullpath,url=storagenode.url(), mtime=mtime, nodecaption=nodecaption,
-                               caption=caption,size=size)
+                               caption=caption,size=size, 
+                               internal_url=storagenode.internal_url())
                 if self.callback:
                     cbres = self.callback(nodeattr=nodeattr)
                     if cbres is False:

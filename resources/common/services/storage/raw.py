@@ -11,6 +11,9 @@ class Service(BaseLocalService):
 
     def __init__(self, parent=None, base_path=None,**kwargs):
         super(Service,self).__init__(parent=parent, base_path='/', **kwargs)
+    
+    def expandpath(self,path):
+        return expandpath(path)
 
     def serve(self, path, environ, start_response, download=False, download_name=None, **kwargs):
         return self.parent.not_found_exception(environ, start_response)

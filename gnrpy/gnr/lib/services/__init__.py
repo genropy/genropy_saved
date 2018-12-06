@@ -102,6 +102,7 @@ class BaseServiceType(object):
         service_conf = service_conf or {}
         service = service_factory(self.site,**service_conf)
         service.service_name = service_name
+        service.service_implementation = implementation
         self.service_instances[service_name] = service
         return service
 

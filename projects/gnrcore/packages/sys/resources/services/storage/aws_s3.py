@@ -1,5 +1,5 @@
 
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
@@ -141,6 +141,10 @@ class Service(StorageService):
     def makedirs(self, *args, **kwargs):
         pass
 
+    def mkdir(self, *args, **kwargs):
+        with self.open(*args+('.gnrdir',),mode='w') as dotfile:
+            dotfile.write('.gnrdircontent')
+
     def mtime(self, *args):
         s3 = self._client
         internalpath = self.internal_path(*args)
@@ -227,7 +231,12 @@ class Service(StorageService):
             client.delete_objects(Bucket=self.bucket, Delete=delete_us)
 
     def url(self, *args , **kwargs):
+        kwargs = kwargs or {}
         _content_disposition = kwargs.get('_content_disposition') or 'inline'
+        _download = kwargs.get('_download')
+        if _download:
+            kwargs['_content_disposition'] = "attachment; filename=%s" % self.basename(*args)
+        download_name = self.basename(*args)
         internal_path = self.internal_path(*args)
         print internal_path
         _content_type = mimetypes.guess_type(internal_path)[0]
@@ -240,6 +249,11 @@ class Service(StorageService):
         return self._client.generate_presigned_url('get_object',
             Params=params,
             ExpiresIn=expiration)
+    
+    def internal_url(self, *args, **kwargs):
+        kwargs = kwargs or {}
+        kwargs['_download'] = True
+        return super(Service, self).internal_url(*args, **kwargs)
 
     def upload_url(self, *args, **kwargs):
         internal_path = self.internal_path(*args)
@@ -268,7 +282,7 @@ class Service(StorageService):
 
     def serve(self, path, environ, start_response, download=False, download_name=None, **kwargs):
         if download or download_name:
-            download_name = download_name or self.basename
+            download_name = download_name or self.basename(path)
             content_disposition = "attachment; filename=%s" % download_name
         else:
             content_disposition = "inline"
