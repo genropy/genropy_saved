@@ -238,7 +238,6 @@ class GnrSqlDb(GnrObject):
             dbname = dbattr.pop('dbname')
             self._autoRestore_one(dbname=dbname,filepath=filepath,sqltextCb=sqltextCb,onRestored=onRestored)
             self.stores_handler.add_dbstore_config(storename,dbname=dbname,save=False,**dbattr)
-        #self.stores_handler.save_config()
         if destroyFolder:
             shutil.rmtree(extractpath)
 
@@ -1070,14 +1069,18 @@ class DbStoresHandler(object):
         """TODO
         
         :param storename: TODO"""
-        return self.config.pop('%s_xml' % storename)
+        dbstore = self.get_dbstore(storename)
+        if dbstore:
+            storefile = os.path.join(self.config_folder,'%s.xml' %storename)
+            if os.path.exists(storefile):
+                os.remove(storefile)
+        self.dbstores.pop(storename,None)
     
     def drop_store(self,storename):
-        config = self.drop_dbstore_config(storename)
-        if not config:
-            return
-        self.db.dropDb(config['db?dbname'])
-        self.save_config()
+        dbstoreattr = self.get_dbstore(storename)
+        self.db.dropDb(dbstoreattr['database'])
+        self.drop_dbstore_config(storename)
+        
         
     def add_dbstore_config(self, storename, dbname=None, host=None, user=None, password=None, port=None,**kwargs):
         """TODO
