@@ -238,9 +238,7 @@ class Service(StorageService):
             kwargs['_content_disposition'] = "attachment; filename=%s" % self.basename(*args)
         download_name = self.basename(*args)
         internal_path = self.internal_path(*args)
-        print internal_path
         _content_type = mimetypes.guess_type(internal_path)[0]
-        print _content_type
         expiration = kwargs.pop('expiration', self.url_expiration)
         params={'Bucket': self.bucket,'Key': internal_path,
                 'ResponseContentDisposition':_content_disposition}
@@ -319,7 +317,7 @@ class Service(StorageService):
         return out
 
 class ServiceParameters(BaseComponent):
-
+    py_requires = 'gnrcomponents/storagetree:StorageTree'
     def service_parameters(self,pane,datapath=None,**kwargs):
         bc = pane.borderContainer()
         fb = bc.contentPane(region='top').formbuilder(datapath=datapath)
@@ -328,24 +326,7 @@ class ServiceParameters(BaseComponent):
         fb.textbox(value='^.aws_access_key_id',lbl='Aws Access Key Id')
         fb.textbox(value='^.aws_secret_access_key',lbl='Aws Secret Access Key')
         fb.textbox(value='^.region_name',lbl='Region Name')
-
-        center = bc.roundedGroupFrame(title='Storage tree',region='center',_workspace=True,nodeId='storage_tree_aws')
-        bar = center.top.bar.replaceSlots('#','#,*,downloadSelected,2')
-        bar.downloadSelected.slotButton('Download selected',action='FIRE gnr.downloadurl = selected_url',
-                        selected_url='=#WORKSPACE.selected_url')
-
-        center.dataRpc('#WORKSPACE.store',self.getStorageRes,
-                    storage_name='^#FORM.record.service_name',_if='storage_name',
-                    _else='return new gnr.GnrBag();',_onBuilt=10)
-        center.center.contentPane(overflow='auto').div(margin='2px').tree(storepath='#WORKSPACE.store',
-                        selected_url='#WORKSPACE.selected_url',
-                        selectedLabelClass='selectedTreeNode',
-                         hideValues=True)
-        center.bottom.div('^#WORKSPACE.selected_url',_class='selectable',height='30px',border_top='1px solid silver')
-
-    @public_method
-    def getStorageRes(self,storage_name=None):
-        result = Bag()
-        result.setItem('root',StorageResolver('%s:' %storage_name,cacheTime=100,
-                                                dropext=True,readOnly=False, _page=self)())
-        return result
+        bc.storageTreeFrame(frameCode='bucketStorage',storagepath='^#FORM.record.service_name?=#v+":"',
+                                border='1px solid silver',margin='2px',rounded=4,
+                                region='center',preview_region='right',
+                                preview_border_left='1px solid silver',preview_width='50%')

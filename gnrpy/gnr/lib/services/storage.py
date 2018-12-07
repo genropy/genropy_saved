@@ -10,6 +10,8 @@ from gnr.core.gnrbag import Bag,DirectoryResolver,BagResolver
 from gnr.lib.services import GnrBaseService,BaseServiceType
 import os
 import shutil
+from gnr.core.gnrsys import expandpath
+
 from paste import fileapp
 from paste.httpheaders import ETAG
 from subprocess import call
@@ -473,7 +475,7 @@ class StorageService(GnrBaseService):
 class BaseLocalService(StorageService):
     def __init__(self, parent=None, base_path=None,**kwargs):
         self.parent = parent
-        self.base_path = base_path
+        self.base_path =  expandpath(base_path) if base_path else None
 
     @property
     def location_identifier(self):
@@ -519,6 +521,8 @@ class BaseLocalService(StorageService):
             os.mkdir(self.internal_path(*args))
 
     def isdir(self, *args):
+        if self.base_path is None:
+            return False
         return os.path.isdir(self.internal_path(*args))
 
     def isfile(self, *args):
@@ -606,7 +610,7 @@ class StorageResolver(BagResolver):
         result = Bag()
         self.storageNode = self._page.site.storageNode(self.storageNode)
         try:
-            directory = sorted(self.storageNode.children())
+            directory = sorted(self.storageNode.children() or [])
         except OSError:
             directory = []
         if not self.invisible:

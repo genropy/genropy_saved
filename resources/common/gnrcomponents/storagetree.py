@@ -23,7 +23,7 @@ class StorageTree(BaseComponent):
         bar = frame.top.slotToolbar('2,vtitle,*,mkdir,downloadSelected,2')
         bar.vtitle.div(title or  'Storage',font_weight='bold',color='#666')
         tree_kw = dict(selectedLabelClass='selectedTreeNode',hideValues=True,
-                        storepath='#WORKSPACE.store',
+                        storepath='#WORKSPACE.store',nodeId='%s_tree' %frameCode,
                         selected_internal_url='#WORKSPACE.selected_url',
                         selected_abs_path='#WORKSPACE.selected_abs_path',
                         selected_file_ext='#WORKSPACE.selected_file_ext',
@@ -31,6 +31,23 @@ class StorageTree(BaseComponent):
                       headers=True,draggable=True,
                       dragClass='draggedItem',
                       _moveMethod=self.st_moveStorageNode,
+
+                      dropTypes='storageNode,Files',
+                      onDrop="""
+                      if(_kwargs.files){
+                            var that = this;
+                            var kw = {uploadPath:dropInfo.treeItem.attr.abs_path,
+                                    onProgress:function(e){console.log('onProgress',e)},
+                                    onResult:function(e){that.fireEvent('#WORKSPACE.reload_store',true);}
+                                    }
+                            var sendKw,sendParams;
+                            dojo.forEach(files,function(file){
+                                sendKw = objectUpdate({filename:file.name},kw);
+                                sendParams = {mimetype:file.type};
+                                genro.rpc.uploadMultipart_oneFile(file, sendParams, sendKw);
+                            });
+                      }
+                      """,
                       onDrop_storageNode="""
                             if(dropInfo.treeItem.attr.file_ext!='directory'){
                                 return false;
@@ -42,7 +59,7 @@ class StorageTree(BaseComponent):
                                                      that.fireEvent('#WORKSPACE.reload_store',true);
                                                  });
                             }
-                     """,dropTargetCb_storageNode="""
+                     """,dropTargetCb="""
                      if(dropInfo.treeItem.attr.file_ext!='directory'){
                          return false;
                      }
@@ -84,6 +101,7 @@ class StorageTree(BaseComponent):
     def st_moveStorageNode(self,targetpath=None,destpath=None,**kwargs):
         filename = os.path.basename(targetpath)
         self.site.storageNode(targetpath).move(self.site.storageNode(destpath,filename))
+
 
     @public_method
     def st_getStorageRes(self,storagepath=None):

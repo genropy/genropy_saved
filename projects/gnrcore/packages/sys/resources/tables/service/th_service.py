@@ -37,8 +37,8 @@ class Form(BaseComponent):
         fb.field('service_type',disabled=True)
         fb.field('implementation',disabled=True)
         fb.field('service_name',colspan=2,validate_notnull=True,width='100%',disabled=True)
-        fb.field('daemon',colspan=1,width='100%')
-        fb.field('disabled',colspan=1,width='100%')
+        fb.field('daemon',colspan=1,html_label=True)
+        fb.field('disabled',colspan=1,html_label=True)
 
         center = bc.roundedGroupFrame(title='Parameters',region='center')
         center.center.contentPane().remote(self.buildServiceParameters,service_type='=.service_type',implementation='=.implementation',
