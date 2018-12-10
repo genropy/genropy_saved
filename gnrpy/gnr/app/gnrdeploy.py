@@ -80,9 +80,10 @@ def get_random_password(size = 12):
 
 def get_gnrdaemon_port(set_last=False):
     base_config_path  = gnrConfigPath(no_virtualenv=True)
-    if not base_config_path:
+    if not base_config_path or not os.path.exists(base_config_path):
         return '40404'
     environment_xml_path = os.path.join(base_config_path,'environment.xml')
+
     environment_bag = Bag(environment_xml_path)
     gnrdaemon_port = int(environment_bag['gnrdaemon?last_port'] or environment_bag['gnrdaemon?port'] or '40404') + 1
     if set_last:
