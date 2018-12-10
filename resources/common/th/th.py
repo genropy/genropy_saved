@@ -622,6 +622,7 @@ class MultiButtonForm(BaseComponent):
                 relatedForm.goToRecord(loadPkeyValue,row.getItem('__mod_ts'));
                 """,row='^.row',switchdict=switchdict,
                 sw=switch,_if='row && row.getItem("_pkey")')
+            frame.dataController("SET .store = new gnr.GnrBag();",formsubscribe_onLoading=True) #it should be done by store itself check better solution
         else:
             formId= formId or '%s_frm' %frameCode
             form = frame.center.contentPane(overflow='hidden').thFormHandler(formResource=formResource,table=table,
@@ -668,9 +669,9 @@ class MultiButtonForm(BaseComponent):
             columnslist.append(store_kwargs['order_by'])
         store_kwargs['columns'] = ','.join(columnslist)
         mb.store(table=table,condition=condition,**store_kwargs)
-        #frame.dataController("SET .store = new gnr.GnrBag();",formsubscribe_onLoading=True) #it should be done by store itself
         frame.multiButtonView = mb
         return frame
+
 
     def _th_appendExternalForm(self,sc,formId=None,pars=None,columnslist=None,switchdict=None,storetable=None,
                                 caption_field=None,frameCode=None,switch=None):
