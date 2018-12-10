@@ -1,7 +1,7 @@
 import os
 import sys
 import glob
-import pwd
+
 import shutil
 import random
 import string
@@ -181,6 +181,7 @@ WantedBy=multi-user.target
 """
 
 def gnrdaemonServiceBuilder():
+    import pwd
     service_name = 'gnrdaemon'
     if os.environ.has_key('VIRTUAL_ENV') or hasattr(sys,'real_prefix'):
         pyprefix = os.environ.get('VIRTUAL_ENV', sys.prefix)
@@ -226,6 +227,7 @@ WantedBy=multi-user.target
 """
 
 def gnrsiterunnerServiceBuilder():
+    import pwd
     current_username = pwd.getpwuid(os.getuid())[0]
     daemon_path = which('supervisord')
     ctl_binpath = which('supervisorctl')
