@@ -83,7 +83,8 @@ def get_gnrdaemon_port(set_last=False):
     if not base_config_path or not os.path.exists(base_config_path):
         return '40404'
     environment_xml_path = os.path.join(base_config_path,'environment.xml')
-
+    if not os.path.exists(environment_xml_path):
+        return '40404'
     environment_bag = Bag(environment_xml_path)
     gnrdaemon_port = int(environment_bag['gnrdaemon?last_port'] or environment_bag['gnrdaemon?port'] or '40404') + 1
     if set_last:
