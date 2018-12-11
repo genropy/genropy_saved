@@ -32,6 +32,13 @@ import base64
 import time
 from gnr.core.gnrdecorator import deprecated,extract_kwargs # keep for compatibility
 thread_ws = dict()
+_mixincount = 0
+ 
+
+def getmixincount():
+    global _mixincount
+    _mixincount+=1
+    return '%015i' %_mixincount
 
 def tracebackBag(limit=None):
     import linecache
@@ -829,7 +836,7 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
             new.__mixin_pkg = __mixin_pkg
             new.__mixin_path = __mixin_path
         if getattr(new,'mixin_as',None):
-            mixin_as = new.mixin_as.replace('#',str(id(source_class)))
+            mixin_as = new.mixin_as.replace('#',getmixincount())
             setattr(target_class, mixin_as, new)
         else:
             setattr(target_class, name, new)
