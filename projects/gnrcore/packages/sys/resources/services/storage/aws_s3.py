@@ -310,7 +310,7 @@ class Service(StorageService):
                 service=self))
         for rfile in contents:
             key = rfile['Key']
-            if key == dirpath:
+            if key == dirpath or key.endswith('.gnrdir'):
                 continue
             out.append(StorageNode(parent=self.parent,
                 path=strip_prefix(key), service=self))
