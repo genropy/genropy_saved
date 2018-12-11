@@ -293,7 +293,10 @@ def createVirtualEnv(name=None, copy_genropy=False, copy_projects=None,
             if prj_path:
                 destpath = os.path.join(projects_path, project)
                 print 'Copying project %s from %s to %s'%(project, prj_path, destpath)
-                shutil.copytree(prj_path, destpath)
+                try:
+                    shutil.copytree(prj_path, destpath)
+                except shutil.Error as e:
+                    print e
     if copy_genropy:
         newgenropy_path = os.path.join(gitrepos_path, 'genropy')
         gnr_config = getGnrConfig()
