@@ -24,7 +24,7 @@ class GnrCustomWebPage(object):
             var tkw = _triggerpars.kw;
             if(tkw.reason && tkw.reason.attr && tkw.reason.attr.livePreference){
                 genro.mainGenroWindow.genro.publish({topic:'externalSetData',
-                iframe:'*'},{path:'gnr.app_preference.'+tkw.pathlist.slice(2).join('.'),value:tkw.value});
+                iframe:'*'},{path:'gnr.app_preference.'+tkw.pathlist.slice(4).join('.'),value:tkw.value});
             }""",preference='^#FORM.record.data')
         form.center.appPreferencesTabs(datapath='#FORM.record.data',margin='2px')
 
