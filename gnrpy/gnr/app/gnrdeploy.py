@@ -1,5 +1,10 @@
 import os
+import sys
 import glob
+
+import shutil
+import random
+import string
 from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.core.gnrsys import expandpath
 from gnr.core.gnrlang import uniquify, GnrException
@@ -8,6 +13,314 @@ from gnr.app.gnrconfig import MenuStruct,IniConfStruct
 from gnr.app.gnrconfig import getGnrConfig,gnrConfigPath, setEnvironment
 
 
+
+class GnrConfigException(Exception):
+    pass
+
+
+def which(cmd, mode=os.F_OK | os.X_OK, path=None):
+    """Given a command, mode, and a PATH string, return the path which
+    conforms to the given mode on the PATH, or None if there is no such
+    file.
+    `mode` defaults to os.F_OK | os.X_OK. `path` defaults to the result
+    of os.environ.get("PATH"), or can be overridden with a custom search
+    path.
+    """
+    # Check that a given file can be accessed with the correct mode.
+    # Additionally check that `file` is not a directory, as on Windows
+    # directories pass the os.access check.
+    def _access_check(fn, mode):
+        return (os.path.exists(fn) and os.access(fn, mode)
+            and not os.path.isdir(fn))
+    # If we're given a path with a directory part, look it up directly rather
+    # than referring to PATH directories. This includes checking relative to the
+    # current directory, e.g. ./script
+    if os.path.dirname(cmd):
+        if _access_check(cmd, mode):
+            return cmd
+        return None
+    if path is None:
+        path = os.environ.get("PATH", os.defpath)
+    if not path:
+        return None
+    path = path.split(os.pathsep)
+    if sys.platform == "win32":
+        # The current directory takes precedence on Windows.
+        if not os.curdir in path:
+            path.insert(0, os.curdir)
+        # PATHEXT is necessary to check on Windows.
+        pathext = os.environ.get("PATHEXT", "").split(os.pathsep)
+        # See if the given file matches any of the expected path extensions.
+        # This will allow us to short circuit when given "python.exe".
+        # If it does match, only test that one, otherwise we have to try
+        # others.
+        if any(cmd.lower().endswith(ext.lower()) for ext in pathext):
+            files = [cmd]
+        else:
+            files = [cmd + ext for ext in pathext]
+    else:
+        # On other platforms you don't have things like PATHEXT to tell you
+        # what file suffixes are executable, so just pass on cmd as-is.
+        files = [cmd]
+    seen = set()
+    for dir in path:
+        normdir = os.path.normcase(dir)
+        if not normdir in seen:
+            seen.add(normdir)
+            for thefile in files:
+                name = os.path.join(dir, thefile)
+                if _access_check(name, mode):
+                    return name
+    return None
+
+
+
+def get_random_password(size = 12):
+    return ''.join( random.Random().sample(string.ascii_letters+string.digits, size)).lower()
+
+def get_gnrdaemon_port(set_last=False):
+    base_config_path  = gnrConfigPath(no_virtualenv=True)
+    if not base_config_path or not os.path.exists(base_config_path):
+        return '40404'
+    environment_xml_path = os.path.join(base_config_path,'environment.xml')
+    if not os.path.exists(environment_xml_path):
+        return '40404'
+    environment_bag = Bag(environment_xml_path)
+    gnrdaemon_port = int(environment_bag['gnrdaemon?last_port'] or environment_bag['gnrdaemon?port'] or '40404') + 1
+    if set_last:
+        environment_bag.getNode('gnrdaemon').attr.update(last_port = gnrdaemon_port)
+        environment_bag.toXml(environment_xml_path, typevalue=False,pretty=True)
+    return str(gnrdaemon_port)
+
+def build_environment_xml(path=None, gnrpy_path=None, gnrdaemon_password=None, gnrdaemon_port=None):
+    genropy_home = os.path.dirname(gnrpy_path)
+    genropy_projects = os.path.join(genropy_home,'projects')
+    custom_projects = os.path.normpath(os.path.join(genropy_home,'..','genropy_projects'))
+    create_folder(custom_projects)
+    genropy_packages = os.path.join(genropy_home,'packages')
+    genropy_resources = os.path.join(genropy_home,'resources')
+    genropy_webtools = os.path.join(genropy_home,'webtools')
+    dojo_11_path = os.path.join(genropy_home, 'dojo_libs', 'dojo_11')
+    gnr_d11_path = os.path.join(genropy_home,'gnrjs', 'gnr_d11')
+    environment_bag = Bag()
+    environment_bag.setItem('environment.gnrhome', None, dict(value=genropy_home))
+    environment_bag.setItem('projects.genropy', None, dict(path=genropy_projects))
+    environment_bag.setItem('projects.custom', None, dict(path=custom_projects))
+    environment_bag.setItem('packages.genropy', None, dict(path=genropy_packages))
+    environment_bag.setItem('static.js.dojo_11',None, dict(path=dojo_11_path, cdn=""))
+    environment_bag.setItem('static.js.gnr_11', None, dict(path=gnr_d11_path))
+    environment_bag.setItem('resources.genropy', None, dict(path=genropy_resources))
+    environment_bag.setItem('webtools.genropy', None, dict(path=genropy_webtools))
+    gnrdaemon_port = gnrdaemon_port or get_gnrdaemon_port(set_last=True)
+    environment_bag.setItem('gnrdaemon', None, dict(host='localhost', port=gnrdaemon_port, hmac_key=gnrdaemon_password))
+    environment_bag.toXml(path,typevalue=False,pretty=True)
+
+def build_instanceconfig_xml(path=None):
+    instanceconfig_bag = Bag()
+    instanceconfig_bag.setItem('packages',None)
+    instanceconfig_bag.setItem('authentication.xml_auth',None, dict(defaultTags='user,xml'))
+    password = get_random_password(size=6)
+    instanceconfig_bag.setItem('authentication.xml_auth.admin',None, dict(
+        pwd=password, tags='superadmin,_DEV_,admin,user'))
+    print "Default password for user admin is %s, you can change it by editing %s" %(password, path)
+    instanceconfig_bag.toXml(path,typevalue=False,pretty=True)
+    
+def build_siteconfig_xml(path=None, gnrdaemon_password=None):
+    siteconfig_bag = Bag()
+    siteconfig_bag.setItem('wsgi', None, dict(debug=True, reload=True, port='8080'))
+    siteconfig_bag.setItem('gui', None, dict(css_theme='ludo'))
+    siteconfig_bag.setItem('jslib', None, dict(dojo_version='11', gnr_version='11'))
+    siteconfig_bag.setItem('resources.common', None)
+    siteconfig_bag.setItem('resources.js_libs', None)
+    siteconfig_bag.setItem('gnrdaemon', None, dict(host='localhost', port='40404', hmac_key=gnrdaemon_password))
+    siteconfig_bag.toXml(path,typevalue=False,pretty=True)
+
+def create_folder(folder_path=None):
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    elif not os.path.isdir(folder_path):
+        raise GnrConfigException("A file named %s already exists so i couldn't create a folder at same path" % folder_path)
+
+def check_file(xml_path=None):
+    if os.path.exists(xml_path):
+        raise GnrConfigException("A file named %s already exists so i couldn't create a config file at same path" % xml_path)
+
+def initgenropy(gnrpy_path=None,gnrdaemon_password=None):
+    if not gnrpy_path or not os.path.basename(gnrpy_path)=='gnrpy':
+        raise GnrConfigException("You are not running this script inside a valid gnrpy folder")
+    config_path  = gnrConfigPath(force_return=True)
+    instanceconfig_path = os.path.join(config_path,'instanceconfig')
+    siteconfig_path = os.path.join(config_path,'siteconfig')
+    for folder_path in (config_path, instanceconfig_path, siteconfig_path):
+        create_folder(folder_path=folder_path)
+
+    environment_xml_path = os.path.join(config_path,'environment.xml')
+    default_instanceconfig_xml_path = os.path.join(instanceconfig_path,'default.xml')
+    default_siteconfig_xml_path = os.path.join(siteconfig_path,'default.xml')
+
+    for xml_path in (environment_xml_path, default_instanceconfig_xml_path, default_siteconfig_xml_path):
+        check_file(xml_path=xml_path)
+    gnrdaemon_password = gnrdaemon_password or get_random_password()
+    build_environment_xml(path=environment_xml_path, gnrpy_path=gnrpy_path, gnrdaemon_password=gnrdaemon_password)
+    build_instanceconfig_xml(path=default_instanceconfig_xml_path)
+    build_siteconfig_xml(path=default_siteconfig_xml_path, gnrdaemon_password=gnrdaemon_password)
+
+
+
+GNRDAEMON_SERVICE_TPL = """
+[Unit]
+Description=GnrDaemon Service
+After=multi-user.target
+
+[Service]
+Type=idle
+User=%(user)s
+%(environments)s
+ExecStart=%(binpath)s
+
+[Install]
+WantedBy=multi-user.target
+"""
+
+def gnrdaemonServiceBuilder():
+    import pwd
+    service_name = 'gnrdaemon'
+    if os.environ.has_key('VIRTUAL_ENV') or hasattr(sys,'real_prefix'):
+        pyprefix = os.environ.get('VIRTUAL_ENV', sys.prefix)
+        environments = "Environment=VIRTUAL_ENV=%s" %pyprefix
+        service_name = '%s_%s'%(service_name, os.path.basename(pyprefix))
+    else:
+        environments = ''
+    current_username = pwd.getpwuid(os.getuid())[0]
+    binpath = sys.argv[0]
+    content = GNRDAEMON_SERVICE_TPL %dict(environments=environments,binpath=binpath, user= current_username)
+    service_name = '%s.service'%service_name
+    with open(service_name,'w') as service_file:
+        service_file.write(content)
+    print """
+Gnrdaemon service created Now run these commands:
+
+$ sudo cp %(service_name)s /lib/systemd/system/%(service_name)s
+$ sudo chmod 644 /lib/systemd/system/%(service_name)s
+$ sudo systemctl daemon-reload  # Refresh the available service list
+$ sudo systemctl enable %(service_name)s
+$ sudo systemctl start %(service_name)s
+...
+$ sudo systemctl status %(service_name)s
+$ sudo journalctl -e -u %(service_name)s
+        """ % dict(service_name=service_name)
+
+
+GNRSITERUNNERSERVICE_TPL = """
+[Unit]
+Description=GnrSupervisorSiteRunner Service
+After=multi-user.target
+
+[Service]
+Type=forking
+%(environments)s
+User=%(user)s
+ExecStart=%(binpath)s
+ExecReload=%(ctl_binpath) reload
+ExecStop=%(ctl_binpath) shutdown
+
+[Install]
+WantedBy=multi-user.target
+"""
+
+def gnrsiterunnerServiceBuilder():
+    import pwd
+    current_username = pwd.getpwuid(os.getuid())[0]
+    daemon_path = which('supervisord')
+    ctl_binpath = which('supervisorctl')
+    binroot = ''
+    service_name = 'gnrsiterunner'
+    if os.environ.has_key('VIRTUAL_ENV') or hasattr(sys, 'real_prefix'):
+        pyprefix = os.environ.get('VIRTUAL_ENV', sys.prefix)
+        environments = "Environment=VIRTUAL_ENV=%s" %pyprefix
+        binroot = os.path.join(pyprefix,'bin')
+        service_name = '%s_%s'%(service_name, os.path.basename(pyprefix))
+    else:
+        environments = ''
+    gnr_path = gnrConfigPath()
+    supervisor_conf_path_ini = os.path.join(gnr_path,'supervisord.conf')
+    supervisor_log_path = os.path.join(gnr_path,'supervisord.log')
+    binpath = '%s -c %s -l %s' % (daemon_path,supervisor_conf_path_ini,
+        supervisor_log_path)
+    content = GNRSITERUNNERSERVICE_TPL %dict(environments=environments,binpath=binpath,
+            user=current_username, ctl_binpath=ctl_binpath)
+    service_name = '%s.service'%service_name
+    with open(service_name,'w') as service_file:
+        service_file.write(content)
+    print """
+Gnrsiterunner service created, now run these commands:
+
+$ sudo cp %(service_name)s /lib/systemd/system/%(service_name)s
+$ sudo chmod 644 /lib/systemd/system/%(service_name)s
+$ sudo systemctl daemon-reload  # Refresh the available service list
+$ sudo systemctl enable %(service_name)s
+
+$ sudo systemctl start %(service_name)s
+...
+$ sudo systemctl status %(service_name)s
+# Blah blah blah you should see something happy and green
+# Want to check your logs?
+$ sudo journalctl -e -u %(service_name)s
+        """ % dict(service_name=service_name)
+
+def activateVirtualEnv(name=None):
+    activate_file=os.path.join(name, "bin", "activate_this.py")
+    execfile(activate_file, dict(__file__=activate_file))
+
+def createVirtualEnv(name=None, copy_genropy=False, copy_projects=None, 
+    branch=None):
+    import virtualenv
+    venv_path = os.path.join(os.getcwd(), name)
+    print 'Creating virtual environment %s in %s'%(name, venv_path)
+    virtualenv.create_environment(name)
+    gitrepos_path = os.path.join(venv_path, 'gitrepos')
+    if not os.path.exists(gitrepos_path):
+        os.makedirs(gitrepos_path)
+    activateVirtualEnv(name)
+    if copy_projects:
+        projects_path = os.path.join(gitrepos_path, 'genropy_projects')
+        if not os.path.exists(projects_path):
+            os.makedirs(projects_path)
+        projects = copy_projects.split(',')
+        path_resolver = PathResolver()
+        for project in projects:
+            prj_path = path_resolver.project_name_to_path(project)
+            if prj_path:
+                destpath = os.path.join(projects_path, project)
+                print 'Copying project %s from %s to %s'%(project, prj_path, destpath)
+                shutil.copytree(prj_path, destpath)
+    if copy_genropy:
+        newgenropy_path = os.path.join(gitrepos_path, 'genropy')
+        gnr_config = getGnrConfig()
+        genropy_path = gnr_config['gnr.environment_xml.environment.gnrhome?value']
+        if genropy_path:
+            print 'Copying genropy from %s to %s'%(genropy_path,newgenropy_path)
+            shutil.copytree(genropy_path,newgenropy_path)
+            if branch:
+                curr_cwd = os.getcwd()
+                os.chdir(newgenropy_path)
+                import subprocess
+                print 'Switching to branch %s'%branch
+                subprocess.check_call(['git', 'stash'])
+                subprocess.check_call(['git', 'fetch'])
+                subprocess.check_call(['git', 'checkout', branch])
+                subprocess.check_call(['git', 'pull'])
+                os.chdir(curr_cwd)
+            gnrpy_path = os.path.join(newgenropy_path,'gnrpy')
+            pip_path = os.path.join(venv_path,'bin', 'pip')
+            subprocess.check_call([pip_path, 'install', 'paver'])
+            paver_path = os.path.join(venv_path,'bin', 'paver')
+            os.chdir(gnrpy_path)
+            subprocess.check_call([paver_path, 'develop'])
+            venv_exec_path = os.path.join(venv_path,'bin', 'python')
+            initgenropy(gnrpy_path=gnrpy_path)
+            os.chdir(curr_cwd)
+    
 
 def projectBag(project_name,packages=None,branches=None,exclude_branches=None):
     p=PathResolver()

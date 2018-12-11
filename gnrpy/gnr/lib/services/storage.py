@@ -352,11 +352,12 @@ class StorageService(GnrBaseService):
             mime, _ = mimetypes.guess_type(self.internal_path(*args))
         with self.open(*args, mode='rb') as fp:
             data = fp.read()
-            data64 = u''.join(base64.encodestring(data).splitlines())
+            data64 = ''.join(base64.encodestring(data).splitlines())
             if mime:
-                return u'data:%s;base64,%s' % (mime, data64)
+                result  ='data:%s;base64,%s' % (mime, data64)
             else:
-                return u'%s' % data64
+                result = '%s' % data64
+            return result
 
     def internal_url(self, *args, **kwargs):
         outlist = [self.parent.external_host, '_storage', self.service_name]
