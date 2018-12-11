@@ -414,7 +414,7 @@ class GnrWebUtils(GnrBaseProxy):
         result = Bag()
         resources = page.site.resource_loader.resourcesAtPath(page=page,pkg=None,path='tables/_default/%s' % res_type)
         resources_pkg = page.site.resource_loader.resourcesAtPath(page=page,pkg=pkg, path='tables/%s/%s' % (tblname, res_type))
-        resources_custom = page.site.resource_loader.resourcesAtPath(page=page,pkg=page.package.name, path='tables/_packages/%s/%s/%s' % (pkg,tblname, res_type))
+        resources_custom = page.site.resource_loader.resourcesAtPath(page=page, path='tables/_packages/%s/%s/%s' % (pkg,tblname, res_type))
         resources.update(resources_pkg)
         resources.update(resources_custom)
         forbiddenNodes = []

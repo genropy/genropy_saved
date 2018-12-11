@@ -286,7 +286,6 @@ class ResourceLoader(object):
         pkg = self.gnrapp.packages[pkg]
         result = []
         if not hasattr(pkg, '_resourceDirs'):
-            pagesPath = os.path.join(pkg.packageFolder, 'webpages')
             resourcePkg = None
             pkgResourceDirs = [] # result is now empty
             resourcePkg = pkg.attributes.get('resourcePkg')
@@ -299,18 +298,11 @@ class ResourceLoader(object):
                     fpath = os.path.join(self.site_path, '_custom', pkg.id, '_resources')
                     if os.path.isdir(fpath):
                         pkgResourceDirs.append(fpath)
-            fpath = os.path.join(pagesPath, '_resources')
-            if os.path.isdir(fpath):
-                pkgResourceDirs.append(fpath) # we add a resource folder for common package
             rsrc_path = os.path.join(pkg.packageFolder, 'resources')
             if os.path.isdir(rsrc_path):
                 pkgResourceDirs.append(rsrc_path)
             pkg._siteResourceDirs = self.site.resources_dirs
             pkg._resourceDirs = pkgResourceDirs
-        if pluginId and pluginId in pkg.plugins:
-            plugin = pkg.plugins[pluginId]
-            if plugin.resources_path:
-                result.append(plugin.resources_path)
         result.extend(list(pkg._resourceDirs))
         if not omitSiteResources:
             result.extend(pkg._siteResourceDirs)
