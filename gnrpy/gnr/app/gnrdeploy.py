@@ -192,7 +192,7 @@ def gnrdaemonServiceBuilder():
     else:
         environments = ''
     current_username = pwd.getpwuid(os.getuid())[0]
-    binpath = sys.argv[0]
+    binpath = which('gnrdaemon')
     content = GNRDAEMON_SERVICE_TPL %dict(environments=environments,binpath=binpath, user= current_username)
     service_name = '%s.service'%service_name
     with open(service_name,'w') as service_file:
@@ -221,8 +221,8 @@ Type=forking
 %(environments)s
 User=%(user)s
 ExecStart=%(binpath)s
-ExecReload=%(ctl_binpath) reload
-ExecStop=%(ctl_binpath) shutdown
+ExecReload=%(ctl_binpath)s reload
+ExecStop=%(ctl_binpath)s shutdown
 
 [Install]
 WantedBy=multi-user.target
@@ -293,7 +293,10 @@ def createVirtualEnv(name=None, copy_genropy=False, copy_projects=None,
             if prj_path:
                 destpath = os.path.join(projects_path, project)
                 print 'Copying project %s from %s to %s'%(project, prj_path, destpath)
-                shutil.copytree(prj_path, destpath)
+                try:
+                    shutil.copytree(prj_path, destpath)
+                except shutil.Error as e:
+                    print e
     if copy_genropy:
         newgenropy_path = os.path.join(gitrepos_path, 'genropy')
         gnr_config = getGnrConfig()
