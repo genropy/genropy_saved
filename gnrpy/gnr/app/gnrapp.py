@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #--------------------------------------------------------------------------
 # package       : GenroPy app - see LICENSE for details
 # module gnrapp : Genro application architecture.

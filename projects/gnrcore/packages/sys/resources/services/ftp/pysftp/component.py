@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # pysftp component
 # Created by Francesco Porcari on 2017-12-18.

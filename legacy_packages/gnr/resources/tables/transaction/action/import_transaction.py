@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 from gnr.web.batch.btcaction import BaseResourceAction
 import os

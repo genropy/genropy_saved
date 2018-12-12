@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # __init__.py
 # Created by Francesco Porcari on 2010-07-03.

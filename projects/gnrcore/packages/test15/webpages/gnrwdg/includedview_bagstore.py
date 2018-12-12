@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # includedview_bagstore.py
 # Created by Francesco Porcari on 2011-03-23.

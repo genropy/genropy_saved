@@ -1,5 +1,5 @@
 
-# # -*- coding: UTF-8 -*-
+# # -*- coding: utf-8 -*-
 
 # menuselect.py
 # Created by Francesco Porcari on 2011-08-29.

@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # detachable.py
 # Created by Francesco Porcari on 2010-10-01.

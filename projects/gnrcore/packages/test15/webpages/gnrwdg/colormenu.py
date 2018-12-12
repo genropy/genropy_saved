@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # colormenu.py
 # Created by Francesco Porcari on 2017-01-08.

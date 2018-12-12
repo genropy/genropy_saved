@@ -1,4 +1,4 @@
 #!/usr/bin/env pythonw
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #  Created by Francesco Porcari
 #

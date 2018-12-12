@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #--------------------------------------------------------------------------
 # package       : GenroPy core - see LICENSE for details
 # test locale   : test for locale 

@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #--------------------------------------------------------------------------
 # package            : GenroPy sql - see LICENSE for details
 # module gnrsqlmodel : an advanced data storage system

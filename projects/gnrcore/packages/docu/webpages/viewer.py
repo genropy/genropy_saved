@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):

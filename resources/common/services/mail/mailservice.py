@@ -1,5 +1,5 @@
 #!/usr/bin/env pythonw
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.web.gnrbaseclasses import BaseComponent

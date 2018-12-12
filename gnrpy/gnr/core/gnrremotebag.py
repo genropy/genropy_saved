@@ -1,5 +1,5 @@
 
-# # -*- coding: UTF-8 -*-
+# # -*- coding: utf-8 -*-
 #--------------------------------------------------------------------------
 # package       : GenroPy core - see LICENSE for details
 # module gnrbag : an advanced data storage system

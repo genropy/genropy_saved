@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
@@ -176,7 +176,7 @@ class Form(BaseComponent):
                                     $hierarchical_pkey,
                                     $docbag""")
     def getDefaultSource(self):
-        return """# -*- coding: UTF-8 -*-
+        return """# -*- coding: utf-8 -*-
             
 class GnrCustomWebPage(object):
     def main(self,root,**kwargs):

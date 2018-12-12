@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrbag import Bag
 from gnr.lib.services.storage import StorageResolver

@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # tree.py
 # Created by Filippo Astolfi on 2011-12-02.

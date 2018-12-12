@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 from gnr.core.gnrdecorator import websocket_method, public_method
 
 class GnrCustomWebPage(object):

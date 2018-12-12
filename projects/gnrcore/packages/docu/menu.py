@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 def config(root,application=None):
     docu = root.branch('Documentation')

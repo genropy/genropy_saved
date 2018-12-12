@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #--------------------------------------------------------------------------
 # Copyright (c) : 2004 - 2007 Softwell sas - Milano
 # Written by    : Giovanni Porcari, Michele Bertoldi

@@ -1,5 +1,5 @@
 #!/usr/bin/env pythonw
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #
  
 from gnr.web.gnrhtmlpage import GnrHtmlDojoPage as page_factory

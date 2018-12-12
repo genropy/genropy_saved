@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # dialogTableHandler.py
 # Copyright (c) 2011 Softwell. All rights reserved.

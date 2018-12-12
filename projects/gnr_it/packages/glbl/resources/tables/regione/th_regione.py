@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 # th_regione.py
 
 from gnr.web.gnrbaseclasses import BaseComponent

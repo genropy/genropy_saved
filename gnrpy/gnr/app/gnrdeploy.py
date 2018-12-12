@@ -719,14 +719,14 @@ class Table(GnrDboTable):
 
         if not os.path.exists(self.framedindex_path):
             with open(self.framedindex_path, 'w') as indexpage:
-                indexpage.write("""# -*- coding: UTF-8 -*-
+                indexpage.write("""# -*- coding: utf-8 -*-
             
 class GnrCustomWebPage(object):
     py_requires = 'plainindex'
     """)
         if self.helloworld:
             with open(os.path.join(self.webpages_path,'hello_world.py'), 'w') as helloworld:
-                helloworld.write("""# -*- coding: UTF-8 -*-
+                helloworld.write("""# -*- coding: utf-8 -*-
             
 class GnrCustomWebPage(object):
     def main(self,root,**kwargs):
@@ -792,7 +792,7 @@ class ThPackageResourceMaker(object):
 
     def writeHeaders(self):
         self.write('#!/usr/bin/python')
-        self.write('# -*- coding: UTF-8 -*-')
+        self.write('# -*- coding: utf-8 -*-')
         self.write()
     
     def writeImports(self):

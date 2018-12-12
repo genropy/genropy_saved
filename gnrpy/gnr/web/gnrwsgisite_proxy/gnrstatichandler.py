@@ -1,5 +1,5 @@
 
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 from gnr.core.gnrbag import Bag
 from gnr.core import gnrstring
 from gnr.core.gnrlang import GnrDebugException

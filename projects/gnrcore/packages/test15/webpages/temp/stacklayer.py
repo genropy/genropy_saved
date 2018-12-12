@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # notgetter.py
 # Created by Francesco Porcari on 2011-05-14.

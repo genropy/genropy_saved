@@ -1,5 +1,5 @@
 #!/usr/bin/env pythonw
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 from gnr.core.gnrbag import Bag
 from gnrpkg.adm.services.mail import AdmMailService
