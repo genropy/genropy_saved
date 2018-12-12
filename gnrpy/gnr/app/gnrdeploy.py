@@ -125,14 +125,14 @@ def build_instanceconfig_xml(path=None):
     print "Default password for user admin is %s, you can change it by editing %s" %(password, path)
     instanceconfig_bag.toXml(path,typevalue=False,pretty=True)
     
-def build_siteconfig_xml(path=None, gnrdaemon_password=None):
+def build_siteconfig_xml(path=None, gnrdaemon_password=None, gnrdaemon_port=None):
     siteconfig_bag = Bag()
     siteconfig_bag.setItem('wsgi', None, dict(debug=True, reload=True, port='8080'))
     siteconfig_bag.setItem('gui', None, dict(css_theme='ludo'))
     siteconfig_bag.setItem('jslib', None, dict(dojo_version='11', gnr_version='11'))
     siteconfig_bag.setItem('resources.common', None)
     siteconfig_bag.setItem('resources.js_libs', None)
-    siteconfig_bag.setItem('gnrdaemon', None, dict(host='localhost', port='40404', hmac_key=gnrdaemon_password))
+    siteconfig_bag.setItem('gnrdaemon', None, dict(host='localhost', port=gnrdaemon_port or '40404', hmac_key=gnrdaemon_password))
     siteconfig_bag.toXml(path,typevalue=False,pretty=True)
 
 def create_folder(folder_path=None):
@@ -161,9 +161,11 @@ def initgenropy(gnrpy_path=None,gnrdaemon_password=None):
     for xml_path in (environment_xml_path, default_instanceconfig_xml_path, default_siteconfig_xml_path):
         check_file(xml_path=xml_path)
     gnrdaemon_password = gnrdaemon_password or get_random_password()
-    build_environment_xml(path=environment_xml_path, gnrpy_path=gnrpy_path, gnrdaemon_password=gnrdaemon_password)
+    gnrdaemon_port = get_gnrdaemon_port(set_last=True)
+    build_environment_xml(path=environment_xml_path, gnrpy_path=gnrpy_path, gnrdaemon_password=gnrdaemon_password,
+        gnrdaemon_port=gnrdaemon_port)
     build_instanceconfig_xml(path=default_instanceconfig_xml_path)
-    build_siteconfig_xml(path=default_siteconfig_xml_path, gnrdaemon_password=gnrdaemon_password)
+    build_siteconfig_xml(path=default_siteconfig_xml_path, gnrdaemon_password=gnrdaemon_password, gnrdaemon_port=gnrdaemon_port)
 
 
 
