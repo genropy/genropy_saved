@@ -430,6 +430,7 @@ class GnrWsgiSite(object):
             #fullpath = None ### QUI NON DOBBIAMO USARE I FULLPATH
             exists = self.build_lazydoc(kwargs['_lazydoc'],fullpath=storageNode.internal_path) 
             exists = exists and storageNode.exists
+        self.db.closeConnection()
         if not exists:
             if kwargs.get('_lazydoc'):
                 headers = []
