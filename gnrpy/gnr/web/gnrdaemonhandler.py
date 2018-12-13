@@ -129,7 +129,7 @@ class GnrDaemon(object):
     def do_start(self, host=None, port=None, socket=None, hmac_key=None,
                       debug=False,compression=False,timeout=None,
                       multiplex=False,polltimeout=None,use_environment=False, size_limit=None,
-                      sockets=None, loglevel=None):
+                      sockets=None, loglevel=None, **kwargs):
         self.loglevel = loglevel or logging.ERROR
         self.logger.setLevel(self.loglevel)
         self.pyroConfig(host=host,port=port, socket=socket, hmac_key=hmac_key,debug=debug,
