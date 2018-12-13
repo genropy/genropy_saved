@@ -18,7 +18,7 @@ redbaron
 future
 boto3
 smart_open
-tornado
+tornado<5
 toro
 gunicorn
 gevent
