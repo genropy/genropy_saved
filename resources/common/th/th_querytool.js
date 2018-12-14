@@ -256,6 +256,7 @@ dojo.declare("gnr.QueryManager", null, {
         }
         this.joinConditions(frame._('contentPane',{title:_T('Join conditions'),margin:'2px'}));
         this.queryExtra(frame._('contentPane',{title:_T('Query Extra')}));
+        this.multidbStorePicker(frame);
         node.unfreeze();
         this.buildQueryPane();
         this.checkFavorite();
@@ -287,6 +288,15 @@ dojo.declare("gnr.QueryManager", null, {
             that._buildQueryGroup(pane._('div','root',{height:'300px',width:'600px',overflow:'auto'}),condbag, 0);
         };
         g._('column',condition_cell);
+    },
+
+    multidbStorePicker:function(parent){
+        var multidbStoreQueryPicker = this.sourceNode.getRelativeData('.query.multidb.pickermethod');
+        if (!multidbStoreQueryPicker){
+            return;
+        }
+        var pane = parent._('contentPane',{title:_T('Db Stores'),_anchor:true,_workspace:true});
+        pane._('ContentPane',{remote:multidbStoreQueryPicker});
     },
 
     queryExtra:function(parent){
@@ -384,6 +394,8 @@ dojo.declare("gnr.QueryManager", null, {
         var queryLimit = this.sourceNode.getRelativeData('.query.limit');
         var extraPars = this.sourceNode.getRelativeData('.query.extraPars');
         var joinConditions = this.sourceNode.getRelativeData('.query.joinConditions');
+        var multiStores = this.sourceNode.getRelativeData('.query.multiStores');
+
 
         var queryPars = this.queryParsBag();
         var data = new gnr.GnrBag();
@@ -400,6 +412,9 @@ dojo.declare("gnr.QueryManager", null, {
         }
         data.setItem('queryLimit',queryLimit);
         data.setItem('currViewPath',currViewPath);
+
+        data.setItem('multiStores',multiStores);
+
         var that = this;
         saveCb = function(dlg) {
             var metadata = genro.getData(datapath);
@@ -430,10 +445,12 @@ dojo.declare("gnr.QueryManager", null, {
             var currViewPath;
             var customLimit;
             var joinConditions;
+            var multiStores;
             if(data.getItem('where')){
                 where = data.pop('where');
                 customOrderBy = data.pop('customOrderBy');
                 joinConditions = data.pop('joinConditions');
+                multiStores = data.pop('multiStores');
                 customView = data.pop('customView');
                 currViewPath = data.pop('currViewPath');
                 customLimit = data.pop('queryLimit');
@@ -447,6 +464,9 @@ dojo.declare("gnr.QueryManager", null, {
             sourceNode.setRelativeData('.query.where',where);
             sourceNode.setRelativeData('.query.customOrderBy',customOrderBy);
             sourceNode.setRelativeData('.query.joinConditions',joinConditions);
+
+            sourceNode.setRelativeData('.query.multiStores',multiStores);
+
             sourceNode.setRelativeData('.query.limit',customLimit);
             if(currViewPath && currViewPath!='__baseview__'){
                 sourceNode.setRelativeData('.grid.currViewPath',currViewPath);
@@ -714,7 +734,6 @@ dojo.declare("gnr.QueryManager", null, {
             oddeven = 'qb_group qb_group_odd';
         }
         var container = sourceNode._('div', {_class:oddeven});
-        var sourceNode = this.sourceNode;
         var tbl = container._('table', {_class:'qb_table'})._('tbody');
         for (var i = 0; i < bagnodes.length; i++) {
             node = bagnodes[i];
