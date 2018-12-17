@@ -329,4 +329,5 @@ class ServiceParameters(BaseComponent):
         bc.storageTreeFrame(frameCode='bucketStorage',storagepath='^#FORM.record.service_name?=#v+":"',
                                 border='1px solid silver',margin='2px',rounded=4,
                                 region='center',preview_region='right',
+                                store__onBuilt=1,
                                 preview_border_left='1px solid silver',preview_width='50%')
