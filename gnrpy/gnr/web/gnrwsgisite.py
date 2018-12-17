@@ -3,7 +3,7 @@ from weberror.evalexception import EvalException
 #from paste.exceptions.errormiddleware import ErrorMiddleware
 from weberror.errormiddleware import ErrorMiddleware
 from webob import Request, Response
-from webob.exc import WSGIHTTPException, HTTPInternalServerError, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError, HTTPMovedPermanently
+from webob.exc import WSGIHTTPException, HTTPInternalServerError, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError, HTTPMovedPermanently,HTTPTemporaryRedirect
 from gnr.web.gnrwebapp import GnrWsgiWebApp
 from gnr.web.gnrwebpage import GnrUnsupportedBrowserException, GnrMaintenanceException
 import os
@@ -1041,8 +1041,11 @@ class GnrWsgiSite(object):
                    debug_message or '(none)'), )
         return exc(environ, start_response)
 
-    def redirect(self, environ, start_response, location=None):
-        exc = HTTPMovedPermanently(location=location)
+    def redirect(self, environ, start_response, location=None,temporary=False):
+        if temporary:
+            exc = HTTPTemporaryRedirect(location=location)
+        else:
+            exc = HTTPMovedPermanently(location=location)
         return exc(environ, start_response)
 
     def forbidden_exception(self, environ, start_response, debug_message=None):

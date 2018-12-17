@@ -286,7 +286,7 @@ class Service(StorageService):
             content_disposition = "inline"
         url = self.url(path, _content_disposition=content_disposition)
         if url:
-            return self.parent.redirect(environ, start_response, location=url)
+            return self.parent.redirect(environ, start_response, location=url,temporary=True)
 
     def children(self, path, **kwargs):
         def strip_prefix(inpath, prefix=None):
