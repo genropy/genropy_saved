@@ -127,6 +127,10 @@ class GnrWebPage(GnrBaseWebPage):
         self.sql_count = 0
         self.sql_time = 0
         self.site = site
+        if self.site.currentPage:
+            self._db = self.site.currentPage.db #making a virtualPage with a shared db with the currentPage
+        else:
+            self.application.db.clearCurrentEnv() #new a brand new page
         self.extraFeatures = copy.deepcopy(self.site.extraFeatures)
         self.extraFeatures.update(dictExtract(request_kwargs,'_extrafeature_',pop=True))
         dbstore = request_kwargs.pop('temp_dbstore',None) or None
@@ -155,7 +159,6 @@ class GnrWebPage(GnrBaseWebPage):
         self.pagepath = self.filepath.replace(self.folders['pages'], '')
         self.debug_mode = False
         self._dbconnection = None
-        self.application.db.clearCurrentEnv()
         self._user_login = request_kwargs.pop('_user_login', None)
         self.page_timeout = self.site.config.getItem('page_timeout') or PAGE_TIMEOUT
         self.page_refresh = self.site.config.getItem('page_refresh') or PAGE_REFRESH
