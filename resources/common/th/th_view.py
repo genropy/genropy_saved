@@ -589,11 +589,16 @@ class TableHandlerView(BaseComponent):
         pane.dataController("""TH(th_root).querymanager.onChangedQuery(currentQuery);
                           """,currentQuery='^.query.currentQuery',th_root=th_root)
         pane.dataController("""
-            genro.dlg.thIframePalette({table:'adm.userobject',palette_top:'100px',palette_right:'600px',current_tbl:tbl,current_pkg:pkg,title:title,viewResource:'ViewCustomColumn',formResource:'FormCustomColumn'})
+            genro.dlg.thIframePalette({table:'adm.userobject',palette_top:'100px',
+                                    palette_right:'600px',current_tbl:tbl,
+                                    current_pkg:pkg,title:title,
+                                    viewResource:'ViewCustomColumn'
+                                    ,formResource:'FormCustomColumn'})
             """,tbl=table,_fired='^.handle_custom_column',pkg=table.split('.')[0],title='!!Custom columns')
         q = Bag()
         pyqueries = self._th_hook('query',mangler=th_root,asDict=True)
-        if self.db.table(table).column('_duplicate_finder') is not None and self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
+        if self.db.table(table).column('_duplicate_finder') is not None and \
+                self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
             pyqueries['default_duplicate_finder'] = self.th_default_find_duplicates
             pyqueries['default_duplicate_finder_to_del'] = self.th_default_find_duplicates_to_del
         for k,v in pyqueries.items():
@@ -648,6 +653,10 @@ class TableHandlerView(BaseComponent):
         #SOURCE MENUACTIONS
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,
                         res_type='action', table=table,cacheTime=5)
+
+        if 'multidb' in self.db.packages and not (self.dbstore or self.db.table(table).multidb=='*'):
+            pane.data('.query.multidb.pickermethod',self.th_multidbStoreQueryPicker)
+
 
     @struct_method
     def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,hidden=None,**kwargs):
@@ -821,12 +830,14 @@ class TableHandlerView(BaseComponent):
             this.fireEvent('.runQueryDo_'+viewPage,true);
         """,_runQueryDo='^.runQueryDo',viewPage='=.viewPage')
         store_kwargs.setdefault('weakLogicalDeleted',options.get('weakLogicalDeleted'))
+        
         store = frame.grid.selectionStore(table=table,
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where',
                                queryMode='=.query.queryMode', 
                                sortedBy='=.grid.sorted',
                                customOrderBy='=.query.customOrderBy',
+                               multiStores='=.query.multiStores',
                                pkeys='=.query.pkeys', 
                                _runQueryDo='^.runQueryDo_mainView',
                                _cleared='^.clearStore',

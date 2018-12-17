@@ -690,7 +690,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,hardQueryLimit=None,
                          savedQuery=None,savedView=None, externalChanges=None,prevSelectedDict=None,
                          checkPermissions=None,queryBySample=False,weakLogicalDeleted=False,
-                         customOrderBy=None,queryExtraPars=None,joinConditions=None,**kwargs):
+                         customOrderBy=None,queryExtraPars=None,joinConditions=None,multiStores=None,**kwargs):
         """TODO
         
         ``getSelection()`` method is decorated with the :meth:`public_method
@@ -739,6 +739,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         row_start = int(row_start)
         row_count = int(row_count)
         newSelection = True
+        if multiStores:
+            kwargs['_storename'] = multiStores
         formats = {}
         if queryExtraPars:
             kwargs.update(queryExtraPars.asDict(ascii=True))

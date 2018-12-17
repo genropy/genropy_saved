@@ -1088,8 +1088,8 @@ class SqlQuery(object):
             if isinstance(cursor, list):
                 data = []
                 for c in cursor:
-                    data.extend(cursor.fetchall() or [])
-                    index = cursor.index
+                    data.extend(c.fetchall() or [])
+                    index = c.index
                     c.close()
                 return index, data            
             data = cursor.fetchall() or []
