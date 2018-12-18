@@ -709,6 +709,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     },
     setSrc:function(domnode,v,kw){
         var that = this;
+        var sourceNode = domnode.sourceNode;
+        sourceNode.rebuild();
+        domnode = sourceNode.domNode;
         domnode.sourceNode.watch('isVisibile',
                         function(){return genro.dom.isVisible(domnode);},
                         function(){that.setSrc_do(domnode, v, kw);});
@@ -772,11 +775,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             return false;
         }else if(!parsedSrc.file){
             domnode.src = '';
-            return false
+            return false;
         }
-        domnode.src = '';
-        //loadingpath = document.location.protocol + '//' + document.location.host +'/_gnr/11/css/icons/ajax-loader.gif';
-        //domnode.contentWindow.document.body.innerHTML = '<div style="height:100%;width:100%; background:#F6F6F6 url('+loadingpath+') no-repeat center center;"></div>';
+        genro.dom.addClass(domnode,'waiting');
         return true;
     },
 
