@@ -392,7 +392,8 @@ class GnrWsgiSite(object):
             path = '_raw_:%s'%path
         service_name, storage_path = path.split(':',1)
         if service_name == 'vol':
-            service_name, storage_path = storage_path.split('/', 1)
+            #for legacy path
+            service_name, storage_path = storage_path.replace(':','/').split('/', 1) 
         service = self.storage(service_name)
         if kwargs.pop('_adapt', True):
             storage_path = self.storagePath(service_name, storage_path)
@@ -418,11 +419,15 @@ class GnrWsgiSite(object):
             return result is not False
 
     def storageDispatcher(self,path_list,environ, start_response,**kwargs):
-        prefix = path_list.pop(0)[1:]
-        if prefix != 'storage':
-            storage_name = prefix
+        if ':' in path_list[0]:
+            storage_name, first = path_list.pop(0).split(':')
+            path_list.insert(0, first)
         else:
-            storage_name = path_list.pop(0)
+            prefix = path_list.pop(0)[1:] # leva _
+            if prefix != 'storage':
+                storage_name = prefix
+            else:
+                storage_name = path_list.pop(0)
         path = '/'.join(path_list)
         storageNode = self.storageNode('%s:%s'%(storage_name,path),_adapt=False)
         exists = storageNode and storageNode.exists
@@ -438,6 +443,7 @@ class GnrWsgiSite(object):
                 return ['']
             return self.not_found_exception(environ, start_response)
         return storageNode.serve(environ, start_response,**kwargs)
+
     #@callers()
     def getStaticPath(self, static, *args, **kwargs):
         """TODO
@@ -838,11 +844,11 @@ class GnrWsgiSite(object):
         if  self.root_static and path_list and not path_list[0].startswith('_') and '.' in path_list[-1]:
             if path_list[-1].split('.')[-1]!='py':
                 path_list = self.root_static.split('/')+path_list
-
+        
         if path_list and path_list[0].startswith('_tools'):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='TOOLS')
             return self.serve_tool(path_list, environ, start_response, **request_kwargs)
-        elif path_list and (path_list[0].startswith('_storage') or \
+        elif path_list and (':' in path_list[0] or path_list[0].startswith('_storage') or \
             path_list[0].startswith('_site') or path_list[0].startswith('_rsrc') or \
             path_list[0].startswith('_dojo') or path_list[0].startswith('_pkg') or \
             path_list[0].startswith('_gnr') or path_list[0].startswith('_pages') or \
