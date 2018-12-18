@@ -15,7 +15,7 @@ from time import time
 import os
 import base64
 import mimetypes
-import re 
+import re
 
 
 
@@ -164,7 +164,7 @@ class GnrWebRpc(GnrBaseProxy):
             if handler:
                 #file_node = self.page.site.storage(file_path, autocreate=-1)
                 #with file_node.local_path(mode='r') as local_path:
-                #    result =handler(file_url=local_path, file_path=file_path, file_ext=file_ext,  
+                #    result =handler(file_url=local_path, file_path=file_path, file_ext=file_ext,
                 #           action_results=action_results,
                 #               **kwargs)
                 #return result
@@ -180,6 +180,6 @@ class GnrWebRpc(GnrBaseProxy):
                 return handler(file_url=file_url, file_path=file_path, file_ext=file_ext, action_results=action_results,
                                **kwargs)
         return file_url
-        
 
-        
+
+

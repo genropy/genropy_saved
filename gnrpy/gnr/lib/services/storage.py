@@ -14,7 +14,7 @@ from gnr.core.gnrsys import expandpath
 
 from paste import fileapp
 from paste.httpheaders import ETAG
-from subprocess import call
+from subprocess import call,check_call
 class NotExistingStorageNode(Exception):
     pass
 
@@ -463,9 +463,10 @@ class StorageService(GnrBaseService):
                 if isinstance(arg, StorageNode):
                     arg = stack.enter_context(arg.local_path())
                 args_list.append(arg)
-            return call(args_list, **call_kwargs)
+            result = check_call(args_list, **call_kwargs)
             if cb:
                 cb(*cb_args, **cb_kwargs)
+            return result
 
     def call(self, args, **kwargs):
         cb = kwargs.pop('cb', None)
