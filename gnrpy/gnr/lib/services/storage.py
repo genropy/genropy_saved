@@ -233,7 +233,13 @@ class StorageNode(object):
     def basename(self, **kwargs):
         return self.service.basename(self.path)
 
- 
+    @property
+    def cleanbasename(self, **kwargs):
+        return os.path.splitext(self.service.basename(self.path))[0]
+
+    @property
+    def isfile(self):
+        return self.service.isfile(self.path) 
 
     @property
     def exists(self):
@@ -246,6 +252,9 @@ class StorageNode(object):
     @property
     def size(self):
         return self.service.size(self.path)
+    
+    def splitext(self):
+        return os.path.splitext(self.path)
 
     def base64(self, mime=None):
         return self.service.base64(self.path, mime=mime)

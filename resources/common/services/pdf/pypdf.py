@@ -28,14 +28,14 @@ class Service(PdfService):
         output_pdf = PdfFileWriter()
         open_files = []
         for input_path in pdf_list:
-            input_node = StorageNode.fromPath(input_path, parent=self.parent)
+            input_node = self.parent.storageNode(input_path)
             with input_node.open() as input_file:
                 memory_file = StringIO(input_file.read())
                 open_files.append(memory_file)
             input_pdf = PdfFileReader(memory_file)
             for page in input_pdf.pages:
                 output_pdf.addPage(page)
-        with StorageNode.fromPath(output_filepath, parent=self.parent).open(mode='wb') as output_file:
+        with self.parent.storageNode(output_filepath).open(mode='wb') as output_file:
             output_pdf.write(output_file)
         for open_file in open_files:
             open_file.close()
