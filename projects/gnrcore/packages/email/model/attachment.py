@@ -22,7 +22,7 @@ class Table(object):
         month = '%02i' %date.month
         filename = filename or 'attachment_%s' %atc_counter
         site = self.db.application.site
-        storage = 'mail:%s' %account_id
+        storage = 'home:mail/%s' %account_id
         snode = site.storageNode(storage, year,month,message_id,filename)
         counter = 0
         fname,ext = os.path.splitext(filename)

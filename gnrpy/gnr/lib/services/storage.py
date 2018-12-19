@@ -144,6 +144,10 @@ class LocalPath(object):
         pass
 
 class ServiceType(BaseServiceType):
+    
+    def conf_home(self):
+        return dict(implementation='local',base_path=self.site.site_static_dir)
+
     def conf_site(self):
         return dict(implementation='local',base_path=self.site.site_static_dir)
 

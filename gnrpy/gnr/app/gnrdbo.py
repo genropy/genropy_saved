@@ -1216,36 +1216,45 @@ class AttachmentTable(GnrDboTable):
                 self.insert(pdf_record)
                 return pdf_record
 
+    def _getDestAttachmentNode(self,maintable_id=None,filename=None):
+        description,ext = os.path.splitext(filename)
+        description = slugify(description)
+        maintable = self.fullname[0:-4]
+        maintableobj = self.db.table(maintable)
+        destFolder = maintableobj.atc_getAttachmentPath(pkey=maintable_id)
+        if not destFolder:
+            destFolder = '%s/%s' %(maintable.replace('.','_'),maintable_id)
+        if not ':' in destFolder:
+            destFolder = 'home:%s' %destFolder
+        site = self.db.application.site
+        destFilename = '%s%s' %(description,ext)
+        destStorageNode = site.storageNode(destFolder,destFilename)
+        counter = 0
+        while destStorageNode.exists:
+            counter += 1
+            description = '%s_%02i' %(description,counter)
+            destFilename = '%s%s' %(description,ext)
+            destStorageNode = site.storageNode(destFolder,destFilename)
+        return destStorageNode
+        
     def addAttachment(self,maintable_id=None,origin_filepath=None,destFolder=None,
                             description=None,mimetype=None,moveFile=False):
-        mimetype = mimetype or mimetypes.guess_type(origin_filepath)[0]
         site = self.db.application.site
-        filename =  os.path.basename(origin_filepath)
-        if not destFolder:
-            maintable = self.fullname[0:-4]
-            destFolder = os.path.join(maintable.replace('.','_'),maintable_id)
-            maintableobj = self.db.table(maintable)
-            if hasattr(maintableobj,'atc_getAttachmentPath'):
-                destFolder = maintableobj.atc_getAttachmentPath(pkey=maintable_id)
-        destfilepath = site.getStaticPath('vol:%s' %destFolder,filename,autocreate=-1)
-        fname,ext = os.path.splitext(destfilepath)
-        counter = 0
-        while os.path.isfile(destfilepath):
-            filename = '%s_%i%s'%(filename,counter,ext)
-            counter += 1
-            destfilepath = site.getStaticPath('vol:%s' %destFolder,filename,autocreate=-1)
-        if '.' in fname:
-            fname = fname.replace('.','_')
-            destfilepath = '%s%s' %(fname,ext)
-            filename = os.path.basename(destfilepath)
-        if moveFile:
-            os.rename(origin_filepath,destfilepath)
+        originStorageNode = site.storageNode(origin_filepath)
+        mimetype = mimetype or mimetypes.guess_type(originStorageNode.path)[0]
+        filename = originStorageNode.basename
+        if destFolder:
+            destStorageNode = site.storageNode(destFolder,filename)
         else:
-            shutil.copyfile(origin_filepath,destfilepath)
+            destStorageNode = self._getDestAttachmentNode(maintable_id=maintable_id,filename=filename)
+        if moveFile:
+            originStorageNode.move(destStorageNode)
+        else:
+            originStorageNode.copy(destStorageNode)
         record = dict(maintable_id=maintable_id,
                         mimetype=mimetype,
-                        description=description or filename,
-                        filepath=os.path.join(destFolder,filename))
+                        description=destStorageNode.cleanbasename,
+                        filepath=destStorageNode.fullpath)
         self.insert(record)
         return record
     
