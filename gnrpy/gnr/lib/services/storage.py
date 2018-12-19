@@ -14,7 +14,7 @@ from gnr.core.gnrsys import expandpath
 
 from paste import fileapp
 from paste.httpheaders import ETAG
-from subprocess import call,check_call
+from subprocess import call,check_call, check_output
 class NotExistingStorageNode(Exception):
     pass
 
@@ -470,14 +470,15 @@ class StorageService(GnrBaseService):
     def serve(self, path, **kwargs):
         pass
 
-    def _call(self, call_args=None, call_kwargs=None, cb=None, cb_args=None, cb_kwargs=None):
+    def _call(self, call_args=None, call_kwargs=None, cb=None, cb_args=None, cb_kwargs=None, return_output=False):
         args_list = []
         with ExitStack() as stack:
             for arg in call_args:
                 if isinstance(arg, StorageNode):
                     arg = stack.enter_context(arg.local_path())
                 args_list.append(arg)
-            result = check_call(args_list, **call_kwargs)
+            call_fn = check_output if return_output else check_call
+            result = call_fn(args_list, **call_kwargs)
             if cb:
                 cb(*cb_args, **cb_kwargs)
             return result
@@ -487,7 +488,8 @@ class StorageService(GnrBaseService):
         cb_args = kwargs.pop('cb', None)
         cb_kwargs = kwargs.pop('cb', None)
         run_async = kwargs.pop('run_async', None)
-        call_params = dict(call_args=args,call_kwargs=kwargs, cb=cb, cb_args=cb_args, cb_kwargs=cb_kwargs)
+        return_output = kwargs.pop('return_output', None)
+        call_params = dict(call_args=args,call_kwargs=kwargs, cb=cb, cb_args=cb_args, cb_kwargs=cb_kwargs, return_output=return_output)
         if run_async:
             import thread
             thread.start_new_thread(self._call,(),call_params)
