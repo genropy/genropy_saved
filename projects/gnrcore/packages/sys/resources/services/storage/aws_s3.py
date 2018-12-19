@@ -67,7 +67,7 @@ class S3LocalFile(object):
         return self.close(exit_args=(exc, value, tb))
 
 class S3TemporaryFilename(object):
-    def __init__(self, bucket=None, key=None, s3_session=None, mode=None):
+    def __init__(self, bucket=None, key=None, s3_session=None, mode=None, keep=False):
         self.bucket = bucket
         self.key = key
         self.mode = mode or 'r'
@@ -78,6 +78,7 @@ class S3TemporaryFilename(object):
         self.session = s3_session
         self.s3 = self.session.client('s3',config= boto3.session.Config(signature_version='s3v4'))
         self.ext = os.path.splitext(self.key)[-1]
+        self.keep = keep
 
     def __enter__(self):
         self.fd,self.name = tempfile.mkstemp(suffix=self.ext)
@@ -91,7 +92,8 @@ class S3TemporaryFilename(object):
     def __exit__(self, exc, value, tb):
         if os.stat(self.name).st_mtime != self.enter_mtime:
             self.s3.upload_file(self.name, self.bucket,self.key)
-        os.unlink(self.name)
+        if not self.keep:
+            os.unlink(self.name)
 
 class Service(StorageService):
 
@@ -169,9 +171,10 @@ class Service(StorageService):
 
     def local_path(self, *args, **kwargs):
         mode = kwargs.get('mode', 'r')
+        keep = kwargs.get('keep', False)
         internalpath = self.internal_path(*args)
         return S3TemporaryFilename(bucket=self.bucket, key=internalpath,
-            s3_session=self._session, mode=mode)
+            s3_session=self._session, mode=mode, keep=keep)
 
     def isdir(self, *args):
         internalpath = self.internal_path(*args)

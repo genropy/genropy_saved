@@ -297,9 +297,9 @@ class StorageNode(object):
     def serve(self, environ, start_response, **kwargs):
         return self.service.serve(self.path, environ, start_response, **kwargs)
 
-    def local_path(self, mode=None):
+    def local_path(self, mode=None, keep=False):
         self.service.autocreate(self.path, autocreate=-1)
-        return self.service.local_path(self.path, mode=mode or self.mode)
+        return self.service.local_path(self.path, mode=mode or self.mode, keep=keep)
 
     def child(self, path=None):
         return self.service.parent.storageNode('%s/%s'%(self.fullpath,path))
