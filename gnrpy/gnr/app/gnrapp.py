@@ -644,11 +644,13 @@ class GnrApp(object):
         self.debug=debug
         self.remote_db = None
         self.instanceFolder = ''
+        self.instanceName = ''
         self.project_packages_path = None
         if instanceFolder:
             if '@' in instanceFolder:
                 instanceFolder,self.remote_db  = instanceFolder.split('@',1)
             self.instanceFolder = self.instance_name_to_path(instanceFolder)
+            self.instanceName = os.path.basename(self.instanceFolder)
             project_packages_path = os.path.normpath(os.path.join(self.instanceFolder, '..', '..', 'packages'))
             if os.path.isdir(project_packages_path):
                 self.project_packages_path = project_packages_path

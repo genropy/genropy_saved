@@ -142,11 +142,10 @@ class ImapReceiver(object):
         fname = slugify(fname)
         self.atc_counter+=1
         filename = fname+ext
-        new_attachment['filename'] = filename
         date = new_mail.get('send_date') or  datetime.datetime.today()
         attachmentNode =  self.getAttachmentNode(date=date,filename=filename, message_id=new_mail['id'])
-        
-        new_attachment['path'] = attachmentNode.path
+        new_attachment['path'] = attachmentNode.fullpath
+        new_attachment['filename'] = attachmentNode.basename
         with attachmentNode.open('w') as attachment_file:
             attachment_file.write(att_data)
 
@@ -157,6 +156,7 @@ class ImapReceiver(object):
         g = EmailGenerator(fp, mangle_from_=False)
         g.flatten(part, unixfrom=False)
         return fp.getvalue()
+        
 
     def getAttachmentNode(self,date=None,filename=None, message_id = None):
         return self.db.table('email.attachment').getAttachmentNode(date=date,filename=filename, 
