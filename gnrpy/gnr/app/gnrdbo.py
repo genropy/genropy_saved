@@ -1178,8 +1178,16 @@ class AttachmentTable(GnrDboTable):
     def onArchiveExport(self,records,files=None):
         site = self.db.application.site
         for r in records:
-            files[r['id']].append(site.getStaticPath('vol:%(filepath)s' %r))
+            filepath = r['filepath']
+            if  ':' not in filepath:
+                filepath = 'home:%s' %filepath
+            files[r['id']].append(self._atcStorageNode(r))
     
+    def _atcStorageNode(self,record):
+        filepath = record['filepath']
+        if ':' not in filepath:
+            filepath = 'home:%s' %filepath
+        return self.db.application.site.storageNode(filepath)
 
     def onTableConfig(self,tbl):
         pass
@@ -1189,8 +1197,7 @@ class AttachmentTable(GnrDboTable):
         site = self.db.application.site
         record = self.record(pkey=pkey,for_update=True).output('dict')
         old_record = dict(record)
-        filepath = record['filepath']
-        text_content = site.extractTextContent(site.getStaticPath('vol:%s' %filepath))
+        text_content = site.extractTextContent(self._atcStorageNode(record))
         if text_content:
             record['text_content'] = text_content
             self.update(record,old_record=old_record)
@@ -1206,8 +1213,9 @@ class AttachmentTable(GnrDboTable):
         site = self.db.application.site
         docConverter = site.getService('doctopdf')
         pdf_record = None
-        if docConverter and os.path.splitext(attachment['filepath'])[1] in ('.doc','.docx'):
-            pdf_staticpath = docConverter.convert(attachment['filepath'])
+        snode = self._atcStorageNode(attachment)
+        if docConverter and snode.extension in ('doc','docx'):
+            pdf_staticpath = docConverter.convert(snode)
             if pdf_staticpath:
                 pdf_record = dict(filepath=pdf_staticpath,
                         mimetype=attachment['mimetype'],
@@ -1276,11 +1284,10 @@ class AttachmentTable(GnrDboTable):
     def trigger_onDeletedAtc(self,record,**kwargs):
         if not record['filepath']:
             return
-        site = self.db.application.site
-        fpath = site.getStaticPath('vol:%s' %record['filepath'])
+        snode = self._atcStorageNode(record)
         try:
-            if os.path.exists(fpath):
-                os.remove(fpath)
+            if snode.exists:
+                snode.delete()
         except Exception:
             return
 

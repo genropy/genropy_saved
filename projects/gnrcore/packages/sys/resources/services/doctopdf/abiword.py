@@ -15,30 +15,27 @@ class Main(GnrBaseService):
         self.parent = parent
 
     def convert(self,src_path, dest_path=None):
+        sourceStorageNode = self.parent.storageNode(src_path)
         if not dest_path:
-            dirname, basename = os.path.split(src_path)
-            dest_dir = os.path.join(dirname, 'converted_pdf')
-            print dest_dir
-            if not os.path.exists(dest_dir):
-                os.makedirs(dest_dir)
-            dest_name = '%s.pdf'%os.path.splitext(basename)[0]
-            dest_path = os.path.join(dest_dir, dest_name)
-        name,ext = os.path.splitext(dest_path)
+            dirname = sourceStorageNode.dirname
+            basename = sourceStorageNode.basename
+            destStorageNode = self.parent.storageNode(dirname,'converted_pdf','%s.pdf' %sourceStorageNode.cleanbasename)
+        else:
+            destStorageNode =  self.parent.storageNode(dest_path)
+        destname = destStorageNode.cleanbasename
         counter = 0
-        while os.path.exists(dest_path):
-            dest_path = '%s_%i%s'%(name,counter,ext)
-            counter +=1
-        return_path = dest_path
-        if not os.path.isabs(src_path):
-            src_path = self.parent.getStaticPath('site:%s'%src_path, autocreate=-1)
-            dest_path = self.parent.getStaticPath('site:%s'%dest_path, autocreate=-1)
-        call_list = ['abiword', '--to=pdf', src_path, '-o', dest_path]
-        print call_list
+
+        while destStorageNode.exists:
+            counter += 1
+            destname = '%s_%02i' %(destname,counter)
+            destStorageNode = self.parent.storageNode(destStorageNode.dirname,'%s.pdf' %destname)
+
+        call_list = ['abiword', '--to=pdf', sourceStorageNode, '-o', destStorageNode]
         try:
-            result = call(call_list)
+            result = sourceStorageNode.service.call(call_list)
             if result !=0:
                 return None
-            return return_path
+            return destStorageNode.fullpath
         except Exception:
             return None
         
