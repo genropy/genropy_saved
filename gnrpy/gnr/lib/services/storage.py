@@ -228,7 +228,6 @@ class StorageNode(object):
     def mkdir(self, *args):
         return self.service.mkdir(self.path, *args)
 
-
     @property
     def internal_path(self, **kwargs):
         return self.service.internal_path(self.path)
@@ -256,6 +255,14 @@ class StorageNode(object):
     @property
     def size(self):
         return self.service.size(self.path)
+    
+    @property
+    def dirname(self):
+        return '%s:%s'%(self.service.service_name,os.path.dirname(self.path))
+        
+    @property
+    def parentStorageNode(self):
+        return self.parent.storageNode(self.dirname)
     
     def splitext(self):
         return os.path.splitext(self.path)
@@ -316,7 +323,7 @@ class StorageService(GnrBaseService):
 
     def basename(self, path=None):
         return self.split_path(path)[-1]
-
+    
     def extension(self, path=None):
         basename = self.basename(path)
         return os.path.splitext(basename)[-1].strip('.')

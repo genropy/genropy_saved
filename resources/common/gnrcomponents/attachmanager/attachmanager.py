@@ -362,7 +362,7 @@ class AttachManager(BaseComponent):
         filename = kwargs.get('filename')
         attachment_tblobj =  self.db.table(attachment_table)
         atcNode = attachment_tblobj._getDestAttachmentNode(maintable_id=maintable_id,filename=filename)
-        kwargs['uploadPath'] = atcNode.fullpath
+        kwargs['uploadPath'] = atcNode.dirname
         kwargs['filename'] = atcNode.basename
         record = dict(maintable_id=maintable_id,mimetype=kwargs.get('mimetype'),
                     description=atcNode.cleanbasename,filepath=atcNode.fullpath)

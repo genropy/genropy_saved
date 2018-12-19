@@ -1221,7 +1221,9 @@ class AttachmentTable(GnrDboTable):
         description = slugify(description)
         maintable = self.fullname[0:-4]
         maintableobj = self.db.table(maintable)
-        destFolder = maintableobj.atc_getAttachmentPath(pkey=maintable_id)
+        destFolder = None
+        if hasattr(maintableobj,'atc_getAttachmentPath'):
+            destFolder = maintableobj.atc_getAttachmentPath(pkey=maintable_id)
         if not destFolder:
             destFolder = '%s/%s' %(maintable.replace('.','_'),maintable_id)
         if not ':' in destFolder:
