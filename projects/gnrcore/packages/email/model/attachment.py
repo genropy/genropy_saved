@@ -17,12 +17,13 @@ class Table(object):
                                                                              relation_name='attachments')
 
 
-    def getAttachmentNode(self,date=None,filename=None, message_id = None, account_id=None,atc_counter=None):
+    def getAttachmentNode(self,date=None,filename=None, message_id = None, 
+                            account_id=None,atc_counter=None):
         year = str(date.year)
         month = '%02i' %date.month
         filename = filename or 'attachment_%s' %atc_counter
         site = self.db.application.site
-        storage = 'home:mail/%s' %account_id
+        storage = 'mail:%s' %account_id
         snode = site.storageNode(storage, year,month,message_id,filename)
         counter = 0
         fname,ext = os.path.splitext(filename)
