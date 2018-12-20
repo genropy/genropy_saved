@@ -947,7 +947,7 @@ dojo.declare("gnr.GridEditor", null, {
             return !gridstore.locked;
         }
         if(form && form.store){
-            return !(form.isDisabled() || form.isProtectWrite()) ;
+            return !form.isDisabled();
         }else{
             return 'editorEnabled' in gridSourceNode.attr? this.grid.editorEnabled:true;
         }
