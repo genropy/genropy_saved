@@ -938,6 +938,10 @@ graceful_timeout = 600
 
 
 NGINX_TEMPLATE = """
+map $http_x_forwarded_proto $real_scheme {
+            default $http_x_forwarded_proto;
+            ''      $scheme;
+}
 server {
         listen 80;
 
@@ -957,10 +961,12 @@ server {
             proxy_set_header Connection "Upgrade";
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header Host $http_host;
+            proxy_set_header X-Forwarded-Proto $real_scheme;
             proxy_pass http://unix:%(gnrasync_socket_path)s;
         }
         location / {
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $real_scheme;
             proxy_set_header Host $http_host;
             proxy_redirect off;
             proxy_pass http://unix:%(gunicorn_socket_path)s;
