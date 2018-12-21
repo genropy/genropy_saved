@@ -1550,7 +1550,7 @@ class SqlTable(GnrObject):
                     codeField,codeVal = cond.split(':')
                     wherelist.append('$%s=:v_%s' %(codeField,codeField))
                     wherekwargs['v_%s' %codeField] = codeVal
-                result = self.readColumns(columns='$id',where=' AND '.join(wherelist),**wherekwargs)
+                result = self.readColumns(columns='$%s' %self.pkey,where=' AND '.join(wherelist),**wherekwargs)
             elif hasattr(self,'sysRecord_%s' %identifier):
                 result = self.sysRecord(identifier)[self.pkey]
             elif self.pkey != 'id' or not codeField:
