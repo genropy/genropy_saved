@@ -602,7 +602,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     creating:function(attributes, sourceNode) {
         sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted,documentClasses,avoidCache,externalSite');
         objectExtract(attributes,'rpc_*');
-        objectUpdate(sourceNode.savedAttrs,objectExtract(sourceNode.attr,'rpc_*',false,true));
+        objectUpdate(sourceNode.savedAttrs,objectExtract(sourceNode.attr,'rpc_*',true,true));
 
         var condFunc = objectPop(attributes, 'condition_function');
         var condValue = objectPop(attributes, 'condition_value');
