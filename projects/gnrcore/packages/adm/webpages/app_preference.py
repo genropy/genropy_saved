@@ -32,7 +32,7 @@ class GnrCustomWebPage(object):
         bar = bottom.slotBar('revertbtn,*,cancel,savebtn',margin_bottom='2px',_class='slotbar_dialog_footer')
         #bottom.a('!!Zoom',float='left',href='/adm/app_preference')
         bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
-        bar.savebtn.slotButton('!!Save', action='this.form.publish("save",{destPkey:"*dismiss*"});')
+        bar.savebtn.slotButton('!!Save', action='this.form.publish("save",{destPkey:"*dismiss*",always:true});')
         bar.cancel.slotButton('!!Cancel', action='this.form.abort()')
 
     def controllers(self, form):

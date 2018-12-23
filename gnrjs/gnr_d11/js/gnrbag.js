@@ -712,6 +712,9 @@ dojo.declare("gnr.GnrBag", null, {
         this.forEach(function(n){
             var v =  n.getValue(mode);
             v = v instanceof gnr.GnrBag? v.asNestedTable(kw,mode):v;
+            if(kw.omitEmpty && isNullOrBlank(v)){
+                return;
+            }
             if (!n.attr._autolist){
                 rows += '<tr><td class="_bagformat_lbl">'+n.label+'</td>';
             }
@@ -722,6 +725,7 @@ dojo.declare("gnr.GnrBag", null, {
 
     getFormattedValue:function(kw,mode){
         kw = kw || {};
+        kw.omitEmpty = 'omitEmpty' in kw? kw.omitEmpty:true;
         if(this._parentnode && this._parentnode.attr.format_bag_cells){
             return this.asHtmlTable(objectExtract(this._parentnode.attr,'format_bag_*',true));
         }else if(kw.cells){
@@ -731,7 +735,6 @@ dojo.declare("gnr.GnrBag", null, {
         }
         var r = [];
         kw.joiner = kw.joiner || '<br/>';
-        kw.omitEmpty = 'omitEmpty' in kw? kw.omitEmpty:true;
         var fv;
         this.forEach(function(n){
             if(n.label[0]!='_'){
