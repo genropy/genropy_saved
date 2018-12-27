@@ -1214,7 +1214,7 @@ class AttachmentTable(GnrDboTable):
         docConverter = site.getService('doctopdf')
         pdf_record = None
         snode = self._atcStorageNode(attachment)
-        if docConverter and snode.extension in ('doc','docx'):
+        if docConverter and snode.ext in ('doc','docx'):
             pdf_staticpath = docConverter.convert(snode)
             if pdf_staticpath:
                 pdf_record = dict(filepath=pdf_staticpath,

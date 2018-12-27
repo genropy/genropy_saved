@@ -17,4 +17,6 @@ class Package(GnrDboPackage):
         return [dict(service_name='mail',resource='emailservice')]
         
 class Table(GnrDboTable):
-    pass
+    def use_dbstores(self,forced_dbstore=None, env_forced_dbstore=None,**kwargs):
+        return forced_dbstore or env_forced_dbstore or False
+
