@@ -769,6 +769,7 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
     :param methods: TODO
     :param only_callables: TODO
     :param exclude: TODO. If not *methods* then all methods are added"""
+    
     if isinstance(methods, basestring):
         methods = methods.split(',')
     if isinstance(exclude, basestring):
@@ -835,9 +836,17 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
             new.proxy_name = proxy
             new.__mixin_pkg = __mixin_pkg
             new.__mixin_path = __mixin_path
-        if getattr(new,'mixin_as',None):
-            mixin_as = new.mixin_as.replace('#',getmixincount())
-            setattr(target_class, mixin_as, new)
+        if getattr(new,'mixin_as',None):            
+            if '#' in new.mixin_as:
+                id_new = id(new)
+                if not hasattr(target_class, '__mixin_dict__'):
+                    target_class.__mixin_dict__ = dict()
+                if id_new not in target_class.__mixin_dict__:
+                    target_class.__mixin_dict__[id_new] = True
+                    mixin_as = new.mixin_as.replace('#',getmixincount())
+                    setattr(target_class, mixin_as, new)
+            else:
+                setattr(target_class, mixin_as, new)
         else:
             setattr(target_class, name, new)
             if original:
