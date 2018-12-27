@@ -1,3 +1,3 @@
-class GnrBaseService(object):
-    def __init__(self, parent):
-        self.parent = parent
+#-*- coding: UTF-8 -*-
+
+from gnr.lib.services import GnrBaseService

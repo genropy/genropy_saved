@@ -7,7 +7,9 @@
 #Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.batch.btcbase import BaseResourceBatch
+
 from gnr.core.gnrxls import XlsWriter
+from gnr.lib.services.storage import StorageNode
 from gnr.core.gnrstring import toText
 import re
 
@@ -38,11 +40,13 @@ class CsvWriter(object):
         self.result.append(separator.join([self.cleanCol(toText(row.get(col),locale=self.locale), self.coltypes[col]) for col in self.columns]))
 
     def workbookSave(self):
-        f = open(self.filepath, 'w')
-        result = '\n'.join(self.result)
-        f.write(result.encode('utf-8'))
-        f.close()
-
+        if self.isinstance(self.filepath, StorageNode):
+            csv_open = self.filepath.open
+        else:
+            csv_open = lambda **kw: open(self.filepath,**kw)
+        with csv_open(mode='w') as f:
+            result = '\n'.join(self.result)
+            f.write(result.encode('utf-8'))
 class BaseResourceExport(BaseResourceBatch):
     batch_immediate = True
     export_zip = False
@@ -146,13 +150,13 @@ class BaseResourceExport(BaseResourceBatch):
         export_mode = self.export_mode
         if self.export_zip:
             export_mode = 'zip'
-            self.zippath = self.page.site.getStaticPath('page:output',export_mode,'%s.%s' % (self.filename, export_mode), autocreate=-1)
-            self.page.site.zipFiles(file_list=[self.filepath],zipPath=self.zippath)
-            self.filepath = self.zippath
+            zipNode = self.page.site.storageNode('page:output',export_mode,'%s.%s' % (self.filename, export_mode), autocreate=-1)
+            self.page.site.zipFiles(file_list=[self.filepath],zipPath=zipNode)
+            self.filepath = zipNode.fullpath
         filename = self.filename
         if not self.filename.endswith('.%s' %self.export_mode):
             filename = '%s.%s' % (self.filename, export_mode)
-        self.fileurl = self.page.site.getStaticUrl('page:output', export_mode,filename)
+        self.fileurl = self.page.site.storageNode('page:output', export_mode,filename).url()
 
     def prepareFilePath(self, filename=None):
         if not filename:
@@ -160,7 +164,7 @@ class BaseResourceExport(BaseResourceBatch):
         filename = filename.replace(' ', '_').replace('.', '_').replace('/', '_')[:64]
         filename = filename.encode('ascii', 'ignore')
         self.filename = filename
-        self.filepath = self.page.site.getStaticPath('page:output',self.export_mode,'%s.%s' % (self.filename, self.export_mode), autocreate=-1)
+        self.filepath = self.page.site.storageNode('page:output',self.export_mode,'%s.%s' % (self.filename, self.export_mode), autocreate=-1)
 
     def result_handler(self):
         if self.batch_immediate:

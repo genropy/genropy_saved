@@ -92,7 +92,7 @@ class RecordUpdater(object):
                 elif self.insertMode:
                     self.tblobj.raw_insert(self.record)
                 else:
-                    self.tblobj.raw_update(self.record,self.oldrecord)
+                    self.tblobj.raw_update(self.record,self.oldrecord,pkey=self.pkey)
             else:
                 if self.record.get(self.tblobj.pkey) is False:
                     if not self.insertMode:
@@ -813,7 +813,8 @@ class SqlTable(GnrObject):
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
         duplicatedRecords=[]
         howmany = howmany or 1
-        record = self.recordAs(recordOrKey,mode='dict')
+        original_record = self.recordAs(recordOrKey,mode='dict')
+        record = dict(original_record)
         pkey = record.pop(self.pkey,None)
         for colname,obj in self.model.columns.items():
             if colname == self.draftField or colname == 'parent_id':
@@ -844,6 +845,8 @@ class SqlTable(GnrObject):
                         r = dict(r)
                         r[fkey] = dupRec[self.pkey]
                         manytable.duplicateRecord(r,destination_store=destination_store)
+        if hasattr(self,'onDuplicated'):
+            self.onDuplicated(duplicated_records=duplicatedRecords,original_record=original_record)
         return duplicatedRecords[0]
             
     def recordAs(self, record, mode='bag', virtual_columns=None,ignoreMissing=True):
@@ -1308,6 +1311,9 @@ class SqlTable(GnrObject):
 
     def raw_update(self,record=None,old_record=None,pkey=None,**kwargs):
         self.db.raw_update(self, record,old_record=old_record,pkey=pkey,**kwargs)
+    
+    def changePrimaryKeyValue(self, pkey=None,newpkey=None,**kwargs):
+        self.db.adapter.changePrimaryKeyValue(self,pkey=pkey,newpkey=newpkey)
 
     def delete(self, record, **kwargs):
         """Delete a single record from this table.
@@ -1544,7 +1550,7 @@ class SqlTable(GnrObject):
                     codeField,codeVal = cond.split(':')
                     wherelist.append('$%s=:v_%s' %(codeField,codeField))
                     wherekwargs['v_%s' %codeField] = codeVal
-                result = self.readColumns(columns='$id',where=' AND '.join(wherelist),**wherekwargs)
+                result = self.readColumns(columns='$%s' %self.pkey,where=' AND '.join(wherelist),**wherekwargs)
             elif hasattr(self,'sysRecord_%s' %identifier):
                 result = self.sysRecord(identifier)[self.pkey]
             elif self.pkey != 'id' or not codeField:

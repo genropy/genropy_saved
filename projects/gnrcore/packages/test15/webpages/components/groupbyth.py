@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # genrodlg.py
 # Created by Francesco Porcari on 2010-09-03.

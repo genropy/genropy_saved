@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #--------------------------------------------------------------------------
 # Copyright (c) : 2004 - 2007 Softwell sas - Milano 
 # Written by    : Giovanni Porcari, Michele Bertoldi
@@ -358,22 +358,13 @@ class AttachManager(BaseComponent):
     @public_method
     def onUploadingAttachment(self,kwargs):
         attachment_table = kwargs.get('attachment_table')
-        maintable = attachment_table[0:-4]
         maintable_id = kwargs.get('maintable_id')
-        maintableobj = self.db.table(maintable)
         filename = kwargs.get('filename')
-        description,ext = os.path.splitext(filename)
-        description = slugify(description)
-        last = self.db.table(attachment_table).query(where='$maintable_id=:mid',mid=maintable_id,order_by='_row_count desc',limit=1).fetch()
-        counter = 0
-        if last:
-            counter = last[0]['_row_count']
-        filename = '%002i_%s%s' %(counter,description,ext)
-        kwargs['filename'] = filename
-        path = os.path.join(maintable.replace('.','_'),maintable_id)
-        if hasattr(maintableobj,'atc_getAttachmentPath'):
-            path = maintableobj.atc_getAttachmentPath(pkey=maintable_id)
-        kwargs['uploadPath'] = 'vol:%s' %path
-        record = dict(maintable_id=maintable_id,mimetype=kwargs.get('mimetype'),description=description,filepath=os.path.join(path,filename))
-        self.db.table(attachment_table).insert(record)
+        attachment_tblobj =  self.db.table(attachment_table)
+        atcNode = attachment_tblobj._getDestAttachmentNode(maintable_id=maintable_id,filename=filename)
+        kwargs['uploadPath'] = atcNode.dirname
+        kwargs['filename'] = atcNode.basename
+        record = dict(maintable_id=maintable_id,mimetype=kwargs.get('mimetype'),
+                    description=atcNode.cleanbasename,filepath=atcNode.fullpath)
+        attachment_tblobj.insert(record)
         self.db.commit()

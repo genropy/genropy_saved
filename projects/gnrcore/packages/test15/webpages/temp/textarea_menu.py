@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # textarea_menu.py
 # Created by Francesco Porcari on 2012-04-13.

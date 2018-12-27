@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # test_flibpicker.py
 # Created by Saverio Porcari on 2010-10-15.

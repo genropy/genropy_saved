@@ -59,20 +59,6 @@ def getOptions():
 
     return arguments.__dict__
 
-SERVICE_TPL = """
-[Unit]
-Description=GnrDaemon Service
-After=multi-user.target
-
-[Service]
-Type=idle
-User=%(user)s
-%(environments)s
-ExecStart=%(binpath)s
-
-[Install]
-WantedBy=multi-user.target
-"""
 
 if __name__=="__main__":
     options = getOptions()
@@ -81,30 +67,7 @@ if __name__=="__main__":
         server = GnrDaemon()
         server.start(use_environment=True,**options)
     elif command=='make_service':
-        import os
-        import sys
-        import pwd
-        if os.environ.has_key('VIRTUAL_ENV'):
-            environments = "Environment=VIRTUAL_ENV=%s" %os.environ['VIRTUAL_ENV']
-        else:
-            environments = ''
-        current_username = pwd.getpwuid(os.getuid())[0]
-        binpath = sys.argv[0]
-        content = SERVICE_TPL %dict(environments=environments,binpath=binpath, user= current_username)
-        with open('gnrdaemon.service','w') as service_file:
-            service_file.write(content)
-        print """
-Now using run these commands
-
-$ sudo cp gnrdaemon.service /lib/systemd/system/gnrdaemon.service
-$ sudo chmod 644 /lib/systemd/system/gnrdaemon.service
-$ sudo systemctl daemon-reload  # Refresh the available service list
-$ sudo systemctl enable gnrdaemon.service
-$ sudo systemctl start gnrdaemon.service
-...
-$ sudo systemctl status gnrdaemon.service
-$ sudo journalctl -e -u gnrdaemon.service
-        """
+        print "gnrdaemon make_service is deprecated, use gnrdeploybuilder --make_gnrdaemon"
     else:
         p = GnrDaemonProxy(use_environment=True, host=options.get('host'),port=options.get('port'),socket=options.get('socket'),hmac_key=options.get('hmac_key'),compression=options.get('compression'))
         proxy = p.proxy()

@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #--------------------------------------------------------------------------
 # package       : GenroPy core - see LICENSE for details
 # module gnrclasses : class catalog.
@@ -400,7 +400,7 @@ class GnrClassCatalog(object):
             
         :param txt: TODO
         :param workdate: the :ref:`workdate`"""
-        raise
+        raise Exception
 
         
     def serialize_timedelta(self,td):

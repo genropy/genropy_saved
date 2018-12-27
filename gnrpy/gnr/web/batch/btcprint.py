@@ -42,7 +42,8 @@ class BaseResourcePrint(BaseResourceBatch):
         self.print_mode = self.batch_options['print_mode']
         self.server_print_options = self.batch_parameters['_printerOptions']
         self.print_options = self.batch_options[self.print_mode]
-        self.print_handler = self.page.getService('print')
+        self.network_printer = self.page.getService('networkprint')
+        self.pdf_handler = self.page.getService('pdf')
         self.pdf_make = self.print_mode != 'client_print'
 
     def print_selection(self, thermo_selection=None, thermo_record=None):
@@ -134,33 +135,40 @@ class BaseResourcePrint(BaseResourceBatch):
         mailmanager.sendmail(**mailpars)
         
     def result_handler_server_print(self, resultAttr):
-        printer = self.print_handler.getPrinterConnection(self.server_print_options.pop('printer_name'),
+        printer = self.network_printer.getPrinterConnection(self.server_print_options.pop('printer_name'),
                                                           **self.server_print_options.asDict(True))
-        return printer.printCups(self.results.values(), self.batch_title)
+        return printer.printFiles(self.results.values(), self.batch_title)
 
 
     def result_handler_html(self, resultAttr):
         print x
         
     def result_handler_pdf(self, resultAttr):
-        pdfprinter = self.print_handler.getPrinterConnection('PDF', self.print_options)
         save_as = slugify(self.print_options['save_as'] or self.batch_title)
-        filename = pdfprinter.printPdf(self.results.values(), self.batch_title,
-                                       outputFilePath=self.page.site.getStaticPath('user:output', 'pdf', save_as,
-                                                                                   autocreate=-1))
-        if filename:
-            self.fileurl = self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True, download=True)
-            resultAttr['url'] = self.fileurl
-            resultAttr['document_name'] = save_as
-            resultAttr['url_print'] = 'javascript:genro.openWindow("%s","%s");' %(self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True),save_as)
-            if self.batch_immediate:
-                resultAttr['autoDestroy'] = 5
-            if self.batch_immediate is True:
-                self.batch_immediate = self.batch_parameters.get('immediate_mode')
-            if self.batch_immediate=='print':
-                self.page.setInClientData(path='gnr.clientprint',value=self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True),fired=True)
-            elif self.batch_immediate=='download':
-                self.page.setInClientData(path='gnr.downloadurl',value=self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True),fired=True)
+        outputFileNode=self.page.site.storageNode('user:output', 'pdf', save_as,autocreate=-1)
+        zipped =  self.print_options.get('zipped')
+        immediate_mode = self.batch_immediate
+        if immediate_mode is True:
+            immediate_mode = self.batch_parameters.get('immediate_mode')
+        if immediate_mode and zipped:
+            immediate_mode = 'download'
+        if zipped:
+            outputFileNode.path +='.zip'
+            self.page.site.zipFiles(self.results.values(), outputFileNode)
+        else:
+            outputFileNode.path +='.pdf'
+            self.pdf_handler.joinPdf(self.results.values(), outputFileNode)
+        self.fileurl = outputFileNode.url(nocache=True, download=True)
+        inlineurl = outputFileNode.url(nocache=True)
+        resultAttr['url'] = self.fileurl
+        resultAttr['document_name'] = save_as
+        resultAttr['url_print'] = 'javascript:genro.openWindow("%s","%s");' %(inlineurl,save_as)
+        if immediate_mode:
+            resultAttr['autoDestroy'] = 5
+        if immediate_mode=='print':
+            self.page.setInClientData(path='gnr.clientprint',value=inlineurl,fired=True)
+        elif immediate_mode=='download':
+            self.page.setInClientData(path='gnr.downloadurl',value=inlineurl,fired=True)
 
     def table_script_option_pane(self, pane,print_modes=None, mail_modes=None,**kwargs):
         frame = pane.framePane(height='220px',width='400px')

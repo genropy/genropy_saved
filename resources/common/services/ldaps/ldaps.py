@@ -1,5 +1,5 @@
 #!/usr/bin/env pythonw
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #
 
 # Required:
@@ -8,7 +8,7 @@
 #
 
 from gnr.core.gnrstring import boolean
-from gnr.core.gnrbaseservice import GnrBaseService
+from gnr.lib.services import GnrBaseService
 from gnr.core.gnrdecorator import extract_kwargs
 from ldap.controls import SimplePagedResultsControl
 import ldap

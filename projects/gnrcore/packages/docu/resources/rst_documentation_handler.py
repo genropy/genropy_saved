@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 """
 examplehandler.py
@@ -111,7 +111,7 @@ class RstDocumentationHandler(BaseComponent):
         tc = parent.tabContainer(overflow='hidden',
                        closable=closable,
                        splitter=True,datapath='#FORM',region='right',width=width,**kwargs)
-        self.rst_snippetTab(tc.contentPane(title='Snippet',overflow='hidden'),path=self.getResource('rst_snippets.xml'))
+        self.rst_snippetTab(tc.contentPane(title='Snippet',overflow='hidden'),path=self.getResource('rst_snippets.xml',pkg='docu'))
         self.rst_imageTab(tc.contentPane(title='Images',overflow='hidden'))
 
     @struct_method
@@ -245,7 +245,6 @@ class DocumentationViewer(BaseComponent):
                             _delay=1)
         bar = frame.top.slotBar('doccaption,*,editrst,nav_up,nav_down,3,nav_left,nav_right,10,searchSelect,5',height='24px',
                                 border_bottom='1px solid #3A4D65',toolbar=True,background='#DBDBDB')
-
         bar.dataController("""
             var n = tocroot.getNode(hierarchical_pkey.replace(/\//g, '.'));   
             var next_sibling_hname,prev_sibling_hname,parent_hname,first_child_hname;
@@ -368,6 +367,40 @@ class DocumentationViewer(BaseComponent):
                         subscribe_setInLocalIframe=True,
                         data='=.record.sourcebag')
         pane.iframe(src='^.localIframeUrl',src__source_viewer=True,height='100%',width='100%',border=0)
+        visitor_identifier = self.rootenv['user'] or self.rootenv['visitor_identifier']
+        if visitor_identifier:
+            self.dc_visitor_pane(bc.contentPane(region='bottom',closable='close',height='40px',background_color='#efefef'),visitor_identifier=visitor_identifier)
+    
+    def dc_visitor_pane(self,pane,visitor_identifier=None):
+        pane.dataRecord('.visitor_record','docu.documentation_visit',
+                        visitor_identifier=visitor_identifier,
+                        documentation_id='^.pkey',ignoreMissing=True)
+        pane.dataRpc(None,self.dc_updateVisitRecord,visit_record='^.visitor_record',
+                    documentation_id='=.pkey',_if='documentation_id && _reason=="child"')
+        fb = pane.formbuilder(datapath='.visitor_record',cols=1,float='right')
+        fb.filteringSelect(value='^.visit_level',values='!!01:Quick view,02:Have questions,09:Okay',lbl='Visit')
+        #fb.textbox(value='^.notes',lbl='Notes',width='20em')
+    
+    @public_method
+    def dc_updateVisitRecord(self,visit_record=None,documentation_id=None,**kwargs):
+        visitor_identifier = self.rootenv['user'] or self.rootenv['visitor_identifier']
+        visit_record['visitor_identifier'] = visitor_identifier
+        visit_record['documentation_id'] = documentation_id
+        with self.db.table('docu.documentation_visit').recordToUpdate(visitor_identifier=visitor_identifier,
+                                                                    documentation_id=documentation_id,
+                                                                    insertMissing=True) as rec:
+            rec['visitor_identifier'] = visitor_identifier
+            rec['documentation_id'] = documentation_id
+            rec['notes'] = visit_record['notes']
+            rec['visit_level'] = visit_record['visit_level']
+        self.db.commit()
+
+
+
+
+    
+
+            
 
     @public_method
     def dc_path_hierarchical_name(self,hierarchical_name=None,**kwargs):

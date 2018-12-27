@@ -600,9 +600,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     _default_ext : 'py,png,jpg,jpeg,gif,html,pdf',
 
     creating:function(attributes, sourceNode) {
-        sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted,documentClasses,externalSite');
+        sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted,documentClasses,avoidCache,externalSite');
         objectExtract(attributes,'rpc_*');
-        objectUpdate(sourceNode.savedAttrs,objectExtract(sourceNode.attr,'rpc_*',false,true));
+        objectUpdate(sourceNode.savedAttrs,objectExtract(sourceNode.attr,'rpc_*',true,true));
 
         var condFunc = objectPop(attributes, 'condition_function');
         var condValue = objectPop(attributes, 'condition_value');
@@ -709,6 +709,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     },
     setSrc:function(domnode,v,kw){
         var that = this;
+        var sourceNode = domnode.sourceNode;
+        sourceNode.rebuild();
+        domnode = sourceNode.domNode;
         domnode.sourceNode.watch('isVisibile',
                         function(){return genro.dom.isVisible(domnode);},
                         function(){that.setSrc_do(domnode, v, kw);});
@@ -724,16 +727,16 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             src_kwargs._calling_page_id = genro.page_id;
         }
         if (attributes._if && !sourceNode.getAttributeFromDatasource('_if')) {
-            var v = '';
+            v = '';
         } else if (sourceNode.condition_function && !sourceNode.condition_function(sourceNode.condition_value)) {
-            var v = '';
+            v = '';
         }
         else {
-            var v = v || this.prepareSrc(domnode);
+            v = v || this.prepareSrc(domnode);
         }
         if(main_call){
             v = v || window.location.pathname;
-            src_kwargs['main_call'] = main_call;
+            src_kwargs.main_call = main_call;
         }
         if (v) {     
             if(sourceNode.attr.documentClasses){
@@ -741,6 +744,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
                 genro.dom.addClass(domnode,'waiting');
             }
             src_kwargs = sourceNode.evaluateOnNode(src_kwargs);
+            if(sourceNode.savedAttrs.avoidCache){
+                src_kwargs._nocache = genro.time36Id();
+            }
             v = genro.addParamsToUrl(v,src_kwargs);   
             v = genro.dom.detectPdfViewer(v,sourceNode.attr.jsPdfViewer);
             var doset = this.initContentHtml(domnode,v);
@@ -769,11 +775,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             return false;
         }else if(!parsedSrc.file){
             domnode.src = '';
-            return false
+            return false;
         }
-        domnode.src = '';
-        loadingpath = document.location.protocol + '//' + document.location.host +'/_gnr/11/css/icons/ajax-loader.gif';
-        domnode.contentWindow.document.body.innerHTML = '<div style="height:100%;width:100%; background:#F6F6F6 url('+loadingpath+') no-repeat center center;"></div>';
+        genro.dom.addClass(domnode,'waiting');
         return true;
     },
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env pythonw
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #
 #  utils.py
 #
@@ -228,7 +228,7 @@ class GnrWebUtils(GnrBaseProxy):
         if table:
             importerStructure = importerStructure or self.page.db.table(table).importerStructure()
             checkCb = checkCb or self.page.db.table(table).importerCheck
-        reader = getReader(file_path,filetype=filetype)
+        reader = self.getReader(file_path,filetype=filetype)
         importerStructure = importerStructure or dict()
         mainsheet = importerStructure.get('mainsheet')
         if mainsheet is None and importerStructure.get('sheets'):
@@ -291,7 +291,7 @@ class GnrWebUtils(GnrBaseProxy):
         tblobj = self.page.db.table(table)
         docommit = False
         importerStructure = tblobj.importerStructure() or dict()
-        reader = getReader(file_path,filetype=filetype)
+        reader = self.getReader(file_path,filetype=filetype)
         if importerStructure:
             sheets = importerStructure.get('sheets')
             if not sheets:
@@ -375,7 +375,9 @@ class GnrWebUtils(GnrBaseProxy):
             
 
     def getReader(self,file_path,filetype=None,**kwargs):
-        return getReader(file_path=file_path,filetype=filetype,**kwargs)
+        readerfile = self.page.site.storageNode(file_path)
+        with readerfile.local_path() as local_path:
+            return getReader(file_path=local_path,filetype=filetype,**kwargs)
 
     @public_method
     def exportPdfFromNodes(self,pages=None,name=None,
@@ -384,7 +386,8 @@ class GnrWebUtils(GnrBaseProxy):
         style = style or ''
         name = name or self.page.getUuid()
         pdf_list = []
-        print_handler = self.page.site.getService('print')
+        print_handler = self.page.site.getService('htmltopdf')
+        pdf_handler = self.page.site.getService('pdf')
         pl = [name]
         pl.append('pdf')
         pl.append('%s.pdf' %name)
@@ -396,8 +399,7 @@ class GnrWebUtils(GnrBaseProxy):
             page_path = self.page.site.getStaticPath('page:exportPdfFromNodes',*hp,autocreate=-1)
             print_handler.htmlToPdf(EXPORT_PDF_TEMPLATE %dict(title='%s %i' %(name,i) ,style=style, body=p),page_path, orientation=orientation)
             pdf_list.append(page_path)
-        print_handler.getPrinterConnection('PDF').printPdf(pdf_list, 'export_%s' %name,
-                                       outputFilePath=os.path.splitext(outputFilePath)[0])
+        pdf_handler.joinPdf(pdf_list,'export_%s' %name,os.path.splitext(outputFilePath)[0])
         self.page.setInClientData(path='gnr.clientprint',
                                   value=self.page.site.getStaticUrl('page:exportPdfFromNodes',*pl, nocache=True),
                                   fired=True)

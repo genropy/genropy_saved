@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # validate_password.py
 # Created by Francesco Porcari on 2011-03-16.

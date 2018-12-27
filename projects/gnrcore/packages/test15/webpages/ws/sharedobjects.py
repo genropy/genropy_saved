@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # sharedobjects.py
 # Created by Francesco Porcari on 2012-01-03.

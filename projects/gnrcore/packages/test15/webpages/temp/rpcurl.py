@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # rpcurl.py
 # Created by Francesco Porcari on 2011-11-12.

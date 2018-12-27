@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # test_iframe_inside.py
 # Created by Francesco Porcari on 2011-02-14.

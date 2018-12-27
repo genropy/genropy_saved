@@ -23,7 +23,7 @@ def config(root,application=None):
     dev.thpage(u"!!Backups", table="adm.backup")
 
 
-    access_history = administration.branch('Access history',tags='_DEV_')
+    access_history = administration.branch('Access history',tags='_DEV_',checkpref='adm.dev.connection_log_enabled')
     access_history.thpage(u"!!Connections", table="adm.connection")
     access_history.thpage(u"!!Served pages", table="adm.served_page")
 

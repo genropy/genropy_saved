@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # Created by Francesco Porcari on 2010-10-02.
 # Copyright (c) 2011 Softwell. All rights reserved.

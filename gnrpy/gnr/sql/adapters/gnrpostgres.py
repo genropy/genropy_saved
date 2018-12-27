@@ -240,6 +240,58 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         else:
             return call(['psql', "dbname=%s user=%s password=%s" % (dbname, self.dbroot.user, self.dbroot.password), '-f', filename])
         
+
+    def importRemoteDb(self, source_dbname,source_ssh_host=None,source_ssh_user=None,
+                                source_dbuser=None,source_dbpassword=None,
+                                source_dbhost=None,source_dbport=None,
+                                dest_dbname=None):
+        dest_dbname = dest_dbname or source_dbname
+        import subprocess
+        self.createDb(dbname=dest_dbname, encoding='unicode')
+        srcdb = dict(user=source_dbuser or 'postgres',dbname=source_dbname,
+                        password=source_dbpassword or 'postgres',
+                        host = source_dbhost or 'localhost',
+                        port = source_dbport or '5432')
+        ps = subprocess.Popen((
+            'ssh','%s@%s' %(source_ssh_user,source_ssh_host),
+            '-C', "pg_dump --dbname=postgresql://%(user)s:%(password)s@%(host)s:%(port)s/%(dbname)s" %srcdb
+            ),stdout=subprocess.PIPE)
+        destdb = {'dbname':dest_dbname,
+                'user':self.dbroot.user,
+                'password':self.dbroot.password,
+                'host':self.dbroot.host or 'localhost',
+                'port':self.dbroot.port or '5432'
+                }
+        output = subprocess.check_output(('psql', 
+                                        'dbname=%(dbname)s user=%(user)s password=%(password)s host=%(host)s port=%(port)s' %destdb),
+                                        stdin=ps.stdout)
+        ps.wait()
+
+
+    def listRemoteDatabases(self,source_ssh_host=None,source_ssh_user=None,
+                                source_dbuser=None,source_dbpassword=None,
+                                source_dbhost=None,source_dbport=None):
+        import subprocess
+        srcdb = dict(user=source_dbuser or 'postgres',
+                        password=source_dbpassword or 'postgres',
+                        host = source_dbhost or 'localhost',
+                        port = source_dbport or '5432')
+        ps = subprocess.Popen((
+            'ssh','%s@%s' %(source_ssh_user,source_ssh_host),
+            '-C', 'psql','-l','-t', "user=%(user)s password=%(password)s host=%(host)s port=%(port)s" %srcdb
+            ),stdout=subprocess.PIPE)
+        res = ps.stdout.read()
+        ps.wait()
+        result = []
+        if not res:
+            return []
+        for dbr in res.split('\n'):
+            dbname = dbr.split('|')[0].strip()
+            if dbname:
+                result.append(dbname)
+        return result
+
+    
     def createTableAs(self, sqltable, query, sqlparams):
         self.dbroot.execute("CREATE TABLE %s WITH OIDS AS %s;" % (sqltable, query), sqlparams)
         

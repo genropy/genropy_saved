@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # untitled.py
 # Created by Giovanni Porcari on 2010-08-29.

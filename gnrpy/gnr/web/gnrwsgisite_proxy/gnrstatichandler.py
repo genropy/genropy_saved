@@ -1,5 +1,5 @@
 
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 from gnr.core.gnrbag import Bag
 from gnr.core import gnrstring
 from gnr.core.gnrlang import GnrDebugException
@@ -12,6 +12,7 @@ from paste import fileapp
 from paste.httpheaders import ETAG
 import random
 import tempfile
+from gnr.core.gnrdecorator import callers
 
 class StaticHandlerManager(object):
     """ This class handles the StaticHandlers"""
@@ -43,7 +44,9 @@ class StaticHandlerManager(object):
     def fileserve(self, f, environ, start_response, download=False, **kwargs):
         return StaticHandler(self.site).serve(f, environ,start_response, download=download, **kwargs)
 
+    @callers()
     def static_dispatcher(self, path_list, environ, start_response, download=False, **kwargs):
+        print 'Calling static_dispatcher %s ' % path_list 
         handler = self.get(path_list[0][1:])
         if handler:
             result = handler.serve(path_list, environ, start_response, download=download, **kwargs)
@@ -69,6 +72,7 @@ class StaticHandler(object):
 
     def __init__(self, site, **kwargs):
         self.site = site
+        self.supports_autocreate = True
 
     @property
     def home_uri(self):
@@ -149,6 +153,7 @@ class StaticHandler(object):
         return url
 
 
+
 class DojoStaticHandler(StaticHandler):
     prefix = 'dojo'
 
@@ -166,6 +171,26 @@ class VolumesStaticHandler(StaticHandler):
     def __init__(self, *args, **kwargs):
         super(VolumesStaticHandler, self).__init__(*args,**kwargs)
         self.volumes = dict()
+        sitevolumes = self.site.config.getItem('volumes')
+        if sitevolumes:
+            self.volumes = dict([(n.label,n.attr['path']) for n in sitevolumes])
+
+    def url(self, volume, *args, **kwargs):
+        return '%s_vol/%s/%s' % (self.home_uri, volume, '/'.join(args))
+
+    def path(self,volume,*args,**kwargs):
+        vpath = self.volumes.get(volume,volume)
+        #print 'volumes',self.volumes,'volume'
+        result = expandpath(os.path.join(self.site.site_static_dir,vpath, *args))
+        #print 'aaa',result
+        return result
+
+class CloudStaticHandler(StaticHandler):
+    prefix = 'cld'
+
+    def __init__(self, *args, **kwargs):
+        super(CloudStaticHandler, self).__init__(*args,**kwargs)
+        self.cloud_services = dict()
         sitevolumes = self.site.config.getItem('volumes')
         if sitevolumes:
             self.volumes = dict([(n.label,n.attr['path']) for n in sitevolumes])

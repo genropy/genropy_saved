@@ -1,0 +1,45 @@
+
+#!/usr/bin/env python
+# encoding: utf-8
+
+import optparse
+from gnr.web.gnrwsgisite import GnrWsgiSite
+import os
+from gnr.core.gnrsys import expandpath
+try:
+    import progressbar
+    PROGRESS = progressbar.ProgressBar()
+except ImportError:
+    PROGRESS = None
+
+def sync_to_service(site=None, from_storage=None, to_storage=None, skip_existing=True, skip_same_size=False):
+    done_path = expandpath('~/.gnrstsync.%s.%s.%s'%(site, from_storage, to_storage))
+    done_list = None
+    if os.path.exists(done_path):
+        with open(done_path) as done_file:
+            done_list = done_file.read().split('\n')
+    s=GnrWsgiSite(site)
+    with open(done_path, 'a') as done_file:
+        def doneCb(src):
+            done_file.write(src.fullpath)
+            done_file.write('\n')
+            done_file.flush()
+        stor = s.storage(from_storage)
+        stor.sync_to_service(to_storage, thermo=PROGRESS, done_list=done_list, doneCb=doneCb)
+    os.unlink(done_path)
+
+if __name__ == "__main__":
+    usage = """
+    sync_storage <site_name> <from_storage> <to_storage> will copy files from <from_storage> to <to_storage>.
+    """
+    parser = optparse.OptionParser(usage)
+    parser.add_option('-s', '--skip_same_size', action="store_true", dest='skip_same_size',
+                        help="Skip same size files")
+    parser.add_option('-e', '--skip_existing', action="store_true", dest='skip_existing',
+                        help="Skip existing files")
+    (options, args) = parser.parse_args()
+    kwargs = {}
+    kwargs['skip_same_size'] = options.skip_same_size
+    kwargs['skip_existing'] = options.skip_existing
+    sync_to_service(*args, **kwargs)
+

@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # th_lib.py
 # Created by Francesco Porcari on 2011-05-04.
@@ -183,3 +183,24 @@ class TableHandlerCommon(BaseComponent):
                         'column_caption': self.app._relPathToCaption(table, column),
                         'value_caption':val})
         return result
+    
+    @public_method
+    def th_multidbStoreQueryPicker(self,pane,**kwargs):
+        frame = pane.bagGrid(storepath='.dbstores',title='!!Db Stores',pbl_classes=True,margin='2px',
+                            datapath='#WORKSPACE.dbstorePicker',addrow=False,delrow=False,
+                            struct=self.th_multidbStoreQueryPicker_struct)
+        bar = frame.top.bar.replaceSlots('#','#,allstores,searchOn,5')
+        bar.allstores.checkbox(value='^#WORKSPACE.queryOnAllStores',label='!!All stores')
+        bar.dataFormula('#ANCHOR.multiStores',"queryOnAllStores?'*':(queryDbStores || null)",
+                        queryOnAllStores='^#WORKSPACE.queryOnAllStores',
+                        queryDbStores='^#WORKSPACE.queryDbStores')
+        dbstorebag = Bag()
+        dbstorebag.setItem(self.db.rootstore,None,dbstore='MAINSTORE',_pkey=self.db.rootstore)
+        for dbstore in self.db.dbstores:
+            dbstorebag.addItem(dbstore,None,dbstore=dbstore,_pkey=dbstore)
+        frame.data('.dbstores',dbstorebag)
+        
+    def th_multidbStoreQueryPicker_struct(self,struct):
+        r=struct.view().rows()
+        r.checkboxcolumn(checkedId='#WORKSPACE.queryDbStores',name=' ',hidden='^#WORKSPACE.queryOnAllStores')
+        r.cell('dbstore',width='20em',name='!!Store')

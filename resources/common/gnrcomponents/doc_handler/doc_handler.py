@@ -132,9 +132,9 @@ class DocHandler(BaseComponent):
         html= ''
         title=''
         head = ''
-        path = self.site.getStaticPath(path)
-        if os.path.exists(path):
-            with open(path,'r') as f:
+        storeNode = self.site.storageNode(path)
+        if storeNode.exists:
+            with storeNode.open(mode='r') as f:
                 result = f.read()
                 m = re.search("<body>(.*)</body>", result, re.I | re.S)
                 if m:
@@ -153,11 +153,8 @@ class DocHandler(BaseComponent):
     def de_saveStoreFile(self,path=None,data=None,**kwargs):
         spath = os.path.split(path)
         title = data['title'] or spath[1]
-        path = self.site.getStaticPath(path)
-        destdir = os.path.dirname(path)
-        if not os.path.exists(destdir):
-            os.makedirs(destdir)
-        with open(path,'w') as f:
+        dest = self.site.storageNode(path, autocreate=-1)
+        with dest.open(mode='wb') as f:
             f.write(PAGEHTML %(title,data['body']))
 
     @struct_method
@@ -177,7 +174,7 @@ class DocHandler(BaseComponent):
         output = self.site.getStaticUrl if asUrl else os.path.join
         language = language or self.language
         doctype = doctype or 'html'
-        webpagespath = self.site.getStaticPath('pkg:%s' %self.package.name,'webpages')
+        webpagespath = self.site.storageNode('pkg:%s' %self.package.name,'webpages').internal_path
         m = sys.modules[self.__module__]
         basename =  os.path.splitext(m.__file__.replace(webpagespath,''))[0][1:]
         fileargs = []
@@ -191,10 +188,11 @@ class DocHandler(BaseComponent):
         else:
             fileargs = ['pkg:%s' %self.package.name,'doc','*lang*',doctype,'webpages',
                                         os.path.dirname(basename),filepath]
-        fpath = self.site.getStaticPath(*fileargs) 
-        if not os.path.exists(fpath.replace('*lang*',language)):
+        fpath = '/'.join(fileargs)
+        if not self.site.storageNode(fpath.replace('*lang*',language)).exists:
             language = BASELANGUAGE
-        return output(*[a if a!='*lang*' else language for a in fileargs])
+        outNode = self.site.storageNode(fpath.replace('*lang*',language))
+        return outNode.url() if asUrl else outNode.fullpath
 
 
     def de_isDocWriter(self):

@@ -12,7 +12,7 @@ class Table(object):
                         name_plural='!!Preference')
         self.sysFields(tbl, id=False)
         tbl.column('code', size='12', name_long='!!Code')
-        tbl.column('data', 'X', name_long='!!Data')
+        tbl.column('data', 'X', name_long='!!Data',_sendback=True)
 
         # NOTE: these are private APIs, please use <your_package>.getPreference()
 

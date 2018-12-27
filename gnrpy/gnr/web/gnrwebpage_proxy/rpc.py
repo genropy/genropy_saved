@@ -1,5 +1,5 @@
 #!/usr/bin/env pythonw
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #
 #  rpc.py
 #
@@ -15,7 +15,7 @@ from time import time
 import os
 import base64
 import mimetypes
-import re 
+import re
 
 
 
@@ -131,23 +131,19 @@ class GnrWebRpc(GnrBaseProxy):
         dataUrl = kwargs.get('dataUrl')
         uploadPath = kwargs.get('uploadPath')
         uploaderId = kwargs.get('uploaderId')
-
-
-
         onUploadedMethod = kwargs.get('onUploadedMethod')
-
         filename = kwargs.get('filename')
         site = self.page.site
-
         #kwargs = site.parse_kwargs(kwargs) it's provided by gnrwsgisite
         file_actions = dictExtract(kwargs, 'process_') or {}
         if not uploadPath:
-            uploadPath = 'site:uploaded_files'
+            uploadPath = 'home:uploaded_files'
             if uploaderId:
                 uploadPath = '%s/%s' % (uploadPath, uploaderId)
         if uploadPath is None:
             return
-        file_path,file_url = site.uploadFile(file_handle=file_handle,dataUrl=dataUrl,filename=filename,uploadPath=uploadPath)
+        file_path,file_url = site.uploadFile(file_handle=file_handle,dataUrl=dataUrl,
+                                            filename=filename,uploadPath=uploadPath)
         if not file_path:
             return
         file_ext = os.path.splitext(file_path)
@@ -167,6 +163,12 @@ class GnrWebRpc(GnrBaseProxy):
         if onUploadedMethod:
             handler = self.page.getPublicMethod('rpc', onUploadedMethod)
             if handler:
+                #file_node = self.page.site.storage(file_path, autocreate=-1)
+                #with file_node.local_path(mode='r') as local_path:
+                #    result =handler(file_url=local_path, file_path=file_path, file_ext=file_ext,
+                #           action_results=action_results,
+                #               **kwargs)
+                #return result
                 return handler(file_url=file_url, file_path=file_path, file_ext=file_ext, action_results=action_results,
                                **kwargs)
         elif uploaderId:
@@ -179,6 +181,6 @@ class GnrWebRpc(GnrBaseProxy):
                 return handler(file_url=file_url, file_path=file_path, file_ext=file_ext, action_results=action_results,
                                **kwargs)
         return file_url
-        
 
-        
+
+

@@ -15,4 +15,13 @@ xlrd
 xlwt
 docutils
 redbaron
-
+future
+boto3
+smart_open
+tornado<5
+toro
+gunicorn
+gevent
+supervisor
+futures
+lxml

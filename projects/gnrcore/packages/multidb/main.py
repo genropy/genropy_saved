@@ -246,7 +246,6 @@ class MultidbTable(object):
             if old_record.get('__multidb_default_subscribed') != record.get('__multidb_default_subscribed'):
                 self._onUpdating_master(record,old_record=old_record,**kwargs)
         else:
-            print 'trigger_onUpdating_multidb'
             self._onUpdating_slave(record,old_record=old_record)
             
     def _onUpdating_master(self, record,old_record=None,**kwargs):
@@ -264,7 +263,6 @@ class MultidbTable(object):
             raise GnrMultidbException(description='Multidb exception',msg="You cannot unset default subscription")
 
     def _onUpdating_slave(self, record,old_record=None,**kwargs):
-        print '_onUpdating_slave',self.db.currentEnv.get('storename')
         if self.db.currentEnv.get('_multidbSync'):
             slaveEventHook = getattr(self,'onSlaveSyncing',None)
             if slaveEventHook:

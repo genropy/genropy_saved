@@ -4707,7 +4707,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
                 var query_kw = {};
                 objectUpdate(query_kw,condition_kw)
                 query_kw.table = table;
-                query_kw.order_by=objectPop(originalKwargs,'order_by');
+                query_kw.order_by=objectPop(originalKwargs,'order_by')||condition_kw.order_by;
                 if(hierarchical){
                     popup = true;
                     gnrwdg.hierarchical = hierarchical;

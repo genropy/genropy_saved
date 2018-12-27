@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # tabSlots.py
 # Created by Francesco Porcari on 2011-10-20.

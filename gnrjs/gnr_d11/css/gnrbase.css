@@ -8,6 +8,20 @@ input:focus { outline: none; }
 * a:hover{
     text-decoration:underline !important;
 }
+#protection_shield{
+    background: rgba(200, 200, 200, 0.4) url(icons/pageWaiting.gif) no-repeat center center;
+    z-index: 10000000;
+    display: none;
+    position: fixed;
+    top:0;
+    bottom:0;
+    left: 0;
+    right:0;
+}
+
+.startingPage #protection_shield{
+    display: block;
+}
 
 .shield_layer{
     display: none;

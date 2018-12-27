@@ -11,94 +11,44 @@ import sys
 import pwd
 import shutil
 
-from gnr.app.gnrdeploy import GunicornDeployBuilder
+from gnr.app.gnrdeploy import GunicornDeployBuilder, gnrdaemonServiceBuilder
+from gnr.app.gnrdeploy import gnrsiterunnerServiceBuilder,createVirtualEnv
 from optparse import OptionParser
 
-SERVICE_TPL = """
-[Unit]
-Description=GnrSupervisorSiteRunner Service
-After=multi-user.target
 
-[Service]
-Type=forking
-%(environments)s
-User=%(user)s
-ExecStart=%(binpath)s
-ExecReload=%(ctl_binpath) reload
-ExecStop=%(ctl_binpath) shutdown
-
-[Install]
-WantedBy=multi-user.target
-"""
-
-def which(cmd, mode=os.F_OK | os.X_OK, path=None):
-
-    """Given a command, mode, and a PATH string, return the path which
-    conforms to the given mode on the PATH, or None if there is no such
-    file.
-    `mode` defaults to os.F_OK | os.X_OK. `path` defaults to the result
-    of os.environ.get("PATH"), or can be overridden with a custom search
-    path.
-    """
-    # Check that a given file can be accessed with the correct mode.
-    # Additionally check that `file` is not a directory, as on Windows
-    # directories pass the os.access check.
-    def _access_check(fn, mode):
-        return (os.path.exists(fn) and os.access(fn, mode)
-            and not os.path.isdir(fn))
-    # If we're given a path with a directory part, look it up directly rather
-    # than referring to PATH directories. This includes checking relative to the
-    # current directory, e.g. ./script
-    if os.path.dirname(cmd):
-        if _access_check(cmd, mode):
-            return cmd
-        return None
-    if path is None:
-        path = os.environ.get("PATH", os.defpath)
-    if not path:
-        return None
-    path = path.split(os.pathsep)
-    if sys.platform == "win32":
-        # The current directory takes precedence on Windows.
-        if not os.curdir in path:
-            path.insert(0, os.curdir)
-        # PATHEXT is necessary to check on Windows.
-        pathext = os.environ.get("PATHEXT", "").split(os.pathsep)
-        # See if the given file matches any of the expected path extensions.
-        # This will allow us to short circuit when given "python.exe".
-        # If it does match, only test that one, otherwise we have to try
-        # others.
-        if any(cmd.lower().endswith(ext.lower()) for ext in pathext):
-            files = [cmd]
-        else:
-            files = [cmd + ext for ext in pathext]
-    else:
-        # On other platforms you don't have things like PATHEXT to tell you
-        # what file suffixes are executable, so just pass on cmd as-is.
-        files = [cmd]
-    seen = set()
-    for dir in path:
-        normdir = os.path.normcase(dir)
-        if not normdir in seen:
-            seen.add(normdir)
-            for thefile in files:
-                name = os.path.join(dir, thefile)
-                if _access_check(name, mode):
-                    return name
-    return None
 
 if __name__ == '__main__':
+    usage = """
+    gnrdeploybuilder can create:
+        - nginx virtualhosts
+        - gnrsiterunner systemd services
+        - gnrdaemon services
+        - virtualenvs
+    """
     parser = OptionParser()
     parser.add_option("-d", "--domain", dest="domain",
                       help="The nginx domain")
     parser.add_option('-s', '--make_service',dest='make_service',
                       action="store_true", help="Make service")
+    parser.add_option('-e', '--make_virtualenv',dest='make_virtualenv',
+                       help="Make virtualenv")
+    parser.add_option('-g', '--make_gnrdaemon',dest='make_gnrdaemon',
+                       action="store_true", help="Make gnrdaemon service")
+    parser.add_option('-c', '--copy_genropy',dest='copy_genropy',
+                      action="store_true", help="Copy genropy")
+    parser.add_option('-p', '--copy_projects',dest='copy_projects',
+                       help="Copy projects")
+    parser.add_option('-b', '--branch',dest='branch',
+                       help="Switch in genropy branch (if making a virtualenv and copy_genropy is set)")
 
     (options, args) = parser.parse_args()
     base_path = getattr(options,'base_path', None)
-    if not args:
-        print 'You should specify a site name'
-    else:
+    if not (args or options.make_virtualenv or options.make_gnrdaemon or options.make_service):
+        parser.print_help()
+    if options.make_virtualenv:
+        createVirtualEnv(name=options.make_virtualenv, copy_genropy=options.copy_genropy,
+            branch=options.branch, copy_projects=options.copy_projects)
+    if args:
         deployer = GunicornDeployBuilder(args[0])
         deployer.write_gunicorn_conf()
         deployer.local_supervisor_conf()
@@ -106,34 +56,7 @@ if __name__ == '__main__':
         if options.domain:
             print 'Writing nginx conf in cwd please copy in /etc/nginx/sites-enabled'
             deployer.write_nginx_conf(options.domain)
-        if options.make_service:
-            current_username = pwd.getpwuid(os.getuid())[0]
-            daemon_path = which('supervisord')
-            ctl_binpath = which('supervisorctl')
-            binroot = ''
-            if os.environ.has_key('VIRTUAL_ENV'):
-                environments = "Environment=VIRTUAL_ENV=%s" %os.environ['VIRTUAL_ENV']
-                binroot = os.path.join(os.environ['VIRTUAL_ENV'],'bin')
-            else:
-                environments = ''
-            binpath = '%s -c %s -l %s' % (daemon_path,deployer.supervisor_conf_path_ini,
-                deployer.supervisor_log_path)
-            content = SERVICE_TPL %dict(environments=environments,binpath=binpath,
-                user=current_username, ctl_binpath=ctl_binpath)
-            with open('gnrsiterunner.service','w') as service_file:
-                service_file.write(content)
-            print """
-Now using run these commands
-
-$ sudo cp gnrsiterunner.service /lib/systemd/system/gnrsiterunner.service
-$ sudo chmod 644 /lib/systemd/system/gnrsiterunner.service
-$ sudo systemctl daemon-reload  # Refresh the available service list
-$ sudo systemctl enable gnrsiterunner.service
-
-$ sudo systemctl start gnrsiterunner.service
-...
-$ sudo systemctl status gnrsiterunner.service
-# Blah blah blah you should see something happy and green
-# Want to check your logs?
-$ sudo journalctl -e -u gnrsiterunner.service
-        """
+    if options.make_gnrdaemon:
+        gnrdaemonServiceBuilder()
+    if options.make_service:
+        gnrsiterunnerServiceBuilder()

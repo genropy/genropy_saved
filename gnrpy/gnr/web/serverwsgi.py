@@ -19,7 +19,6 @@ try:
     import subprocess
 except ImportError:
     from paste.util import subprocess24 as subprocess
-
 from paste.reloader import Monitor
 from paste.util.classinstance import classinstancemethod
 import optparse
@@ -143,38 +142,7 @@ class GnrReloaderMonitor(Monitor):
                 os._exit(3)
                 break
             time.sleep(self.poll_interval)
-#def stop_tunnel(tunnel):
-#    tunnel.stop()
 
-#def start_tunnel(ssh_user=None, ssh_password=None, ssh_host=None, ssh_port=None,
-#            db_user=None, db_password=None, db_host=None, db_port=None,first_run=None,**kwargs):
-#    from gnr.core.gnrssh import SshTunnel
-#    import getpass
-#    ssh_host = ssh_host
-#    ssh_port = ssh_port
-#    username = ssh_user
-#    forwarded_port = db_port
-#    forwarded_host = db_host
-#    if not ssh_password:
-#        password = getpass.getpass('Enter SSH password:')
-#    else:
-#        password = ssh_password
-#        if first_run:
-#            cont = ''
-#            while not (cont and cont[0] in ('Y','y','S','s')):
-#                cont = raw_input('Press Y to continue with SSH remote connection ')
-#
-#
-#    tunnel = SshTunnel(forwarded_port=forwarded_port, forwarded_host=forwarded_host,
-#            ssh_host=ssh_host, ssh_port=ssh_port, 
-#            username=username, password=password)
-#    tunnel.prepare_tunnel()
-#    local_port = tunnel.local_port
-#    tunnel.serve_tunnel()
-#    atexit.register(stop_tunnel, tunnel)
-#    return local_port
-
-    
 def start_bonjour(host=None, port=None, server_name=None, server_description=None, home_uri=None):
     global DNS_SD_PID
     if DNS_SD_PID:

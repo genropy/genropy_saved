@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # th_form.py
 # Created by Francesco Porcari on 2011-05-04.
@@ -72,9 +72,11 @@ class TableHandlerForm(BaseComponent):
         self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form') 
         return self.th_finalizeForm(form,table=table,options=kwargs,frameCode=frameCode)
     
-    def th_finalizeForm(self,form,table=None,options=None,frameCode=None):
+    def th_finalizeForm(self,form,table=None,options=None,frameCode=None,formCb=None):
         self._th_applyOnForm(form,options=options,mangler=frameCode)  
-        if table == self.maintable and hasattr(self,'th_form'):
+        if formCb:
+            formCb(form)
+        elif table == self.maintable and hasattr(self,'th_form'):
             self.th_form(form)
         else:
             self._th_hook('form',mangler=frameCode)(form)
@@ -139,10 +141,8 @@ class TableHandlerForm(BaseComponent):
                              **kwargs)
         self._th_setDocumentation(table=table,resource = formResource or 'Form',doc=resource_options.get('doc'),
                                     custdoc=resource_options.get('custdoc'))
-        self._th_applyOnForm(form,options=resource_options,mangler=formId)
-        formCb = formCb or self._th_hook('form',mangler=formId)
         form.store.handler('load',default_kwargs=default_kwargs)
-        formCb(form)
+        self.th_finalizeForm(form,table=table,options=resource_options,frameCode=formId,formCb=formCb)
         return form
         
     def _th_applyOnForm(self,form,options=None,mangler=None):

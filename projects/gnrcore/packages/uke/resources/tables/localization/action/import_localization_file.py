@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # test_special_action.py
 # Created by Francesco Porcari on 2010-07-02.
@@ -21,7 +21,8 @@ class Main(BaseResourceAction):
     def do(self):
         package = self.batch_parameters['package']
         package_identifier = '%s/%s'%(self.db.application.packages[package].project,package)
-        self.tblobj.importLocalizationFile(package_identifier=package_identifier,filepath=self.page.site.getStaticPath('pkg:%s'%package,'localization.xml'))
+        with self.page.site.storageNode('pkg:%s'%package,'localization.xml').open() as localizationfile:
+            self.tblobj.importLocalizationFile(package_identifier=package_identifier,filepath=localizationfile)
         self.db.commit()
 
     def table_script_parameters_pane(self, pane, table=None,**kwargs):

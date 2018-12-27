@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # item_uploader.py
 # Created by Saverio Porcari on 2010-10-15.

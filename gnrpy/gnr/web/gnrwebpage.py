@@ -101,7 +101,7 @@ class GnrBasicAuthenticationError(GnrException):
 
 EXCEPTIONS = {'user_not_allowed': GnrUserNotAllowed,
               'missing_resource': GnrMissingResourceException,
-              'unsupported_browsr': GnrUnsupportedBrowserException,
+              'unsupported_browser': GnrUnsupportedBrowserException,
               'generic': GnrWebPageException,
               'basic_authentication':GnrBasicAuthenticationError,
               'maintenance': GnrMaintenanceException}
@@ -127,6 +127,10 @@ class GnrWebPage(GnrBaseWebPage):
         self.sql_count = 0
         self.sql_time = 0
         self.site = site
+        if self.site.currentPage:
+            self._db = self.site.currentPage.db #making a virtualPage with a shared db with the currentPage
+        else:
+            self.application.db.clearCurrentEnv() #new a brand new page
         self.extraFeatures = copy.deepcopy(self.site.extraFeatures)
         self.extraFeatures.update(dictExtract(request_kwargs,'_extrafeature_',pop=True))
         dbstore = request_kwargs.pop('temp_dbstore',None) or None
@@ -155,7 +159,6 @@ class GnrWebPage(GnrBaseWebPage):
         self.pagepath = self.filepath.replace(self.folders['pages'], '')
         self.debug_mode = False
         self._dbconnection = None
-        self.application.db.clearCurrentEnv()
         self._user_login = request_kwargs.pop('_user_login', None)
         self.page_timeout = self.site.config.getItem('page_timeout') or PAGE_TIMEOUT
         self.page_refresh = self.site.config.getItem('page_refresh') or PAGE_REFRESH
@@ -828,11 +831,12 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO"""
         pass
         
-    def getService(self, service_type):
+    def getService(self, service_type=None,service_name=None, **kwargs):
         """TODO
         
         :param service_type: TODO"""
-        return self.site.getService(service_type)
+        service_name = service_name or service_type
+        return self.site.getService(service_type=service_type,service_name=service_name, **kwargs)
         
     def _onEnd(self):
         self._publish_event('onEnd')
@@ -1073,7 +1077,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param _nodebug: no debug mode
         :param _clocomp: enable closure compile
         """
-        gnr_static_handler = self.site.getStatic('gnr')
+        gnr_static_handler = self.site.storage('gnr')
         gnrModulePath = gnr_static_handler.url(self.gnrjsversion)
         arg_dict = {}
         self.frontend.frontend_arg_dict(arg_dict)
@@ -1121,11 +1125,11 @@ class GnrWebPage(GnrBaseWebPage):
         elif _nodebug is False and _clocomp is False and (self.isDeveloper()):
             arg_dict['genroJsImport'] = [self.mtimeurl(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
         elif _clocomp or self.site.config['closure_compiler']:
-            jsfiles = [gnr_static_handler.path(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
+            jsfiles = [gnr_static_handler.internal_path(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
             arg_dict['genroJsImport'] = [self.jstools.closurecompile(jsfiles)]
         else:
-            jsfiles = [gnr_static_handler.path(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
             if not self.site.compressedJsPath or self.site.debug:
+                jsfiles = [gnr_static_handler.internal_path(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
                 self.site.compressedJsPath = self.jstools.compress(jsfiles)
             arg_dict['genroJsImport'] = [self.site.compressedJsPath]
         arg_dict['css_genro'] = self.get_css_genro()
@@ -1142,10 +1146,9 @@ class GnrWebPage(GnrBaseWebPage):
         
     def mtimeurl(self, *args):
         """TODO"""
-        gnr_static_handler = self.site.getStatic('gnr')
-        fpath = gnr_static_handler.path(*args)
+        gnr_static_handler = self.site.storage('gnr')
         url = gnr_static_handler.url(*args)
-        mtime = os.stat(fpath).st_mtime
+        mtime = gnr_static_handler.mtime(*args)
         url = '%s?mtime=%0.0f' % (url, mtime)
         return url
         
@@ -1517,18 +1520,18 @@ class GnrWebPage(GnrBaseWebPage):
         pkg = pkg or self.packageId  
         if fpath.startswith(self.site.site_path):
             uripath = fpath[len(self.site.site_path):].lstrip('/').split(os.path.sep)
-            url = self.site.getStatic('site').url(*uripath)
+            url = self.site.storage('site').url(*uripath)
         elif fpath.startswith(self.site.pages_dir):
             uripath = fpath[len(self.site.pages_dir):].lstrip('/').split(os.path.sep)
-            url = self.site.getStatic('pages').url(*uripath)
+            url = self.site.storage('pages').url(*uripath)
         elif fpath.startswith(packageFolder):
             uripath = fpath[len(packageFolder):].lstrip('/').split(os.path.sep)
-            url = self.site.getStatic('pkg').url(pkg, *uripath)
+            url = self.site.storage('pkg').url(pkg, *uripath)
         else:
             for rsrc, rsrc_path in self.site.resources.items():
                 if fpath.startswith(rsrc_path):
                     uripath = fpath[len(rsrc_path):].lstrip('/').split(os.path.sep)
-                    url = self.site.getStatic('rsrc').url(rsrc, *uripath)
+                    url = self.site.storage('rsrc').url(rsrc, *uripath)
                     break
         if url and add_mtime:
             mtime = os.stat(fpath).st_mtime
@@ -1660,14 +1663,12 @@ class GnrWebPage(GnrBaseWebPage):
         :param value: TODO
         :param ext: TODO"""
         pkg,table = table.split('.')
-        path = self.site.getStatic('pkg').path(pkg,'tables',table,path,folder='resources')
         path = '%s.%s' %(path,ext)
+        
         if isinstance(value,Bag):
-            value.toXml(path,autocreate=True,addBagTypeAttr=False,typeattrs=False)
-        else:
-            with open(path,'w') as f:
-                f.write(value)
-        return path
+            value = value.toXml(autocreate=True,addBagTypeAttr=False,typeattrs=False)
+        with self.site.storage('pkg').open(pkg,'tables',table,path,mode='w') as f:
+            f.write(value)
 
     def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None, **kwargs):
         """Call a script from a table's resources (e.g: ``_resources/tables/<table>/<respath>``).
@@ -2184,16 +2185,16 @@ class GnrWebPage(GnrBaseWebPage):
          
     def rpc_getPrinters(self):
         """TODO"""
-        print_handler = self.getService('print')
-        if print_handler:
-            return print_handler.getPrinters()
+        networkprint = self.getService('networkprint')
+        if networkprint:
+            return networkprint.getPrinters()
             
     def rpc_getPrinterAttributes(self, printer_name,**kwargs):
         """TODO
         
         :param printer_name: TODO"""
         if printer_name and printer_name != 'PDF':
-            attributes = self.getService('print').getPrinterAttributes(printer_name)
+            attributes = self.getService('networkprint').getPrinterAttributes(printer_name)
             return attributes
 
     def windowTitle(self):
@@ -2349,16 +2350,16 @@ class GnrWebPage(GnrBaseWebPage):
     def connectionDocumentUrl(self, *args, **kwargs):
         """TODO"""
         if kwargs:
-            return self.site.getStatic('conn').kwargs_url(self.connection_id, self.page_id, *args, **kwargs)
+            return self.site.storage('conn').kwargs_url(self.connection_id, self.page_id, *args, **kwargs)
         else:
-            return self.site.getStatic('conn').url(self.connection_id, self.page_id, *args)
+            return self.site.storage('conn').url(self.connection_id, self.page_id, *args)
             
     def userDocumentUrl(self, *args, **kwargs):
         """TODO"""
         if kwargs:
-            return self.site.getStatic('user').kwargs_url(self.user, *args, **kwargs)
+            return self.site.storage('user').kwargs_url(self.user, *args, **kwargs)
         else:
-            return self.site.getStatic('user').url(self.user, *args)
+            return self.site.storage('user').url(self.user, *args)
    
     @public_method
     def getSiteDocument(self,path,defaultContent=None,**kwargs):

@@ -133,6 +133,16 @@ class SqlDbAdapter(object):
         @param name: db name
         """
         raise NotImplementedException()
+    
+    def importRemoteDb(self, source_dbname,source_ssh_host=None,source_ssh_user=None,
+                                source_ssh_dbuser=None,source_ssh_dbpassword=None,
+                                source_ssh_dbhost=None,dest_dbname=None):
+        raise NotImplementedException()
+
+    def listRemoteDatabases(self,source_ssh_host=None,source_ssh_user=None,
+                                source_ssh_dbuser=None,source_ssh_dbpassword=None,
+                                source_ssh_dbhost=None):
+        raise NotImplementedException()
 
     def defaultMainSchema(self):
         """-- IMPLEMENT THIS --
@@ -379,6 +389,12 @@ class SqlDbAdapter(object):
         result = cursor.executemany(sql,records)
         return result
 
+
+    def changePrimaryKeyValue(self, dbtable, pkey=None,newpkey=None,**kwargs):
+        tblobj = dbtable.model
+        pkeyColumn =  tblobj.sqlnamemapper[tblobj.pkey]
+        sql = "UPDATE %s SET %s=:newpkey WHERE %s=:currpkey;" % (tblobj.sqlfullname, pkeyColumn,pkeyColumn)
+        return self.dbroot.execute(sql, dbtable=dbtable.fullname,sqlargs=dict(currpkey=pkey,newpkey=newpkey))
 
     def update(self, dbtable, record_data, pkey=None,**kwargs):
         """Update a record in the db. 

@@ -1,5 +1,5 @@
 #!/usr/bin/env pythonw
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #
 #  dojo_base.py
 #
@@ -17,27 +17,21 @@ class GnrBaseDojoFrontend(GnrBaseFrontend):
         return '<script type="text/javascript" src="%s" djConfig="%s"> </script>' % (self.dojolib, self.djConfig)
         
     def init(self, **kwargs):
-        self.dojo_static_handler = self.page.site.getStatic('dojo')
+        self.dojo_storage_handler = self.page.site.storage('dojo')
         dojo_theme = getattr(self.page, 'dojo_theme', None) or self.page.site.config['dojo?theme'] or 'tundra'
         self._theme = dojo_theme
         self.dojo_version = self.page.dojo_version
         self.dojo_release= None
         if boolean(self.page.dojo_source):
             dojofolder = 'dojo_src'
-            if not os.path.exists(self.dojo_static_handler.path(self.dojo_version, dojofolder)):
+            if not self.dojo_storage_handler.exists(self.dojo_version, dojofolder):
                 dojofolder = 'dojo'
-       #elif not boolean(self.page.isDeveloper()):
-       #    dojofolder = 'dojo_release'
-       #    self.dojo_release= True
-       #    if not os.path.exists(self.dojo_static_handler.path(self.dojo_version, dojofolder)):
-       #        dojofolder = 'dojo'
-       #        self.dojo_release= False
         else:
             dojofolder = 'dojo'
         localroot = None
         if self.page.connection.electron_static:
             localroot ='file://%s/app/lib/static/' %self.page.connection.electron_static
-        dojolib = self.dojo_static_handler.url(self.dojo_version, dojofolder, 'dojo', 'dojo.js',_localroot=localroot)
+        dojolib = self.dojo_storage_handler.url(self.dojo_version, dojofolder, 'dojo', 'dojo.js',_localroot=localroot)
         self.dojofolder = dojofolder
         self.dojolib = dojolib
         self.djConfig = "parseOnLoad: false, isDebug: %s, locale: '%s' ,noFirebugLite:true" % (
@@ -55,10 +49,10 @@ class GnrBaseDojoFrontend(GnrBaseFrontend):
         arg_dict['dojolib'] = self.dojolib
         arg_dict['djConfig'] = self.djConfig
         css_dojo = self.css_frontend()
-        arg_dict['css_dojo'] = [self.dojo_static_handler.url(self.dojo_version, 'dojo', f) for f in css_dojo]
+        arg_dict['css_dojo'] = [self.dojo_storage_handler.url(self.dojo_version, 'dojo', f) for f in css_dojo]
         if self.dojo_release:
             releaseImports = self.dojo_release_imports()
-            arg_dict['dijitImport'] = [self.dojo_static_handler.url(self.dojo_version, self.dojofolder, 'dojo', f) for f in releaseImports]
+            arg_dict['dijitImport'] = [self.dojo_storage_handler.url(self.dojo_version, self.dojofolder, 'dojo', f) for f in releaseImports]
             
         
     def dojo_release_imports(self):

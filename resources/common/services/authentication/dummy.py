@@ -1,5 +1,5 @@
 #!/usr/bin/env pythonw
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #
 
 # Required:
@@ -7,7 +7,7 @@
 #    pip install python-ntlm
 #
 
-from gnr.core.gnrbaseservice import GnrBaseService
+from gnr.lib.services import GnrBaseService
 
 class Main(GnrBaseService):
     """

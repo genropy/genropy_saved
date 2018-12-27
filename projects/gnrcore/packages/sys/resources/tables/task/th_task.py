@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # base.py
 # Created by Saverio Porcari on 2011-03-13.

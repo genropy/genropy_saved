@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # office_page.py
 # Created by Saverio Porcari on 2011-04-08.

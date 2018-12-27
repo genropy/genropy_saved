@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # th_recursive.py
 # Created by Francesco Porcari on 2011-09-18.

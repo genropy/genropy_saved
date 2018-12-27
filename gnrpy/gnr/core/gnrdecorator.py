@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #--------------------------------------------------------------------------
 # package       : GenroPy core - see LICENSE for details
 # module gnrlang : support funtions
@@ -51,6 +51,27 @@ def public_method(*args,**metadata):
         func = args[0]
         func.is_rpc = True # @public_method
         return func
+
+
+def callers(limit=10):
+    """A decorator. It can be used to mark methods/functions as :ref:`datarpc`\s
+    
+    :param func: the function to set as public method"""
+    
+    def decore(func):
+        def newFunc(*fn_args, **fn_kwargs):
+            import inspect
+            stack = inspect.stack()
+            print func.func_name, ':'
+            for f in stack[1:limit]:
+                print '\t%s:\t(%i) %s'% (f[3],f[2],f[1])
+            return func(*fn_args, **fn_kwargs)
+        newFunc.__name__ = func.__name__
+        newFunc.__doc__ = func.__doc__
+        newFunc.__dict__.update(func.__dict__)
+        return newFunc
+    return decore
+
 
 def websocket_method(*args,**metadata):
     """A decorator. It can be used to mark methods/functions as :ref:`datarpc`\s

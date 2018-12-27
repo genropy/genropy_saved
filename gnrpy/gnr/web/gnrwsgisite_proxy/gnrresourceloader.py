@@ -1,5 +1,5 @@
 #!/usr/bin/env pythonw
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #
 #  gnrresourceloader.py
 #
@@ -286,7 +286,6 @@ class ResourceLoader(object):
         pkg = self.gnrapp.packages[pkg]
         result = []
         if not hasattr(pkg, '_resourceDirs'):
-            pagesPath = os.path.join(pkg.packageFolder, 'webpages')
             resourcePkg = None
             pkgResourceDirs = [] # result is now empty
             resourcePkg = pkg.attributes.get('resourcePkg')
@@ -299,18 +298,11 @@ class ResourceLoader(object):
                     fpath = os.path.join(self.site_path, '_custom', pkg.id, '_resources')
                     if os.path.isdir(fpath):
                         pkgResourceDirs.append(fpath)
-            fpath = os.path.join(pagesPath, '_resources')
-            if os.path.isdir(fpath):
-                pkgResourceDirs.append(fpath) # we add a resource folder for common package
             rsrc_path = os.path.join(pkg.packageFolder, 'resources')
             if os.path.isdir(rsrc_path):
                 pkgResourceDirs.append(rsrc_path)
             pkg._siteResourceDirs = self.site.resources_dirs
             pkg._resourceDirs = pkgResourceDirs
-        if pluginId and pluginId in pkg.plugins:
-            plugin = pkg.plugins[pluginId]
-            if plugin.resources_path:
-                result.append(plugin.resources_path)
         result.extend(list(pkg._resourceDirs))
         if not omitSiteResources:
             result.extend(pkg._siteResourceDirs)
@@ -446,7 +438,7 @@ class ResourceLoader(object):
                     result.append(fpath)
         return uniquify(result)
         
-    def loadResource(self, *path, **kwargs):
+    def getResourceClass(self, *path, **kwargs):
         """TODO"""
         resource_class = cloneClass('CustomResource', BaseResource)
         pkg=kwargs.pop('pkg', None)
@@ -460,7 +452,10 @@ class ResourceLoader(object):
             resourceDirs = lookupDirs = page.resourceDirs
         resource_class.resourceDirs = resourceDirs
         self.mixinResource(resource_class, lookupDirs, *path)
-        return resource_class()
+        return resource_class
+
+    def loadResource(self, *path, **kwargs):
+        return self.getResourceClass(*path, **kwargs)()
                  
     def mixinPageComponent(self, page, *path,**kwargs):
         """This method is used to mixin a component to a :ref:`webpage` at any time
