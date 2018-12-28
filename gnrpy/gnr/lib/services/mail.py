@@ -2,7 +2,7 @@
 #--------------------------------------------------------------------------
 # package       : GenroPy core - see LICENSE for details
 # module gnrmail : gnr mail controller
-# Copyright (c) : 2004 - 2007 Softwell sas - Milano 
+# Copyright (c) : 2004 - 2007 Softwell sas - Milano
 # Written by    : Giovanni Porcari, Michele Bertoldi
 #                 Saverio Porcari, Francesco Porcari , Francesco Cavazzana
 #--------------------------------------------------------------------------
@@ -46,7 +46,7 @@ mime_mapping = dict(application=MIMEApplication,
 def clean_and_unescape(text):
     """Removes HTML or XML character references and entities from a text string.
     Return the plain text, as a Unicode string, if necessary
-    
+
     :param text: The HTML (or XML) source text."""
     def fixup(m):
         text = m.group(0)
@@ -66,7 +66,7 @@ def clean_and_unescape(text):
             except KeyError:
                 pass
         return text # leave as it is written
-        
+
     text = re.sub(TAG_SELECTOR, '', text)
     return re.sub("&#?\w+;", fixup, text)
 
@@ -80,7 +80,7 @@ class MailError(GnrException):
 class MailService(GnrBaseService):
     """A class for mail management."""
     service_name = 'mail'
-    
+
     def __init__(self, parent=None, account_name=None, from_address=None, smtp_host=None, user=None,
                          password=None, port=None, ssl=False,tls=False, system_bcc=None,**kwargs):
         self.parent = parent
@@ -88,11 +88,11 @@ class MailService(GnrBaseService):
 
         self.set_smtp_account(from_address=from_address, smtp_host=smtp_host, user=user,
                             password=password, port=port, ssl=ssl,tls=tls,system_bcc=system_bcc,**kwargs)
-        
+
     def set_smtp_account(self, from_address=None, smtp_host=None, user=None,
                          password=None, port=None, ssl=False,tls=False,system_bcc=None, **kwargs):
         """Set the smtp account
-        
+
         :param from_address: the email sender
         :param smtp_host: the smtp host to send this email
         :param username: the username
@@ -102,13 +102,13 @@ class MailService(GnrBaseService):
         :param default: boolean. TODO"""
         self.smtp_account = dict(from_address=from_address,
                                         smtp_host=smtp_host, user=user,
-                                        password=password, port=port, 
+                                        password=password, port=port,
                                         system_bcc=system_bcc,ssl=ssl,tls=tls)
-   
+
 
     def get_account_params(self,  **kwargs):
         """Set the account parameters and return them
-        
+
         :param account: if an account has been defined previously with :meth:`set_smtp_account()`
                         then this account can be used instead of having to repeat all the mail
                         parameters contained
@@ -119,7 +119,7 @@ class MailService(GnrBaseService):
         :param password: the username's password
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used
         :param tls: boolean. Allow to communicate with an smtp server. You may choose three ways:
-                    
+
                     #. no encryption
                     #. ssl -> all data is encrypted on a ssl layer
                     #. tls -> server and client begin communitation in a unsecure way and after a starttls
@@ -127,14 +127,14 @@ class MailService(GnrBaseService):
         account_params = dict(self.smtp_account)
         account_params.update(kwargs)
         return account_params
-    
+
     def getDefaultMailAccount(self):
         return Bag(self.get_account_params)
-        
+
     def get_smtp_connection(self, account=None, smtp_host=None, port=None,
                             user=None, password=None, ssl=False, tls=False, timeout=None,**kwargs):
         """Get the smtp connection and return it
-        
+
         :param account: if an account has been defined previously with :meth:`set_smtp_account()`
                         then this account can be used instead of having to repeat all the mail
                         parameters contained
@@ -144,7 +144,7 @@ class MailService(GnrBaseService):
         :param password: the username's password
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
         :param tls: allow to communicate with an smtp server. You may choose three ways:
-                    
+
                     #. no encryption
                     #. ssl -> all data is encrypted on a ssl layer
                     #. tls -> server and client begin communitation in a unsecure way and after a starttls
@@ -162,10 +162,10 @@ class MailService(GnrBaseService):
         if user:
             smtp_connection.login(str(user), str(password))
         return smtp_connection
-        
+
     def handle_addresses(self, from_address=None, to_address=None, multiple_mode=None):
         """Handle the mail addresses and return them as a list
-        
+
         :param from_address: the email sender
         :param to_address: the email receiver
         :param multiple_mode: TODO"""
@@ -184,10 +184,10 @@ class MailService(GnrBaseService):
         else:
             to = to_address
         return to, cc, bcc
-        
+
     def build_base_message(self, subject, body, attachments=None, html=None, charset=None):
         """Add???
-        
+
         :param subject: the email subject
         :param body: the email body. If you pass ``html=True`` attribute,
                      then you can pass in the body the html tags
@@ -219,26 +219,28 @@ class MailService(GnrBaseService):
             self._attachments(msg, attachments)
             msg['Subject'] = subject
             return msg
-        
+
     def _attachments(self, msg, attachments):
         for attachment_path in attachments:
             if isinstance(attachment_path,tuple):
                 attachment_path,mime_type = attachment_path
             else:
-                mime_type = mimetypes.guess_type(attachment_path)[0]
+                mime_type = None
+            attachment_node = self.parent.storageNode(attachment_path)
+            if not mime_type:
+                mime_type = attachment_node.mimetype
             mime_family, mime_subtype = mime_type.split('/')
-            attachment_file = open(attachment_path, 'rb')
-            email_attachment = mime_mapping[mime_family](attachment_file.read(), mime_subtype)
-            email_attachment.add_header('content-disposition', 'attachment', filename=os.path.basename(attachment_path))
-            msg.attach(email_attachment)
-            attachment_file.close()
-        
+            with attachment_node.open(mode='rb') as attachment_file:
+                email_attachment = mime_mapping[mime_family](attachment_file.read(), mime_subtype)
+                email_attachment.add_header('content-disposition', 'attachment', filename=attachment_node.basename)
+                msg.attach(email_attachment)
+
     def sendmail_template(self, datasource, to_address=None, cc_address=None, bcc_address=None, reply_to=None, subject=None,
                           from_address=None, body=None, attachments=None, account=None,
                           smtp_host=None, port=None, user=None, password=None,
                           ssl=False, tls=False, html=False, charset='utf-8', async=False, **kwargs):
         """Add???
-        
+
         :param datasource: TODO
         :param to_address: the email receiver
         :param cc_address: can be a comma deliminated str of email addresses or a list or tuple
@@ -257,9 +259,9 @@ class MailService(GnrBaseService):
         :param password: the username's password
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used
         :param tls: allow to communicate with an smtp server.
-                    
+
                     You may choose three ways:
-                    
+
                     #. no encryption
                     #. ssl -> all data is encrypted on a ssl layer
                     #. tls -> server and client begin communitation in a unsecure way and after a starttls
@@ -275,7 +277,7 @@ class MailService(GnrBaseService):
                 value = datasource.getItem(field)
             if value:
                 return templateReplace(value, datasource)
-                
+
         #datasource--to
         to_address = to_address or get_templated('to_address')
         cc_address = cc_address or get_templated('cc_address')
@@ -291,14 +293,14 @@ class MailService(GnrBaseService):
                       attachments=attachments, account=account,
                       from_address=from_address, smtp_host=smtp_host, port=port, user=user, password=password,
                       ssl=ssl, tls=tls, html=html, charset=charset, async=async, **kwargs)
-                      
+
     def sendmail(self, to_address=None, subject=None, body=None, cc_address=None, reply_to=None, bcc_address=None, attachments=None,
                  account=None,timeout=None,
                  from_address=None, smtp_host=None, port=None, user=None, password=None,message_id=None,message_date=None,
                  ssl=False, tls=False, html=False, charset='utf-8', async=False,
                  cb=None, cb_args=None, cb_kwargs=None, **kwargs):
         """Send mail is a function called from the postoffice object to send an email.
-        
+
         :param to_address: the email receiver
         :param subject: the email subject
         :param body: the email body. If you pass ``html=True`` attribute,
@@ -308,7 +310,7 @@ class MailService(GnrBaseService):
         :param attachments: path of the attachment to be sent with the email
         :param account: if an account has been defined previously with :meth:`set_smtp_account()`
                         then this account can be used instead of having to repeat all the mail
-                        parameters contained 
+                        parameters contained
         :param from_address: the email sender
         :param smtp_host: the smtp host to send this email
         :param port: if a non standard port is used then it can be overridden
@@ -316,12 +318,12 @@ class MailService(GnrBaseService):
         :param password: the username's password
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used
         :param tls: allow to communicate with an smtp server. You may choose three ways:
-                    
+
                     #. no encryption
                     #. ssl -> all data is encrypted on a ssl layer
                     #. tls -> server and client begin communitation in a unsecure way and after
                        a starttls command they start to encrypt data (this is the way you use to connect to gmail smtp)
-                       
+
         :param html: boolean. If ``True`` then html tags can be used in the body of the email. Appropriate headers are attached
         :param charset: a different charser may be defined by its standard name
         :param async: if set to true, then a separate process is spawned to send the email and control
@@ -370,7 +372,7 @@ class MailService(GnrBaseService):
                 cb_args = cb_args or ()
                 cb_kwargs = cb_kwargs or {}
                 cb(*cb_args, **cb_kwargs)
-            
+
         else:
             thread_params = dict(call=self._sendmail, call_args=sendmail_args, cb=cb, cb_args=cb_args, cb_kwargs=cb_kwargs)
             thread.start_new_thread(self._send_with_cb,(),thread_params)
@@ -384,7 +386,7 @@ class MailService(GnrBaseService):
             cb_args = cb_args or ()
             cb_kwargs = cb_kwargs or {}
             cb(*cb_args, **cb_kwargs)
-                                    
+
     def _sendmail(self, account_params, from_address, to_address, cc_address, bcc_address, msg_string):
         smtp_connection = self.get_smtp_connection(**account_params)
         email_address = []
@@ -396,13 +398,13 @@ class MailService(GnrBaseService):
                 email_address.append(dest)
         smtp_connection.sendmail(from_address, email_address, msg_string)
         smtp_connection.close()
-        
+
     def sendmail_many(self, to_address, subject, body, attachments=None, account=None,
                       from_address=None, smtp_host=None, port=None, user=None, password=None,
                       ssl=False, tls=False, html=False, multiple_mode=False, progress_cb=None, charset='utf-8',
                       async=False,timeout=None):
         """TODO
-        
+
         :param to_address: the email receiver
         :param subject: the email subject
         :param body: the email body. If you pass ``html=True`` attribute,
@@ -410,7 +412,7 @@ class MailService(GnrBaseService):
         :param attachments: path of the attachment to be sent with the email.
         :param account: if an account has been defined previously with :meth:`set_smtp_account()`
                         then this account can be used instead of having to repeat all the mail
-                        parameters contained 
+                        parameters contained
         :param from_address: the email sender
         :param smtp_host: the smtp host to send this email
         :param port: if a non standard port is used then it can be overridden
@@ -418,19 +420,19 @@ class MailService(GnrBaseService):
         :param password: the username's password
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used
         :param tls: allow to communicate with an smtp server. You may choose three ways:
-                    
+
                     #. no encryption
                     #. ssl -> all data is encrypted on a ssl layer
                     #. tls -> server and client begin communitation in a unsecure way and after a starttls
                        command they start to encrypt data (this is the way you use to connect to gmail smtp)
-        
+
         :param html: boolean. If ``True``, html tags can be used in the body of the email. Appropriate headers are attached
         :param multiple_mode: allow to send a mail to many addresses. Its parameters are:
-                              
+
                               * ``False`` - single mail for recipient
                               * ``to, To, TO`` - a mail sent to all recipient in to field
                               * ``bcc, Bcc, BCC`` - a mail sent to ourself with all recipient in bcc address
-                              
+
         :param charset: a differnet charser may be defined by its standard name"""
         account_params = self.get_account_params(account=account, from_address=from_address,
                                                  smtp_host=smtp_host, port=port, user=user, password=password, ssl=ssl,
@@ -450,4 +452,3 @@ class MailService(GnrBaseService):
             if progress_cb:
                 progress_cb(i + 1, total_to)
         smtp_connection.close()
-        
