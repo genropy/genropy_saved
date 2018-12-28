@@ -356,6 +356,8 @@ class MailService(GnrBaseService):
         #    msg['Bcc'] = bcc_address
         system_bcc = account_params.pop('system_bcc',None)
         if system_bcc:
+            if isinstance(bcc_address,(str,unicode)):
+                bcc_address = [addr for addr in bcc_address.split(',') if addr]
             bcc_address = bcc_address or []
             bcc_address.append(system_bcc)
             bcc_address = ','.join(bcc_address)
