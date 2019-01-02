@@ -56,7 +56,8 @@ class AppPrefHandler(BasePreferenceTabs):
 
     @struct_method
     def ph_appPreferencesTabs(self,parent,packages='*',datapath=None,context_dbstore=None,**kwargs):
-        tc = self._pr_makePreferenceTabs(parent,packages=packages,datapath=datapath,context_dbstore=context_dbstore,**kwargs)
+        tc = self._pr_makePreferenceTabs(parent,packages=packages,datapath=datapath,
+                                        context_dbstore=context_dbstore,_anchor=True,**kwargs)
         if context_dbstore:
             tc.dataRpc(None,self.ph_updatePrefCache,formsubscribe_onSaved=True,prefdbstore=context_dbstore)
     
