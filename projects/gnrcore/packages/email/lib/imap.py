@@ -59,12 +59,14 @@ class ImapReceiver(object):
         for emailid in items:
             if self.messages_table.checkDuplicate(account_id=self.account_id,uid=emailid):
                 continue
-            msgrec = self.createMessageRecord(emailid)
-            #try:
-            #    msgrec = self.createMessageRecord(emailid)
-            #except Exception as e:
-            #    msgrec = None
-            #    print 'Error in email',str(e)
+            if self.db.application.site.debug:
+                msgrec = self.createMessageRecord(emailid)
+            else:
+                try:
+                    msgrec = self.createMessageRecord(emailid)
+                except Exception as e:
+                    msgrec = None
+                    print 'Error in email',str(e)
             if not msgrec:
                 continue
             msgrec['mailbox_id'] = mailbox_id
