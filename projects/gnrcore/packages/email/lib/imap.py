@@ -149,7 +149,7 @@ class ImapReceiver(object):
         attachmentNode =  self.getAttachmentNode(date=date,filename=filename, message_id=new_mail['id'])
         new_attachment['path'] = attachmentNode.fullpath
         new_attachment['filename'] = attachmentNode.basename
-        with attachmentNode.open('w') as attachment_file:
+        with attachmentNode.open('wb') as attachment_file:
             attachment_file.write(att_data)
 
         self.attachments_table.insert(new_attachment)
