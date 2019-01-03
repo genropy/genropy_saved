@@ -338,7 +338,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     notifyPageClosing:function(){
-        dojo.forEach(window.frames,function(f){
+        dojo.forEach(genro.childrenGenroWindows(),function(f){
             try{
                 if (f.genro){
                     f.genro.notifyPageClosing();
@@ -873,8 +873,9 @@ dojo.declare('gnr.GenroClient', null, {
                 return f.genro.getChildWindow(page_id);
             }
         };
-        for (var i=0;i<window.frames.length; i++){
-            result = cb(window.frames[i]);
+        var frames = this.childrenGenroWindows()
+        for (var i=0;i<frames.length; i++){
+            result = cb(frames[i]);
             if(result){
                 return result;
             }
@@ -906,6 +907,13 @@ dojo.declare('gnr.GenroClient', null, {
         return dojo.toJson(this.timeProfilers);
     },
 
+    childrenGenroIframes:function(){
+        return dojo.query('iframe').filter(function(n){return n.sourceNode && n.sourceNode._genro;}) || [];
+    },
+    childrenGenroWindows:function(){
+        return this.childrenGenroIframes().map(function(n){return n.contentWindow;});
+    },
+
     getChildrenInfo:function(result){
         result = result ||  {};
         var cb = function(f,r){
@@ -916,22 +924,7 @@ dojo.declare('gnr.GenroClient', null, {
                 f.genro.getChildrenInfo(r);
             }
         };
-        dojo.query('iframe').forEach(function(n){
-            if(n.sourceNode && n.sourceNode._genro){
-                try{
-                    cb(n.contentWindow,result);
-                }catch(e){
-                    //console.log('external iframe detected: error ',e);
-                }
-            }
-        });
-       //dojo.forEach(window.frames,function(f){
-       //    try{
-       //        cb(f,result);
-       //    }catch(e){
-       //        //console.log('external iframe detected: error ',e);
-       //    }
-       //});
+        this.childrenGenroWindows().forEach(cb);
         if(this.externalWindowsObjects){
             objectValues(this.externalWindowsObjects).forEach(function(f){
             try{
@@ -989,8 +982,9 @@ dojo.declare('gnr.GenroClient', null, {
 
     childrenHasPendingChanges:function(){
         var f;
-        for (var i=0;i<window.frames.length; i++){
-            f = window.frames[i];
+        var frames = this.childrenGenroWindows();
+        for (var i=0;i<frames.length; i++){
+            f = frames[i];
             try{
                 if (f.genro && f.genro.hasPendingChanges()){
                     return true;
@@ -1325,7 +1319,7 @@ dojo.declare('gnr.GenroClient', null, {
         if(page_id==genro.page_id){
             return true;
         }
-        return dojo.some(window.frames,function(f){return f.genro?f.genro.page_id==page_id:false});
+        return dojo.some(this.childrenGenroWindows(),function(f){return f.genro?f.genro.page_id==page_id:false});
     },
 
 
@@ -1756,7 +1750,7 @@ dojo.declare('gnr.GenroClient', null, {
             var t=objectUpdate({},topic);
             objectPop(t,'parent');
             if (iframe=='*'){
-                dojo.forEach(window.frames,function(f){
+                dojo.forEach(genro.childrenGenroWindows(),function(f){
                     try{
                         if (f.genro){
                             f.genro.publish(t,kw);
