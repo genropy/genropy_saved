@@ -866,7 +866,7 @@ dojo.declare('gnr.GenroClient', null, {
     getChildWindow:function(page_id){
         var result;
         var cb = function(f,r){
-            if (f.genro){
+            if ('genro' in f){
                 if(f.genro.page_id==page_id){
                     return f;
                 }
@@ -907,7 +907,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     getChildrenInfo:function(result){
-        var result = result ||  {};
+        result = result ||  {};
         var cb = function(f,r){
             if (f.genro){
                 var kw = {_lastUserEventTs:f.genro.getServerLastTs(),_pageProfilers:f.genro.getTimeProfilers(),_lastRpc:f.genro.getServerLastRpc()};
