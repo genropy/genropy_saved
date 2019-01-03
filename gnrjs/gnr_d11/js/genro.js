@@ -866,7 +866,7 @@ dojo.declare('gnr.GenroClient', null, {
     getChildWindow:function(page_id){
         var result;
         var cb = function(f,r){
-            if ('genro' in f){
+            if (canAccessIFrame(f) && f.genro){
                 if(f.genro.page_id==page_id){
                     return f;
                 }
