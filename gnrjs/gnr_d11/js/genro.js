@@ -874,7 +874,7 @@ dojo.declare('gnr.GenroClient', null, {
                     return f.genro.getChildWindow(page_id);
                 }
             } catch (error) {
-                console.log(error);
+                //console.log(error);
             }
         };
         for (var i=0;i<window.frames.length; i++){
