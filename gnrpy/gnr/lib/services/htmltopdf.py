@@ -88,7 +88,7 @@ class HtmlToPdfService(GnrBaseService):
             import shutil
             from datetime import datetime, date
             now = datetime.now()
-            baseName = os.path.splitext(os.path.basename(destPath))[0]
+            baseName = destNode.cleanbasename
             debugName = "%s_%02i_%02i_%02i.html"%(baseName, now.hour,now.minute,now.second)
             htmlfilenode = self.parent.storageNode('site:print_debug',
                 date.today().isoformat(), debugName ,autocreate=-1)
