@@ -916,13 +916,22 @@ dojo.declare('gnr.GenroClient', null, {
                 f.genro.getChildrenInfo(r);
             }
         };
-        dojo.forEach(window.frames,function(f){
-            try{
-                cb(f,result);
-            }catch(e){
-                //console.log('external iframe detected: error ',e);
+        dojo.query('iframe').forEach(function(n){
+            if(n.sourceNode && n.sourceNode._genro){
+                try{
+                    cb(n.contentWindow,result);
+                }catch(e){
+                    //console.log('external iframe detected: error ',e);
+                }
             }
         });
+       //dojo.forEach(window.frames,function(f){
+       //    try{
+       //        cb(f,result);
+       //    }catch(e){
+       //        //console.log('external iframe detected: error ',e);
+       //    }
+       //});
         if(this.externalWindowsObjects){
             objectValues(this.externalWindowsObjects).forEach(function(f){
             try{
