@@ -156,4 +156,7 @@ class Table(object):
 
     def trigger_onUpdating(self,record=None,old_record=None):
         self.updateCenterSize(record)
-    
+
+        
+    def use_dbstores(self,forced_dbstore=None, env_forced_dbstore=None,**kwargs):
+        return True

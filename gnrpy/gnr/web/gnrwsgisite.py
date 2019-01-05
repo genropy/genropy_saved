@@ -405,7 +405,7 @@ class GnrWsgiSite(object):
         return StorageNode(parent=self, path=storage_path, service=service,
             autocreate=autocreate, must_exist=must_exist, mode=mode)
 
-    def build_lazydoc(self,lazydoc,fullpath=None):
+    def build_lazydoc(self,lazydoc,fullpath=None,temp_dbstore=None,**kwargs):
         ext = os.path.splitext(fullpath)[1]
         ext = ext.replace('.','') if ext else None 
         if lazydoc.startswith('service:'):
@@ -415,6 +415,9 @@ class GnrWsgiSite(object):
         m = getattr(self.db.table(table),(method or dflt_method),None)
         if m:
             self.currentPage = self.dummyPage
+            if temp_dbstore:
+                self.currentPage.dbstore = temp_dbstore
+                self.currentPage.db.currentEnv['storename'] = temp_dbstore
             result = m(pkey)
             return result is not False
 
@@ -433,7 +436,7 @@ class GnrWsgiSite(object):
         exists = storageNode and storageNode.exists
         if not exists and '_lazydoc' in kwargs:
             #fullpath = None ### QUI NON DOBBIAMO USARE I FULLPATH
-            exists = self.build_lazydoc(kwargs['_lazydoc'],fullpath=storageNode.internal_path) 
+            exists = self.build_lazydoc(kwargs['_lazydoc'],fullpath=storageNode.internal_path,**kwargs) 
             exists = exists and storageNode.exists
         self.db.closeConnection()
         if not exists:

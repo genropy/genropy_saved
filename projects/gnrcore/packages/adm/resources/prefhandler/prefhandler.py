@@ -34,7 +34,7 @@ class BasePreferenceTabs(BaseComponent):
     def _pr_makePreferenceTabs(self,parent,packages='*',datapath=None,context_dbstore=None,**kwargs):
         if isinstance(packages,basestring):
             packages = self.application.packages.keys() if packages == '*' else packages.split(',')
-        tc = parent.tabContainer(datapath=datapath,context_dbstore=context_dbstore,**kwargs)
+        tc = parent.tabContainer(datapath=datapath,context_dbstore=context_dbstore,nodeId='PREFROOT',**kwargs)
         for pkgId in packages:
             pkg = self.application.packages[pkgId]
             if pkg.disabled:
@@ -56,7 +56,8 @@ class AppPrefHandler(BasePreferenceTabs):
 
     @struct_method
     def ph_appPreferencesTabs(self,parent,packages='*',datapath=None,context_dbstore=None,**kwargs):
-        tc = self._pr_makePreferenceTabs(parent,packages=packages,datapath=datapath,context_dbstore=context_dbstore,**kwargs)
+        tc = self._pr_makePreferenceTabs(parent,packages=packages,datapath=datapath,
+                                        context_dbstore=context_dbstore,**kwargs)
         if context_dbstore:
             tc.dataRpc(None,self.ph_updatePrefCache,formsubscribe_onSaved=True,prefdbstore=context_dbstore)
     

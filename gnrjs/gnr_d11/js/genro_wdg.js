@@ -876,7 +876,7 @@ dojo.declare("gnr.GridEditor", null, {
         if (this.invalidCell(cell, inRowIndex)) {
             cell.customClasses.push('invalidCell');
         }
-        if(renderedRow._newrecord && this.grid.sourceNode.form && this.grid.sourceNode.form.store && !this.grid.sourceNode.form.store.autoSave){
+        if(renderedRow._newrecord && this.grid.sourceNode.attr.table && this.grid.sourceNode.form && this.grid.sourceNode.form.store && !this.grid.sourceNode.form.store.autoSave){
             cell.customClasses.push('newRowCell');
         }
     },
@@ -1419,24 +1419,34 @@ dojo.declare("gnr.GridEditor", null, {
         var lastRenderedRowIndex = grid.currRenderedRowIndex;
         grid.currRenderedRowIndex = row;
         attr = grid.sourceNode.evaluateOnNode(attr,function(path){return path.indexOf('#ROW')>=0});
-        if('fields' in attr || 'contentCb' in attr){
+        var remote = fldDict.attr.remote;
+        if('fields' in attr || 'contentCb' in attr || remote){
             var fields = attr.fields;
             if(typeof(fields)=='string'){
                 fields = funcApply(fields,{rowDataNode:rowDataNode,grid:grid},this);
             }
-            if(attr.mode=='dialog'){
+            if(attr.mode=='dialog' || remote){
                 var that = this;
                 var currdata = rowDataNode.getValue().getItem(attr.field);
-                genro.dlg.prompt(attr.original_name || attr.field,{widget:attr.contentCb || attr.fields,
-                                                                  dflt:currdata?currdata.deepCopy():null,
-                                                                   mandatory:attr.validate_notnull,
-                                                                   action:function(result){
-                                                                        if(attr.rowTemplate){
-                                                                            rowData.update(result);
-                                                                        }else{
-                                                                            that.setCellValue(row,attr.field,result);
-                                                                        }
-                                                                   }})
+                var promptkw = {widget:attr.contentCb || attr.fields,
+                    dflt:currdata?currdata.deepCopy():null,
+                    mandatory:attr.validate_notnull,
+                    action:function(result){
+                          if(attr.rowTemplate){
+                              rowData.update(result);
+                          }else{
+                              that.setCellValue(row,attr.field,result);
+                          }
+                    }
+                };
+                if(remote){
+                    var remotekw = objectExtract(fldDict.attr,'remote_*',true,true)
+                    remotekw.remote = remote;
+                    objectUpdate(promptkw,remotekw);
+                }
+                var dlgkw = objectExtract(fldDict.attr,'dlg_*',true,true);
+                objectUpdate(promptkw,dlgkw);
+                genro.dlg.prompt(attr.original_name || attr.field,promptkw)
             }else{
                 var rowpath = this.widgetRootNode.absDatapath('.' + rowLabel);
                 genro.dlg.quickTooltipPane({datapath:rowpath,fields:attr.fields,domNode:cellNode,modal:attr.modal},

@@ -1542,7 +1542,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
             return;
         }
-        if (kw.value instanceof gnr.GnrBag) {
+        if (kw.value instanceof gnr.GnrBag && kw.reason!='_valuebag_') {
             //console.log('dataChangeLogger event: ' + kw.evt + ' is Bag ' + path)
         } else if (kw.evt == 'upd') {
             if (kw.updvalue) {

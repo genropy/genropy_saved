@@ -59,11 +59,14 @@ class ImapReceiver(object):
         for emailid in items:
             if self.messages_table.checkDuplicate(account_id=self.account_id,uid=emailid):
                 continue
-            try:
+            if self.db.application.site.debug:
                 msgrec = self.createMessageRecord(emailid)
-            except Exception as e:
-                msgrec = None
-                print 'Error in email',str(e)
+            else:
+                try:
+                    msgrec = self.createMessageRecord(emailid)
+                except Exception as e:
+                    msgrec = None
+                    print 'Error in email',str(e)
             if not msgrec:
                 continue
             msgrec['mailbox_id'] = mailbox_id
@@ -146,7 +149,7 @@ class ImapReceiver(object):
         attachmentNode =  self.getAttachmentNode(date=date,filename=filename, message_id=new_mail['id'])
         new_attachment['path'] = attachmentNode.fullpath
         new_attachment['filename'] = attachmentNode.basename
-        with attachmentNode.open('w') as attachment_file:
+        with attachmentNode.open('wb') as attachment_file:
             attachment_file.write(att_data)
 
         self.attachments_table.insert(new_attachment)

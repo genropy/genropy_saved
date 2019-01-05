@@ -11,7 +11,7 @@ from gnr.lib.services import GnrBaseService,BaseServiceType
 import os
 import shutil
 from gnr.core.gnrsys import expandpath
-
+import mimetypes
 from paste import fileapp
 from paste.httpheaders import ETAG
 from subprocess import call,check_call, check_output
@@ -304,6 +304,10 @@ class StorageNode(object):
     def child(self, path=None):
         return self.service.parent.storageNode('%s/%s'%(self.fullpath,path))
 
+    @property
+    def mimetype(self):
+        return self.service.mimetype(self.path)
+
 class StorageService(GnrBaseService):
 
     def _argstopath(self, *args, **kwargs):
@@ -363,16 +367,17 @@ class StorageService(GnrBaseService):
             if doneCb:
                 doneCb(srcNode)
 
+    def mimetype(self, *args,**kwargs):
+        return mimetypes.guess_type(self.internal_path(*args))[0]
 
     def base64(self, *args, **kwargs):
         """Convert a file (specified by a path) into a data URI."""
         import base64
-        import mimetypes
         if not self.exists(*args):
             return u''
         mime = kwargs.get('mime', False)
         if mime is True:
-            mime, _ = mimetypes.guess_type(self.internal_path(*args))
+            mime = self.mimetype(*args)
         with self.open(*args, mode='rb') as fp:
             data = fp.read()
             data64 = ''.join(base64.encodestring(data).splitlines())

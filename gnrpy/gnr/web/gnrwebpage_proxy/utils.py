@@ -228,7 +228,12 @@ class GnrWebUtils(GnrBaseProxy):
         if table:
             importerStructure = importerStructure or self.page.db.table(table).importerStructure()
             checkCb = checkCb or self.page.db.table(table).importerCheck
-        reader = self.getReader(file_path,filetype=filetype)
+        try:
+            reader = self.getReader(file_path,filetype=filetype)
+        except Exception as e:
+            self.page.clientPublish('floating_message',message='Reader error %s' %str(e),messageType='error')
+
+        
         importerStructure = importerStructure or dict()
         mainsheet = importerStructure.get('mainsheet')
         if mainsheet is None and importerStructure.get('sheets'):
