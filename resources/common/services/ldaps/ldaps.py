@@ -43,7 +43,7 @@ class Main(LdapsService):
     @extract_kwargs(user=True)
     def __init__(self, parent=None, urlServer=None, baseDN=None, userIdField='uid', defaultDomain=None,
                 loginTimeout=None,userDomainTemplate=None, userAttr=None,
-                 searchUser=None, searchPassword=None, case=None, testMode=False,user_kwargs=None,getUserInfo='t'):
+                 searchUser=None, searchPassword=None, case=None, testMode=False,user_kwargs=None,getUserInfo='t',**kwargs):
 
         self.ldapClient = None
         self.parent = parent
