@@ -44,7 +44,6 @@ class Main(LdapsService):
     def __init__(self, parent=None, urlServer=None, baseDN=None, userIdField='uid', defaultDomain=None,
                 loginTimeout=None,userDomainTemplate=None, userAttr=None,
                  searchUser=None, searchPassword=None, case=None, testMode=False,user_kwargs=None,getUserInfo='t',**kwargs):
-
         self.ldapClient = None
         self.parent = parent
         self.ldapServer = urlServer
@@ -104,7 +103,6 @@ class Main(LdapsService):
             self.domain, user = user.split('\\')
         elif '@' in user:
             user, self.domain = user.split('@')
-
         if not user:
             return False
         
@@ -120,13 +118,17 @@ class Main(LdapsService):
         if not 'ldap://' in self.ldapServer:
             self.ldapServer = 'ldap://%s' % self.ldapServer
         try:
+            print 'self.ldapServer',self.ldapServer
             self.ldapClient = ldap.initialize(self.ldapServer)
             self.ldapClient.set_option(ldap.OPT_REFERRALS, 0)
+            print 'user',user,'password',password
             self.ldapClient.simple_bind_s(user, password)
         except ldap.INVALID_CREDENTIALS:
             self.ldapClient.unbind()
+            print 'invalid'
             return False
         except ldap.SERVER_DOWN:
+            print 'ldap.SERVER_DOWN server down'
             return 'AD server not available'
 
         if mode == 'Login':
@@ -136,6 +138,7 @@ class Main(LdapsService):
                 username = user.split('@')[0]
             if self.getUserInfo:
                 try:
+                    print 'searching','(%s=%s)' % (self.userIdField,username)
                     user_attribute = self.ldapClient.search_s(self.baseDN, ldap.SCOPE_SUBTREE, '(%s=%s)' % (self.userIdField,
                                                             username), self.userAttr)[0][1]
                     for k, v in user_attribute.items():
