@@ -1927,7 +1927,7 @@ class Bag(GnrObject):
         pickled bag. In any of this cases the method sets the value of the flag
         "mode" to xml, vcard or pickle and returns it with \"source\" and \"fromFile\""""
         originalsource = source
-        if source.startswith('<'):
+        if source.startswith('<') or '<?xml' in source:
             return source, False, 'xml'
         if len(source) > 300:
             #if source is longer than 300 chars it cannot be a path or an URI
@@ -1952,7 +1952,7 @@ class Bag(GnrObject):
                         f = file(source, mode='r')
                         sourcestart = f.read(30)
                         f.close()
-                        if sourcestart.startswith('<'):
+                        if sourcestart.startswith('<') or '<?xml' in sourcestart:
                             return source, True, 'xml' #file xml with unknown extension
                         else:
                             return source, True, 'unknown' #unidentified file
