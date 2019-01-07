@@ -78,9 +78,9 @@ class Main(LdapsService):
         ldap_user = self.doLogin(user=user, password=password)
         if self.testMode:
             return ldap_user
-        self.ldapClient.unbind()
         if not ldap_user:
             return False
+        self.ldapClient.unbind()
         # make a response with genropy user data and ldap user data.
         externalUser = dict()
         for k, v in self.user_kwargs.items():
