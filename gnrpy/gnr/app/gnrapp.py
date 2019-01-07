@@ -1084,7 +1084,7 @@ class GnrApp(object):
         if pkg:
             pkg = self.packages[pkg]
         if authenticate and attrs.get('service'):
-            authService = self.site.getService(node.attr['service'])
+            authService = self.site.getService(service_type=node.attr.get('service_type') or node.label,service_name=node.attr.get('service_name'))
             external_user = authService(user=user,password=password)
             if external_user:
                 if authService.case == 'u':
