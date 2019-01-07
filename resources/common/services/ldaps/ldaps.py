@@ -8,14 +8,14 @@
 #
 
 from gnr.core.gnrstring import boolean
-from gnr.lib.services import GnrBaseService
+from gnr.lib.services.ldaps import LdapsService
 from gnr.core.gnrdecorator import extract_kwargs
 from ldap.controls import SimplePagedResultsControl
 import ldap
 
 
 
-class Main(GnrBaseService):
+class Main(LdapsService):
     """
     ldaps service (login, search and update AD data). 
     inside siteconfig.xml
