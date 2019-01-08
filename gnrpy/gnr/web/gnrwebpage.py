@@ -1352,7 +1352,7 @@ class GnrWebPage(GnrBaseWebPage):
     @property
     def userTags(self):
         """TODO"""
-        return self.avatar.user_tags
+        return self.avatar.user_tags if self.avatar else ''
         
     def _get_user(self):
         if not getattr(self,'_user',None):
