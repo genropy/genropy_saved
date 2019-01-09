@@ -182,7 +182,7 @@ dojo.declare("gnr.GnrBagNode", null, {
         }else{
             v = this.attr._formattedValue || this.attr._displayedValue || v;
         }
-        return (!isNullOrBlank(v) || !kw.omitEmpty)?((this.attr._valuelabel || this.attr.name_long || stringCapitalize(this.label)) +': ' +v):''; 
+        return (!isNullOrBlank(v) || !kw.omitEmpty)?((this.attr._valuelabel || this.attr.name_long || stringCapitalize(this.label)) +': ' +_F(v,null,this.attr.dtype)):''; 
     },
 
     getValue: function(mode/*str*/, optkwargs) {
@@ -718,7 +718,7 @@ dojo.declare("gnr.GnrBag", null, {
             if (!n.attr._autolist){
                 rows += '<tr><td class="_bagformat_lbl">'+n.label+'</td>';
             }
-            rows += '<td class="_bagformat_value">'+v+'</td></tr>';
+            rows += '<td class="_bagformat_value">'+_F(v,null,n.attr.dtype)+'</td></tr>';
         },mode);
         return '<table class="nestedBagTable"><tbody>'+rows+'</tbody></table>';
     },
