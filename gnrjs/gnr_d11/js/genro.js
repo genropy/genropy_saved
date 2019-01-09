@@ -1320,7 +1320,13 @@ dojo.declare('gnr.GenroClient', null, {
         if(page_id==genro.page_id){
             return true;
         }
-        return dojo.some(window.frames,function(f){return f.genro?f.genro.page_id==page_id:false});
+        return dojo.some(window.frames,function(f){
+            try {
+                return f.genro?f.genro.page_id==page_id:false
+            } catch (error) {
+                return false;
+            }
+        });
     },
 
 
@@ -1764,8 +1770,12 @@ dojo.declare('gnr.GenroClient', null, {
                 var iframeNode=genro.domById(iframe);
                 if(iframeNode){
                     var f =iframeNode.contentWindow;
-                    if(f && f.genro){
-                        f.genro.publish(t,kw);
+                    try {
+                        if(f && f.genro){
+                            f.genro.publish(t,kw);
+                        }
+                    } catch (error) {
+                        //pass
                     }
                 }
             }     
