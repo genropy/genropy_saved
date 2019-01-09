@@ -966,7 +966,9 @@ class GnrApp(object):
             else:
                 handlers = [getattr(pkg,method,None)]
             for handler in filter(None,handlers):
-                result.append((pkgId,handler(*args,**kwargs)))
+                r = handler(*args,**kwargs)
+                if r is not None:
+                    result.append((pkgId,r))
         return result
 
     @property
@@ -1024,7 +1026,7 @@ class GnrApp(object):
                     if not (avatar is None):
                         avatar.page = page
                         avatar.authmode = authmode
-                        self.pkgBroadcast('onAuthentication',avatar)
+                        errors = self.pkgBroadcast('onAuthentication',avatar)
                         return avatar
                         
     def auth_xml(self, node, user, password=None, authenticate=False, **kwargs):
@@ -1083,8 +1085,8 @@ class GnrApp(object):
         external_user = False
         if pkg:
             pkg = self.packages[pkg]
-        if authenticate and attrs.get('service'):
-            authService = self.site.getService(node.attr['service'])
+        if authenticate and attrs.get('service_type'):
+            authService = self.site.getService(service_type=node.attr.get('service_type') or node.label,service_name=node.attr.get('service_name'))
             external_user = authService(user=user,password=password)
             if external_user:
                 if authService.case == 'u':

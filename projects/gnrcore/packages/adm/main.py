@@ -35,6 +35,7 @@ class Package(GnrDboPackage):
                 kwargs['avatar_rootpage'] = user_record['avatar_rootpage']
                 kwargs['locale'] = user_record['locale'] or self.application.config('default?client_locale')
                 kwargs['user_name'] = '%s %s' % (user_record['firstname'], user_record['lastname'])
+                kwargs['user_record'] = user_record
                 kwargs.update(dictExtract(user_record, 'avatar_'))
                 allowed_ip = self.db.table('adm.user_access_group').allowedUser(user_record['id'])
                 if allowed_ip is not None:
