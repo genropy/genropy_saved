@@ -1670,6 +1670,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var event = dragInfo.event;
         var widget = dragInfo.widget;
         var value = {};
+        if (widget.gridEditor && widget.gnrediting){
+            return false;
+        }
 
         if (dragmode == 'row') {
             var cells = widget.structure[0]['rows'][0];
