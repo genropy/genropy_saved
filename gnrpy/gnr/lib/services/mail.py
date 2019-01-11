@@ -328,7 +328,7 @@ class MailService(GnrBaseService):
         :param charset: a different charser may be defined by its standard name
         :param async: if set to true, then a separate process is spawned to send the email and control
                       is returned immediately to the calling function"""
-        account_params = self.get_account_params(account=account, from_address=from_address,
+        account_params = self.get_account_params(account=account, from_address=from_address,bcc_address=bcc_address,
                                                  smtp_host=smtp_host, port=str(port) if port else None, user=user, password=password, ssl=ssl,
                                                  tls=tls,timeout=timeout)
         from_address = account_params['from_address']

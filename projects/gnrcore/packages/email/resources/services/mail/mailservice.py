@@ -31,7 +31,9 @@ class Service(AdmMailService):
             db.table('email.message').newMessage(account_id=account_id,
                                                         moveAttachment=moveAttachment,**kwargs)
         else:
-            super(Service, self).sendmail(account_id=account_id,**kwargs)
+            if account_id:
+                kwargs.update(self.get_account_params(account_id))
+            super(Service, self).sendmail(**kwargs)
 
 class ServiceParameters(BaseComponent):
     def service_parameters(self,pane,datapath=None,**kwargs):
