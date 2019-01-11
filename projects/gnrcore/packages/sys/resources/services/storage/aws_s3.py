@@ -126,6 +126,8 @@ class Service(StorageService):
     def isfile(self, *args):
         s3 = self._client
         internalpath = self.internal_path(*args)
+        if internalpath =='':
+            return False
         try:
             response = s3.head_object(
                     Bucket=self.bucket,
@@ -291,12 +293,12 @@ class Service(StorageService):
         if url:
             return self.parent.redirect(environ, start_response, location=url,temporary=True)
 
-    def children(self, path, **kwargs):
+    def children(self, *args, **kwargs):
         def strip_prefix(inpath, prefix=None):
             prefix = prefix or self.base_path
             return inpath.replace(prefix,'',1).strip('/')
         s3 = self._client
-        dirpath = self.internal_path(path)
+        dirpath = self.internal_path(*args)
         out = []
         if dirpath and not dirpath.endswith('/'):
             dirpath='%s/'%dirpath
