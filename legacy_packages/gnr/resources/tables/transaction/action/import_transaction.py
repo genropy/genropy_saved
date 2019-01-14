@@ -22,7 +22,7 @@ class Main(BaseResourceAction):
     limit = 1000
     
     def do(self):
-        self._startLog()
+        #self._startLog()
         self.import_failed = False
        # self.btc.thermo_wrapper(records, maximum=len(self.get_selection()),enum=True ,**thermo_s):
         limit = self.batch_parameters.get('how_many',self.limit)
@@ -57,12 +57,12 @@ class Main(BaseResourceAction):
             os.makedirs(logdir)
         logfile = os.path.join(logdir, 'gnrtrdaemon.log')
         loghandler = TimedRotatingFileHandler(logfile, 'MIDNIGHT', 1, 28)
-        loghandler.setLevel(logging.DEBUG)
+        loghandler.setLevel(logging.ERROR)
         formatter = Formatter('%(asctime)s - %(name)-12s: %(levelname)-8s %(message)s')
         loghandler.setFormatter(formatter)
 
         rootlogger = logging.getLogger('')
-        rootlogger.setLevel(logging.DEBUG)
+        rootlogger.setLevel(logging.ERROR)
         rootlogger.addHandler(loghandler)
         if 'admin' in self.db.packages:
             self.db.package('admin').mailLog(self.processName)
