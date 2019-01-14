@@ -1282,6 +1282,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(objectNotEmpty(ranges)){
                 var rangepars = objectUpdate({},renderedRow);
                 rangepars.value = v;
+                rangepars._kwargs = rangepars;
                 for(var rng in ranges){
                     if(stringEndsWith(rng,'_condition') || rng.indexOf('_')<=0){
                         var condition = funcApply('return '+ranges[rng],rangepars,sourceNode);
