@@ -63,7 +63,7 @@ def callers(limit=10):
             import inspect
             stack = inspect.stack()
             print func.func_name, ':'
-            for f in stack[1:limit]:
+            for f in stack[1:limit+1]:
                 print '\t%s:\t(%i) %s'% (f[3],f[2],f[1])
             return func(*fn_args, **fn_kwargs)
         newFunc.__name__ = func.__name__
