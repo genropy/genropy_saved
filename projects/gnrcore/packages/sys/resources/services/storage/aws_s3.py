@@ -52,6 +52,9 @@ class S3LocalFile(object):
                 if exit_args:
                     result = self.file.__exit__(*exit_args)
                 self.file.close()
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
             finally:
                 os.unlink(self.name)
             return result
