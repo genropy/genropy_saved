@@ -49,3 +49,6 @@ class Table(object):
         if error:
             print 'ERROR',codekey,error
         self.db.commit()
+
+    def use_dbstores(self,**kwargs):
+        return True
