@@ -1363,7 +1363,8 @@ tr[_is_valid_item='true'].multiColumnSelectHover td {
     width: 18px;
 }
 
-.greenLight {
+
+.greenLight, .semaphoreCheck{
     background: url(icons/base16/semaphore_green.png) no-repeat center center;
     width: 14px;
     height: 14px;
@@ -1374,7 +1375,7 @@ tr[_is_valid_item='true'].multiColumnSelectHover td {
     height: 14px;
 }
 
-.redLight {
+.redLight ,.invalidSemaphore.semaphoreCheck{
     background: url(icons/base16/semaphore_red.png) no-repeat center center;
     width: 14px;
     height: 14px;

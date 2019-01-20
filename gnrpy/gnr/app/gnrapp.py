@@ -664,6 +664,9 @@ class GnrApp(object):
         self.packages = Bag()
         self.packagesIdByPath = {}
         self.config = self.load_instance_config()
+        self.config_locale = self.config('default?server_locale')
+        if self.config_locale :
+            os.environ['GNR_LOCALE'] = self.config_locale
         self.instanceMenu = self.load_instance_menu()
         self.cache = ApplicationCache(self)
         self.build_package_path()
@@ -973,8 +976,7 @@ class GnrApp(object):
 
     @property
     def locale(self):
-        return locale.getdefaultlocale()[0].replace('_','-')
-        
+        return (self.config_locale or os.environ.get('GNR_LOCALE') or locale.getdefaultlocale()[0]).replace('_','-')
 
     def setPreference(self, path, data, pkg):
         if self.db.package('adm'):

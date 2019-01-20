@@ -82,14 +82,12 @@ class AttachGalleryView(AttachManagerViewBase):
 
 class Form(BaseComponent):
 
-    def atc_metadata(self,bc):
-        #override this
-        pass
-
+ 
     def th_form(self, form):
         sc = form.center.stackContainer(datapath='.record')
         bc = sc.borderContainer()
-        self.atc_metadata(bc)
+        if hasattr(self,'atc_metadata'):
+            self.atc_metadata(bc)
         iframe = bc.contentPane(region='center',overflow='hidden').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
                                                 width='100%',border='0px',documentClasses=True,
                         connect_onload="""
@@ -118,7 +116,7 @@ class Form(BaseComponent):
         }""",iframe=iframe.js_domNode,currentPreviewZoom='^#FORM.currentPreviewZoom')
 
     def th_options(self):
-        return dict(showtoolbar=False,showfooter=False)
+        return dict(showtoolbar=False,showfooter=False,autoSave=True)
 
     @public_method
     def th_onLoading(self, record, newrecord, loadingParameters, recInfo):

@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import os
+import locale
 
 from decimal import Decimal
 import pytz
 from babel import numbers, dates, Locale
 from gnr.core.gnrlang import GnrException
 
-DEFAULT_LOCALE = 'en_US'
 
 def localize(obj, format=None, currency=None, locale=None):
     """TODO
@@ -16,7 +17,7 @@ def localize(obj, format=None, currency=None, locale=None):
     :param format: TODO
     :param currency: TODO
     :param locale: the current locale (e.g: en, en_us, it)"""
-    locale = (locale or DEFAULT_LOCALE).replace('-', '_').split(';')[0]
+    locale = currentLocale(locale).split(';')[0]
     if obj is None: return u''
     if format and format.startswith('auto_'):
         format = DEFAULT_FORMATS_DICT.get(format[5:])
@@ -228,7 +229,7 @@ def parselocal(txt, cls, locale=None):
     :param txt: TODO
     :param cls: TODO
     :param locale: the current locale (e.g: en, en_us, it)"""
-    locale = (locale or DEFAULT_LOCALE).replace('-', '_')
+    locale = currentLocale(locale)
     if locale and '_' in locale:
         loc, country = locale.split('_')
         locale = '%s_%s' % (loc, country.upper())
@@ -245,7 +246,7 @@ def getMonthNames(locale=None):
     """TODO
     
     :param locale: the current locale (e.g: en, en_us, it)"""
-    locale = (locale or DEFAULT_LOCALE).replace('-', '_')
+    locale = currentLocale(locale)
     d = dict([(v.lower(), k) for k, v in dates.get_month_names(width='wide', locale=locale).items()])
     d.update([(v.lower(), k) for k, v in dates.get_month_names(width='abbreviated', locale=locale).items()])
     d.update(dict([('m%s' %k,k) for k in range(1,13)]))
@@ -255,7 +256,7 @@ def getDayNames(locale=None):
     """TODO
     
     :param locale: the current locale (e.g: en, en_us, it)"""
-    locale = (locale or DEFAULT_LOCALE).replace('-', '_')
+    locale = currentLocale(locale)
     d = dict([(v.lower(), k) for k, v in dates.get_day_names(width='wide', locale=locale).items()])
     d.update([(v.lower(), k) for k, v in dates.get_day_names(width='abbreviated', locale=locale).items()])
     return d
@@ -264,13 +265,16 @@ def getQuarterNames(locale=None):
     """TODO
     
     :param locale: the current locale (e.g: en, en_us, it)"""
-    locale = (locale or DEFAULT_LOCALE).replace('-', '_')
+    locale = currentLocale(locale)
     d = dict([(v.lower(), k) for k, v in dates.get_quarter_names(width='wide', locale=locale).items()])
     d.update([(v.lower(), k) for k, v in dates.get_quarter_names(width='abbreviated', locale=locale).items()])
     return d
 
-def _localeKey(self,locale):
-    locale = (locale or DEFAULT_LOCALE).replace('-', '_')
+def defaultLocale():
+    return os.environ.get('GNR_LOCALE',locale.getdefaultlocale()[0])
+
+def currentLocale(locale=None):
+    return (locale or defaultLocale()).replace('-', '_')
     
     
 def getDateKeywords(keyword, locale=None):
@@ -285,7 +289,7 @@ def getKeywords(sourcedict,keyword, locale=None):
     
     :param keyword: TODO
     :param locale: the current locale (e.g: en, en_us, it)"""
-    locale = (locale or DEFAULT_LOCALE).replace('-', '_').lower()
+    locale = currentLocale(locale).lower()
     keydict = sourcedict.get(locale, {})
     if not keydict and len(locale) > 2: # like en_us
         keydict = sourcedict.get(locale[:2], {})
