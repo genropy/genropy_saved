@@ -209,6 +209,10 @@ class StorageNode(object):
         self.autocreate = autocreate
 
     @property
+    def md5hash(self):
+        return self.service.md5hash(self.path)
+
+    @property
     def fullpath(self):
         return self.service.fullpath(self.path)
 
@@ -317,6 +321,9 @@ class StorageService(GnrBaseService):
         return node if isinstance(node, StorageNode) else self.parent.storageNode(node)
 
     def internal_path(self, *args, **kwargs):
+        pass
+
+    def md5hash(self,path):
         pass
 
     def fullpath(self, path):
@@ -519,6 +526,7 @@ class BaseLocalService(StorageService):
         outpath = os.path.join(*out_list)
         return outpath
         
+        
     def delete_dir(self, *args):
         os.rmtree(self.internal_path(*args))
 
@@ -559,6 +567,17 @@ class BaseLocalService(StorageService):
 
     def isfile(self, *args):
         return os.path.isfile(self.internal_path(*args))
+    
+    def md5hash(self,*args):
+        import hashlib
+        BLOCKSIZE = 65536
+        hasher = hashlib.md5()
+        with open(os.path.join(*args), 'rb') as afile:
+            buf = afile.read(BLOCKSIZE)
+            while len(buf) > 0:
+                hasher.update(buf)
+                buf = afile.read(BLOCKSIZE)
+        return hasher.hexdigest()
 
     def renameNode(self, sourceNode=None, destNode=None):
         self.autocreate(destNode.internal_path, autocreate=-1)

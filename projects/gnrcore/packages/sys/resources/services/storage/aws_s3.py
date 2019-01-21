@@ -124,18 +124,23 @@ class Service(StorageService):
         path_list = internalpath.split('/')
 
     def isfile(self, *args):
-        s3 = self._client
-        internalpath = self.internal_path(*args)
+        return self._bucket(*args) is not False
+
+    def _bucket(self,*args):
         try:
-            response = s3.head_object(
+            return self._client.head_object(
                     Bucket=self.bucket,
-                    Key=internalpath)
+                    Key=self.internal_path(*args))
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
                 return False
             else:
                 raise
-        return True
+
+    def md5hash(self,*args):
+        bucket = self._bucket(*args)
+        if bucket:
+            return bucket['ETag'][1:-1]
 
     def exists(self, *args):
         return self.isfile(*args) or self.isdir(*args)
