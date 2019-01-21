@@ -8,14 +8,14 @@
 #
 
 from gnr.core.gnrstring import boolean
-from gnr.lib.services import GnrBaseService
+from gnr.lib.services.ldaps import LdapsService
 from gnr.core.gnrdecorator import extract_kwargs
 from ldap.controls import SimplePagedResultsControl
 import ldap
 
 
 
-class Main(GnrBaseService):
+class Main(LdapsService):
     """
     ldaps service (login, search and update AD data). 
     inside siteconfig.xml
@@ -43,8 +43,7 @@ class Main(GnrBaseService):
     @extract_kwargs(user=True)
     def __init__(self, parent=None, urlServer=None, baseDN=None, userIdField='uid', defaultDomain=None,
                 loginTimeout=None,userDomainTemplate=None, userAttr=None,
-                 searchUser=None, searchPassword=None, case=None, testMode=False,user_kwargs=None,getUserInfo='t'):
-
+                 searchUser=None, searchPassword=None, case=None, testMode=False,user_kwargs=None,getUserInfo='t',**kwargs):
         self.ldapClient = None
         self.parent = parent
         self.ldapServer = urlServer
@@ -78,9 +77,9 @@ class Main(GnrBaseService):
         ldap_user = self.doLogin(user=user, password=password)
         if self.testMode:
             return ldap_user
-        self.ldapClient.unbind()
         if not ldap_user:
             return False
+        self.ldapClient.unbind()
         # make a response with genropy user data and ldap user data.
         externalUser = dict()
         for k, v in self.user_kwargs.items():
@@ -104,7 +103,6 @@ class Main(GnrBaseService):
             self.domain, user = user.split('\\')
         elif '@' in user:
             user, self.domain = user.split('@')
-
         if not user:
             return False
         
@@ -128,7 +126,6 @@ class Main(GnrBaseService):
             return False
         except ldap.SERVER_DOWN:
             return 'AD server not available'
-
         if mode == 'Login':
             if '\\' in user:
                 username = user.split('\\')[1]

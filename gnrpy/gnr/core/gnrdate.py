@@ -28,7 +28,6 @@ import copy
 import bisect
 
 from gnr.core import gnrlocale
-from gnr.core.gnrlocale import DEFAULT_LOCALE
 from gnr.core.gnrstring import splitAndStrip, anyWordIn, wordSplit, toText
 from dateutil import rrule
 from babel import dates
@@ -37,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 def checkDateKeywords(keywords,datestr,locale):
     return anyWordIn(gnrlocale.getDateKeywords(keywords, locale), datestr) or anyWordIn(
-                gnrlocale.getDateKeywords(keywords, DEFAULT_LOCALE), datestr)
+                gnrlocale.getDateKeywords(keywords), datestr)
 
 def yearDecode(datestr):
     """returns the year number as an int from a string of 2 or 4 digits:
@@ -136,11 +135,11 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
     datestr = datestr.strip()
     if datestr:
         months = months or gnrlocale.getMonthNames(locale)
-        def_months = gnrlocale.getMonthNames(DEFAULT_LOCALE)
+        def_months = gnrlocale.getMonthNames()
         days = days or gnrlocale.getDayNames(locale)
-        def_days = gnrlocale.getDayNames(DEFAULT_LOCALE)
+        def_days = gnrlocale.getDayNames()
         quarters = quarters or gnrlocale.getQuarterNames(locale)
-        def_quarters = gnrlocale.getQuarterNames(DEFAULT_LOCALE)
+        def_quarters = gnrlocale.getQuarterNames()
         dateStart = None
         dateEnd = None
         workdate = workdate or datetime.date.today()

@@ -580,11 +580,11 @@ class BaseLocalService(StorageService):
         return hasher.hexdigest()
 
     def renameNode(self, sourceNode=None, destNode=None):
-        self.autocreate(destNode.internal_path, autocreate=-1)
+        destNode.service.autocreate(destNode.path, autocreate=-1)
         shutil.move(sourceNode.internal_path, destNode.internal_path)
 
     def duplicateNode(self, sourceNode=None, destNode=None):
-        self.autocreate(destNode.internal_path, autocreate=-1)
+        destNode.service.autocreate(destNode.path, autocreate=-1)
         shutil.copy2(sourceNode.internal_path, destNode.internal_path)
 
     def url(self, *args, **kwargs):

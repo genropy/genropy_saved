@@ -244,8 +244,5 @@ class GnrWsgiWebApp(GnrApp):
         return result
 
 
-    @property
-    def locale(self):
-        return self.site.locale
 
 

@@ -15,7 +15,7 @@ class DropUploaderBase(BaseComponent):
     @struct_method
     def du_slotbar_doupload(self,pane,**kwargs):
         return pane.slotButton(label='!!Upload',publish='doupload',iconClass='iconbox inbox')
-    
+
     @extract_kwargs(uploader=None,external=None)
     @struct_method
     def du_dropUploaderLegacy(self, pane,uploaderId=None, ext='', uploader_kwargs=None, external_kwargs=None, **kwargs):
@@ -44,8 +44,8 @@ class DropUploaderBase(BaseComponent):
                             genro.rpc.uploadMultipartFiles(filebag,{onResult:funcCreate(onResult,'result',this),
                                                                     onFileUploaded:funcCreate(onFileUploaded,'node',this),
                                                                     uploadPath:uploadPath,uploaderId:uploaderId});
-                            """, filebag='=.uploading_data', 
-                          uploaderId=uploaderId, onResult=uploader_kwargs.get('onResult',''), 
+                            """, filebag='=.uploading_data',
+                          uploaderId=uploaderId, onResult=uploader_kwargs.get('onResult',''),
                           onFileUploaded=uploader_kwargs.get('onUploaded',''),
                           uploadPath=uploadPath,_fired='^.doupload')
 
@@ -124,12 +124,12 @@ class DropUploaderBase(BaseComponent):
                             genro.rpc.uploadMultipartFiles(filebag,{onResult:funcCreate(onResult,'result',this),
                                                                     onFileUploaded:funcCreate(onFileUploaded,'node',this),
                                                                     uploadPath:uploadPath,uploaderId:uploaderId});
-                            """, filebag='=.uploading_data', 
-                          uploaderId=uploaderId, onResult=uploader_kwargs.get('onResult',''), 
+                            """, filebag='=.uploading_data',
+                          uploaderId=uploaderId, onResult=uploader_kwargs.get('onResult',''),
                           onFileUploaded=uploader_kwargs.get('onUploaded',''),
                           uploadPath=uploadPath,_fired='^.doupload')
         return grid
-    
+
     @struct_method
     def du_previewPane(self, pane,uploaderId=None):
         sc = pane.stackContainer(selectedPage='^.selpreview',
@@ -174,26 +174,29 @@ class DropUploaderBase(BaseComponent):
                                                 top='50%',margin_top='-25px',color='#555')
         sc.contentPane(pageName='image', overflow='hidden').img(height='100%', src='^.preview_img')
         sc.contentPane(pageName='text').div(innerHTML='^.preview_txt')
-        
+
     def fileaction_resize(self, file_path=None, file_url=None, file_ext=None, height=None, width=None, filetype=None,
                           action_name=None, dest_dir=None, **kwargs):
         from PIL import Image
-
-        with open(file_path, 'rb') as image_file:
+        sn = self.site.storageNode(file_path)
+        with sn.open(mode='rb') as image_file:
             try:
                 original = Image.open(image_file)
             except:
                 return dict()
             if original.mode != "RGB":
                 original = original.convert("RGB")
-            dir_path, filename = os.path.split(file_path)
-            imagename, ext = os.path.splitext(filename)
+            imagename = sn.cleanbasename
+            ext = sn.ext
             if dest_dir:
-                dir_path = self.site.getStaticPath(dest_dir)
-                dest_url = self.site.getStaticUrl(dest_dir)
+                dir_sn = self.site.storageNode(dest_dir)
+                dest_url = dir_sn.url()
+                #dir_path = self.site.getStaticPath(dest_dir)
+                #dest_url = self.site.getStaticUrl(dest_dir)
             else:
+                dir_sn = self.site.storageNode(sn.dirname, action_name)
                 dir_path = os.path.join(dir_path, action_name)
-                dest_url = "%s/%s" % (file_url.rpartition('/')[0], action_name)
+                #dest_url = "%s/%s" % (file_url.rpartition('/')[0], action_name)
 
             if not os.path.exists(dir_path):
                 os.makedirs(dir_path)
@@ -213,18 +216,18 @@ class DropUploaderBase(BaseComponent):
                 original.thumbnail(dest_size)
             filetype = filetype or ext[1:]
             image_filename = '%s.%s' % (imagename, filetype.lower())
-            image_path = os.path.join(dir_path, image_filename)
-            original.save(image_path)
-            image_url = '%s/%s' % (dest_url, image_filename)
-        return dict(file_url=image_url, file_path=image_path)
-        
+            image_sn = dir_sn.child(image_filename)
+            with image_sn.local_path() as image_path:
+                original.save(image_path)
+        return dict(file_url=image_sn.url(), file_path=image_sn.fullpath)
+
 class DropUploader(DropUploaderBase):
     py_requires = 'foundation/includedview'
     def dropUploader(self, pane, ext='', **kwargs):
         pane.div(dropTypes='Files', drop_ext=ext,
                  onDrop="""console.log(files);drop_uploader.send_files(files)""",
                  width='100px', height='50px', background_color='#c7ff9a')
-        
+
     def dropFileGrid(self, pane, uploaderId=None, datapath=None,
                      label=None, footer=None, enabled=True, onResult=None,
                      onFileUploaded=None, uploadPath=None,
@@ -310,7 +313,7 @@ class DropUploader(DropUploaderBase):
                           uploaderId=uploaderId, onResult=onResult or '', onFileUploaded=onFileUploaded or '',
                           uploadPath=uploadPath,
                           **{'subscribe_%s_upload' % uploaderId: True})
-                          
+
     def _dropFileGrid_preview(self, bc, datapath=None):
         sc = bc.stackContainer(region='bottom', height='50%', splitter=True, selectedPage='^.selpreview',
                                datapath=datapath)

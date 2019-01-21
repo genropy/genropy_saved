@@ -155,7 +155,18 @@ class LoginComponent(BaseComponent):
                 genro.publish('failed_login_msg',{'message':result?result.error:error_msg});
             }else{
                 genro.setData('gnr.avatar',new gnr.GnrBag(result))
+                var user_dbstore = genro.getData('gnr.avatar.user_record.dbstore')
                 rootpage = rootpage || result['rootpage'];
+                if(user_dbstore){
+                    if(!window.location.pathname.slice(1).startsWith(user_dbstore)){
+                        var redirect_url = window.location.protocol+'//'+window.location.host+'/'+user_dbstore;
+                        if(rootpage){
+                            redirect_url+=rootpage;
+                        }
+                        window.location.assign(redirect_url);
+                        return;
+                    }
+                }
                 if(rootpage){
                     genro.gotoURL(rootpage);
                 }

@@ -72,12 +72,12 @@ class GnrAppTransactionAgent(GnrApp):
             os.makedirs(logdir)
         logfile = os.path.join(logdir, 'gnrtrdaemon.log')
         loghandler = TimedRotatingFileHandler(logfile, 'MIDNIGHT', 1, 28)
-        loghandler.setLevel(logging.DEBUG)
+        loghandler.setLevel(logging.ERROR)
         formatter = Formatter('%(asctime)s - %(name)-12s: %(levelname)-8s %(message)s')
         loghandler.setFormatter(formatter)
 
         rootlogger = logging.getLogger('')
-        rootlogger.setLevel(logging.DEBUG)
+        rootlogger.setLevel(logging.ERROR)
         rootlogger.addHandler(loghandler)
         if 'admin' in self.db.packages:
             self.db.package('admin').mailLog(self.processName)

@@ -1097,17 +1097,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         var selattr = objectExtract(this.sourceNode.attr, 'selected_*', true);
         var selectedPkeys = this.getSelectedPkeys();
-        if (objectNotEmpty(selattr)) {
-            var row = this.rowByIndex(idx);
-            var value;
-            for (var sel in selattr) {
-                if (idx >= 0) {
-                    value = row[sel];
-                } else {
-                    value = null;
-                }
-                var path = this.sourceNode.setRelativeData(selattr[sel], value);
-            }
+        var row = {};
+        var selectedId = null;
+        if(idx>=0){
+            row = this.rowByIndex(idx);
+            selectedId = this.rowIdentity(row);
+        }
+        for (var sel in selattr) {
+            this.sourceNode.setRelativeData(selattr[sel], row[sel]);
         }
         if (this.sourceNode.attr.selectedIndex) {
             this.sourceNode.setAttributeInDatasource('selectedIndex', ((idx < 0) ? null : idx));
@@ -1120,33 +1117,33 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         if (this.sourceNode.attr.selectedNodes) {
             var nodes = this.getSelectedNodes();
+            var selNodes;
             if (nodes) {
-                var selNodes = new gnr.GnrBag();
+                selNodes = new gnr.GnrBag();
                 dojo.forEach(nodes,
-                            function(node) {
-                                selNodes.setItem(node.label, null, node.getAttr());
-                            }
-                        );
+                    function(node) {
+                        selNodes.setItem(node.label, null, node.getAttr());
+                    }
+                );
             }
-            var path = this.sourceNode.attrDatapath('selectedNodes');
-            genro.setData(path, selNodes, {'count':selNodes.len()});
+            genro.setData(this.sourceNode.attrDatapath('selectedNodes'), 
+                            selNodes, {'count':selNodes.len()});
         }
-        if (this.sourceNode.attr.selectedId) {
-            var selectedId = null;
-            var row = {};
-            if (idx >= 0) {
-                selectedId = this.rowIdentity(this.rowByIndex(idx));
-                var row = this.rowByIndex(idx);
-            }
+        if(this.sourceNode.attr.selectedId) {
             this.sourceNode.setAttributeInDatasource('selectedId', selectedId, null, row, true);
         }
+        if(this.sourceNode.attr.selectedRowData){
+            var rowDataBag = new gnr.GnrBag(row);
+            rowDataBag.popNode('_pkey');
+            this.sourceNode.setAttributeInDatasource('selectedRowData', rowDataBag);
+        }
         this.sourceNode.setRelativeData('.currentSelectedPkeys',selectedPkeys);
-        this.sourceNode.publish('onSelectedRow',{'idx':idx,'selectedId':idx>=0?this.rowIdentity(this.rowByIndex(idx)):null,
+        this.sourceNode.publish('onSelectedRow',{'idx':idx,'selectedId':selectedId,
                                                 'grid':this,'selectedPkeys':selectedPkeys});
     },
 
     mixin_indexByRowAttr:function(attrName, attrValue, op,backward) {
-        var op = op || '==';
+        op = op || '==';
         var that = this;
         var cmp = genro.compareDict[op];
         var cb = function(row){
@@ -1285,6 +1282,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(objectNotEmpty(ranges)){
                 var rangepars = objectUpdate({},renderedRow);
                 rangepars.value = v;
+                rangepars._kwargs = rangepars;
                 for(var rng in ranges){
                     if(stringEndsWith(rng,'_condition') || rng.indexOf('_')<=0){
                         var condition = funcApply('return '+ranges[rng],rangepars,sourceNode);
@@ -1670,6 +1668,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var event = dragInfo.event;
         var widget = dragInfo.widget;
         var value = {};
+        if (widget.gridEditor && widget.gnrediting){
+            return false;
+        }
 
         if (dragmode == 'row') {
             var cells = widget.structure[0]['rows'][0];

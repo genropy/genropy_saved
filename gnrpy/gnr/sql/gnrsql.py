@@ -1097,7 +1097,7 @@ class DbStoresHandler(object):
         b = Bag()
         b.setItem('db',None,dbname=dbname, host=host, user=user, password=password,port=port)
         b.toXml(os.path.join(self.config_folder,'%s.xml' %storename))
-        self.add_store(storename, check=not save)
+        self.add_store(storename, check=save)
             
     def dbstore_check(self, storename, verbose=False):
         """checks if dbstore exists and if it needs to be aligned
