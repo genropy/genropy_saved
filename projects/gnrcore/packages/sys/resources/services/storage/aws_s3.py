@@ -127,16 +127,9 @@ class Service(StorageService):
         path_list = internalpath.split('/')
 
     def isfile(self, *args):
-<<<<<<< HEAD
-        return self._bucket(*args) is not False
+        return self._head_object(*args) is not False
 
-    def _bucket(self,*args):
-=======
-        s3 = self._client
-        internalpath = self.internal_path(*args)
-        if internalpath =='':
-            return False
->>>>>>> a777b89287ffedd5d7857fa95b046806aba25bfe
+    def _head_object(self,*args):
         try:
             return self._client.head_object(
                     Bucket=self.bucket,
@@ -148,7 +141,7 @@ class Service(StorageService):
                 raise
 
     def md5hash(self,*args):
-        bucket = self._bucket(*args)
+        bucket = self._head_object(*args)
         if bucket:
             return bucket['ETag'][1:-1]
 

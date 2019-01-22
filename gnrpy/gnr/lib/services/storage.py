@@ -323,7 +323,7 @@ class StorageService(GnrBaseService):
     def internal_path(self, *args, **kwargs):
         pass
 
-    def md5hash(self,path):
+    def md5hash(self,*args):
         pass
 
     def fullpath(self, path):
@@ -572,7 +572,7 @@ class BaseLocalService(StorageService):
         import hashlib
         BLOCKSIZE = 65536
         hasher = hashlib.md5()
-        with open(os.path.join(*args), 'rb') as afile:
+        with self.open(*args, mode='rb') as afile:
             buf = afile.read(BLOCKSIZE)
             while len(buf) > 0:
                 hasher.update(buf)
