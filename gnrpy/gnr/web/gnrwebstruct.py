@@ -66,7 +66,7 @@ def cellFromField(field,tableobj,checkPermissions=None):
         kwargs['_subtable'] = True
     kwargs['name'] =  fldobj.name_short or fldobj.name_long
     kwargs['dtype'] =  fldobj.dtype
-    kwargs['width'] = '%iem' % int(fldobj.print_width*.6) if fldobj.print_width else None
+    #kwargs['width'] = '%iem' % int(fldobj.print_width*.6) if fldobj.print_width else None
     if fldattr.get('caption_field'):
         kwargs['caption_field'] = fldattr['caption_field']
     if fldattr.get('_owner_package'):
