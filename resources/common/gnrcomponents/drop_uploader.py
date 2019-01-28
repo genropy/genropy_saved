@@ -195,11 +195,11 @@ class DropUploaderBase(BaseComponent):
                 #dest_url = self.site.getStaticUrl(dest_dir)
             else:
                 dir_sn = self.site.storageNode(sn.dirname, action_name)
-                dir_path = os.path.join(dir_path, action_name)
+                #dir_path = os.path.join(dir_path, action_name)
                 #dest_url = "%s/%s" % (file_url.rpartition('/')[0], action_name)
 
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path)
+            #if not os.path.exists(dir_path):
+            #    os.makedirs(dir_path)
                 #landscape=original.size[0]>original.size[1]
             if height and width:
                 imagename = '%s_h%i_w%i' % (imagename, height, width)
