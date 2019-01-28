@@ -946,13 +946,23 @@ dojo.declare("gnr.GnrDevHandler", null, {
             fb.addField('img',{src:'^.preview',height:'50px',width:'200px',boder:'1px solid silver'});
         }
         var bottom = dlg.bottom._('div');
-        var saveattr = {'float':'right',label:_T('Save')};
-        var data = new gnr.GnrBag();
-        
+        var saveattr = {'float':'right',label:_T('Save')};        
         saveattr.action = function(evt,counter,modifiers){
             saveCb(dlg,evt,counter,modifiers);
         };
         bottom._('button', saveattr);
+
+        var meta = genro.getData(datapath) || new gnr.GnrBag();
+        if(meta.getItem('id') || meta.getItem('pkey')){
+            var savecopy = {'float':'right',label:_T('Duplicate as')};        
+            savecopy.action = function(evt,counter,modifiers){
+                genro.getData(datapath).setItem('id',null);
+                genro.getData(datapath).setItem('pkey',null);
+                saveCb(dlg,evt,counter,modifiers);
+            };
+            bottom._('button', savecopy);
+        }
+
         bottom._('button', {'float':'right',label:_T('Cancel'),action:dlg.close_action});
         dlg.show_action();
     },
