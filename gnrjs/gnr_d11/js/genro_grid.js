@@ -1383,8 +1383,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var columnsetAttrs = columnsets.getAttr(columnset) || {};
             objectUpdate(cell,objectExtract(columnsetAttrs,'cells_*',true));
         }
-
+        
         cell = objectUpdate(cell, cellNode.attr);
+        if(!cell.width && cell.dfltwidth){
+            cell.width = cell.dfltwidth;
+        }
         var dtype = cell.dtype;
         var cell_name = _F(sourceNode.currentFromDatasource(cell.name),cell.name_format);
         cell.original_field = cell.field;

@@ -129,7 +129,7 @@ class MailService(GnrBaseService):
         return account_params
 
     def getDefaultMailAccount(self):
-        return Bag(self.get_account_params)
+        return Bag(self.get_account_params())
 
     def get_smtp_connection(self, account=None, smtp_host=None, port=None,
                             user=None, password=None, ssl=False, tls=False, timeout=None,**kwargs):
