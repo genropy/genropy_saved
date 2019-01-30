@@ -14,6 +14,18 @@ import os
 import tempfile
 import mimetypes
 
+def do_cprofile(func):
+    def profiled_func(*args, **kwargs):
+        profile = cProfile.Profile()
+        try:
+            profile.enable()
+            result = func(*args, **kwargs)
+            profile.disable()
+            return result
+        finally:
+            profile.dump_stats("/Users/michele/stats.prf")
+    return profiled_func
+
 class S3LocalFile(object):
     def __init__(self, mode='rb', bucket=None, key=None, s3_session=None):
         self.bucket = bucket
@@ -127,6 +139,9 @@ class Service(StorageService):
         path_list = internalpath.split('/')
 
     def isfile(self, *args):
+        internalpath = self.internal_path(*args)
+        if internalpath =='':
+            return False
         return self._head_object(*args) is not False
 
     def _head_object(self,*args):
@@ -299,6 +314,7 @@ class Service(StorageService):
         if url:
             return self.parent.redirect(environ, start_response, location=url,temporary=True)
 
+    @do_cprofile
     def children(self, *args, **kwargs):
         def strip_prefix(inpath, prefix=None):
             prefix = prefix or self.base_path
