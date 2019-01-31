@@ -51,6 +51,7 @@ class BagToHtml(object):
     starting_page_number = 0
     body_attributes = None
     splittedPages = 0
+    watermark_draft_class = 'document_draft'
 
     def __init__(self, locale='en', encoding='utf-8', templates=None, templateLoader=None, **kwargs):
         self.locale = locale
@@ -316,10 +317,15 @@ class BagToHtml(object):
         else:
             self.mainLoop()
 
-    def onNewPage(self,page):
+    def getWatermarkClass(self):
         if self.is_draft:
-            page.div(style='position:absolute; top:0; left:0; right:0; bottom:0; z-index:10000',_class='document_draft')
-            
+            return self.watermark_draft_class
+
+    def onNewPage(self,page):
+        watermark_class = self.getWatermarkClass()
+        if watermark_class:
+            page.div(style='position:absolute; top:0; left:0; right:0; bottom:0; z-index:10000',_class=watermark_class)
+
     def pageCounter(self, mask=None):
         """Allow to automatically number the pages created in a :ref:`print`. You can choose
         the format output with the *mask* parameter

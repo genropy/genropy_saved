@@ -235,6 +235,8 @@ class SqlDbAdapter(object):
             sqlargs.pop(k)
             sqlargs.update(dict([('%s%i' % (k, i), ov) for i, ov in enumerate(v)]))
             sql = re.sub(':%s(\W|$)' % k, sqllist+'\\1', sql)
+            
+
         return sql
 
     def adaptSqlName(self,name):

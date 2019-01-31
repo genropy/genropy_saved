@@ -136,7 +136,7 @@ class Table(object):
                     message_atc.addAttachment(maintable_id=message_to_dispatch['id'],
                                             origin_filepath=r,
                                             mimetype=mimetype,
-                                            destFolder=self.folderPath(message_to_dispatch,True),
+                                            destFolder=self.folderPath(message_to_dispatch),
                                             moveFile=moveAttachment)
         if doCommit:
             self.db.commit()
@@ -187,17 +187,12 @@ class Table(object):
         
     
     def atc_getAttachmentPath(self,pkey):
-        return self.folderPath(self.recordAs(pkey),relative=True)
+        return self.folderPath(self.recordAs(pkey))
 
-    def folderPath(self,message_record=None,relative=None):
+    def folderPath(self,message_record=None):
         message_date = message_record['message_date'] or self.db.workdate
         year = str(message_date.year)
         month = '%02i' %message_date.month
         attachment_root= self.pkg.attributes.get('attachment_root') or 'mail'
-        if relative:
-            return os.path.join(attachment_root,message_record['account_id'],year,month,message_record['id'])
-        else:
-            return self.db.application.site.getStaticPath('vol:%s' %attachment_root,
-                                                        message_record['account_id'], 
-                                                        year,month,message_record['id'],
-                                                        autocreate=True)
+        return '/'.join(['%s:%s' %(attachment_root,message_record['account_id']),year,
+                            month,message_record['id']])
