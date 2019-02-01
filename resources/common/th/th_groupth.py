@@ -33,7 +33,8 @@ class TableHandlerGroupBy(BaseComponent):
     def th_groupByTableHandler(self,pane,frameCode=None,title=None,table=None,linkedTo=None,
                                 struct=None,where=None,viewResource=None,
                                 condition=None,condition_kwargs=None,store_kwargs=None,datapath=None,
-                                treeRoot=None,configurable=True,dashboardIdentifier=None,**kwargs):
+                                treeRoot=None,configurable=True,
+                                dashboardIdentifier=None,static=False,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = table or inattr.get('table')
         tblobj = self.db.table(table)
@@ -53,6 +54,10 @@ class TableHandlerGroupBy(BaseComponent):
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         datapath = datapath or '.%s' %frameCode
         rootNodeId = frameCode
+        if not struct and viewResource:
+            self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
+            struct = self._th_hook('groupedStruct',mangler=frameCode)
+            store_kwargs['applymethod'] = store_kwargs.get('applymethod') or self._th_hook('groupedApplymethod',mangler=frameCode)
         sc = pane.stackContainer(datapath=datapath,_class='group_by_th',selectedPage='^.output',_anchor=True,
                                 nodeId=rootNodeId,
                                 _linkedTo = linkedTo,table=table,
@@ -67,7 +72,6 @@ class TableHandlerGroupBy(BaseComponent):
 
                                 _dashboardRoot=True,**kwargs)  
         gridstack = sc.stackContainer(pageName='grid',title='!!Grid View',selectedPage='^.groupMode')
-        
 
         #gridstack.dataFormula('.currentTitle','',defaultTitle='!!Group by')
         frame = gridstack.frameGrid(frameCode=frameCode,grid_onDroppedColumn="""
@@ -81,39 +85,37 @@ class TableHandlerGroupBy(BaseComponent):
         if dashboardIdentifier:
             frame.dataController("root.publish('loadDashboard',{pkey:dashboardIdentifier});",root=sc,
                                 dashboardIdentifier=dashboardIdentifier,_onBuilt=1)
-
-
-        frame.data('.grid.showCounterCol',True)
         frame.dataFormula('.currentTitle',"basetitle+' '+(loadedDashboard || currentView || '')",
-                                basetitle='!!Group by',
-                                currentView='^.grid.currViewAttrs.description',
-                                loadedDashboard='^.dashboardMeta.description')
-        frame.dataRemote('.dashboardsMenu',self.thg_dashboardsMenu,cacheTime=5,table=table,
-                            rootNodeId=rootNodeId,_fired='^.refreshDashboardsMenu')
-        configuratorSlot = 'configuratorPalette' if configurable else '2'
-        bar = frame.top.slotToolbar('5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,searchOn,count,viewsMenu,%s,chartjs,export,dashboardsMenu,5' %configuratorSlot,
-                                    dashboardsMenu_linkedTo=linkedTo,
-                                    stackButtons_stackNodeId=frameCode)
-        bar.ctitle.div(title,color='#444',font_weight='bold')
-        bar.counterCol.div().checkbox(value='^.grid.showCounterCol',label='!!Counter column',label_color='#444')
-        frame.grid.dataController("""
-        if(showCounterCol){
-            structrow.setItem('_grp_count',null,{field:'_grp_count',name:'Cnt',width:'5em',group_aggr:'sum',dtype:'L'});
-        }else{
-            structrow.popNode('_grp_count');
-        }
-        """,structrow='=.struct.#0.#0',showCounterCol='^.showCounterCol',_if='structrow')
+                                    basetitle='!!Group by',
+                                    currentView='^.grid.currViewAttrs.description',
+                                    loadedDashboard='^.dashboardMeta.description')
+        if static:
+            bar = frame.top.slotToolbar('5,vtitle,count,*,searchOn,viewsMenu,export,5')
+            bar.vtitle.div('^.currentTitle',font_size='.9em',color='#666',font_weight='bold')
         
-        
-        frame.stackedView = self._thg_stackedView(gridstack,title=title,grid=frame.grid,frameCode=frameCode,linkedTo=linkedTo)
-
-        frame.treeView = self._thg_treeview(sc,title=title,grid=frame.grid,treeRoot=treeRoot,linkedTo=linkedTo)
-        
-
-        frame.dataController("""
-            grid.collectionStore().loadInvisible = always || genro.dom.isVisible(sc);
-        """,output='^.output',groupMode='^.groupMode',always='=.always',
-            grid=frame.grid.js_widget,sc=sc,_delay=1)
+        else:
+            frame.data('.grid.showCounterCol',True)
+            frame.dataRemote('.dashboardsMenu',self.thg_dashboardsMenu,cacheTime=5,table=table,
+                                rootNodeId=rootNodeId,_fired='^.refreshDashboardsMenu')
+            configuratorSlot = 'configuratorPalette' if configurable else '2'
+            bar = frame.top.slotToolbar('5,ctitle,stackButtons,10,groupByModeSelector,counterCol,*,searchOn,count,viewsMenu,%s,chartjs,export,dashboardsMenu,5' %configuratorSlot,
+                                        dashboardsMenu_linkedTo=linkedTo,
+                                        stackButtons_stackNodeId=frameCode)
+            bar.ctitle.div(title,color='#444',font_weight='bold')
+            bar.counterCol.div().checkbox(value='^.grid.showCounterCol',label='!!Counter column',label_color='#444')
+            frame.grid.dataController("""
+            if(showCounterCol){
+                structrow.setItem('_grp_count',null,{field:'_grp_count',name:'Cnt',width:'5em',group_aggr:'sum',dtype:'L'});
+            }else{
+                structrow.popNode('_grp_count');
+            }
+            """,structrow='=.struct.#0.#0',showCounterCol='^.showCounterCol',_if='structrow')
+            frame.stackedView = self._thg_stackedView(gridstack,title=title,grid=frame.grid,frameCode=frameCode,linkedTo=linkedTo)
+            frame.treeView = self._thg_treeview(sc,title=title,grid=frame.grid,treeRoot=treeRoot,linkedTo=linkedTo)
+            frame.dataController("""
+                grid.collectionStore().loadInvisible = always || genro.dom.isVisible(sc);
+            """,output='^.output',groupMode='^.groupMode',always='=.always',
+                grid=frame.grid.js_widget,sc=sc,_delay=1)
 
         if linkedNode:
             linkedNode.value.dataController("""
@@ -123,16 +125,24 @@ class TableHandlerGroupBy(BaseComponent):
 
         gridId = frame.grid.attributes['nodeId']
         frame.dataController("""genro.grid_configurator.loadView(gridId, (currentView || favoriteView));
-                                """,
-                            currentView="^.grid.currViewPath",
-                            favoriteView='^.grid.favoriteViewPath',
-                            gridId=gridId)
+                                    """,
+                                currentView="^.grid.currViewPath",
+                                favoriteView='^.grid.favoriteViewPath',
+                                gridId=gridId)
         self._thg_structMenuData(frame,table=table,linkedTo=linkedTo)
         if configurable:
             frame.viewConfigurator(table,queryLimit=False,toolbar=False)
         else:
             frame.grid.attributes['gridplugins'] = False
-        frame.grid.attributes.setdefault('selfsubscribe_loadingData',"this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:'%s'});}" %self._th_waitingElement())
+        self._thg_groupByStore(frame,table=table,where=where,condition=condition,linkedTo=linkedTo,
+                                condition_kwargs=condition_kwargs,**store_kwargs)
+        return frame
+
+    
+    def _thg_groupByStore(self,frame,table=None,where=None,linkedTo=None,
+                            condition=None,condition_kwargs=None,**store_kwargs):
+        frame.grid.attributes.setdefault('selfsubscribe_loadingData',
+                                            "this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:'%s'});}" %self._th_waitingElement())
         store_kwargs.update(condition_kwargs)
         store_kwargs['_forcedReload'] = '^.reloadMain'
         frame.grid.selectionStore(table=table,where=where,selectmethod=self._thg_selectgroupby,
@@ -157,8 +167,9 @@ class TableHandlerGroupBy(BaseComponent):
                                 _excludeList="""columns,sortedBy,currentFilter,customOrderBy,row_count,hardQueryLimit,limit,liveUpdate,method,nodeId,selectionName,
                             selectmethod,sqlContextName,sum_columns,table,timeout,totalRowCount,userSets,_sections,
                             _onCalling,_onResult,applymethod,sum_columns,prevSelectedDict""",
-                                condition=condition,**store_kwargs)
-        return frame
+                    condition=condition,**store_kwargs)
+
+    
 
 
     def _thg_defaultstruct(self,struct):

@@ -455,8 +455,9 @@ class GnrSqlDb(GnrObject):
             storename = self.rootstore
         with self.tempEnv(storename=storename):
             if _adaptArguments:
-
+                sql=sql.replace(r'\:',chr(1 ))
                 sql, sqlargs = self.adapter.prepareSqlText(sql, sqlargs)
+                sql=sql.replace(chr(1 ), ':')
             #gnrlogger.info('Executing:%s - with kwargs:%s \n\n',sql,unicode(kwargs))
             #print 'sql:\n',sql
             try:

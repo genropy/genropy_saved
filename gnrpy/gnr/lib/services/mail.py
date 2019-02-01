@@ -129,7 +129,7 @@ class MailService(GnrBaseService):
         return account_params
 
     def getDefaultMailAccount(self):
-        return Bag(self.get_account_params)
+        return Bag(self.get_account_params())
 
     def get_smtp_connection(self, account=None, smtp_host=None, port=None,
                             user=None, password=None, ssl=False, tls=False, timeout=None,**kwargs):
@@ -230,10 +230,11 @@ class MailService(GnrBaseService):
             if not mime_type:
                 mime_type = attachment_node.mimetype
             mime_family, mime_subtype = mime_type.split('/')
-            with attachment_node.open(mode='rb') as attachment_file:
-                email_attachment = mime_mapping[mime_family](attachment_file.read(), mime_subtype)
-                email_attachment.add_header('content-disposition', 'attachment', filename=attachment_node.basename)
-                msg.attach(email_attachment)
+            with attachment_node.local_path() as attachment_path:
+                with open(attachment_path, mode='rb') as attachment_file:
+                    email_attachment = mime_mapping[mime_family](attachment_file.read(), mime_subtype)
+                    email_attachment.add_header('content-disposition', 'attachment', filename=attachment_node.basename)
+                    msg.attach(email_attachment)
 
     def sendmail_template(self, datasource, to_address=None, cc_address=None, bcc_address=None, reply_to=None, subject=None,
                           from_address=None, body=None, attachments=None, account=None,

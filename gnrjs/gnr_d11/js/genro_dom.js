@@ -1671,7 +1671,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
     setAutoScale:function(domNode,zoomToFit,originalDomnode){
         domNode._autoScale = setInterval(function(){
            // domNode.style.zoom = 1;
-            var originalDomnode = originalDomnode || domNode.parentNode;
+            originalDomnode = originalDomnode || domNode.parentNode;
             //console.log('originalDomnode',originalDomnode)
             var zoom_x = 1;
             var zoom_y = 1;

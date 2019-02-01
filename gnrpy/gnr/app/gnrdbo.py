@@ -1369,7 +1369,7 @@ class TotalizeTable(GnrDboTable):
         addFromCurrent = (record is not None) and (self.totalize_exclude(record) is not True)
         subtractFromOld = (old_record is not None) and (self.totalize_exclude(old_record) is not True)
         self.tt_totalize_allowed(record,old_record=old_record)
-        with self.recordToUpdate(insertMissing=True,**tot_record) as tot:
+        with self.recordToUpdate(self.pkeyValue(tot_record),insertMissing=True,**tot_record) as tot:
             for totalizer_field,pars in tot_fields.items():
                 if addFromCurrent:
                     value = self.tt_getvalue(record,pars) 
