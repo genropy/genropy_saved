@@ -12,29 +12,23 @@ class Service(StorageService):
         for attr in dir(StorageService):
             if not attr in dir_base:
                 delattr(self, attr)
-        print dir(self)
         self.parent = parent
         self.parent_service =  self.parent.getService('storage',parent_service)
         self.parent_path = self.parent_service.base_path
-        print 'inited', self.parent_path
         self.relative_path = relative_path
-        print 'int', self.internal_path('pippo')
         self.__class__ = self.parent_service.__class__
 
 
     @property
     def _resolved_relative(self):
         #resolve dbstore...
-        print 'resolved_relative'
         return self.relative_path
 
     @property
     def base_path(self):
-        print 'base_path'
         return '%s/%s'%(self.parent_path, self._resolved_relative) if self.parent_path else self._resolved_relative
 
     def __getattr__(self, name):
-        print 'name', name
         if name in self.__dict__:
             return getattr(self, name)
         else:
