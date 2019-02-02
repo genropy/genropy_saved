@@ -280,5 +280,6 @@ class Server(object):
             gs.setItem('RESTART_TS',datetime.now())
             #GnrReloaderMonitor.add_reloader_callback(gnrServer.on_reloader_restart)
         atexit.register(gnrServer.on_site_stop)
-        run_simple(self.options.host, int(self.options.port), gnrServer, use_debugger=self.debug, use_evalex=self.debug, use_reloader=self.reloader)
+        run_simple(self.options.host, int(self.options.port), gnrServer, use_debugger=self.debug, 
+            use_evalex=self.debug, use_reloader=self.reloader, threaded=True)
         
