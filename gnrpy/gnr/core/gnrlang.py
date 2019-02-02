@@ -37,14 +37,9 @@ import uuid
 import base64
 import time
 from gnr.core.gnrdecorator import deprecated,extract_kwargs # keep for compatibility
-from types import MethodType as _MethodType
+from types import MethodType
 import six
-if six.PY2:
-    class MethodType(_MethodType):
-        def __init__(self, method, obj):
-            super(_MethodType, self).__init__(method, obj, obj.__class__)
-else:
-    MethodType = _MethodType
+
 thread_ws = dict()
 _mixincount = 0
  
@@ -940,7 +935,7 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         method = getattr(source, name)
         if type(method) == MethodType:
             method = method.__func__
-        k = MethodType(method, obj)
+        k = six.create_bound_method(method, obj)
         
         #method = getattr(source, name).__func__
         method.__mixin_pkg = __mixin_pkg

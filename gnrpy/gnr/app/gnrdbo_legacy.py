@@ -26,7 +26,7 @@ class GnrHTable(GnrDboTable):
             tbl.column('description', name_long='!!Description', base_view=True)
             tbl.column('child_code', name_long='!!Child code', validate_notnull=True,
                         validate_notnull_error='!!Required', base_view=True,
-                        validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed')"""
+                        validate_regex=r'!\.', validate_regex_error='!!Invalid code: "." char is not allowed')"""
                         
         columns = tbl['columns'] or []
         broadcast = [] if 'broadcast' not in tbl.attributes else tbl.attributes['broadcast'].split(',')
@@ -39,7 +39,7 @@ class GnrHTable(GnrDboTable):
         if not 'child_code' in columns:
             tbl.column('child_code', name_long='!!Child code', validate_notnull=True,
                         validate_notnull_error='!!Required', base_view=True,
-                        validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed'
+                        validate_regex=r'!\.', validate_regex_error='!!Invalid code: "." char is not allowed'
                         #,unmodifiable=True
                         )
         tbl.column('parent_code', name_long='!!Parent code').relation('%s.code' % tbl.parentNode.label,onDelete='cascade')
