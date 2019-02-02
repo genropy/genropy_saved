@@ -64,12 +64,12 @@ class GnrWebServerError(Exception):
     
 class GnrBaseWebPage(GnrObject):
     """TODO"""
-    def newCookie(self, name, value, **kw):
-        """TODO
-        
-        :param name: TODO
-        :param value: TODO"""
-        return self.request.newCookie(name, value, **kw)
+    #def newCookie(self, name, value, **kw):
+    #    """TODO
+    #    
+    #    :param name: TODO
+    #    :param value: TODO"""
+    #    return self.request.newCookie(name, value, **kw)
         
     def newMarshalCookie(self, name, value, secret=None, **kw):
         """TODO
@@ -158,19 +158,19 @@ class GnrBaseWebPage(GnrObject):
         :returns: a list of mixin names with the following syntax: ``moduleName:className``"""
         return []
         
-    def requestWrite(self, txt, encoding='utf-8'):
-        """TODO
+    #def requestWrite(self, txt, encoding='utf-8'):
+    #    """TODO
+    #    
+    #    :param txt: TODO
+    #    :param encoding: the encoding type"""
+    #    self.responseWrite(txt, encoding=encoding)
         
-        :param txt: TODO
-        :param encoding: the encoding type"""
-        self.responseWrite(txt, encoding=encoding)
-        
-    def responseWrite(self, txt, encoding='utf-8'):
-        """TODO
-        
-        :param txt: TODO
-        :param encoding: the encoding type"""
-        self.response.write(txt.encode(encoding))
+    #def responseWrite(self, txt, encoding='utf-8'):
+    #    """TODO
+    #    
+    #    :param txt: TODO
+    #    :param encoding: the encoding type"""
+    #    self.response.write(txt.encode(encoding))
         
     def _get_siteStatus(self):
         if not hasattr(self, '_siteStatus'):

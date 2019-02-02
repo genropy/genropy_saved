@@ -48,7 +48,7 @@ class GnrWebConnection(GnrBaseProxy):
         if connection_id:
             self.validate_connection(connection_id=connection_id, user=user)
         elif self.cookie:
-            cv = self.cookie.value
+            cv = dict(self.cookie)
             self.validate_connection(connection_id=cv.get('connection_id'), user=cv.get('user'))
 
     @property
@@ -122,7 +122,7 @@ class GnrWebConnection(GnrBaseProxy):
         """TODO"""
         if self._cookie_data is None:
             if self.cookie:
-                self._cookie_data = self.cookie.value.get('data') or {}
+                self._cookie_data = self.cookie.get('data') or {}
             else:
                 self._cookie_data = {}
         return self._cookie_data
@@ -144,10 +144,10 @@ class GnrWebConnection(GnrBaseProxy):
 
     def _get_locale(self):
         if self.cookie:
-            return self.cookie.value.get('locale')
+            return self.cookie.get('locale')
 
     def _set_locale(self, v):
-        self.cookie.value['locale'] = v
+        self.cookie['locale'] = v
 
     locale = property(_get_locale, _set_locale)
 

@@ -441,8 +441,6 @@ class GnrNamedList(list):
         
     def __setitem__(self, x, v):
         if type(x) not in (int,slice):
-            print(v)
-            print(x)
             n = self._index.get(x)
             if n is None:
                 n = len(self._index)

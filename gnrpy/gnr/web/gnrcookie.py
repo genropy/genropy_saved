@@ -52,7 +52,14 @@ import marshal
 import base64
 from future.utils import with_metaclass
 
+from werkzeug.contrib.securecookie import SecureCookie
 # import apache
+
+class JSONCookie(SecureCookie):
+    serialization_method = json
+
+class MarshalCookie(SecureCookie):
+    serialization_method = marshal
 
 class CookieError(Exception):
     pass

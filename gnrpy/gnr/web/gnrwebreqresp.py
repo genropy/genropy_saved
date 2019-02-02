@@ -19,14 +19,33 @@
 #You should have received a copy of the GNU Lesser General Public
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-
 from future import standard_library
 standard_library.install_aliases()
 from builtins import object
-import gnr.web.gnrcookie as Cookie
+#import gnr.web.gnrcookie as Cookie
+from werkzeug.contrib.securecookie import SecureCookie
+#from six.moves.http_cookies import SimpleCookie
+import marshal
+# import apache
 
-cookie_types = {'marshal': Cookie.MarshalCookie,
-                'simple': Cookie.Cookie}
+class BaseCookie(object):
+    def __init__(self, value=None):
+        self.value = value
+
+    def __str__(self):
+        return self.value
+
+class MarshalCookie(SecureCookie):
+    serialization_method = marshal
+
+    def __str__(self):
+        return self.serialize()
+
+    
+
+
+cookie_types = {'marshal': MarshalCookie,
+                'simple': BaseCookie}
 
 class GnrWebRequest(object):
     def __init__(self, request):
@@ -39,7 +58,7 @@ class GnrWebRequest(object):
             return getattr(self._request, name)
 
     def _get_path_info(self):
-        return self._request.path_info
+        return self._request.path
 
     path_info = property(_get_path_info)
 
@@ -84,16 +103,27 @@ class GnrWebRequest(object):
     document_root = property(_get_document_root)
 
     def newMarshalCookie(self, name, value, secret=None, **kw):
-        return Cookie.MarshalCookie(name, value, secret=secret, **kw)
+        cookie = MarshalCookie(value, secret)
+        cookie.name = name
+        cookie.additional_kw = kw
+        return cookie
 
     def newCookie(self, name, value, **kw):
-        return Cookie.Cookie(name, value, **kw)
+        cookie = BaseCookie(value)
+        cookie.name = name
+        cookie.additional_kw = kw
+        return cookie
 
     def get_cookie(self, cookieName, cookieType, secret=None, path=None):
         cookieType = cookie_types[cookieType]
-        cookie = Cookie.get_cookie(self._request, cookieName, cookieType, secret=secret)
-        if type(cookie) is not cookieType:
-            cookie = None
+        cookie_data = self._request.cookies.get(cookieName)
+        if not cookie_data:
+            return
+        if hasattr(cookieType,'unserialize'):
+            cookie = cookieType.unserialize(cookie_data, secret)
+        else:
+            cookie = cookie_data
+        return cookie
         if cookie is None and path:
             cookie = cookieType(cookieName, '', secret=secret)
             cookie.path = path
@@ -110,7 +140,17 @@ class GnrWebResponse(object):
             return getattr(self._response, name)
 
     def add_cookie(self, cookie):
-        Cookie.add_cookie(self._response, cookie)
+        res = self._response
+        if not res.headers.has_key("Set-Cookie"):
+            res.headers.add("Cache-Control", 'no-cache="set-cookie"')
+        cookie_params = {}
+        for k in ("version", "path", "domain", "secure",
+            "comment",  "max_age", "expires",
+            "commentURL", "discard", "port", "httponly" ):
+            if hasattr(cookie, k):
+                cookie_params[k] = getattr(cookie, k)
+        res.set_cookie(cookie.name, str(cookie), **cookie_params)
+        #res.headers.add("Set-Cookie", str(cookie))
 
     def add_header(self, header, value):
         self._response.headers[header] = value
