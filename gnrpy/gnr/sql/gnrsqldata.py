@@ -24,7 +24,7 @@ import os
 import shutil
 import re
 #import weakref
-import cPickle
+import pickle
 import itertools
 import hashlib
 from collections import OrderedDict
@@ -1392,7 +1392,7 @@ class SqlSelection(object):
         selection_path = '%s.pik' % self.freezepath
         dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection',suffix='.pik')
         with os.fdopen(dumpfile_handle, "wb") as f:
-            cPickle.dump(self, f)
+            pickle.dump(self, f)
         shutil.move(dumpfile_path, selection_path)
         self.dbtable, self._data, self._filtered_data = saved
         
@@ -1401,22 +1401,22 @@ class SqlSelection(object):
         if readwrite == 'w':
             dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_data',suffix='.pik')
             with os.fdopen(dumpfile_handle, "wb") as f:
-                cPickle.dump(self._data, f)
+                pickle.dump(self._data, f)
             shutil.move(dumpfile_path, pik_path)
         else:
             with open(pik_path, 'rb') as f:
-                self._data = cPickle.load(f)
+                self._data = pickle.load(f)
 
     def _freeze_pkeys(self, readwrite):
         pik_path = '%s_pkeys.pik' % self.freezepath
         if readwrite == 'w':
             dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_data',suffix='.pik')
             with os.fdopen(dumpfile_handle, "wb") as f:
-                cPickle.dump(self.output('pkeylist'), f)
+                pickle.dump(self.output('pkeylist'), f)
             shutil.move(dumpfile_path, pik_path)
         else:
             with open(pik_path, 'rb') as f:
-                return cPickle.load(f)
+                return pickle.load(f)
         
     def _freeze_filtered(self, readwrite):
         fpath = '%s_filtered.pik' % self.freezepath
@@ -1427,11 +1427,11 @@ class SqlSelection(object):
             if readwrite == 'w':
                 dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_filtered',suffix='.pik')
                 with os.fdopen(dumpfile_handle, "w") as f:
-                    cPickle.dump(self._filtered_data, f)
+                    pickle.dump(self._filtered_data, f)
                 shutil.move(dumpfile_path, fpath)
             else:
                 with open(fpath, 'rb') as f:
-                    self._filtered_data = cPickle.load(f)
+                    self._filtered_data = pickle.load(f)
             
     def freeze(self, fpath, autocreate=False,freezePkeys=False):
         """TODO

@@ -24,7 +24,7 @@ from __future__ import with_statement
 
 
 import logging
-import cPickle
+import pickle
 import os
 import shutil
 from time import time
@@ -931,7 +931,7 @@ class GnrSqlDb(GnrObject):
         if not os.path.exists(filename):
             return []
         with open(filename, 'rb') as f:
-            return cPickle.load(f)
+            return pickle.load(f)
 
     def unfreezeSelection(self, fpath):
         """Get a pickled selection and return it
@@ -941,7 +941,7 @@ class GnrSqlDb(GnrObject):
         if not os.path.exists(filename):
             return
         with open('%s.pik' % fpath, 'rb') as f:
-            selection = cPickle.load(f)
+            selection = pickle.load(f)
         selection.dbtable = self.table(selection.tablename)
         return selection
         
