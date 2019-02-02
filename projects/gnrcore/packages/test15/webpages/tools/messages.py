@@ -6,6 +6,7 @@
 
 """Messages"""
 
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
     

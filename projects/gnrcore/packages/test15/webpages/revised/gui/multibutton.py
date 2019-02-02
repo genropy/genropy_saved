@@ -6,6 +6,7 @@
 
 """slotbar"""
 
+from builtins import object
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method

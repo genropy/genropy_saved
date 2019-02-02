@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2010-09-08.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
+from builtins import object
 from datetime import datetime
 
 class GnrCustomWebPage(object):

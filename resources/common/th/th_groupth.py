@@ -18,6 +18,7 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from builtins import str
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs
@@ -185,7 +186,7 @@ class TableHandlerGroupBy(BaseComponent):
         q = Bag()
         if linkedTo:
             pyviews = self._th_hook('groupedStruct',mangler=linkedTo,asDict=True)
-            for k,v in pyviews.items():
+            for k,v in list(pyviews.items()):
                 prefix,name=k.split('_groupedStruct_')
                 q.setItem(name,self._prepareGridStruct(v,table=table),caption=v.__doc__)
             frame.data('.grid.resource_structs',q)
@@ -274,7 +275,7 @@ class TableHandlerGroupBy(BaseComponent):
         having_list = list()
         custom_order_by = list()
         if groupOrderBy:
-            for v in groupOrderBy.values():
+            for v in list(groupOrderBy.values()):
                 field = v['field']
                 if not field.startswith('@'):
                     field = '$%s' %field

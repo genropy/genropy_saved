@@ -1,3 +1,4 @@
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import toText
 import time
@@ -99,7 +100,7 @@ class TotalizeSelection(object):
         return '_'.join([toText(row[x]).replace('.', '_') for x in grouplist[1:]])
 
     def readRow(self, row, prevperiod=False):
-        for colnum, grprods in self.colgroups.items():
+        for colnum, grprods in list(self.colgroups.items()):
             if not ((grprods == '*tot*') or (row[self.grcol] in grprods)):
                 continue
             blocknode = self.getOneBlock(row, self.subtotals, prevperiod=prevperiod)

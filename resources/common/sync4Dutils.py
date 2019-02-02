@@ -18,6 +18,9 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 # 
+from __future__ import print_function
+from builtins import str
+from builtins import range
 import os.path
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrbaseclasses import BaseComponent
@@ -30,8 +33,8 @@ class Utils4D(BaseComponent):
         if 'new' in b:
             b = b['new']
         if b:
-            keys = b.keys()
-            values = b.values()
+            keys = list(b.keys())
+            values = list(b.values())
             n = len(values[0])
             for v in values:
                 if len(v) < n:
@@ -41,7 +44,7 @@ class Utils4D(BaseComponent):
 
     def listDictTobag4dTable(self, listdict):
         result = Bag()
-        for k in listdict[0].keys():
+        for k in list(listdict[0].keys()):
             result[k] = [d.get(k) for d in listdict]
         return result
 
@@ -76,7 +79,7 @@ class Pkg4D(BaseComponent):
             for tbl in pkg.value['tables']:
                 for col in tbl.value['columns']:
                     newattrs = {}
-                    for k, v in col.attr.items():
+                    for k, v in list(col.attr.items()):
                         if v is not None:
                             lbl = convdict.get(k, k)
                             if lbl:
@@ -125,10 +128,10 @@ def gnr4dNetBag (host4D, method, params=None):
     params['NetBag.UserID'] = ''
 
     #xml = params.toXml(encoding='iso-8859-1')
-    xml = unicode(params.toXml(encoding='iso-8859-1',mode4d=True), encoding='iso-8859-1')
+    xml = str(params.toXml(encoding='iso-8859-1',mode4d=True), encoding='iso-8859-1')
     result = server.GNT_NetBags_Server(FourD_Arg1=xml)
 
     return Bag(result)
 
 if __name__ == '__main__':
-    print gnr4dNetBag('localhost:21021', 'CS_Com.Ping')
+    print(gnr4dNetBag('localhost:21021', 'CS_Com.Ping'))

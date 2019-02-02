@@ -6,6 +6,8 @@
 # Created by Saverio Porcari on 2007-09-20.
 # Copyright (c) 2007 Softwell. All rights reserved.
 
+from __future__ import print_function
+from builtins import object
 from gnr.core import gnrlist
 from gnr.core.gnrbag import Bag
 from gnr.sql.gnrsql_exceptions import GnrNonExistingDbException
@@ -67,7 +69,7 @@ class ModelExtractor(object):
             elif dtype == 'C':
                 col_dict['dtype'] = 'A'
                 col_dict['size'] = length
-            col = tbl.column(colname, **dict([(k, v) for k, v in col_dict.items() if not k.startswith('_')]))
+            col = tbl.column(colname, **dict([(k, v) for k, v in list(col_dict.items()) if not k.startswith('_')]))
         pkey = self.dbroot.adapter.getPkey(schema=pkg_name, table=tbl_name)
         if len(pkey) == 1:
             tbl.parentNode.setAttr(pkey=pkey[0])
@@ -104,7 +106,7 @@ class ModelExtractor(object):
             
             fld = root['packages.%s.tables.%s.columns.%s' % (many_schema, many_table, many_field)]
             if not fld:
-                print 'missing field %s in table %s.%s' %(many_field,many_schema,many_table)
+                print('missing field %s in table %s.%s' %(many_field,many_schema,many_table))
             else:
                 fld.relation('%s.%s.%s' % (one_schema, one_table, one_field))
             
@@ -133,7 +135,7 @@ class SqlModelChecker(object):
         self.enableForeignKeys = enableForeignKeys is not False
         try:
             self.actual_schemata = self.db.adapter.listElements('schemata')
-        except GnrNonExistingDbException, exc:
+        except GnrNonExistingDbException as exc:
             self.actual_schemata = []
             self.actual_tables = {}
             self.actual_views = {}
@@ -151,7 +153,7 @@ class SqlModelChecker(object):
             for r in actual_relations:
                 self.actual_relations.setdefault('%s.%s' % (r[1], r[2]), []).append(r)
             self.unique_constraints = self.db.adapter.getTableContraints()
-        for pkg in self.db.packages.values():
+        for pkg in list(self.db.packages.values()):
             #print '----------checking %s----------'%pkg.name
             self._checkPackage(pkg)
         enabled_unaccent = False if create_db else 'unaccent' in self.db.adapter.listElements('enabled_extensions')
@@ -172,8 +174,8 @@ class SqlModelChecker(object):
                 commit = self.db.adapter.createExtension(extensions)
                 if commit:
                     self.db.commit()
-        except Exception,e:
-            print 'Error in adding extensions',e
+        except Exception as e:
+            print('Error in adding extensions',e)
         
 
         
@@ -184,7 +186,7 @@ class SqlModelChecker(object):
         :param pkg: the :ref:`package <packages>` object"""
         self._checkSqlSchema(pkg)
         if pkg.tables:
-            for tbl in pkg.tables.values():
+            for tbl in list(pkg.tables.values()):
                 #print '----------checking table %s----------'%tbl.name
                 self._checkSqlSchema(tbl)
                 if tbl.sqlname in self.actual_tables.get(tbl.sqlschema, []):
@@ -228,7 +230,7 @@ class SqlModelChecker(object):
         if tbl.columns:
             dbcolumns = dict(
                     [(c['name'], c) for c in self.db.adapter.getColInfo(schema=tbl.sqlschema, table=tbl.sqlname)])
-            for col in tbl.columns.values():
+            for col in list(tbl.columns.values()):
                 if col.sqlname in dbcolumns:
                     #it there's the column it should check if has been edited.
                     new_dtype = col.attributes['dtype']
@@ -278,7 +280,7 @@ class SqlModelChecker(object):
                                             changes=change)
                                             
         if tbl.indexes:
-            for idx in tbl.indexes.values():
+            for idx in list(tbl.indexes.values()):
                 if (idx.sqlname.endswith('_idx') and idx.sqlname[0:-4] in dbindexes):
 
                     change = self.db.adapter.dropIndex(idx.sqlname[0:-4][:63], sqlschema=tbl.sqlschema)
@@ -304,8 +306,8 @@ class SqlModelChecker(object):
         return tablechanges
         
     def _checkAllRelations(self):
-        for pkg in self.db.packages.values():
-            for tbl in pkg.tables.values():
+        for pkg in list(self.db.packages.values()):
+            for tbl in list(pkg.tables.values()):
                 self._checkTblRelations(tbl)
                 
     def _checkTblRelations(self, tbl):
@@ -479,7 +481,7 @@ class SqlModelChecker(object):
         tablename = '%s.%s' % (tbl.sqlschema, tbl.sqlname)
         
         sqlfields = []
-        for col in tbl.columns.values():
+        for col in list(tbl.columns.values()):
             if col.attributes.get('unaccent'):
                 self.unaccent = True
             sqlfields.append(self._sqlColumn(col))
@@ -497,7 +499,7 @@ class SqlModelChecker(object):
         sqlindexes = []
         bagindexes = Bag()
         if tbl.indexes:
-            for idx in tbl.indexes.values():
+            for idx in list(tbl.indexes.values()):
                 icols = idx.getAttr('columns')
                 icols = ','.join([tbl.column(col.strip()).sqlname for col in icols.split(',')])
                 unique = idx.getAttr('unique')
@@ -531,9 +533,9 @@ class SqlModelChecker(object):
                 if fldlist[2] == column:
                     try:
                         db.adapter.renameColumn(db.table(tblname).model.sqlfullname,old_colname,column)
-                        print joiner['many_relation'],' fixed'
+                        print(joiner['many_relation'],' fixed')
                         db.commit()
-                    except Exception,e:
+                    except Exception as e:
                         #print joiner['many_relation'],' error'
                         db.rollback()
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 class Table(object):
@@ -44,16 +45,16 @@ class Table(object):
         codes_to_remove = []
         if tbl:
             codes_to_remove = self.db.table('adm.tblinfo_item').query(where='$tblid=:t AND $item_type=:it AND $code IN :c',
-                                        t=tbl,it=item_type,c=d.keys(),columns='$code,$description').fetchAsDict('code')
+                                        t=tbl,it=item_type,c=list(d.keys()),columns='$code,$description').fetchAsDict('code')
             
-        standard_codes = filter(lambda c: not c[0] in codes_to_remove, standard_codes)
+        standard_codes = [c for c in standard_codes if not c[0] in codes_to_remove]
         d = dict(standard_codes)
         if _id:
             f = [(_id,d.get(_id))]
         else:
             chunk = _querystring.replace('*','').lower()
 
-            f = filter(lambda c: (chunk in c[1].lower() or chunk in c[0].lower()),standard_codes)
+            f = [c for c in standard_codes if (chunk in c[1].lower() or chunk in c[0].lower())]
         for i,r in enumerate(f):
             result.setItem('%s_%s' %(r[0],i),None,
                code=r[0],description=r[1],_pkey=r[0],caption=r[1])

@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 #from gnr.core.gnrbag import Bag
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import stringDict,asDict,slugify
@@ -88,7 +89,7 @@ class Table(object):
             self.insert(root)
         packages = self.db.application.packages
         packages_dir = self.query(where='$parent_id=:root_id',root_id=root_id).fetchAsDict('id')
-        for pkgId,pkg in packages.items():
+        for pkgId,pkg in list(packages.items()):
             menupath = os.path.join(pkg.packageFolder, 'menu.xml')
             if not os.path.exists(menupath):
                 continue
@@ -116,7 +117,7 @@ class Table(object):
     def updatePackageHierarchy(self,menu,dir_id=None,currpath=None,pkgId=None,pagesOnly=None):
         currpath = currpath or []
         tblpage = self.db.table('adm.menu_page')
-        allpackages = self.db.application.packages.keys()
+        allpackages = list(self.db.application.packages.keys())
         for node in menu:
             attr = node.attr
             tbl = attr.pop('table',None)

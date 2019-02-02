@@ -42,7 +42,7 @@ class Main(BaseResourceAction):
         if not (hasattr(self.tblobj,'communication_quicksender') and self.batch_parameters.get('message')) :
             return
         cdict = self.tblobj.communication_quicksender()
-        selection = self.get_selection(columns='*,%s' %','.join(cdict.values()))
+        selection = self.get_selection(columns='*,%s' %','.join(list(cdict.values())))
         message = self.batch_parameters['message']
         communication_type = self.batch_parameters['communication']
         communication_field = cdict.get(communication_type)

@@ -5,6 +5,7 @@
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
 
+from __future__ import print_function
 from gnrpkg.sys.services.translation import TranslationService
 
 from gnr.core.gnrlang import GnrException
@@ -48,12 +49,12 @@ class Main(TranslationService):
             safedict[safekey] = m.group(1)
             return safekey
         base_to_translate = SAFETRANSLATE.sub(cb,what)
-        print 'safedict',safedict
-        print 'base_to_translate',base_to_translate
+        print('safedict',safedict)
+        print('base_to_translate',base_to_translate)
         result = self.translator.translate(base_to_translate, '-'.join(direction),format=format)
         if result['code'] == 200:
             txt = result['text'][0]
-            for k,v in safedict.items():
+            for k,v in list(safedict.items()):
                 txt = txt.replace(k,'[tr-off]%s[tr-on]' %v)
             return txt
         else:

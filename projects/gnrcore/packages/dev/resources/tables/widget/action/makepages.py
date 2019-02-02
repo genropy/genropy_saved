@@ -108,9 +108,9 @@ class Main(BaseResourceAction):
         f = self.tblobj.query(where=where,p=p,suffix='/%%',order_by=order_by,columns=columns).fetch()
         result = Bag()
         for r in f:
-            for v in Bag(r['docrows']).values():
+            for v in list(Bag(r['docrows']).values()):
                 result.setItem(v['code'],v)
-        return [v.asDict(ascii=True) for v in result.values()]          
+        return [v.asDict(ascii=True) for v in list(result.values())]          
 
     def _prepare_dir(self,path):
         if not os.path.isdir(path):

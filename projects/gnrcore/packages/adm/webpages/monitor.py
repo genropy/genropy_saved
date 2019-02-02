@@ -7,6 +7,7 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
+from builtins import object
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import GnrMixinError
 from gnr.core.gnrbag import Bag
 
@@ -17,7 +18,7 @@ class GnrCustomWebPage(object):
         return '!!Monitor panel'
 
     def onIniting(self, url_parts, request_kwargs):
-        for pkgname in self.db.packages.keys():
+        for pkgname in list(self.db.packages.keys()):
             try:
                 cl = self.site.loadResource(pkgname, 'monitor:Monitor')
                 self.mixin(cl)
@@ -27,7 +28,7 @@ class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
         """MONITOR BUILDER"""
         tc = root.rootTabContainer(title='Monitor', datapath='monitor')
-        for pkg in self.db.packages.values():
+        for pkg in list(self.db.packages.values()):
             auth = True
             permmissioncb = getattr(self, 'permission_%s' % pkg.name, None)
             if permmissioncb:
@@ -45,7 +46,7 @@ class GnrCustomWebPage(object):
 
     def rpc_monitorUpdate(self):
         result = Bag()
-        for pkg in self.db.packages.values():
+        for pkg in list(self.db.packages.values()):
             cblist = sorted(
                     [func_name for func_name in dir(self) if func_name.startswith('rpc_monitor_%s_' % pkg.name)])
             if len(cblist) > 0:

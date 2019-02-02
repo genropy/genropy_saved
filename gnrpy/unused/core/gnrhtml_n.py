@@ -8,6 +8,9 @@
 #
 
 
+from __future__ import division
+from past.utils import old_div
+from builtins import object
 from gnr.core.gnrbag import Bag, BagNode
 from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrstructures import GnrStructData
@@ -68,7 +71,7 @@ class GnrHtmlSrc(GnrStructData):
             return GnrHtmlElem(self, '%s' % (self.genroNameSpace[func_namelower]))
 
         else:
-            raise AttributeError, func_name
+            raise AttributeError(func_name)
 
     def style(self, style=''):
         self.root.builder.head.child('style', content=style)
@@ -199,7 +202,7 @@ class GnrHtmlBuilder(object):
                 except:
                     pass
                 style_dict[name] = value
-        attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in style_dict.items()])
+        attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in list(style_dict.items())])
 
     def compile(self):
         self.compiled = self.compile_inner(self.root)
@@ -236,15 +239,15 @@ class GnrHtmlBuilder(object):
 
         if layout.elastic_rows:
             if layout.height:
-                height = (layout.height - sum([row.height for row in layout.values() if row.height])) / len(
-                        layout.elastic_rows)
+                height = old_div((layout.height - sum([row.height for row in list(layout.values()) if row.height])), len(
+                        layout.elastic_rows))
                 for row in layout.elastic_rows:
                     row.height = height
             else:
                 raise GnrHtmlSrcError('No total height with elastic rows')
                 ## Possibile ricerca in profondità
-        layout.height = sum([row.height for row in layout.values()])
-        layout.values()[-1].row_border = False
+        layout.height = sum([row.height for row in list(layout.values())])
+        list(layout.values())[-1].row_border = False
         if layout.nested:
             borders = ' '.join(['%s%s' % (int(getattr(layout, side) != 0) * layout.border_width, layout.um) for side in
                                 ('top', 'right', 'bottom', 'left')])
@@ -316,15 +319,15 @@ class GnrHtmlBuilder(object):
 
         if layout.elastic_rows:
             if layout.height:
-                height = (layout.height - sum([row.height for row in layout.values() if row.height])) / len(
-                        layout.elastic_rows)
+                height = old_div((layout.height - sum([row.height for row in list(layout.values()) if row.height])), len(
+                        layout.elastic_rows))
                 for row in layout.elastic_rows:
                     row.height = height
             else:
                 raise GnrHtmlSrcError('No total height with elastic rows')
                 ## Possibile ricerca in profondità
-        layout.height = sum([row.height for row in layout.values()])
-        layout.values()[-1].row_border = False
+        layout.height = sum([row.height for row in list(layout.values())])
+        list(layout.values())[-1].row_border = False
         if layout.nested:
             borders = ' '.join(['%s%s' % (int(getattr(layout, side) != 0) * layout.border_width, layout.um) for side in
                                 ('top', 'right', 'bottom', 'left')])
@@ -347,14 +350,14 @@ class GnrHtmlBuilder(object):
         width = layout.width
         if row.elastic_cells:
             if width:
-                elastic_width = (width - sum([cell.width for cell in row.values() if cell.width])) / len(
-                        row.elastic_cells)
+                elastic_width = old_div((width - sum([cell.width for cell in list(row.values()) if cell.width])), len(
+                        row.elastic_cells))
                 for cell in row.elastic_cells:
                     cell.width = elastic_width
             else:
                 raise GnrHtmlSrcError('No total width with elastic cells')
                 ## Possibile ricerca in profondità
-        cells = row.values()
+        cells = list(row.values())
         if cells:
             cells[-1].cell_border = False
         attr['height'] = row.height

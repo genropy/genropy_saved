@@ -3,6 +3,9 @@
 # chartmanager.py
 # Created by Francesco Porcari on 2017-01-01.
 # Copyright (c) 2017 Softwell. All rights reserved.
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method,websocket_method,metadata
 from gnr.xtnd.gnrpandas import GnrPandas
@@ -36,7 +39,7 @@ class StatsCommandForms(object):
     def pt_valuesStruct(self,struct):
         r = struct.view().rows()
         r.cell('fieldname',name='Field',width='100%')
-        values = ','.join(GnrPandas.AGGFUNCDICT.keys())
+        values = ','.join(list(GnrPandas.AGGFUNCDICT.keys()))
         r.cell('aggregators',name='Aggregators',width='15em',edit=dict(tag='checkBoxText',
                                                                         values=values))
 
@@ -527,7 +530,7 @@ class StatsPane(BaseComponent):
                 except Exception as e:
                     result = None
                     error = str(e)
-                    print 'errore',error
+                    print('errore',error)
                     #raise
                 self.clientPublish(topic,result=result,
                                         step=n.label,counter=v['counter'],

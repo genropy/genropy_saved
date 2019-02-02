@@ -5,7 +5,9 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Mail test page"""
+from __future__ import print_function
 
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires='gnrcomponents/testhandler:TestHandlerFull,foundation/includedview:IncludedView'
     js_requires='ckeditor/ckeditor'
@@ -34,14 +36,14 @@ class GnrCustomWebPage(object):
                     password='=mail.password', host='=mail.host', tls='=mail.tls')
     
     def cb(self):
-        print 'callback'
+        print('callback')
 
-    def rpc_sendMail(self,to_address=None,from_address=None,subject=None,body=None,async=False,host=None,user=None, password=None, tls=None):
+    def rpc_sendMail(self,to_address=None,from_address=None,subject=None,body=None,async_=False,host=None,user=None, password=None, tls=None):
         import time
         t=time.time()
-        print host, user, password, async, tls
+        print(host, user, password, async_, tls)
         self.site.mail_handler.sendmail(to_address,subject,body,from_address=from_address,attachments=[__file__],
                                         smtp_host=host,tls=tls,user=user, port=587,
-                                        password=password,async=async, cb=self.cb)
-        print 'rpc end'
-        print time.time()-t
+                                        password=password,async_=async_, cb=self.cb)
+        print('rpc end')
+        print(time.time()-t)

@@ -18,6 +18,7 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from past.builtins import basestring
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebstruct import struct_method
@@ -185,9 +186,9 @@ class IncludedView(BaseComponent):
         if not viewPars.get('selectedId'):
             viewPars['selectedId'] = '^.selectedId'
         viewPars['selectedLabel'] = '^.selectedLabel'
-        label_pars = dict([(k[6:], kwargs.pop(k)) for k in kwargs.keys() if k.startswith('label_')])
+        label_pars = dict([(k[6:], kwargs.pop(k)) for k in list(kwargs.keys()) if k.startswith('label_')])
         label_pars['_class'] = label_pars.pop('class', None) or (not hasToolbar and 'pbl_viewBoxLabel')
-        box_pars = dict([(k[4:], kwargs.pop(k)) for k in kwargs.keys() if k.startswith('box_')])
+        box_pars = dict([(k[4:], kwargs.pop(k)) for k in list(kwargs.keys()) if k.startswith('box_')])
         box_pars['_class'] = (box_pars.pop('class', None) or 'pbl_viewBox')
         if label is not False:
             gridtop = parentBC.contentPane(region='top', datapath=controllerPath, overflow='hidden',childname='top',
@@ -225,7 +226,7 @@ class IncludedView(BaseComponent):
                 
         if footer:
             assert callable(footer), 'footer param must be a callable'
-            footerPars = dict([(k[7:], v) for k, v in kwargs.items() if k.startswith('footer_')])
+            footerPars = dict([(k[7:], v) for k, v in list(kwargs.items()) if k.startswith('footer_')])
             if not 'height' in footerPars:
                 footerPars['height'] = '18px'
             if not '_class'in footerPars:

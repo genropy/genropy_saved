@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from builtins import object
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('shortcut', pkey='keycode', name_long='!!Shortcut', name_plural='!!Shortcuts',caption_field='phrase',lookup=True)

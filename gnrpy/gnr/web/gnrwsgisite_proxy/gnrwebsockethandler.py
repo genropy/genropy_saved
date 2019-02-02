@@ -20,10 +20,14 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 import os
-import httplib
+import http.client
 import socket
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from gnr.core.gnrbag import Bag
 
 from time import sleep
@@ -36,7 +40,7 @@ class WebSocketHandler(object):
     def sendCommandToPage(self,page_id,command,data):
         headers = {'Content-type': 'application/x-www-form-urlencoded'}
         envelope=Bag(dict(command=command,data=data))
-        body=urllib.urlencode(dict(page_id=page_id,envelope=envelope.toXml(unresolved=True)))
+        body=urllib.parse.urlencode(dict(page_id=page_id,envelope=envelope.toXml(unresolved=True)))
         self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
         
     def setInClientData(self,page_id,path=None,value=None,nodeId=None,
@@ -83,7 +87,7 @@ class WsgiWebSocketHandler(WebSocketHandler):
         try:
             self.socketConnection
             return True
-        except socket.error, e:
+        except socket.error as e:
             if e.errno == CONNECTION_REFUSED:
                 return False
         
@@ -98,7 +102,7 @@ class WsgiWebSocketHandler(WebSocketHandler):
         headers = {'Content-type': 'application/x-www-form-urlencoded'}
         envelope=Bag(dict(command=command,data=data))
 
-        body = urllib.urlencode(dict(page_id=page_id,envelope=envelope.toXml(unresolved=True)))
+        body = urllib.parse.urlencode(dict(page_id=page_id,envelope=envelope.toXml(unresolved=True)))
         #self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
 
         n = MAX_CONNECTION_ATTEMPT
@@ -108,12 +112,12 @@ class WsgiWebSocketHandler(WebSocketHandler):
                 self.socketConnection.request('POST',self.proxyurl,headers=headers, body=body)
                 error = False
                 if n!=MAX_CONNECTION_ATTEMPT:
-                    print 'SUCCEED'
-            except socket.error, e:
+                    print('SUCCEED')
+            except socket.error as e:
                 error = e.errno
                 if error == CONNECTION_REFUSED:
                     n -= 1
-                    print 'attempting',n
+                    print('attempting',n)
                     sleep(CONNECTION_ATTEMPT_DELAY)
                 else:
                     raise
@@ -128,12 +132,12 @@ def has_timeout(timeout): # python 2.6
 
 
     
-class HTTPSocketConnection(httplib.HTTPConnection):
+class HTTPSocketConnection(http.client.HTTPConnection):
  
-    def __init__(self, socket_path, host='127.0.0.1', port=None, strict=None,
+    def __init__(self, socket_path, host='127.0.0.1', port=None,
                  timeout=None):
         self.socket_path=socket_path
-        httplib.HTTPConnection.__init__(self, host, port=port, strict=strict, timeout=timeout)
+        http.client.HTTPConnection.__init__(self, host, port=port, timeout=timeout)
 
     def connect(self):
         """Connect to the host and port specified in __init__."""
@@ -143,14 +147,14 @@ class HTTPSocketConnection(httplib.HTTPConnection):
             if has_timeout(self.timeout):
                 self.sock.settimeout(self.timeout)
             if self.debuglevel > 0:
-                print "HTTPSocketConnection - connect: (%s) ************" % (self.socket_path)
+                print("HTTPSocketConnection - connect: (%s) ************" % (self.socket_path))
             self.sock.connect(self.socket_path)
-        except socket.error, msg:
+        except socket.error as msg:
             if self.debuglevel > 0:
-                print "HTTPSocketConnection - connect fail: (%s)" % (self.socket_path)
+                print("HTTPSocketConnection - connect fail: (%s)" % (self.socket_path))
             if self.sock:
                 self.sock.close()
             self.sock = None
-        if not self.sock:
-            raise socket.error, msg
+            if not self.sock:
+                raise socket.error(msg)
 

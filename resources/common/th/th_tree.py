@@ -4,6 +4,8 @@
 # Created by Francesco Porcari on 2012-04-09.
 # Copyright (c) 2012 Softwell. All rights reserved.
 
+from builtins import str
+from builtins import range
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdict import dictExtract
@@ -46,7 +48,7 @@ class HTableTree(BaseComponent):
         columns = columns or '*'
         selected_kwargs.pop('pkey',None)
         if selected_kwargs:
-            columns = '%s,%s' %(columns,','.join(['$%s' %k for k in selected_kwargs.keys()])) 
+            columns = '%s,%s' %(columns,','.join(['$%s' %k for k in list(selected_kwargs.keys())])) 
         pane.dataRemote(storepath,self.db.table(table).getHierarchicalData,
                         condition=condition,
                         table=table,columns=columns,
@@ -385,11 +387,11 @@ class TableHandlerHierarchicalView(BaseComponent):
         condlist = []
         condpars = dict(suffix='/%%',curr_hpkey='=#FORM.record.hierarchical_pkey',showInherited='^.showInherited')
         hiddencolumns = gridattr['hiddencolumns'].split(',') if gridattr.get('hiddencolumns') else []
-        for k in relation_kwargs.keys():
+        for k in list(relation_kwargs.keys()):
             altrelname = k.split('_')[0] #altrelname must not contain '_'
             if altrelname not in relation_kwargs:
                 relation_kwargs[altrelname] = dictExtract(relation_kwargs,altrelname+'_',pop=True)
-        for k,v in fkey_name_alt.items():
+        for k,v in list(fkey_name_alt.items()):
             condlist.append(" $%s = :fkey " %v)
             if k in relation_kwargs:
                 hiddencolumns.append("$%s" %v)
@@ -506,13 +508,13 @@ class TableHandlerHierarchicalView(BaseComponent):
                              relationValue=None, modifiers=None, asAlias = None,
                              relation_table=None,alt_relations=None):
         tblobj = self.db.table(table)
-        alt_relations_modifiers_dict = dict([(v['modifiers'],v['fkey_name']) for k,v in alt_relations.items()])
+        alt_relations_modifiers_dict = dict([(v['modifiers'],v['fkey_name']) for k,v in list(alt_relations.items())])
         reltblobj = None
         if alt_relations:
-            for k,v in alt_relations.items():
+            for k,v in list(alt_relations.items()):
                 alt_pkeys = v.get('pkeys')
                 if alt_pkeys:
-                    pkeys = filter(lambda r: r not in alt_pkeys, pkeys)
+                    pkeys = [r for r in pkeys if r not in alt_pkeys]
                     tblobj.batchUpdate({alt_relations[k]['fkey_name']:relationValue},_pkeys=alt_pkeys)
         if relation_table:
             reltblobj = self.db.table(relation_table)

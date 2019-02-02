@@ -19,6 +19,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 
+from past.builtins import basestring
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs
@@ -228,7 +229,7 @@ class FormHandler(BaseComponent):
                 }
             """
         subpref = 'subscribe_%(nodeId)s' %gridattr
-        for k,v in gridsubscribers.items():
+        for k,v in list(gridsubscribers.items()):
             gridattr['%s_%s' %(subpref,k)] = v
 
     @extract_kwargs(store=True,dialog=True,palette=True,main=dict(slice_prefix=False),default=True)

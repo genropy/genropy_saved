@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
 import subprocess
 import sys
 from optparse import OptionParser
 from gnr.app.gnrapp import GnrApp
-from StringIO import StringIO
+from io import StringIO
 
 """example:   gnrdbgraph -O genropynet sys adm"""
 
@@ -31,14 +34,14 @@ def remove_package(full):
     return tbl
 
 def writeDigraph(title, relations, remove_package_prefix, out):
-    print>> out, "digraph", title, "{"
-    for tbl1, tables in relations.items():
+    print("digraph", title, "{", file=out)
+    for tbl1, tables in list(relations.items()):
         if remove_package_prefix: tbl1 = remove_package(tbl1)
-        print>> out, quote(tbl1)
-        for tbl2 in tables.keys():
+        print(quote(tbl1), file=out)
+        for tbl2 in list(tables.keys()):
             if remove_package_prefix: tbl2 = remove_package(tbl2)
-            print>> out, "  ", quote(tbl2), "->", quote(tbl1)
-    print>> out, "}"
+            print("  ", quote(tbl2), "->", quote(tbl1), file=out)
+    print("}", file=out)
 
 def main():
     p = OptionParser(
@@ -74,17 +77,17 @@ def main():
         else:
             pkg = app.db.packages[p_or_t]
             if pkg:
-                tt = ["%s.%s" % (p_or_t, t) for t in pkg.tables.keys()]
+                tt = ["%s.%s" % (p_or_t, t) for t in list(pkg.tables.keys())]
             else:
                 tt = []
-                print>> sys.stderr, "Package not found:", p_or_t
+                print("Package not found:", p_or_t, file=sys.stderr)
         if not exclude:
             tables.extend(tt)
         else:
             for t in tt:
                 if t in tables:
                     tables.remove(t)
-    print "Tables:", " ".join(tables)
+    print("Tables:", " ".join(tables))
     relations = loadRelations(app, tables)
 
     output = options.output_file
@@ -95,12 +98,12 @@ def main():
                                                    'output': output}
     if options.graphviz_options:
         cmdline = "%(cmd)s -G%(options)s" % {'cmd': cmdline, 'options': options.graphviz_options}
-    print cmdline
+    print(cmdline)
     graphviz = subprocess.Popen(cmdline, stdin=subprocess.PIPE, shell=True)
     buf = StringIO()
     writeDigraph(instance, relations, options.remove_package_prefix, buf)
     if options.dump_digraph:
-        print buf.getvalue()
+        print(buf.getvalue())
     graphviz.communicate(buf.getvalue())
     if options.auto_open:
         subprocess.call(["open %s" % output], shell=True)

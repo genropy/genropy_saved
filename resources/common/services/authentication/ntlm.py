@@ -7,8 +7,10 @@
 #    pip install python-ntlm
 #
 
+from future import standard_library
+standard_library.install_aliases()
 from gnr.lib.services import GnrBaseService
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from ntlm import HTTPNtlmAuthHandler
 
 class Main(GnrBaseService):
@@ -35,17 +37,17 @@ class Main(GnrBaseService):
         elif self.case=='u':
             user = user.upper()
         user = self.template %user
-        passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
+        passman = urllib.request.HTTPPasswordMgrWithDefaultRealm()
         passman.add_password(None, self.url, user, password)
         # create the NTLM authentication handler
         auth_NTLM = HTTPNtlmAuthHandler.HTTPNtlmAuthHandler(passman)
 
         # create and install the opener
-        opener = urllib2.build_opener(auth_NTLM)
-        urllib2.install_opener(opener)
+        opener = urllib.request.build_opener(auth_NTLM)
+        urllib.request.install_opener(opener)
 
         # retrieve the result
-        response = urllib2.urlopen(self.url)
+        response = urllib.request.urlopen(self.url)
 
         if response.read():
             return True

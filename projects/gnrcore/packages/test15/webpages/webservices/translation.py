@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # 
 
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 
 class GnrCustomWebPage(object):

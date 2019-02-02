@@ -20,6 +20,9 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import print_function
+from builtins import range
+from past.builtins import basestring
 def dictExtract(mydict, prefix, pop=False, slice_prefix=True,is_list=False):
     """Return a dict of the items with keys starting with prefix.
     
@@ -32,7 +35,7 @@ def dictExtract(mydict, prefix, pop=False, slice_prefix=True,is_list=False):
     
     cb = mydict.pop if pop else mydict.get
     reserved_names = ['class']
-    return dict([(k[lprefix:] if not k[lprefix:] in reserved_names else '_%s' %k[lprefix:], cb(k)) for k in mydict.keys() if k.startswith(prefix)])
+    return dict([(k[lprefix:] if not k[lprefix:] in reserved_names else '_%s' %k[lprefix:], cb(k)) for k in list(mydict.keys()) if k.startswith(prefix)])
 
 class FakeDict(dict):
     pass
@@ -45,11 +48,11 @@ class GnrDict(dict):
         if args:
             source = args[0]
             if hasattr(source, 'items'):
-                [self.__setitem__(k, v) for k, v in source.items()]
+                [self.__setitem__(k, v) for k, v in list(source.items())]
             else:
                 [self.__setitem__(k, v) for k, v in source]
         if kwargs:
-            [self.__setitem__(k, v) for k, v in kwargs.items()]
+            [self.__setitem__(k, v) for k, v in list(kwargs.items())]
             
     def __setitem__(self, key, value):
         key = self._label_convert(key)
@@ -127,9 +130,9 @@ class GnrDict(dict):
         
         :param o: TODO
         :param removeNone: TODO"""
-        [self.__setitem__(k, v) for k, v in o.items()]
+        [self.__setitem__(k, v) for k, v in list(o.items())]
         if removeNone:
-            [self.__delitem__(k) for k, v in o.items() if v == None]
+            [self.__delitem__(k) for k, v in list(o.items()) if v == None]
             
     def copy(self):
         """TODO"""
@@ -166,7 +169,7 @@ class GnrDict(dict):
             yield self[k]
             
     def __add__(self, o):
-        return GnrDict(self.items() + o.items())
+        return GnrDict(list(self.items()) + list(o.items()))
         
     def __sub__(self, o):
         return GnrDict([(k, self[k]) for k in self if not k in o])
@@ -178,8 +181,8 @@ class GnrDict(dict):
         [dict.__delitem__(self, k) for k in self._list[start:end]]
         val = GnrDict(val)
         l = list(self._list)
-        newkeys = val.keys()
-        newkeysrange = range(start, start + len(newkeys))
+        newkeys = list(val.keys())
+        newkeysrange = list(range(start, start + len(newkeys)))
         l[start:end] = newkeys
         self._list[:] = [x for i, x in enumerate(l) if (x not in newkeys) or i in newkeysrange]
         dict.update(self, val)
@@ -208,8 +211,8 @@ class GnrNumericDict(GnrDict):
             
 if __name__ == '__main__':
     a = GnrDict([('pino', 55), ('gionni', 88)], ugo=56, mario=False)
-    print a.get('#1')
+    print(a.get('#1'))
     try:
-        print a['gvhjf hvj']
+        print(a['gvhjf hvj'])
     except:
-        print 36
+        print(36)

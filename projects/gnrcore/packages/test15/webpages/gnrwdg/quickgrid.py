@@ -5,6 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 """bageditor"""
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 import psutil

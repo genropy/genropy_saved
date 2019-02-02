@@ -1,3 +1,4 @@
+from builtins import object
 class GnrCustomWebPage(object):
     css_theme = 'textmate'
     
@@ -8,7 +9,7 @@ class GnrCustomWebPage(object):
         bc = root.borderContainer(height='100%', font_family='monaco')
         self.topPane(bc.contentPane(region='top', _class='tm_top'))
         tc = bc.tabContainer(region='center', margin='6px', background_color='white', font_size='.9em')
-        for pkg in self.db.packages.values():
+        for pkg in list(self.db.packages.values()):
             if pkg['tables']:
                 self.packagePane(tc.borderContainer(title=pkg.name,
                                                 datapath='packages.%s' % pkg.name), pkg)
@@ -19,7 +20,7 @@ class GnrCustomWebPage(object):
 
     def packagePane(self, bc, pkg):
         center = bc.contentPane(region='center', splitter=True, background_color='white')
-        for table in pkg['tables'].values():
+        for table in list(pkg['tables'].values()):
             center.dataRemote('.tree.%s' % table.name, 'relationExplorer', table=table.fullname, dosort=False)
         center.tree(storepath='.tree', persist=False,
                     inspect='shift', #labelAttribute='label',

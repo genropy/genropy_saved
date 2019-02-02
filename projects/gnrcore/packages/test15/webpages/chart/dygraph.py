@@ -7,6 +7,8 @@
 """Test Protovis"""
 
    
+from builtins import range
+from builtins import object
 from gnr.core.gnrbag import Bag
 from random import randint
 from gnr.core.gnrdecorator import public_method
@@ -90,7 +92,7 @@ class GnrCustomWebPage(object):
     def getTestData(self,n=None,count=None,interval=None,dtstart=None,series=None,datamode=None):
         result = Bag()
         if n:
-            g = xrange(1,n)
+            g = range(1,n)
         else:
             g = rrule.rrule(rrule.MINUTELY,count=count,interval=interval,dtstart=dtstart)
         j = 0

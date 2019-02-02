@@ -5,10 +5,12 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Tree with drag & drop"""
+from __future__ import print_function
 
+from builtins import object
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
-print 'Tree with drag & drop'
+print('Tree with drag & drop')
 class GnrCustomWebPage(object):
     py_requires = """gnrcomponents/testhandler:TestHandlerFull"""
 

@@ -4,6 +4,7 @@
 # Created by Saverio Porcari on 2011-04-08.
 # Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = """public:TableHandlerMain"""
     maintable = 'email.account'

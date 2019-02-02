@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from __future__ import print_function
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.app.gnrapp import GnrApp
 from gnr.app.gnrconfig import gnrConfigPath, getGnrConfig,IniConfStruct
@@ -36,7 +38,7 @@ class BaseUpdater(object):
             cb = [cb]
         for instance in self.instances:
             for callback in cb:
-                print callback.__name__,'Instance ',instance
+                print(callback.__name__,'Instance ',instance)
                 callback(instance,**kwargs)
 
     def dbsetup(self,instance=False):
@@ -44,21 +46,21 @@ class BaseUpdater(object):
         db = app.db
         dbstores =[None]
         if db.dbstores:
-            dbstores.extend(db.dbstores.keys())
+            dbstores.extend(list(db.dbstores.keys()))
         for storename in dbstores:
             self.dbsetup_one(db,storename=storename)
 
     def dbsetup_one(self,db,storename=None):
-        print '\t running dbsetup ',storename or ''
+        print('\t running dbsetup ',storename or '')
         with db.tempEnv(storename=storename):
             changes = self.check_db(db)
             if changes:
-                print 'APPLYING CHANGES TO DATABASE...'
+                print('APPLYING CHANGES TO DATABASE...')
                 db.model.applyModelChanges()
-                print 'CHANGES APPLIED TO DATABASE'
+                print('CHANGES APPLIED TO DATABASE')
                 db.application.pkgBroadcast('onDbSetup,onDbSetup_*')
             if self.upgrade:
-                print 'RUN UPGRADE'
+                print('RUN UPGRADE')
                 db.application.pkgBroadcast('onDbUpgrade,onDbUpgrade_*')
                 db.table('sys.upgrade').runUpgrades()
             db.closeConnection()
@@ -74,10 +76,10 @@ class BaseUpdater(object):
                 registers = dict(registers)
             for sitename in self.instances:
                 if sitename in registers:
-                    print 'setting in maintenance',sitename,status
+                    print('setting in maintenance',sitename,status)
                     p.setSiteInMaintenance(sitename,status=status)
                 else:
-                    print 'not found in register',sitename
+                    print('not found in register',sitename)
 
     def gnrdaemon_stop(self):
         with self.daemonProxy.proxy() as p:
@@ -91,11 +93,11 @@ class BaseUpdater(object):
         changes = db.model.check()
         dbname = db.currentEnv.get('storename')
         dbname = dbname or 'Main'
-        print 'DB %s:' % dbname
+        print('DB %s:' % dbname)
         if changes:
-            print 'STUCTURE NEEDS CHANGES'
+            print('STUCTURE NEEDS CHANGES')
         else:
-            print 'STRUCTURE OK'
+            print('STRUCTURE OK')
         return changes
 
     def update(self):
@@ -114,7 +116,7 @@ class BaseUpdater(object):
             self.web_maintenance(True)
         self.web_start()
         self.web_maintenance(False)
-        print 'Update ok'
+        print('Update ok')
 
 class ApacheUpdater(BaseUpdater):
     def __init__(self,**kwargs):
@@ -122,13 +124,13 @@ class ApacheUpdater(BaseUpdater):
 
     def web_stop(self):
         #sudo apache2ctl stop
-        print 'stop apache'
+        print('stop apache')
         Popen(['sudo apache2ctl stop'], shell=True)
 
 
     def web_start(self):
         #sudo apache2ctl start
-        print 'start apache'
+        print('start apache')
         Popen(['sudo apache2ctl start'], shell=True)
 
     def getInstances(self):
@@ -147,18 +149,18 @@ class GunicornUpdater(BaseUpdater):
         self.gnr_config = getGnrConfig()
         self.gnr_path = gnrConfigPath()
         conf = IniConfStruct(os.path.join(self.gnr_path,'supervisord.py'))
-        self.instances = filter(lambda r: r,conf.digest('#a.name'))
+        self.instances = [r for r in conf.digest('#a.name') if r]
         super(GunicornUpdater,self).__init__(**kwargs)
 
     def web_stop(self):
         #sudo apache2ctl stop
-        print 'gnrsiterunner stop'
+        print('gnrsiterunner stop')
         Popen(['sudo service gnrsiterunner stop'], shell=True)
 
 
     def web_start(self):
         #sudo apache2ctl start
-        print 'gnrsiterunner start'
+        print('gnrsiterunner start')
         Popen(['sudo service gnrsiterunner start'], shell=True)
 
     def getInstances(self):
@@ -194,7 +196,7 @@ class UwsgiUpdater(BaseUpdater):
                 if q:
                     result.append(q.group(1))
                 else:
-                    print filename,txt
+                    print(filename,txt)
         return list(set(result))
 
     def web_stop(self):
@@ -208,14 +210,14 @@ class UwsgiUpdater(BaseUpdater):
         vassal_off_path = os.path.join(self.vassals_path, '%s.off' %name)
         if os.path.exists(vassal_start_path):
             os.rename(vassal_start_path, vassal_off_path)
-            print "Site %s stopped" % name
+            print("Site %s stopped" % name)
 
     def start_vassal(self,name):
         vassal_start_path = os.path.join(self.vassals_path,'%s.ini' %name)
         vassal_off_path = os.path.join(self.vassals_path, '%s.off' %name)
         if os.path.exists(vassal_off_path):
             os.rename(vassal_off_path, vassal_start_path)
-            print "Site %s start" % name
+            print("Site %s start" % name)
 
     def restart_vassal(self,name):
         #with open(name,'rw') as f:
@@ -228,12 +230,12 @@ class UwsgiUpdater(BaseUpdater):
         if os.path.exists(vassal_path):
             with open(vassal_path, 'a'):
                 os.utime(vassal_path,None)
-            print "Vassal %s restarted" % name
+            print("Vassal %s restarted" % name)
 
 
 def main(instances,options):
     if not(options.apache or options.uwsgi or options.gunicorn):
-        print 'select an option'
+        print('select an option')
         return
     daemonRestart = False
     if options.daemon_keep:

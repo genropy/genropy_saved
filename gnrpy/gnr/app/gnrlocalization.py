@@ -21,6 +21,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 
+from builtins import object
 import os
 import re
 import hashlib
@@ -37,7 +38,7 @@ TRANSLATION = re.compile(r"^\!\!(?:\[(?P<lang>.{2})\])?(?:{(\w*)})?(?P<value>.*)
 
 PACKAGERELPATH = re.compile(r".*/packages/(.*)")
 
-class GnrLocString(unicode):
+class GnrLocString(str):
     def __new__(cls,value,lockey=None,_tplargs=None,_tplkwargs=None):
         s = super(GnrLocString, cls).__new__(cls,value)
         s.lockey = lockey or flatten(value)
@@ -57,7 +58,7 @@ class AppLocalizer(object):
         self._languages = None
         roots = [os.path.join(self.genroroot,n) for n in ('gnrpy/gnr','gnrjs','resources/common','resources/mobile')]
         self.slots = [dict(roots=roots,destFolder=self.genroroot,code='core',protected=True,language='en')]
-        for p in self.application.packages.values():
+        for p in list(self.application.packages.values()):
             self.slots.append(dict(roots=[p.packageFolder],destFolder=p.packageFolder,
                                     code=p.id, protected = (p.project == 'gnrcore'),language=p.language))
         #if os.path.exists(self.application.customFolder):
@@ -145,7 +146,7 @@ class AppLocalizer(object):
             safekey = '[%i]' %len(safedict)
             safedict[safekey] = m.group(1)
             return safekey
-        for lockey,locdict in self.localizationDict.items():
+        for lockey,locdict in list(self.localizationDict.items()):
             safedict = dict()
             base_to_translate = SAFEAUTOTRANSLATE.sub(cb,locdict['base'])
             baselang = lockey.split('_',1)[0]
@@ -155,7 +156,7 @@ class AppLocalizer(object):
                     continue
                 if not locdict.get(lang):
                     translated = self.translator.translate(base_to_translate,'%s-%s' %(baselang,lang))
-                    for k,v in safedict.items():
+                    for k,v in list(safedict.items()):
                         translated = translated.replace(k,v)
                     locdict[lang] = translated
 
@@ -195,7 +196,7 @@ class AppLocalizer(object):
     def updateLocalizationFiles(self,scan_all=True,localizationBlock=None):
         slots = self.slots
         if localizationBlock:
-            slots = filter(lambda r: r.get('code')==localizationBlock,slots)
+            slots = [r for r in slots if r.get('code')==localizationBlock]
         for s in slots:
             if scan_all or s['destFolder'] != self.genroroot:
                 locbag = Bag()

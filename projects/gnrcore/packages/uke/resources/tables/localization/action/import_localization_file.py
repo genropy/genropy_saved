@@ -28,7 +28,7 @@ class Main(BaseResourceAction):
     def table_script_parameters_pane(self, pane, table=None,**kwargs):
         fb = pane.formbuilder(cols=1,border_spacing='10px')
         fb.filteringSelect(value='^.package',lbl='!!Package identifier',
-                        values=','.join(self.db.packages.keys()))
+                        values=','.join(list(self.db.packages.keys())))
 
 
 

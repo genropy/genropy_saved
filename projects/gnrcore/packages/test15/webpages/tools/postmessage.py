@@ -5,6 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 "Test page description"
+from builtins import object
 class GnrCustomWebPage(object):
 
     def main_root(self,pane,**kwargs):

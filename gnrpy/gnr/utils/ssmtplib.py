@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Author: Matt Butcher <mbutche@luc.edu>, Feb. 2007
 # License: MIT License (or, at your option, the GPL, v.2 or later as posted at
 # http://gnu.org).
@@ -93,29 +94,29 @@ class SMTP_SSL(smtplib.SMTP):
                 host, port = host[:i], host[i + 1:]
                 try: port = int(port)
                 except ValueError:
-                    raise socket.error, "nonnumeric port"
+                    raise socket.error("nonnumeric port")
         if not port: port = SSMTP_PORT
-        if self.debuglevel > 0: print>> stderr, 'connect:', (host, port)
+        if self.debuglevel > 0: print('connect:', (host, port), file=stderr)
         msg = "getaddrinfo returns an empty list"
         self.sock = None
         for res in socket.getaddrinfo(host, port, 0, socket.SOCK_STREAM):
             af, socktype, proto, canonname, sa = res
             try:
                 self.sock = socket.socket(af, socktype, proto)
-                if self.debuglevel > 0: print>> stderr, 'connect:', (host, port)
+                if self.debuglevel > 0: print('connect:', (host, port), file=stderr)
                 self.sock.connect(sa)
                 # MB: Make the SSL connection.
                 sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
-            except socket.error, msg:
+            except socket.error as msg:
                 if self.debuglevel > 0:
-                    print>> stderr, 'connect fail:', (host, port)
+                    print('connect fail:', (host, port), file=stderr)
                 if self.sock:
                     self.sock.close()
                 self.sock = None
                 continue
             break
         if not self.sock:
-            raise socket.error, msg
+            raise socket.error(msg)
             
         # MB: Now set up fake socket and fake file classes.
         # Thanks to the design of smtplib, this is all we need to do
@@ -124,7 +125,7 @@ class SMTP_SSL(smtplib.SMTP):
         self.file = smtplib.SSLFakeFile(sslobj);
         
         (code, msg) = self.getreply()
-        if self.debuglevel > 0: print>> stderr, "connect:", msg
+        if self.debuglevel > 0: print("connect:", msg, file=stderr)
         return (code, msg)
         
     def setkeyfile(self, keyfile):
@@ -148,5 +149,5 @@ class SMTP_SSL(smtplib.SMTP):
         
         You cannot do StartTLS inside of an ssl session. Calling :meth:`starttls()` will
         return an SMTPSSLException"""
-        raise SMTPSSLException, "Cannot perform StartTLS within SSL session."
+        raise SMTPSSLException("Cannot perform StartTLS within SSL session.")
             

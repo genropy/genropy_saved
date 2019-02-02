@@ -1,3 +1,4 @@
+from builtins import object
 import tempfile
 import boto3
 import os

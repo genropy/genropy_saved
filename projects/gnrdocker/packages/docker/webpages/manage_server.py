@@ -12,6 +12,7 @@
 # --------------------------- GnrWebPage subclass ---------------------------
 
 
+from builtins import object
 class GnrCustomWebPage(object):
     pageOptions={'openMenu':False,'enableZoom':False}
 

@@ -6,6 +6,7 @@
 
 """Messages"""
 
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import RegisterResolver
 from gnr.core.gnrbag import Bag

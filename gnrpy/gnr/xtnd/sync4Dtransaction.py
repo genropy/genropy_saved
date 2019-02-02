@@ -19,6 +19,7 @@
 #You should have received a copy of the GNU Lesser General Public
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+from builtins import object
 import weakref
 
 from datetime import datetime
@@ -76,7 +77,7 @@ class TransactionManager4D(object):
         if not isinstance(data, Bag):
             data = Bag(data)
 
-        for k in data.keys():
+        for k in list(data.keys()):
             if k.startswith('@'):
                 data.pop(k)
         kwargs['data'] = data.toXml()
@@ -105,7 +106,7 @@ class TransactionManager4D(object):
         self.db.commit()
 
     def do_import(self, data, tablepath):
-        for record_data in data.values():
+        for record_data in list(data.values()):
             if record_data:
                 self.db.table(tablepath).insertOrUpdate(record_data.asDict(ascii=True, lower=True))
         #self.db.commit()

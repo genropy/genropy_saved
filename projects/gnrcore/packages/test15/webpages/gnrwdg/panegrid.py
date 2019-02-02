@@ -6,6 +6,7 @@
 
 "panegrid"
 
+from builtins import object
 class GnrCustomWebPage(object):
     testOnly='_target_action'
     user_polling = 0

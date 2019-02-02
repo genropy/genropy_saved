@@ -5,6 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 
+from builtins import object
 from gnr.core.gnrbag import  Bag
 from gnr.core.gnrgit import GnrGit
 from gnr.core.gnrdecorator import public_method

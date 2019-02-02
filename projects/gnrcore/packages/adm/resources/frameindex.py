@@ -33,7 +33,7 @@ class FrameIndex(BaseComponent):
     @property
     def plugin_list(self):
         frameplugins = ['iframemenu_plugin','batch_monitor','chat_plugin']
-        for pkgId,pkgobj in self.packages.items():
+        for pkgId,pkgobj in list(self.packages.items()):
             if hasattr(pkgobj,'sidebarPlugins'):
                 plugins = pkgobj.sidebarPlugins()
                 if not plugins:

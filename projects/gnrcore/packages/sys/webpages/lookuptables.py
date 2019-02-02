@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2011-05-05.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import boolean
@@ -49,7 +50,7 @@ class GnrCustomWebPage(object):
 
     def lookupTablesDefaultStruct(self,struct):
         r = struct.view().rows()
-        for k,v in struct.tblobj.model.columns.items():
+        for k,v in list(struct.tblobj.model.columns.items()):
             attr = v.attributes
             if attr.get('counter'):
                 r.fieldcell(k,hidden=True,counter=True)
@@ -94,7 +95,7 @@ class GnrCustomWebPage(object):
 
     def getLookupTable(self,pkg=None):
         result = []
-        for tbl in self.db.model.package(pkg).tables.values():
+        for tbl in list(self.db.model.package(pkg).tables.values()):
             tblattr = tbl.attributes
             if tblattr.get('lookup') and self.db.application.allowedByPreference(**tblattr):
                 result.append(tbl)
@@ -103,7 +104,7 @@ class GnrCustomWebPage(object):
     @public_method
     def packageMenu(self):
         result = Bag()
-        for pkgId,pkg in self.application.packages.items():
+        for pkgId,pkg in list(self.application.packages.items()):
             attr = pkg.attributes
             if attr.get('_syspackage'):
                 continue

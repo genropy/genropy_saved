@@ -5,6 +5,7 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Serverpath"""
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 class GnrCustomWebPage(object):

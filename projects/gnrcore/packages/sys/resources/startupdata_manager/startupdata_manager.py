@@ -18,10 +18,12 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from future import standard_library
+standard_library.install_aliases()
 import os
 import gzip
 import shutil
-from StringIO import StringIO
+from io import StringIO
 import pickle
 
 from gnr.core.gnrdecorator import public_method
@@ -46,7 +48,7 @@ class _StartupDataSaver(BaseComponent):
                                lbl='!!Store', values=','.join(self.db.dbstores))
         fb.filteringSelect(value='^.current_package',
                            lbl='Package',
-                           values=','.join(self.application.packages.keys()))
+                           values=','.join(list(self.application.packages.keys())))
         buildpars = []
         if self.isDeveloper():
             buildpars.append(dict(name='replace_default_startup',
@@ -100,7 +102,7 @@ class _StartupDataSaver(BaseComponent):
     def sd_countRecords(self, current_package=None, current_storename=None):
         with self.db.tempEnv(storename=current_storename or self.db.rootstore):
             tables = self.db.package(current_package).tables
-            for tblobj in tables.values():
+            for tblobj in list(tables.values()):
                 tblid = tblobj.fullname
                 self.clientPublish('sd_countRecords',
                                    tblid=tblid, count=tblobj.dbtable.countRecords())
@@ -199,7 +201,7 @@ class _StartupDataDbTemplates(BaseComponent):
         result.setItem('_default_', default_startups,
                        caption='Standard startup data')
 
-        for pkgid, pkgobj in self.application.packages.items():
+        for pkgid, pkgobj in list(self.application.packages.items()):
             bagpath = os.path.join(
                 self.db.application.packages[pkgid].packageFolder, 'startup_data')
             bagpath = '%s.gz' % bagpath

@@ -1,3 +1,7 @@
+from builtins import str
+from builtins import range
+from past.builtins import basestring
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core.gnrlang import GnrException
@@ -99,7 +103,7 @@ class GnrPdf(object):
         for node in bag.nodes:
             attr = dict(node.attr)
             tag = attr.pop('tag')
-            for k in attr.keys():
+            for k in list(attr.keys()):
                 if k.endswith('_'):
                     v = attr.pop(k) or 0
                     attr[k[:-1]] = float(v) * self.unit

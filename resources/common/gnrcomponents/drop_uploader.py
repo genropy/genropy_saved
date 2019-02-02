@@ -4,6 +4,9 @@
 # Created by Francesco Porcari on 2010-09-08.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+from __future__ import division
+from __future__ import print_function
+from past.utils import old_div
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrdecorator import extract_kwargs,public_method
@@ -67,7 +70,7 @@ class DropUploaderBase(BaseComponent):
             r.cell('_name', name='!!File name', width='10em',edit=True)
             r.cell('_size', name='!!Size', width='5em')
             r.cell('_type', name='!!Type', width='5em')
-            for k, v in metacol_kwargs.items():
+            for k, v in list(metacol_kwargs.items()):
                 r.cell(k,edit=True, **v)
             r.cell('_status', name='Status', width='6em')
 
@@ -206,13 +209,13 @@ class DropUploaderBase(BaseComponent):
                 original.resize(height, width)
             elif height or width:
                 if height:
-                    width = int(height * original.size[0] * 1.0 / original.size[1])
+                    width = int(old_div(height * original.size[0] * 1.0, original.size[1]))
                     imagename = '%s_h%i' % (imagename, height)
                 elif width:
-                    height = int(width * original.size[1] * 1.0 / original.size[0])
+                    height = int(old_div(width * original.size[1] * 1.0, original.size[0]))
                     imagename = '%s_w%i' % (imagename, width)
                 dest_size = width, height
-                print 'dest_size ', dest_size
+                print('dest_size ', dest_size)
                 original.thumbnail(dest_size)
             filetype = filetype or ext[1:]
             image_filename = '%s.%s' % (imagename, filetype.lower())
@@ -260,7 +263,7 @@ class DropUploader(DropUploaderBase):
             r.cell('_name', name='!!File name', width='10em')
             r.cell('_size', name='!!Size', width='5em')
             r.cell('_type', name='!!Type', width='5em')
-            for k, v in metacol_dict.items():
+            for k, v in list(metacol_dict.items()):
                 r.cell(k, **v)
             r.cell('_status', name='Status', width='6em')
 
@@ -277,7 +280,7 @@ class DropUploader(DropUploaderBase):
                                   dropTarget=True,
                                   dropTypes='Files')
         gridEditor = iv.gridEditor()
-        for k, v in metacol_dict.items():
+        for k, v in list(metacol_dict.items()):
             _tag = 'textbox'
             dtype = v.get('dtype')
             widget = v.get('widget')
@@ -362,7 +365,7 @@ class DropUploader(DropUploaderBase):
             r.cell('_name', name='!!File name', width='10em')
             r.cell('_size', name='!!Size', width='5em')
             r.cell('_type', name='!!Type', width='5em')
-            for k, v in metacol_dict.items():
+            for k, v in list(metacol_dict.items()):
                 r.cell(k, **v)
             r.cell('_thumb', name='!!Thumb', width='5em')
 

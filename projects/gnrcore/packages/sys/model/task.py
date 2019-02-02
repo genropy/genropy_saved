@@ -1,5 +1,9 @@
 # encoding: utf-8
 
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from builtins import object
 from datetime import datetime
 from dateutil import rrule
 from gnr.core.gnrbag import Bag
@@ -101,7 +105,7 @@ class Table(object):
         )
 
     def checkInterval(self, ts, periods):
-        for k, v in periods.items():
+        for k, v in list(periods.items()):
             time_element = getattr(ts,k)
             if callable(time_element):
                 time_element = time_element()
@@ -158,7 +162,7 @@ class Table(object):
                 if self.isTaskScheduledNow(task,timestamp):
                     tasks_to_run.append(task)
             except:
-                print 'build error record here interval Syntax error'
+                print('build error record here interval Syntax error')
                 # build error record here interval Syntax error
         return tasks_to_run
 
@@ -190,9 +194,9 @@ class Table(object):
                 result=Bag(tmp_result)
             else:
                 result=Bag(result=tmp_result)
-        except Exception, e:
+        except Exception as e:
             self.db.table('sys.error').writeException(description='Error in task %s %s :%s' %(task['table_name'],task['command'],str(e)))
-            result = Bag(error=unicode(e))
+            result = Bag(error=str(e))
             log_result = True
         if log_result:
             log_record['end_time'] = datetime.now()
@@ -212,9 +216,9 @@ class Table(object):
                     task_rec['last_execution_ts'] = now
                     task_rec['last_error_ts'] = None
                     task_rec['last_error_info'] = None
-                except Exception, e:
+                except Exception as e:
                     task_rec['last_error_ts'] = now
-                    result = Bag(error=unicode(e))
+                    result = Bag(error=str(e))
                     task_rec['last_error_info'] = result
                 task_rec['run_asap'] = False
             with self.db.tempEnv(connectionName='system'):

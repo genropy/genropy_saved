@@ -63,7 +63,7 @@ class Main(BaseResourcePrint):
         if data.getItem('parameters'):
             parameters = data.getItem('parameters')
             fielddict = {'T':'Textbox','L':'NumberTextBox','D':'DateTextBox','B':'Checkbox','N':'NumberTextBox', 'TL':'Simpletextarea'}
-            for v in parameters.values():
+            for v in list(parameters.values()):
                 values=v['values']
                 mandatory = v['mandatory'] == 'T'
                 kwargs = dict(value='^.%(code)s' %v,lbl=v['description'] or v['code'], validate_notnull=mandatory)

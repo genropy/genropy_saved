@@ -19,6 +19,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 
+from builtins import object
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):

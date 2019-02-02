@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from builtins import object
 from gnr.core.gnrdecorator import websocket_method, public_method
 from gnr.core.gnrbag import Bag
 #import wdb
@@ -19,7 +20,7 @@ class GnrCustomWebPage(object):
         #wdb.set_trace()
         pages= self.ws_site.pages
         b=Bag()
-        for k,page in pages.items():
+        for k,page in list(pages.items()):
             b[k]=Bag(dict(pageid=k))
         return b
 

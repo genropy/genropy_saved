@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2010-07-02.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
+from past.builtins import basestring
 from gnr.web.batch.btcmail import BaseResourceMail
 from gnr.web.gnrbaseclasses import TableScriptToHtml
 from gnr.core.gnrstring import templateReplace

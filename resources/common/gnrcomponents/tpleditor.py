@@ -4,11 +4,13 @@
 # Created by Francesco Porcari on 2011-06-22.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+from builtins import str
+from past.builtins import basestring
 from gnr.web.gnrbaseclasses import BaseComponent,TableScriptToHtml
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrbag import Bag
-from StringIO import StringIO
+from io import StringIO
 from gnr.core.gnrstring import templateReplace
 #from gnr.core.gnrbaghtml import BagToHtml
 HT = None
@@ -107,7 +109,7 @@ class TemplateEditorBase(BaseComponent):
         varsdict = dict()
         for varname,fieldpath in varsbag.digest('#v.varname,#v.fieldpath'):
             varsdict[varname] = '$%s' %fieldpath
-        for k,v in sourcebag.items():
+        for k,v in list(sourcebag.items()):
             if v:
                 result[k] = templateReplace(v, varsdict, True,False,urlformatter=self.externalUrl)
         return result

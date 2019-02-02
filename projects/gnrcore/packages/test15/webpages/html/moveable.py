@@ -2,6 +2,8 @@
 
 """Moveable"""
 
+from builtins import range
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     dojo_source=True

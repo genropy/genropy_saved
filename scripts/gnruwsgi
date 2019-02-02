@@ -6,7 +6,10 @@ create a new genroproject
 usage: gnrmkproject projectname
 
 """
+from __future__ import print_function
 
+from builtins import str
+from builtins import object
 from gnr.core.gnrbag import Bag
 from optparse import OptionParser
 from gnr.app.gnrconfig import gnrConfigPath, getSiteHandler, getGnrConfig
@@ -64,7 +67,7 @@ http-timeout = 2400
 pidfile = %(pidfile_path)s
 %(websockets)s
 """
-    if os.environ.has_key('VIRTUAL_ENV'):
+    if 'VIRTUAL_ENV' in os.environ:
         vassal_template = """%s
 virtualenv = %s
         """ %(vassal_template,os.environ.get('VIRTUAL_ENV'))
@@ -89,7 +92,7 @@ virtualenv = %s
 
     def init_options(self):
         options = self.options.__dict__
-        for option in wsgi_options.keys():
+        for option in list(wsgi_options.keys()):
             if options.get(option, None) is None: # not specified on the command-line
                 site_option = self.site_config['wsgi?%s' % option]
                 value = site_option or wsgi_options.get(option)
@@ -148,7 +151,7 @@ Processes:\t\t%(processes)i
 Thread:\t\t\t%(threads)i
 Stats on:\t\thttp://127.0.0.1:%(stats_port)i
 Connect on:\t\thttp://127.0.0.1:%(port)i"""%self.pars
-        print out
+        print(out)
 
     def run(self):
         uwsgi_args = ['uwsgi', self.vassal_ini_path]

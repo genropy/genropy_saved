@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from builtins import object
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('group', pkey='code', name_long='Group', 

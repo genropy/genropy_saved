@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from builtins import str
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
@@ -79,7 +80,7 @@ class SourceViewer(BaseComponent):
 
     def source_viewer_addFileMenu(self,pane):
         b = Bag()
-        for k,pkgobj in self.application.packages.items():
+        for k,pkgobj in list(self.application.packages.items()):
             b.setItem(k,DirectoryResolver(pkgobj.packageFolder,cacheTime=10,
                             include='*.py', exclude='_*,.*',dropext=True,readOnly=False)(),caption= pkgobj.attributes.get('name_long',k))
 
@@ -106,7 +107,7 @@ class SourceViewer(BaseComponent):
                 self.__writesource(sourceCode,filepath)
                 return dict(newpath=filepath)
 
-        except SyntaxError,e:
+        except SyntaxError as e:
             return dict(lineno=e.lineno,msg=e.msg,offset=e.offset)
 
     def __writesource(self,sourceCode,docname):

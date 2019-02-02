@@ -6,6 +6,8 @@
 #Created by Francesco Porcari on 2010-10-16.
 #Copyright (c) 2011 Softwell. All rights reserved.
 
+from __future__ import print_function
+from past.builtins import basestring
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrstring import slugify
 import os
@@ -120,7 +122,7 @@ class BaseResourcePrint(BaseResourceBatch):
         mailpars.update(self.mail_preference.asDict(True))
         mailpars.update(self.print_options.asDict(True))
 
-        for pkey, result in self.results.items():
+        for pkey, result in list(self.results.items()):
             record = self.records[pkey]
             mailpars['attachments'] = [result]
             mailpars['to_address'] = record[self.mail_address]
@@ -131,17 +133,17 @@ class BaseResourcePrint(BaseResourceBatch):
         mailpars = dict()
         mailpars.update(self.mail_preference.asDict(True))
         mailpars.update(self.print_options.asDict(True))
-        mailpars['attachments'] = self.results.values()
+        mailpars['attachments'] = list(self.results.values())
         mailmanager.sendmail(**mailpars)
         
     def result_handler_server_print(self, resultAttr):
         printer = self.network_printer.getPrinterConnection(self.server_print_options.pop('printer_name'),
                                                           **self.server_print_options.asDict(True))
-        return printer.printFiles(self.results.values(), self.batch_title)
+        return printer.printFiles(list(self.results.values()), self.batch_title)
 
 
     def result_handler_html(self, resultAttr):
-        print x
+        print(x)
         
     def result_handler_pdf(self, resultAttr):
         save_as = slugify(self.print_options['save_as'] or self.batch_title)
@@ -154,10 +156,10 @@ class BaseResourcePrint(BaseResourceBatch):
             immediate_mode = 'download'
         if zipped:
             outputFileNode.path +='.zip'
-            self.page.site.zipFiles(self.results.values(), outputFileNode)
+            self.page.site.zipFiles(list(self.results.values()), outputFileNode)
         else:
             outputFileNode.path +='.pdf'
-            self.pdf_handler.joinPdf(self.results.values(), outputFileNode)
+            self.pdf_handler.joinPdf(list(self.results.values()), outputFileNode)
         self.fileurl = outputFileNode.url(nocache=True, download=True)
         inlineurl = outputFileNode.url(nocache=True)
         resultAttr['url'] = self.fileurl

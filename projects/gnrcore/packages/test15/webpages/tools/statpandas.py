@@ -5,6 +5,8 @@
 # Copyright (c) 2012 Softwell. All rights reserved.
 
 
+from __future__ import print_function
+from builtins import object
 from gnr.core.gnrdecorator import websocket_method, public_method
 
 
@@ -36,7 +38,7 @@ class GnrCustomWebPage(object):
 
     @websocket_method
     def test_ws(self,**kwargs):
-        print 'test_ws'
+        print('test_ws')
         return self.language or 'No'
 
 

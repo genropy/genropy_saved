@@ -5,6 +5,8 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 "Test page description"
+from __future__ import print_function
+from builtins import object
 class GnrCustomWebPage(object):
     #py_requires="gnrcomponents/testhandler:TestHandlerFull"
 
@@ -27,7 +29,7 @@ class GnrCustomWebPage(object):
 
 
     def remote_xxx(self,pane,par=None):
-        print 'pippo'
+        print('pippo')
         fb = pane.formbuilder(cols=1, border_spacing='3px')
         fb.textbox(value='^.uuu',lbl=par)
         pane.dataFormula(".kkk", "u+p",u="^.uuu",p='=.par')

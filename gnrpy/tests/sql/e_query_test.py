@@ -25,7 +25,9 @@
 """
 this test module focus on SqlQuery's methods
 """
+from __future__ import print_function
 
+from builtins import object
 import os
 import datetime
 
@@ -213,5 +215,5 @@ class TestGnrSqlDb_postgres(BaseSql):
 
 
 def teardown_module(module):
-    print 'teardown sql_test'
+    print('teardown sql_test')
     

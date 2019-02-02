@@ -1,5 +1,5 @@
 # encoding: utf-8
-from __future__ import with_statement
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.sql.gnrsql_exceptions import RecordNotExistingError
 from datetime import datetime
@@ -35,7 +35,7 @@ class Table(object):
         if not preference:
             preference = self.getMainStorePreference()
             store_preference =  self.db.package('multidb').getStorePreference()
-            for pkgid,pkgobj in self.db.application.packages.items():
+            for pkgid,pkgobj in list(self.db.application.packages.items()):
                 if pkgobj.attributes.get('multidb_pref'):
                     preference[pkgid] = store_preference[pkgid] or preference[pkgid] or Bag()
             self.db.application.cache.setItem(pref_cache_key,preference)
@@ -63,10 +63,10 @@ class Table(object):
                     preferences.update(userpref)
                 else:
                     preferences = userpref
-        for pkgId,pkgpref in preferences.items():
+        for pkgId,pkgpref in list(preferences.items()):
             pkgObj = self.db.application.packages[pkgId]
             if not pkgObj:continue
-            for k,v in pkgObj.envPreferences().items():
+            for k,v in list(pkgObj.envPreferences().items()):
                 if pkgpref.getNode(k):
                     pkgpref.setAttr(k,dbenv=v)
         return preferences.filter(lambda n: n.attr.get('dbenv')) if preferences else None

@@ -4,6 +4,9 @@
 # Created by Francesco Porcari on 2011-03-23.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+from __future__ import print_function
+from builtins import range
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 
@@ -103,7 +106,7 @@ class GnrCustomWebPage(object):
     @public_method
     def test_remoteRowController(self,row=None,field=None,provincia=None,qty=None):
         if row['qty']:
-            print row
+            print(row)
 
 
     def test_5_menuPath(self,pane):

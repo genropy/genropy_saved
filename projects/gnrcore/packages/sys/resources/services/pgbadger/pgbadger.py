@@ -5,6 +5,7 @@
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
 
+from builtins import str
 from gnr.lib.services import GnrBaseService
 from subprocess import call
 from gnr.core.gnrlang import getUuid

@@ -6,6 +6,7 @@ import_data.py
 Created by Saverio Porcari on 2007-08-27.
 Copyright (c) 2007 __MyCompanyName__. All rights reserved.
 """
+from __future__ import print_function
 
 import sys
 import os
@@ -41,7 +42,7 @@ def importCodici(db, filepath, d):
             r = l.split(';')
             record = {}
             nome = r[0].strip()
-            if nome in d.keys():
+            if nome in list(d.keys()):
                 record['sigla'] = d[nome].strip()
                 record['codice_istat'] = r[1].strip()
                 tbl.update(record)
@@ -53,4 +54,4 @@ if __name__ == '__main__':
     importCodici(db, '/Users/saverioporcari/Desktop/codice_naz.txt', d)
     db.commit()
 
-    print 'update done'
+    print('update done')

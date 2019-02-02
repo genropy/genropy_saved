@@ -7,6 +7,7 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
+from builtins import object
 class GnrCustomWebPage(object):
     def pageAuthTags(self, method=None, **kwargs):
         return 'staff'

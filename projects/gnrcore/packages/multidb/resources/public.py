@@ -55,12 +55,12 @@ class TableHandlerMain(BaseComponent):
         if self.dbstore:
             dragCode = 'multidb_%s_%s' %(table.replace('.','_'),self.dbstore)
             bar = view.top.bar
-            if 'delrow' in bar.keys():
+            if 'delrow' in list(bar.keys()):
                 bar.replaceSlots('delrow','unsubscriberow')
                 bar.unsubscriberow.slotButton('!!Unsubscribe',iconClass='iconbox delete_row',
                             action="""genro.serverCall('_table.multidb.subscription.delRowsSubscription',{table:tbl,pkeys:grid.getSelectedPkeys(),dbstore:dbstore,temp_dbstore:false});
                                         """,dbstore=self.dbstore,tbl=self.maintable,grid=view.grid.js_widget,disabled='^.disabledButton')
-            if 'addrow' in bar.keys():
+            if 'addrow' in list(bar.keys()):
                 bar.replaceSlots('addrow','subscribepalette')
                 palette = bar.subscribepalette.palettePane(paletteCode='mainstore',title='!!Mainstore',
                                             dockButton_iconClass='iconbox add_row',width='900px',

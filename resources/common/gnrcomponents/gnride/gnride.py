@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2011-06-22.
 # Copyright (c) 2018 Softwell. All rights reserved.
 
+from builtins import str
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs
@@ -81,7 +82,7 @@ class GnrIde(BaseComponent):
                             _if='sourceFolders',_else='new gnr.GnrBag()')
         else:
             b = Bag()
-            for k,pkgobj in self.application.packages.items():
+            for k,pkgobj in list(self.application.packages.items()):
                 b.setItem('projects.%s' %k,DirectoryResolver(pkgobj.packageFolder,**DIRECTORY_RESOLVER_DEFAULT_PARS)(),caption= pkgobj.attributes.get('name_long',k))
             b.setItem('genropy',DirectoryResolver(getGenroRoot(),**DIRECTORY_RESOLVER_DEFAULT_PARS)(),caption='Genropy')
             frame.data('.directories.root',b,nodecaption='!!Folders')
@@ -271,7 +272,7 @@ class GnrIde(BaseComponent):
             compile('%s\n'%sourceCode, 'dummy', 'exec')
             if not save_as:
                 sys.modules.pop(os.path.splitext(docPath)[0].replace(os.path.sep, '_').replace('.', '_'),None)
-        except SyntaxError,e:
+        except SyntaxError as e:
             return dict(lineno=e.lineno,msg=e.msg,offset=e.offset)
         
 
@@ -279,7 +280,7 @@ class GnrIde(BaseComponent):
     def checkFile_xml(self,sourceCode,docPath,save_as=None):
         try:
             Bag(sourceCode)
-        except Exception,e:
+        except Exception as e:
             return dict(lineno=e.getLineNumber(),msg=e.getMessage(),offset=e.getColumnNumber())
 
 

@@ -1,4 +1,5 @@
 # encoding: utf-8
+from builtins import object
 from gnr.core.gnrbag import Bag
 
 class Table(object):
@@ -25,7 +26,7 @@ class Table(object):
         userobjects = []
         for r in source_rows:
             data = Bag(r['data'])
-            userobjects += filter(lambda r: r, data['items'].digest('#v.parameters.userobject_id'))
+            userobjects += [r for r in data['items'].digest('#v.parameters.userobject_id') if r]
         self.db.table('adm.userobject').hosting_copyToInstance(source_instance=source_instance,
                                         dest_instance=dest_instance,where='$id IN :pk',pk=userobjects)
                                         

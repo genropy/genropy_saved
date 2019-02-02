@@ -5,7 +5,9 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 """Form Handler test"""
+from __future__ import print_function
 
+from builtins import object
 from gnr.web.gnrwebstruct import struct_method
 
 class GnrCustomWebPage(object):
@@ -143,8 +145,8 @@ class GnrCustomWebPage(object):
                     validate_onAccept="this.form.publish('load',{destPkey:value});",lbl='Provincia')
                     
     def rpc_salvaDati(self, dati, **kwargs):
-        print "Dati salvati:"
-        print dati
+        print("Dati salvati:")
+        print(dati)
         
     def test_111_frame_formdatapath(self,pane):
         form = pane.frameForm(frameCode='regione_a',border='1px solid silver',datapath='.form',

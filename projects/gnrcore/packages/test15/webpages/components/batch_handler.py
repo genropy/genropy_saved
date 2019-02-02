@@ -5,6 +5,7 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Test batch handler"""
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = """gnrcomponents/testhandler:TestHandlerFull,
                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # 
 """css3make tester"""
+from __future__ import print_function
 
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 import smtplib
 class GnrCustomWebPage(object):
@@ -30,9 +32,9 @@ class GnrCustomWebPage(object):
         try:
             smtpObj = smtplib.SMTP('localhost')
             smtpObj.sendmail(sender, receivers, message)
-            print "Successfully sent email"
+            print("Successfully sent email")
         except Exception:
-            print "Error: unable to send email"
+            print("Error: unable to send email")
 
     def test_2_email_tpl(self, pane):
         fb = pane.div(margin='5px').formbuilder(cols=2, border_spacing='6px', width='100%', fld_width='100%',

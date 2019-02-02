@@ -5,6 +5,7 @@
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
 
+from builtins import str
 from gnr.lib.services import GnrBaseService
 import re
 try:
@@ -59,5 +60,5 @@ class Main(GnrBaseService):
 
             #result = result.replace('class="document"','class="rst-content"')
             return result
-        except Exception,e:
+        except Exception as e:
             return str(e)

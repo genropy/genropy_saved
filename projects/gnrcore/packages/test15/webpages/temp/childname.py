@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2010-08-19.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
+from builtins import object
 class GnrCustomWebPage(object):
     def main_root(self, root, **kwargs):
         root.button('do',showLabel=False,iconClass='icnBaseAdd',action="""

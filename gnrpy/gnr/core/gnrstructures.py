@@ -20,6 +20,9 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrlang import GnrObject,GnrException
 from gnr.core.gnrdict import GnrDict
@@ -100,7 +103,7 @@ class GnrStructData(Bag):
 
     def _parseValidChildrenValues(self,valid_children):
         mandatoryTags = dict()
-        for tag,validpars in valid_children.items():
+        for tag,validpars in list(valid_children.items()):
             validpars = '0:' if validpars is True else validpars
             if isinstance(validpars,int):
                 validpars = str(validpars)
@@ -142,7 +145,7 @@ class GnrStructData(Bag):
                 if maxval and len(n.value.filter(lambda n: n.tag == tag))>=int(maxval):
                     raise GnrException(self.exceptions['already_inserted_child_tag'] %dict(tag=tag,maxval=maxval))
             if mandatoryTags:
-                raise GnrException(self.exceptions['missing_mandatory_children'] %dict(mandatory_children=','.join(mandatoryTags.keys())))
+                raise GnrException(self.exceptions['missing_mandatory_children'] %dict(mandatory_children=','.join(list(mandatoryTags.keys()))))
         self.walk(validateNode)
  
 
@@ -204,7 +207,7 @@ class GnrStructData(Bag):
                         'Cannot change %s from %s to %s' % (childname, where.getAttr(childname, 'tag'), tag))
             else:
                 kwargs = dict(
-                        [(k, v) for k, v in kwargs.items() if v != None]) # default kwargs don't clear old attributes
+                        [(k, v) for k, v in list(kwargs.items()) if v != None]) # default kwargs don't clear old attributes
                 result = where[childname]
                 result.attributes.update(**kwargs)
         else:
@@ -331,7 +334,7 @@ class GnrStructObj(GnrObject):
         
     def deleteChildren(self):
         """TODO"""
-        for k in self.children.keys():
+        for k in list(self.children.keys()):
             self.deleteChild(k)
             
     def afterChildrenCreation(self):
@@ -435,15 +438,15 @@ class GnrStructObj(GnrObject):
         
     def items(self):
         """Same of ``items`` method's dict, applied on the ``children`` attribute"""
-        return self.children.items()
+        return list(self.children.items())
         
     def keys(self):
         """Same of ``keys`` method's dict, applied on the ``children`` attribute"""
-        return self.children.keys()
+        return list(self.children.keys())
         
     def values(self):
         """Same of ``values`` method's dict, applied on the ``children`` attribute"""
-        return self.children.values()
+        return list(self.children.values())
         
     def _set_structnode(self, structnode):
         if structnode != None:
@@ -525,7 +528,7 @@ class StructObjResolver(BagResolver):
         if isinstance(obj, BagResolver):
             obj = obj()
             
-        for name, x in obj.items():
+        for name, x in list(obj.items()):
             if isinstance(x, GnrStructObj):
                 tag = x.getTag()
                 attr = {'tag': tag}

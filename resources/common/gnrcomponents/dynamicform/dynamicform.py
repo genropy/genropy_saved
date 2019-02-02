@@ -21,6 +21,8 @@
 """
 Component for dynamicform:
 """
+from builtins import str
+from past.builtins import basestring
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import asDict
@@ -578,7 +580,7 @@ class DynamicForm(BaseComponent):
 
     def _df_handleGetter(self,fb,code=None,getter=None):
         kw = asDict(getter['where'].replace('\n',','))
-        _iflist = [k for k,v in kw.items() if v.startswith('^') or v.startswith('=')]
+        _iflist = [k for k,v in list(kw.items()) if v.startswith('^') or v.startswith('=')]
         if _iflist:
             kw['_if'] = ' && '.join(_iflist)
         fb.dataRemote('.%s' %code,self._df_remoteGetter,table=getter['table'],column=getter['column'],innerpath=getter['innerpath'],**kw)

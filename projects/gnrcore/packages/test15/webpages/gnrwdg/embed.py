@@ -6,6 +6,7 @@
 
 """Test drop uploader"""
 
+from builtins import object
 from gnr.core.gnrlist import XlsReader
 from gnr.core.gnrbag import Bag, DirectoryResolver
 

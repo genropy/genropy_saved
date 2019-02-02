@@ -28,7 +28,7 @@ class RemoteBuilder(BaseComponent):
             parentAttr = pane.parentNode.getAttr()
             parentAttr['remote'] = 'remoteBuilder'
             parentAttr['remote_handler'] = method
-            for k, v in kwargs.items():
+            for k, v in list(kwargs.items()):
                 parentAttr['remote_%s' % k] = v
                 kwargs.pop(k)
             if not lazy:

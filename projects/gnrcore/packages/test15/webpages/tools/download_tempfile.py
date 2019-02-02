@@ -5,6 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 "Test page description"
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 import mimetypes
 

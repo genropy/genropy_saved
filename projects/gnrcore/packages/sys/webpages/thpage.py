@@ -5,6 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires='public:TableHandlerMain'
     auth_main='user'

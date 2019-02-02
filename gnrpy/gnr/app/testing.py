@@ -76,17 +76,17 @@ class TestCase(unittest.TestCase):
             preferences = Bag(yaml.load(codecs.open(filename,'rt','utf-8')))
         else:
             preferences = Bag(filename)
-        for package, prefs in preferences.items():
+        for package, prefs in list(preferences.items()):
             self.db.packages[package].setPreference('', prefs)
 #            self.db.packages[package].getPreference = lambda path, default=None: prefs.get(path, default)
 #            self.db.packages[package].setPreference = lambda path, value: prefs.setItem(path, value)
 
     def loadYamlDataFile(self, fullname):
         data = yaml.load(open(fullname,'rt'))
-        for pkgname, tables in data.items():
-            for tablename, records in tables.items():
+        for pkgname, tables in list(data.items()):
+            for tablename, records in list(tables.items()):
                 tbl = self.db.table(tablename, pkgname)
-                for label, rec in records.items():
+                for label, rec in list(records.items()):
                     tbl.insert(rec)
 
     def loadXmlDataFile(self, fullname):

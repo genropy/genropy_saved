@@ -1,13 +1,19 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import email, imaplib,datetime
 from email.generator import Generator as EmailGenerator
 from gnr.core.gnrlang import getUuid
 import chardet
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import slugify
-import StringIO
+import io
 detach_dir = '.'
 import os
 import re
@@ -66,7 +72,7 @@ class ImapReceiver(object):
                     msgrec = self.createMessageRecord(emailid)
                 except Exception as e:
                     msgrec = None
-                    print 'Error in email',str(e)
+                    print('Error in email',str(e))
             if not msgrec:
                 continue
             msgrec['mailbox_id'] = mailbox_id
@@ -76,10 +82,10 @@ class ImapReceiver(object):
         self.db.commit()
     
     def fillHeaders(self, mail, new_mail,encoding):
-        new_mail['from_address'] = unicode(mail['From']) if mail['From'] else None
-        new_mail['to_address'] = unicode(mail['To']) if mail['To'] else None
-        new_mail['cc_address'] = unicode(mail['Cc']) if mail['Cc'] else None
-        new_mail['bcc_address'] = unicode(mail['Bcc']) if mail['Bcc'] else None
+        new_mail['from_address'] = str(mail['From']) if mail['From'] else None
+        new_mail['to_address'] = str(mail['To']) if mail['To'] else None
+        new_mail['cc_address'] = str(mail['Cc']) if mail['Cc'] else None
+        new_mail['bcc_address'] = str(mail['Bcc']) if mail['Bcc'] else None
         new_mail['subject'] = self.smartConverter(mail['Subject'],encoding)
         date = mail['Date']
         if date:
@@ -112,17 +118,17 @@ class ImapReceiver(object):
             return
         encoding = encoding or chardet.detect(m)['encoding']
         if not encoding:
-            return unicode(m,errors='ignore')
+            return str(m,errors='ignore')
         try:
-            return unicode(m.decode(encoding).encode('utf8'))
+            return str(m.decode(encoding).encode('utf8'))
         except UnicodeDecodeError:
             encoding = chardet.detect(m)['encoding']
             try:
-                return unicode(m.decode(encoding).encode('utf8'))
+                return str(m.decode(encoding).encode('utf8'))
             except UnicodeDecodeError:
-                return unicode('')
+                return str('')
         except LookupError:
-            return unicode('')
+            return str('')
 
     
     def parseAttachment(self, part, new_mail, part_content_type=None):
@@ -155,7 +161,7 @@ class ImapReceiver(object):
         self.attachments_table.insert(new_attachment)
     
     def getMessagePayload(self,part):
-        fp = StringIO.StringIO()
+        fp = io.StringIO()
         g = EmailGenerator(fp, mangle_from_=False)
         g.flatten(part, unixfrom=False)
         return fp.getvalue()
@@ -184,7 +190,7 @@ class ImapReceiver(object):
                 return False
         encoding = mail.get_content_charset()
         b = Bag(mail)
-        for k,v in b.items():
+        for k,v in list(b.items()):
             if isinstance(v,basestring):
                 b[k] = self.smartConverter(v,encoding)
         new_mail['email_bag'] = b

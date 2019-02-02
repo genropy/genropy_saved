@@ -4,6 +4,7 @@
 # Created by Saverio Porcari on 2010-10-15.
 # Copyright (c) 2010 __MyCompanyName__. All rights reserved.
 "FlibPicker test"
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull,flib:FlibPicker"
 

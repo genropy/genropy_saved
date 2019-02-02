@@ -5,6 +5,7 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """bordercontainer"""
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 
 class GnrCustomWebPage(object):

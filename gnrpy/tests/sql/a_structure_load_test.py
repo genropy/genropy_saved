@@ -25,6 +25,8 @@
 
 
 
+from __future__ import print_function
+from builtins import object
 from gnr.sql.gnrsql import GnrSqlDb
 from gnr.core.gnrbag import Bag
 
@@ -57,7 +59,7 @@ class TestDbModelSrc(object):
 
     def test_modelSrcEqual(self):
         if self.db_fromcode.model.src!=self.db_fromxml.model.src:
-            print self.db_fromcode.model.src.diff(self.db_fromxml.model.src)
+            print(self.db_fromcode.model.src.diff(self.db_fromxml.model.src))
         assert self.db_fromcode.model.src == self.db_fromxml.model.src
 
     def test_mixinPackage(self):
@@ -65,7 +67,7 @@ class TestDbModelSrc(object):
         assert 'this is video package' == self.db_fromxml.package('video').sayMyName()
 
     def test_mixinTable(self):
-        assert 'foo' in self.db_fromxml.packageSrc('video').table('people')['columns'].keys()
+        assert 'foo' in list(self.db_fromxml.packageSrc('video').table('people')['columns'].keys())
         assert 'Hello Genro' == self.db_fromxml.table('video.people').sayHello('Genro')
 
     def test_package(self):
@@ -102,7 +104,7 @@ class TestDbModelSrc(object):
         pass
 
 def teardown_module(module):
-    print 'teardown sql_test'
+    print('teardown sql_test')
 
 
 def configurePackage(pkg):

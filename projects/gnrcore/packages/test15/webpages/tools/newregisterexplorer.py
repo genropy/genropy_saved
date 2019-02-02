@@ -5,6 +5,10 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 "Test page description"
+from __future__ import division
+from builtins import range
+from builtins import object
+from past.utils import old_div
 class GnrCustomWebPage(object):
     css_requires='csstest'
     def windowTitle(self):
@@ -179,7 +183,7 @@ class GnrCustomWebPage(object):
             
     def _maintenance_get_items(self, items, child_name=None,exclude_guest=None, **kwargs):
         result = Bag()
-        for key, item in items.items():
+        for key, item in list(items.items()):
             item = dict(item)
             item.pop('data',None)
             if exclude_guest and ( key.startswith('guest_') or item.get('user','').startswith('guest_')):
@@ -218,7 +222,7 @@ class GnrCustomWebPage(object):
                 color = 'orange'
             else:
                 color = 'red'
-            c = dict(height=1+n['nc']/4,color=color)
+            c = dict(height=1+old_div(n['nc'],4),color=color)
             result.append('<div style="background:%(color)s;height:%(height)ipx; width:3px; display:inline-block;margin-right:1px;"></div>' %c)
         item['page_profile'] = '<div>%s</div>'  %''.join(result)
 

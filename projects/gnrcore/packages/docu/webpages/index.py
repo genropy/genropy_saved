@@ -4,6 +4,7 @@
 Created by Softwell on 2008-07-10.
 Copyright (c) 2008 Softwell. All rights reserved.
 """
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 

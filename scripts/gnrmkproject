@@ -6,6 +6,7 @@ create a new genroproject
 usage: gnrmkproject projectname
 
 """
+from __future__ import print_function
 import sys, os, shutil
 
 from gnr.core.gnrbag import Bag
@@ -46,16 +47,16 @@ if __name__ == '__main__':
 
 
     if not args:
-        print 'You should specify a project name'
+        print('You should specify a project name')
     else:
         project_name = args[0]
         if '.' in args[0]:
             path_resolver = PathResolver()
             repo_name, project_name = args[0].split('.')
             base_path = base_path or path_resolver.project_repository_name_to_path(repo_name)
-        print 'Creating project %s in %s...' % (project_name, base_path or 'current directory')
+        print('Creating project %s in %s...' % (project_name, base_path or 'current directory'))
         project_maker = ProjectMaker(project_name, base_path=base_path)
-        print 'Project %s created' % project_name
+        print('Project %s created' % project_name)
         project_maker.do()
         packages = add_packages.split(',') if add_packages else []
         if main_package:
@@ -64,14 +65,14 @@ if __name__ == '__main__':
             package_maker.do()
             packages.append(main_package)
         if create_site:
-            print 'Creating site %s in %s...' % (project_name, project_maker.sites_path)
+            print('Creating site %s in %s...' % (project_name, project_maker.sites_path))
             site_maker = SiteMaker(project_name, base_path=project_maker.sites_path,wsgi_mainpackage=main_package)
             site_maker.do()
-            print 'Site %s created' % project_name
+            print('Site %s created' % project_name)
         if create_instance:
-            print 'Creating instance %s in %s...' % (project_name, project_maker.instances_path)
+            print('Creating instance %s in %s...' % (project_name, project_maker.instances_path))
             instance_maker = InstanceMaker(project_name, base_path=project_maker.instances_path,packages=packages)
             instance_maker.do()
-            print 'Instance %s created' % project_name
+            print('Instance %s created' % project_name)
 
     

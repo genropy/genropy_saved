@@ -2,6 +2,8 @@
 #
 """Dialogs"""
 
+from builtins import range
+from builtins import object
 class GnrCustomWebPage(object):
     dojo_version = '11'
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"

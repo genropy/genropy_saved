@@ -6,6 +6,7 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
+from builtins import str
 import os
 import hashlib
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
@@ -16,7 +17,7 @@ import shutil
 def compress_js(jsfiles, site=None):
     ts = str(max([os.path.getmtime(fname) for fname in jsfiles]))
     key = '-'.join(jsfiles)
-    cpfile = '%s.js' % hashlib.md5(key + ts).hexdigest()
+    cpfile = '%s.js' % hashlib.md5((key + ts).encode()).hexdigest()
     jspath = site.getStatic('site').path('_static', '_jslib', cpfile)
     jsurl = site.getStatic('site').url('_static', '_jslib', cpfile)
     rebuild = True
@@ -35,7 +36,7 @@ def compress_js(jsfiles, site=None):
         with os.fdopen(outfile_handle, "w") as cpf:
             cpf.write('// %s\n' % ts)
             for fname in jsfiles:
-                f = file(fname)
+                f = open(fname)
                 js = f.read()
                 f.close()
                 cpf.write(jsmin(js))

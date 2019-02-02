@@ -6,6 +6,7 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
+from builtins import object
 import pstats
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
@@ -41,12 +42,12 @@ class GnrCustomWebPage(object):
     def getModules(self):
         s=pstats.Stats(self.site.getStaticPath('site:','site_profiler.log'))
         result=Bag()
-        for k,v in s.stats.items():
+        for k,v in list(s.stats.items()):
             modulename=k[0]
             p=self.convertModuleName(k)
             c=v[4]
             cbag=Bag()
-            for ck,cv in c.items():
+            for ck,cv in list(c.items()):
                 cp=self.convertModuleName(ck)
                 cp=cp.replace('.','_')
                 cbag[cp]=Bag(dict(modulename=ck[0],methodName=ck[2],linenumber=ck[1],ncalls=cv[0],
@@ -64,7 +65,7 @@ class GnrCustomWebPage(object):
     def getCalls(self,selected_module=None):
         s=pstats.Stats(self.site.getStaticPath('site:','site_profiler.log'))
         result=Bag()
-        for k,v in s.stats.items():
+        for k,v in list(s.stats.items()):
             module=k[0].replace('.py','')
             module=module.replace('.','_')
             if module != selected_module:

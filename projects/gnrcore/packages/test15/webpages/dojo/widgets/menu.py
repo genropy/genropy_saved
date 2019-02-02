@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """Menu"""
+from __future__ import print_function
 
+from builtins import str
+from builtins import object
 import datetime
 from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.core.gnrdecorator import public_method
@@ -112,7 +115,7 @@ class GnrCustomWebPage(object):
 
     @public_method
     def testcb(self,zzz=None):
-        print 'mmmm'
+        print('mmmm')
         menudata = self.menudata()
         menudata.setItem('r_6', None, code=zzz or 'zzz', caption=zzz)
         return menudata

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+from builtins import object
 from gnr.core.gnrdecorator import websocket_method
 from gnr.core.gnrbag import Bag
 
@@ -19,9 +21,9 @@ class GnrCustomWebPage(object):
     def getPages(self,**kwargs):
         pages= self.asyncServer.pages
         b=Bag()
-        for k,page in pages.items():
+        for k,page in list(pages.items()):
             kw = dict([(key,getattr(page,key,None)) for key in ('page_id','connection_id','user')])
-            print k,kw
+            print(k,kw)
             b[k] = Bag(kw)
         return b
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from builtins import object
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('widget', pkey='id', name_long='!!Widget', name_plural='!!Widgets',caption_field='name')

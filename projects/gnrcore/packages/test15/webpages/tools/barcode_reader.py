@@ -2,6 +2,7 @@
 # 
 """ClientPage tester"""
 
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = """gnrcomponents/testhandler:TestHandlerFull,
                      gnrcomponents/barcode_reader/barcode_reader:BarcodeReader"""

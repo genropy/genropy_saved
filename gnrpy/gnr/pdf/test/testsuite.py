@@ -1,3 +1,4 @@
+from builtins import range
 from gnr.pdf.gnrpdf import GnrPdf
 from reportlab.lib.units import inch
 

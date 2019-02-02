@@ -1,6 +1,12 @@
 #!/usr/bin/env python2.7
 # encoding: utf-8
 #
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 from datetime import datetime
 import logging
 from multiprocessing import Process, log_to_stderr, get_logger, Manager
@@ -49,7 +55,7 @@ def getFullOptions(options=None):
             os.makedirs(env_options['sockets'])
         env_options['socket']=env_options.get('socket') or os.path.join(env_options['sockets'],'gnrdaemon.sock')
     assert env_options,"Missing gnrdaemon configuration."
-    for k,v in options.items():
+    for k,v in list(options.items()):
         if v:
             env_options[k] = v
     return env_options
@@ -63,11 +69,11 @@ class GnrHeartBeat(object):
         
     def start(self):
         os.environ['no_proxy'] = '*'
-        import urllib
+        import urllib.request, urllib.parse, urllib.error
         while True:
             try:
                 self.logger.info("Calling {}".format(self.url))
-                response = urllib.urlopen(self.url)
+                response = urllib.request.urlopen(self.url)
                 response_code = response.getcode()
 
                 if response_code!=200:
@@ -76,7 +82,7 @@ class GnrHeartBeat(object):
                     time.sleep(self.interval)
             except IOError:
                 self.retry('IOError')
-            except Exception, e:
+            except Exception as e:
                 self.logger.error(str(e))
 
 
@@ -176,13 +182,13 @@ class GnrDaemon(object):
         self.siteregisters[sitename]['server_uri'] = server_uri
         self.siteregisters[sitename]['register_uri'] = register_uri
         self.siteregisters[sitename]['register_port'] = int(register_uri.split(':')[-1])
-        print 'registered ',sitename,server_uri
+        print('registered ',sitename,server_uri)
 
     def onRegisterStop(self,sitename=None):
-        print 'onRegisterStop',sitename
+        print('onRegisterStop',sitename)
         self.siteregisters.pop(sitename,None)
         process_dict = self.siteregisters_process.pop(sitename,None) or {}
-        for name, process in process_dict.items():
+        for name, process in list(process_dict.items()):
             if name!='register' and process and process.is_alive():
                 process.terminate()
 
@@ -200,7 +206,7 @@ class GnrDaemon(object):
     def stop(self,saveStatus=False,**kwargs):
         self.daemon.close()
         self.siteregister_stop('*',saveStatus=saveStatus)
-        for t in self.sshtunnel_index.values():
+        for t in list(self.sshtunnel_index.values()):
             t.stop()
         self.running = False
 
@@ -208,9 +214,9 @@ class GnrDaemon(object):
         self.stop(saveStatus=True)
 
     def restartServiceDaemon(self,sitename=None,service_name=None):
-        print 'restartServiceDaemon',sitename,service_name
+        print('restartServiceDaemon',sitename,service_name)
         sitedict = self.siteregisters_process[sitename]
-        print 'sitedict',sitedict
+        print('sitedict',sitedict)
         if service_name in sitedict:
             print('restarting daemon %s' %service_name)
             proc = sitedict[service_name]
@@ -260,7 +266,7 @@ class GnrDaemon(object):
             if serv.attr.get('daemon'):
                 service_process = self.startServiceDaemon(sitename,serv.label)
                 siteregister_processes_dict[serv.label] = service_process
-                print('sitedict',siteregister_processes_dict)
+                print(('sitedict',siteregister_processes_dict))
 
     def startServiceDaemon(self,sitename, service_name=None):
         p = PathResolver()
@@ -320,7 +326,7 @@ class GnrDaemon(object):
 
 
         else:
-            print 'ALREADY EXISTING ',sitename
+            print('ALREADY EXISTING ',sitename)
 
     def pyroProxy(self,url):
         proxy = Pyro4.Proxy(url)
@@ -331,11 +337,11 @@ class GnrDaemon(object):
 
     def siteRegisters(self,**kwargs):
         sr = dict(self.siteregisters)
-        for k,v in sr.items():
+        for k,v in list(sr.items()):
             register_process = self.siteregisters_process[k]['register']
             v['pid'] = register_process.pid
             v['is_alive'] = register_process.is_alive()
-        return sr.items()
+        return list(sr.items())
 
     def siteRegisterProxy(self,sitename):
         return self.pyroProxy(self.siteregisters[sitename]['register_uri'])
@@ -353,7 +359,7 @@ class GnrDaemon(object):
 
     def siteregister_stop(self,sitename=None,saveStatus=False,**kwargs):
         if sitename == '*':
-            sitelist = self.siteregisters.keys()
+            sitelist = list(self.siteregisters.keys())
         elif isinstance(sitename,basestring):
             sitelist = sitename.split(',')
         else:
@@ -367,13 +373,13 @@ class GnrDaemon(object):
                 with self.pyroProxy(sitepars['server_uri']) as proxy:
                     proxy.stop(saveStatus=saveStatus)
             except Exception as e:
-                print str(e)
+                print(str(e))
             self.onRegisterStop(k)
             result[k] = sitepars
         return result
 
     def siteregister_start(self,stopStatus):
-        for sitename,pars in stopStatus.items():
+        for sitename,pars in list(stopStatus.items()):
             self.addSiteRegister(sitename,storage_path=pars['storage_path'],
                         heartbeat_options=pars['heartbeat_options'],
                         autorestore=pars['autorestore'],

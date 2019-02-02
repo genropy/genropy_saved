@@ -82,7 +82,7 @@ class StoreTester(BaseComponent):
     def rpc_curr_pages(self):
         pagesDict = self.site.register_page.pages()
         result = Bag()
-        for page_id, v in pagesDict.items():
+        for page_id, v in list(pagesDict.items()):
             user = v['user'] or v['user_ip'].replace('.', '_')
             pagename = v['pagename'].replace('.py', '')
             connection_id = v['connection_id']

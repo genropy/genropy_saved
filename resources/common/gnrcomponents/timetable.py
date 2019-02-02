@@ -19,6 +19,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 """Component for thermo"""
+from builtins import object
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrstring import toText
 from gnr.core.gnrdate import dayIterator
@@ -26,7 +27,7 @@ from babel import dates
 
 def rect(**kwargs):
     result = dict(position='absolute')
-    for k, v in kwargs.items():
+    for k, v in list(kwargs.items()):
         if v is not None:
             result[k] = '%ipx' % v
     return result

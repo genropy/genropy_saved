@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+from builtins import object
 from gnr.core.gnrdecorator import websocket_method, public_method
 
 class GnrCustomWebPage(object):
@@ -34,11 +36,11 @@ class GnrCustomWebPage(object):
         
     @websocket_method
     def test_ws(self,**kwargs):
-        print 'received websocket call',kwargs
+        print('received websocket call',kwargs)
         return 'test ok'
 
 
     @public_method
     def test_rpc(self,**kwargs):
-        print 'received http call',kwargs
+        print('received http call',kwargs)
         return 'test ok'

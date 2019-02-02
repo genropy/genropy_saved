@@ -61,7 +61,7 @@ class OrganizerComponent(BaseComponent):
         palette = pane.palettePane(paletteCode=paletteCode,title='!!Record annotations',
                                     dockTo='dummyDock',width=width or '730px',height=height or '500px')
 
-        kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
+        kwargs = dict([('main_%s' %k,v) for k,v in list(kwargs.items())])
         iframe = palette.iframe(main=self.orgn_remoteAnnotationTool,
                             main_linked_entity=linked_entity,
                             main_table=parentTable,

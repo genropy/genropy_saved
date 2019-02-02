@@ -6,6 +6,7 @@
 
 """dataRemote"""
 
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/chat_component/chat_component:ChatComponent"
     

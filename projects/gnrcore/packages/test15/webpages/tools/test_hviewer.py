@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from builtins import range
+from builtins import object
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrbag import Bag
 from random import randint

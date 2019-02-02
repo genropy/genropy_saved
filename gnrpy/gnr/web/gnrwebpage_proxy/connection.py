@@ -6,6 +6,7 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
+from past.builtins import basestring
 from gnr.core.gnrlang import getUuid
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
@@ -176,7 +177,7 @@ class GnrWebConnection(GnrBaseProxy):
         now = datetime.now()
         if isinstance(exclude, basestring):
             exclude = exclude.split(',')
-        for user, arguments in users.items():
+        for user, arguments in list(users.items()):
             if user in exclude:
                 continue
             row = dict()

@@ -20,11 +20,19 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import zip
+from builtins import map
+from builtins import filter
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import os
 import shutil
 import re
 #import weakref
-import cPickle
+import pickle
 import itertools
 import hashlib
 from collections import OrderedDict
@@ -196,7 +204,7 @@ class SqlQueryCompiler(object):
         else:
             alias = basealias
         curr_tblobj = self.db.table(curr.tbl_name, pkg=curr.pkg_name)
-        if not fld in curr.keys():
+        if not fld in list(curr.keys()):
             fldalias = curr_tblobj.model.virtual_columns[fld]
             if fldalias == None:
                 raise GnrSqlMissingField('Missing field %s in table %s.%s (requested field %s)' % (
@@ -217,7 +225,7 @@ class SqlQueryCompiler(object):
                     sql_formula = '#default' if fldalias.select else 'EXISTS(#default)'
                     select_dict['default'] = fldalias.select or fldalias.exists
                 if select_dict:
-                    for susbselect,sq_pars in select_dict.items():
+                    for susbselect,sq_pars in list(select_dict.items()):
                         if isinstance(sq_pars,basestring):
                             sq_pars = getattr(self.tblobj.dbtable,'subquery_%s' %sq_pars)()
                         sq_pars = dict(sq_pars)
@@ -241,12 +249,12 @@ class SqlQueryCompiler(object):
                 if sql_formula_var:
                     prefix = str(id(fldalias))
                     currentEnv = self.db.currentEnv
-                    for k,v in sql_formula_var.items():
+                    for k,v in list(sql_formula_var.items()):
                         newk = '%s_%s' %(prefix,k)
                         currentEnv[newk] = v
                         sql_formula = re.sub("(:)(%s)(\\W|$)" %k,lambda m: '%senv_%s%s'%(m.group(1),newk,m.group(3)), sql_formula)
                 subColPars = {}
-                for key, value in subreldict.items():
+                for key, value in list(subreldict.items()):
                     subColPars[key] = self.getFieldAlias(value, curr=curr, basealias=alias)
                 sql_formula = gnrstring.templateReplace(sql_formula, subColPars, safeMode=True)
                 return '( %s )' %sql_formula
@@ -434,13 +442,13 @@ class SqlQueryCompiler(object):
                     self.cpl.aggregateDict[flatten_fldpath] = [subfield_name,f, '%s_%s' %(flatten_path,rowkey)]
                 return r
             else:
-                return ['%s.%s' % (path, k) for k in relflds.keys() if k.startswith(flt) and not k.startswith('@')]
+                return ['%s.%s' % (path, k) for k in list(relflds.keys()) if k.startswith(flt) and not k.startswith('@')]
         else:
             return ['$%s' % k for k, dtype in self.relations.digest('#k,#a.dtype') if
                     k.startswith(flt) and not k.startswith('@') and (dtype != 'X' or bagFields)]
     
     def embedFieldPars(self,sql):
-        for k,v in self.sqlparams.items():
+        for k,v in list(self.sqlparams.items()):
             if isinstance(v,basestring):
                 if v.startswith('@') or v.startswith('$'):
                     sql = re.sub(':%s(\W|$)' % k, v, sql)
@@ -525,7 +533,7 @@ class SqlQueryCompiler(object):
         env_conditions = dictExtract(currentEnv,'env_%s_condition_' %self.tblobj.fullname.replace('.','_'))
         wherelist = [where]
         if env_conditions:
-            for condition in env_conditions.values():
+            for condition in list(env_conditions.values()):
                 wherelist.append('( %s )' %condition)
         wherelist.append(self.tblobj.dbtable.getPartitionCondition(ignorePartition=ignorePartition))
         where = ' AND '.join([w for w in wherelist if w])
@@ -558,7 +566,7 @@ class SqlQueryCompiler(object):
         
         # translate all fields and related fields from $fldname to t0.fldname, t1.fldname... and prepare the JOINs
         colPars = {}
-        for key, value in self.cpl.relationDict.items():
+        for key, value in list(self.cpl.relationDict.items()):
             # self._currColKey manage exploding columns in recursive getFieldAlias without add too much parameters
             self._currColKey = key
             colPars[key] = self.getFieldAlias(value)
@@ -668,7 +676,7 @@ class SqlQueryCompiler(object):
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
         self.init(lazy=lazy, eager=eager)
         for fieldname, value, attrs in self.relations.digest('#k,#v,#a'):
-            xattrs = dict([(k, v) for k, v in attrs.items() if not k in ['tag', 'comment', 'table', 'pkg']])
+            xattrs = dict([(k, v) for k, v in list(attrs.items()) if not k in ['tag', 'comment', 'table', 'pkg']])
             if not (bagFields or (attrs.get('dtype') != 'X')):
                 continue
             if 'joiner' in attrs:
@@ -711,7 +719,7 @@ class SqlQueryCompiler(object):
             self._currColKey = col_name
             field = self.getFieldAlias(column.name)
 
-            xattrs = dict([(k, v) for k, v in column_attributes.items() if not k in ['tag', 'comment', 'table', 'pkg']])
+            xattrs = dict([(k, v) for k, v in list(column_attributes.items()) if not k in ['tag', 'comment', 'table', 'pkg']])
             
             if column_attributes['tag'] == 'virtual_column':
                 as_name = '%s_%s' % (self.aliasCode(0), column.name)
@@ -757,7 +765,7 @@ class SqlQueryCompiler(object):
         if where:
             self.updateFieldDict(where)
             colPars = {}
-            for key, value in self.cpl.relationDict.items():
+            for key, value in list(self.cpl.relationDict.items()):
                 colPars[key] = self.getFieldAlias(value)
             where = gnrstring.templateReplace(where, colPars)
         return where
@@ -1006,7 +1014,7 @@ class SqlQuery(object):
         if not self.compiled.pyColumns:
             return
         pcdict = dict(self.compiled.pyColumns)
-        for field in  self.dbtable.model.virtual_columns.keys():
+        for field in  list(self.dbtable.model.virtual_columns.keys()):
             if not field in pcdict:
                 continue
             handler = pcdict[field]
@@ -1121,7 +1129,7 @@ class SqlQuery(object):
                             
     def _prepColAttrs(self, index):
         colAttrs = {}
-        for k in index.keys():
+        for k in list(index.keys()):
             if k == 'pkey':
                 fld = self.dbtable.pkey
             else:
@@ -1240,7 +1248,7 @@ class SqlSelection(object):
                     for col in mixColumns:
                         d[col] = [d[col]]
                     if aggregateDict:
-                        for k,v in aggregateDict.items():
+                        for k,v in list(aggregateDict.items()):
                             subfld = v[0]
                             d[subfld] = d.get(subfld) or {}
                             sr = d[subfld].setdefault(d[v[2]],{})
@@ -1254,7 +1262,7 @@ class SqlSelection(object):
                             masterRow[col].append(d[col])
                             masterRow[col].sort()
                     if aggregateDict:
-                        for k,v in aggregateDict.items():
+                        for k,v in list(aggregateDict.items()):
                             subfld = v[0]
                             sr = masterRow[subfld].setdefault(d[v[2]],{})
                             sr[v[1]] = d[k]
@@ -1274,7 +1282,7 @@ class SqlSelection(object):
             r[key] = i
             
     def _get_allColumns(self):
-        items = self._index.items()
+        items = list(self._index.items())
         result = [None] * len(items)
         for k, v in items:
             result[v] = k
@@ -1392,7 +1400,7 @@ class SqlSelection(object):
         selection_path = '%s.pik' % self.freezepath
         dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection',suffix='.pik')
         with os.fdopen(dumpfile_handle, "w") as f:
-            cPickle.dump(self, f)
+            pickle.dump(self, f)
         shutil.move(dumpfile_path, selection_path)
         self.dbtable, self._data, self._filtered_data = saved
         
@@ -1401,22 +1409,22 @@ class SqlSelection(object):
         if readwrite == 'w':
             dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_data',suffix='.pik')
             with os.fdopen(dumpfile_handle, "w") as f:
-                cPickle.dump(self._data, f)
+                pickle.dump(self._data, f)
             shutil.move(dumpfile_path, pik_path)
         else:
             with open(pik_path) as f:
-                self._data = cPickle.load(f)
+                self._data = pickle.load(f)
 
     def _freeze_pkeys(self, readwrite):
         pik_path = '%s_pkeys.pik' % self.freezepath
         if readwrite == 'w':
             dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_data',suffix='.pik')
             with os.fdopen(dumpfile_handle, "w") as f:
-                cPickle.dump(self.output('pkeylist'), f)
+                pickle.dump(self.output('pkeylist'), f)
             shutil.move(dumpfile_path, pik_path)
         else:
             with open(pik_path) as f:
-                return cPickle.load(f)
+                return pickle.load(f)
         
     def _freeze_filtered(self, readwrite):
         fpath = '%s_filtered.pik' % self.freezepath
@@ -1427,11 +1435,11 @@ class SqlSelection(object):
             if readwrite == 'w':
                 dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_filtered',suffix='.pik')
                 with os.fdopen(dumpfile_handle, "w") as f:
-                    cPickle.dump(self._filtered_data, f)
+                    pickle.dump(self._filtered_data, f)
                 shutil.move(dumpfile_path, fpath)
             else:
                 with open(fpath) as f:
-                    self._filtered_data = cPickle.load(f)
+                    self._filtered_data = pickle.load(f)
             
     def freeze(self, fpath, autocreate=False,freezePkeys=False):
         """TODO
@@ -1500,7 +1508,7 @@ class SqlSelection(object):
         :param filterCb: TODO. 
         """
         if filterCb:
-            self._filtered_data = filter(filterCb, self._data)
+            self._filtered_data = list(filter(filterCb, self._data))
         else:
             self._filtered_data = None
         self.isChangedFiltered = True
@@ -1574,7 +1582,7 @@ class SqlSelection(object):
         """TODO
         
         :param cb: TODO"""
-        self._data = filter(not(cb), self._data)
+        self._data = list(filter(not(cb), self._data))
         self.isChangedData = True
         
     def totalize(self, group_by=None, sum=None, collect=None, distinct=None,
@@ -1659,22 +1667,22 @@ class SqlSelection(object):
         result  = list()
         if not columns or not self.data:
             return result
-        data = zip(*[[r[c] for c in columns] for r in self.data])
+        data = list(zip(*[[r[c] for c in columns] for r in self.data]))
         for k,c in enumerate(columns):
-            result.append(sum(filter(lambda r: r is not None, data[k])))
+            result.append(sum([r for r in data[k] if r is not None]))
         return result
 
 
     def _out(self, columns=None, offset=0, limit=None, filterCb=None):
         if filterCb:
-            source = itertools.ifilter(filterCb, self.data)
+            source = filter(filterCb, self.data)
         else:
             source = self.data
         if limit:
             stop = offset + limit
         else:
             stop = None
-        columns = filter(lambda cname: not self.colAttrs.get(cname,{}).get('user_forbidden'),columns)
+        columns = [cname for cname in columns if not self.colAttrs.get(cname,{}).get('user_forbidden')]
         if columns != ['**rawdata**']:
             for r in itertools.islice(source, offset, stop):
                 yield r.extractItems(columns)
@@ -1695,7 +1703,7 @@ class SqlSelection(object):
             return (k, v)
             
         for r in outgen:
-            yield map(_toText, r)
+            yield list(map(_toText, r))
             
     def __iter__(self):
         return self.data.__iter__()
@@ -1877,7 +1885,7 @@ class SqlSelection(object):
             else:
                 label = 'r_%i' % j
             content = Bag(row)
-            for k,v in content.items():
+            for k,v in list(content.items()):
                 if self.dbtable.column(k) is not None and self.dbtable.column(k).attributes.get('dtype')=='X':
                     content[k] = Bag(content[k])
             if pkey is not None:
@@ -2045,7 +2053,7 @@ class SqlSelection(object):
         from gnr.core.gnrxls import XlsWriter
         
         columns = [c for c in self.columns if not c in ('pkey', 'rowidx')]
-        coltypes = dict([(k, v['dataType']) for k, v in self.colAttrs.items()])
+        coltypes = dict([(k, v['dataType']) for k, v in list(self.colAttrs.items())])
         writer = XlsWriter(columns=columns, coltypes=coltypes, headers=self.colHeaders, filepath=filepath,
                            font='Times New Roman',
                            format_float='#,##0.00', format_int='#,##0')
@@ -2152,7 +2160,7 @@ class SqlRecord(object):
         elif self.pkey is not None:
             where = '$pkey = :pkey'
         else:
-            where = ' AND '.join(['%s0.%s=:%s' % (self.aliasPrefix,k, k) for k in self.sqlparams.keys()])
+            where = ' AND '.join(['%s0.%s=:%s' % (self.aliasPrefix,k, k) for k in list(self.sqlparams.keys())])
         compiler = SqlQueryCompiler(self.dbtable.model, sqlparams=self.sqlparams,
                                   joinConditions=self.joinConditions,
                                   sqlContextName=self.sqlContextName,aliasPrefix=self.aliasPrefix)
@@ -2187,7 +2195,7 @@ class SqlRecord(object):
                                                                                  params))
             else:
                 if self.dbtable.logicalDeletionField:
-                    data = filter(lambda r: r['%s0_%s' %(self.aliasPrefix,self.dbtable.logicalDeletionField)] is None,data)
+                    data = [r for r in data if r['%s0_%s' %(self.aliasPrefix,self.dbtable.logicalDeletionField)] is None]
                 if len(data) == 1:
                     self._result = data[0]
                 elif self.ignoreDuplicate:
@@ -2229,7 +2237,7 @@ class SqlRecord(object):
         self.loadRecord(result, resolver_many=resolver_many, resolver_one=resolver_one)
         
         newdefaults = self.dbtable.defaultValues()
-        for k, v in newdefaults.items():
+        for k, v in list(newdefaults.items()):
             result[k] = v
         
         return result
@@ -2277,8 +2285,8 @@ class SqlRecord(object):
     def out_dict(self):
         """TODO"""
         pyColumnsDict = dict([(k,h) for k,h in self.compiled.pyColumns])
-        result = dict([(str(k)[3:], self.result[k]) for k in self.result.keys()])
-        for k,v in result.items():
+        result = dict([(str(k)[3:], self.result[k]) for k in list(self.result.keys())])
+        for k,v in list(result.items()):
             result[k] =  pyColumnsDict[k](result,field=k) if k in pyColumnsDict else result[k]
         return result 
 
@@ -2427,7 +2435,7 @@ class SqlRecordBag(Bag):
         
     def save(self, **kwargs):
         """TODO"""
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             self[k] = v
         if self.isNew:
             self.db.table(self.tablename).insert(self)

@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from __future__ import print_function
+from builtins import object
 from gnr.core.gnrbag import Bag
 from datetime import datetime
 
@@ -22,12 +24,12 @@ class Table(object):
                     record['backup'] =  Bag()
                     n = 0
                 else:
-                    n = int(record['backup'].keys()[-1].split('_')[1])+1
+                    n = int(list(record['backup'].keys())[-1].split('_')[1])+1
                 record['backup'].setItem('v_%s' % n, record['data'], ts=datetime.now())
                 if len (record['backup']) > backup:
                     record['backup'].popNode('#0')
             record['data'] = shared_data
-            print 'UPDATED DATA WITH', shared_data
+            print('UPDATED DATA WITH', shared_data)
 
     def loadSharedObject(self, shared_id, version=None):
         record = self.record(shared_id).output('bag')

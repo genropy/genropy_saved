@@ -5,6 +5,8 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 "Test page description"
+from __future__ import print_function
+from builtins import object
 class GnrCustomWebPage(object):
     auto_polling=0
     user_polling=0
@@ -30,4 +32,4 @@ class GnrCustomWebPage(object):
                             struct=self.mystruct,configurable=True,nodeId='mygrid')
 
     def rpc_pippo(self,selection):
-        print 'eccomi'
+        print('eccomi')

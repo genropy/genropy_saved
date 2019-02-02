@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 import getpass
 import select
-import SocketServer
+import socketserver
 import threading
 import paramiko
 import atexit
-import thread
+import _thread
 import re
 CONN_STRING_RE=r"(?P<ssh_user>\w*)\:?(?P<ssh_password>\w*)\@(?P<ssh_host>(\w|\.)*)\:?(?P<ssh_port>\w*)"
 CONN_STRING = re.compile(CONN_STRING_RE)
@@ -21,18 +25,18 @@ def normalized_sshtunnel_parameters(**options):
     ssh_host = match.group('ssh_host') or None,
     ssh_port = match.group('ssh_port') or '22')
     options = options or dict()
-    for k,v in options.items():
+    for k,v in list(options.items()):
         if v is not None:
             result[k] = v
     result['forwarded_host'] = options.get('forwarded_host') or '127.0.0.1'
     return result
 
-class ForwardServer (SocketServer.ThreadingTCPServer):
+class ForwardServer (socketserver.ThreadingTCPServer):
     daemon_threads = True
     allow_reuse_address = True
     
 
-class Handler (SocketServer.BaseRequestHandler):
+class Handler (socketserver.BaseRequestHandler):
 
     def handle(self):
         try:
@@ -108,7 +112,7 @@ class SshTunnel(object):
         self.forwarding_server.shutdown()
 
     def serve_tunnel(self):
-        thread.start_new_thread(self._serve_tunnel,())
+        _thread.start_new_thread(self._serve_tunnel,())
 
     def _serve_tunnel(self):
         self.forwarding_server.serve_forever()
@@ -124,7 +128,7 @@ def main():
     password = getpass.getpass('Enter SSH password: ')
     tunnel = SshTunnel(forwarded_port=22, ssh_host=server_host, ssh_port=server_port, username='genro', password=password)
     tunnel.prepare_tunnel()
-    print tunnel.local_port
+    print(tunnel.local_port)
     tunnel.serve_tunnel()
     atexit.register(stop_tunnel, tunnel)
     password = getpass.getpass('any key to stop ')

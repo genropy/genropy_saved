@@ -6,6 +6,7 @@
 
 """Test drag & drop"""
 
+from builtins import object
 class GnrCustomWebPage(object):
     """This is an example of Drag and Drop to support dragging of a field from one div to another even or to
        another application.  You can also drag files.  HTML5 is used to implement this feature.

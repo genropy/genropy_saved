@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #--------------------------------------------------------------------------
 
+from builtins import object
 class AppPref(object):
     def prefpane_flib(self, tc, **kwargs):
         pane = tc.contentPane(**kwargs)

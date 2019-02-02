@@ -6,6 +6,7 @@
 
 """builder"""
 
+from builtins import object
 class GnrCustomWebPage(object):
     user_polling=0
     auto_polling=0

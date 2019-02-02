@@ -2,6 +2,8 @@
 # encoding: utf-8
 #
 
+from builtins import range
+from builtins import object
 from datetime import datetime
 from multiprocessing import Process, get_logger, cpu_count
 import threading
@@ -139,7 +141,7 @@ class GnrWorkerPool(object):
                     process = self.startWorker(process_number)
                     self.gnrworkers[process_number] = process
                 running_pids.append(process.pid)
-            for task_id, pid in self.execution_dict.items():
+            for task_id, pid in list(self.execution_dict.items()):
                 if not pid in running_pids:
                     self.execution_dict.pop(task_id, None)
 
@@ -187,12 +189,12 @@ class GnrDaemonServiceManager(object):
 
     def terminate(self):
         self.monitor_running=False
-        for p in self.services.values():
+        for p in list(self.services.values()):
             if p and p.is_alive():
                 p.terminate()
 
     def is_alive(self):
-        for p in self.services.values():
+        for p in list(self.services.values()):
             if p and p.is_alive():
                 return True
         return False
@@ -210,7 +212,7 @@ class GnrDaemonServiceManager(object):
         service_tbl = self.site.db.table('sys.service')
         services = service_tbl.query('$service_identifier,$service_type,$service_name,$__mod_ts,$disabled',
             where=where).fetch()
-        old_services = self.services_info.keys() or service_identifier or []
+        old_services = list(self.services_info.keys()) or service_identifier or []
         old_services = dict([(o,True) for o in old_services])
         for service in services:
             service_identifier = service['service_identifier']
@@ -283,7 +285,7 @@ class GnrDaemonServiceManager(object):
                 continue
             self.reloadServices()
             counter = 0
-            for service_identifier, service in self.services_info.items():
+            for service_identifier, service in list(self.services_info.items()):
                 process = self.services.get(service_identifier)
                 if service['disabled']:
                     continue

@@ -1,4 +1,6 @@
 # encoding: utf-8
+from __future__ import print_function
+from builtins import object
 import os
 import hashlib
 from gnr.core.gnrbag import Bag,DirectoryResolver
@@ -43,7 +45,7 @@ class Table(object):
         tbl = record['tbl'].split('.')[1]
         objtype = record['objtype']
         filename = '%s.xml' %(record['code'].lower().replace('.','_'))
-        pkgkeys = packages.keys()
+        pkgkeys = list(packages.keys())
         page = self.db.currentPage
         respath = os.path.join(packages[pkg].packageFolder,'resources','tables',tbl,'userobjects',objtype,filename)
         if os.path.exists(respath):
@@ -78,7 +80,7 @@ class Table(object):
                 required_pkg.add(n.attr.get('_owner_package'))
         data.walk(cb)
         r = []
-        record['required_pkg'] = ','.join([pkg for pkg in self.db.application.packages.keys() if pkg in required_pkg]) if required_pkg else None
+        record['required_pkg'] = ','.join([pkg for pkg in list(self.db.application.packages.keys()) if pkg in required_pkg]) if required_pkg else None
     
 
 ##################################
@@ -101,13 +103,13 @@ class Table(object):
                 identifier = self.uo_identifier(record)
                 if  not self.checkDuplicate(code=record['code'],pkg=record['pkg'],tbl=record['tbl'],objtype=record['objtype']):
                     if record['tbl'] and not record['tbl'] in tableindex:
-                        print 'missing table',record['tbl'],'resource',node.attr['abs_path']
+                        print('missing table',record['tbl'],'resource',node.attr['abs_path'])
                         return
-                    print 'inserting userobject %(code)s %(tbl)s %(pkg)s from resource' %record
+                    print('inserting userobject %(code)s %(tbl)s %(pkg)s from resource' %record)
                     record['__ins_ts'] = None
                     record['__mod_ts'] = None
                     self.insert(record)
-        for pkgid,pkgobj in self.db.application.packages.items():
+        for pkgid,pkgobj in list(self.db.application.packages.items()):
             table_resource_folder = os.path.join(pkgobj.packageFolder,'resources','tables') 
             d = DirectoryResolver(table_resource_folder,include='*.xml',callback=cbattr,processors=dict(xml=False))
             d().walk(cbwalk,_mode='deep')

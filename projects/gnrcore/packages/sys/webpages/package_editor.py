@@ -6,6 +6,7 @@
 #  Created by Francesco Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
+from builtins import object
 import os
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
@@ -100,7 +101,7 @@ class GnrCustomWebPage(object):
                     validate_notnull=True,
                     validate_remote=self.getProjectPath,lbl='Project')
         p = PathResolver()
-        fb.data('projectFolders',','.join(p.gnr_config['gnr.environment_xml.projects'].keys()))
+        fb.data('projectFolders',','.join(list(p.gnr_config['gnr.environment_xml.projects'].keys())))
         fb.dataRpc('dummy',self.makeNewProject,subscribe_makeNewProject=True,
                     _onResult='SET .project_name=null; SET .project_name=result')
         fb.button('New Project',action="""

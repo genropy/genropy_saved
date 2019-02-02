@@ -7,6 +7,8 @@
 #    pip install python-ldap
 #
 
+from __future__ import print_function
+from builtins import str
 from gnr.core.gnrstring import boolean
 from gnr.lib.services.ldaps import LdapsService
 from gnr.core.gnrdecorator import extract_kwargs
@@ -82,7 +84,7 @@ class Main(LdapsService):
         self.ldapClient.unbind()
         # make a response with genropy user data and ldap user data.
         externalUser = dict()
-        for k, v in self.user_kwargs.items():
+        for k, v in list(self.user_kwargs.items()):
             externalUser[k] = ldap_user.get(v)
 
         externalUser['ldap_user'] = ldap_user
@@ -135,10 +137,10 @@ class Main(LdapsService):
                 try:
                     user_attribute = self.ldapClient.search_s(self.baseDN, ldap.SCOPE_SUBTREE, '(%s=%s)' % (self.userIdField,
                                                             username), self.userAttr)[0][1]
-                    for k, v in user_attribute.items():
+                    for k, v in list(user_attribute.items()):
                         user_attribute[k] = v[0] if isinstance(v, list) else v
-                except ldap.LDAPError, e:
-                    print e
+                except ldap.LDAPError as e:
+                    print(e)
             else:
                 user_attribute = dict(username=username)
         elif mode == 'Search':
@@ -214,8 +216,8 @@ class Main(LdapsService):
                                                                         serverctrls=[req_ctrl])
                         else:
                             break
-            except ldap.LDAPError, e:
-                print e
+            except ldap.LDAPError as e:
+                print(e)
                 return None
             finally:
                 self.ldapClient.unbind_s()

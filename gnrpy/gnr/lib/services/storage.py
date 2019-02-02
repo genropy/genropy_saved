@@ -1,6 +1,10 @@
 #!/usr/bin/env pythonw
 # -*- coding: utf-8 -*-
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 import os
 import re
 import random
@@ -408,7 +412,7 @@ class StorageService(GnrBaseService):
                 mtime = random.random() * 100000
             kwargs['mtime'] = '%0.0f' % (mtime)
 
-        url = '%s?%s' % (url, '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()]))
+        url = '%s?%s' % (url, '&'.join(['%s=%s' % (k, v) for k, v in list(kwargs.items())]))
         return url
 
     @property
@@ -503,8 +507,8 @@ class StorageService(GnrBaseService):
         return_output = kwargs.pop('return_output', None)
         call_params = dict(call_args=args,call_kwargs=kwargs, cb=cb, cb_args=cb_args, cb_kwargs=cb_kwargs, return_output=return_output)
         if run_async:
-            import thread
-            thread.start_new_thread(self._call,(),call_params)
+            import _thread
+            _thread.start_new_thread(self._call,(),call_params)
         else:
             return self._call(**call_params)
 

@@ -6,12 +6,15 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
 import os
 import sys
 import pdb
 import socket
 import base64
-import repr
+import reprlib
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.core.gnrdecorator import public_method
@@ -50,7 +53,7 @@ class GnrPdbClient(GnrBaseProxy):
         if breakpoints:
             debugger = GnrPdb(page=self.page,instance_name=self.page.site.site_name,debugger_page_id=debugger_page_id,callcounter=self.page.callcounter,
                             methodname=self.page._call_kwargs.get('method'))
-            for modulebag in breakpoints.values():
+            for modulebag in list(breakpoints.values()):
                 for module,line,condition in modulebag.digest('#a.module,#a.line,#a.condition'):
                     bp +=1
                     debugger.set_break(filename=module,lineno=line,cond=condition)
@@ -104,7 +107,7 @@ class GnrPdb(pdb.Pdb):
         return result
         
     def print_stack_entry(self, frame_lineno, prompt_prefix=None):
-        print >>self.stdout,self.format_stack_entry(frame_lineno)
+        print(self.format_stack_entry(frame_lineno), file=self.stdout)
             
     def format_stack_entry(self, frame_lineno, lprefix=': '):
         frame, lineno = frame_lineno
@@ -191,12 +194,12 @@ class GnrPdb(pdb.Pdb):
         result['locals']=Bag(dict(frame.f_locals))
         if '__return__' in frame.f_locals:
             rv = frame.f_locals['__return__']
-            result['returnValue']=repr.repr(rv)
+            result['returnValue']=reprlib.repr(rv)
         return result
 
     def do_p(self, arg):
         try:
-            print >>self.stdout, repr(self._getval(arg))
+            print(repr(self._getval(arg)), file=self.stdout)
         except:
             pass
 

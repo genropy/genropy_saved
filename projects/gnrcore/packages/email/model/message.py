@@ -1,4 +1,8 @@
 # encoding: utf-8
+from __future__ import print_function
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace
@@ -59,7 +63,7 @@ class Table(object):
         outaddress = dict()
         for match in EMAIL_PATTERN.findall(addresses):
             outaddress[match[0].lower()] = True
-        return outaddress.keys()
+        return list(outaddress.keys())
 
     def parsedAddress(self,address):
         return email.Utils.parseaddr(address)
@@ -89,7 +93,7 @@ class Table(object):
            
     @public_method
     def receive_imap(self, page=None, account=None, remote_mailbox='Inbox', local_mailbox='Inbox'):
-        print 'RECEIVE IMAP'
+        print('RECEIVE IMAP')
         from gnrpkg.email.imap import ImapReceiver
         if isinstance(account, basestring):
             account = self.db.table('email.account').record(pkey=account).output('bag')
@@ -175,7 +179,7 @@ class Table(object):
                                 from_address=message['from_address'] or mp['from_address'],
                                 attachments=attachments, 
                                 smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
-                                ssl=mp['ssl'], tls=mp['tls'], html=message['html'], async=False,
+                                ssl=mp['ssl'], tls=mp['tls'], html=message['html'], async_=False,
                                 scheduler=False)
                 message['send_date'] = datetime.now()
             except Exception as e:

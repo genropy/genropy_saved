@@ -1,4 +1,10 @@
 # encoding: utf-8
+from __future__ import division
+from __future__ import print_function
+from builtins import str
+from past.builtins import basestring
+from builtins import object
+from past.utils import old_div
 import re
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
@@ -35,12 +41,12 @@ class Table(object):
 
 
     def initializeApplicationSequences(self,thermo_wrapper=None):
-        packages = thermo_wrapper(self.db.packages.values(),message=lambda p,n,m: 'Sequences for package %s' %p.name) if thermo_wrapper else self.db.packages.values()
+        packages = thermo_wrapper(list(self.db.packages.values()),message=lambda p,n,m: 'Sequences for package %s' %p.name) if thermo_wrapper else list(self.db.packages.values())
         for pkg in packages:
             self.initializePackageSequences(pkg,thermo_wrapper=thermo_wrapper)
 
     def initializePackageSequences(self,pkgobj,thermo_wrapper=None):
-        tables = thermo_wrapper(pkgobj['tables'].values(),message=lambda t,n,m: 'Sequences for table %s' %t.name,line_code='tbl') if thermo_wrapper else pkgobj['tables'].values()
+        tables = thermo_wrapper(list(pkgobj['tables'].values()),message=lambda t,n,m: 'Sequences for table %s' %t.name,line_code='tbl') if thermo_wrapper else list(pkgobj['tables'].values())
         for tblobj in tables:
             self.initializeTableSequences(tblobj.dbtable,thermo_wrapper=thermo_wrapper)
 
@@ -130,7 +136,7 @@ class Table(object):
             if date_field:
                 rdate = r[date_field]
                 if not rdate:
-                    print 'missing date'
+                    print('missing date')
                     errors.setItem('missing_date.%i' %i,None,cnt=cnt)
                     continue
                 if prev_date and prev_date>rdate:
@@ -233,7 +239,7 @@ class Table(object):
         b = len(base)
         while counter !=0:
             r = counter % b
-            counter = counter  / b
+            counter = old_div(counter, b)
             result.append(base[r])
         result.reverse()
         return ''.join(result)

@@ -6,6 +6,7 @@ import_data.py
 Created by Saverio Porcari on 2007-08-27.
 Copyright (c) 2007 __MyCompanyName__. All rights reserved.
 """
+from __future__ import print_function
 
 import sys
 import os
@@ -86,8 +87,8 @@ def importStradario(db, filepath):
         record['pref'] = r[7].strip()
         record['n_civico'] = r[8].strip()
         tbl.insert(record)
-        print record['topo']
-    print 'fine righe'
+        print(record['topo'])
+    print('fine righe')
 
 
 if __name__ == '__main__':
@@ -99,4 +100,4 @@ if __name__ == '__main__':
     importStradario(db, '/Users/saverioporcari/Desktop/filecap')
     db.commit()
 
-    print 'update done'
+    print('update done')

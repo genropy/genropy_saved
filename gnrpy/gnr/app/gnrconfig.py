@@ -23,6 +23,7 @@
 #Created by Giovanni Porcari on 2007-03-24.
 #Copyright (c) 2007 Softwell. All rights reserved.
 
+from builtins import str
 import os
 import sys
 import glob
@@ -100,7 +101,7 @@ def config(root,application=None):"""
             kw = dict(n.attr)
             label = kw.pop('label',n.label)
             attrlist = ['u"%s"' %label]
-            for k,v in kw.items():
+            for k,v in list(kw.items()):
                 if k=='file':
                     k = 'filepath'
                 attrlist.append('%s="%s"' %(k,v))
@@ -146,13 +147,13 @@ class IniConfStruct(ConfigStruct):
                         if section:
                             subsections[section].append(sn.attr['name'])
                     if subsections:
-                        for k,v in subsections.items():
+                        for k,v in list(subsections.items()):
                             filehandle.write('%ss=%s\n' %(k,','.join(v)))
                     
             elif tag=='parameter':
                 parameter_value = kw.pop('value')
                 if n.value:
-                    parameter_value = n.value.keys()
+                    parameter_value = list(n.value.keys())
                 filehandle.write('%s=%s' %(key,parameter_value))
             if n.value:
                 self._toIniConfInner(filehandle,n.value)
@@ -173,7 +174,7 @@ def config(root):"""
             key = kw.pop(tag)
             label = kw.get('name') or key
             attrlist = ['u"%s"' %key]
-            for k,v in kw.items():
+            for k,v in list(kw.items()):
                 attrlist.append('%s="%s"' %(k,v))
             if n.value:
                 varname = slugify(label).replace('-','_')
@@ -229,11 +230,11 @@ def getGnrConfig(config_path=None, set_environment=False):
     return gnr_config
 
 def gnrConfigPath(force_return=False, no_virtualenv=False):
-    if os.environ.has_key('GENRO_GNRFOLDER'):
+    if 'GENRO_GNRFOLDER' in os.environ:
         config_path = expandpath(os.environ['GENRO_GNRFOLDER'])
         if os.path.isdir(config_path):
             return config_path
-    if (os.environ.has_key('VIRTUAL_ENV') or hasattr(sys, 'real_prefix')) and not no_virtualenv:
+    if ('VIRTUAL_ENV' in os.environ or hasattr(sys, 'real_prefix')) and not no_virtualenv:
         prefix = os.environ.get('VIRTUAL_ENV', sys.prefix)
         config_path = expandpath(os.path.join(prefix,'etc','gnr'))
         if force_return or os.path.isdir(config_path):

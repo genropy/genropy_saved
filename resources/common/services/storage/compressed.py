@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
+from builtins import str
 from gnr.lib.services.storage import StorageService
 from gnr.web.gnrbaseclasses import BaseComponent
 import os

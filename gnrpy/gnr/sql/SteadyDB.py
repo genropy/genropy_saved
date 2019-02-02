@@ -84,6 +84,7 @@ Copyright, credits and license:
 Licensed under the Open Software License version 2.1.
 """
 
+from builtins import object
 __version__ = '1.0'
 __revision__ = "$Rev: 7680 $"
 __date__ = "$Date: 2008-11-29 07:55:36 -0700 (Sat, 29 Nov 2008) $"
@@ -121,7 +122,7 @@ def connect(creator, maxusage=None, setsession=None, failures=None,
                               closeable, *args, **kwargs)
 
 
-class SteadyDBConnection:
+class SteadyDBConnection(object):
     """A "tough" version of DB-API 2 connections."""
 
     version = __version__
@@ -159,7 +160,7 @@ class SteadyDBConnection:
             raise TypeError("%r is not a connection provider." % (creator,))
         if maxusage is None:
             maxusage = 0
-        if not isinstance(maxusage, (int, long)):
+        if not isinstance(maxusage, int):
             raise TypeError("'maxusage' must be an integer value.")
         self._maxusage = maxusage
         self._setsession_sql = setsession
@@ -248,7 +249,7 @@ class SteadyDBConnection:
             else:
                 self._failure = self._failures
             self._setsession(con)
-        except Exception, error:
+        except Exception as error:
             # the database module could not be determined
             # or the session could not be prepared
             try: # close the connection first
@@ -336,7 +337,7 @@ class SteadyDBConnection:
                     # the connection was used too often
                     raise self._failure
             cursor = self._con.cursor(*args, **kwargs) # try to get a cursor
-        except self._failures, error: # error in getting cursor
+        except self._failures as error: # error in getting cursor
             try: # try to reopen the connection
                 con2 = self._create()
             except Exception:
@@ -369,7 +370,7 @@ class SteadyDBConnection:
             pass
 
 
-class SteadyDBCursor:
+class SteadyDBCursor(object):
     """A "tough" version of DB-API 2 cursors."""
 
     def __init__(self, con, *args, **kwargs):
@@ -444,7 +445,7 @@ class SteadyDBCursor:
                 result = method(*args, **kwargs) # try to execute
                 if execute:
                     self._clearsizes()
-            except self._con._failures, error: # execution error
+            except self._con._failures as error: # execution error
                 try:
                     cursor2 = self._con._cursor(
                             *self._args, **self._kwargs) # open new cursor

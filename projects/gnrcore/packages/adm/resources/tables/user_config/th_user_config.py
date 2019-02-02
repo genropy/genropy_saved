@@ -19,7 +19,7 @@ class View(BaseComponent):
 
     def th_sections_onpkg(self):
         result =[dict(code='_all_',caption='!!All')]
-        for pkg in self.db.application.packages.keys():
+        for pkg in list(self.db.application.packages.keys()):
             result.append(dict(code=pkg,caption=pkg,condition='$calc_pkgid IS NULL OR $calc_pkgid=:cpkgid',condition_cpkgid=pkg))
         return result
 

@@ -5,7 +5,9 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """tabContainer"""
+from __future__ import print_function
 
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     css_requires = 'test'
@@ -68,7 +70,7 @@ class GnrCustomWebPage(object):
         tc.contentPane(title='iframe genro',overflow='hidden').iframe(main='iframetest',height='100%',width='100%',border=0)
         tc.contentPane(title='iframe apple',overflow='hidden').iframe(src='http://www.apple.com',height='100%',width='100%',border=0)
         tc.contentPane(title='iframe html',overflow='hidden').iframe(src=self.getResourceUri('test.html'),height='100%',width='100%',border=0)
-        print x
+        print(x)
         
     def rpc_iframetest(self,pane,**kwargs):
         pane.div('hello again')

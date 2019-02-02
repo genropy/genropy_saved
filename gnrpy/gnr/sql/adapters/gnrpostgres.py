@@ -20,6 +20,10 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.builtins import basestring
 import sys
 
 import re
@@ -50,7 +54,7 @@ RE_SQL_PARAMS = re.compile(":(\S\w*)(\W|$)")
 
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 import threading
-import thread
+import _thread
 
 
 
@@ -92,7 +96,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         kwargs = self.dbroot.get_connection_params(storename=storename)
         #kwargs = dict(host=dbroot.host, database=dbroot.dbname, user=dbroot.user, password=dbroot.password, port=dbroot.port)
         kwargs = dict(
-                [(k, v) for k, v in kwargs.items() if v != None]) # remove None parameters, psycopg can't handle them
+                [(k, v) for k, v in list(kwargs.items()) if v != None]) # remove None parameters, psycopg can't handle them
         kwargs[
         'connection_factory'] = GnrDictConnection # build a DictConnection: provides cursors accessible by col number or col name
         self._lock.acquire()
@@ -105,7 +109,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         return conn
         
     def adaptTupleListSet(self,sql,sqlargs):
-        for k,v in sqlargs.items():
+        for k,v in list(sqlargs.items()):
             if isinstance(v, list) or isinstance(v, set) or isinstance(v,tuple):
                 if not isinstance(v,tuple):
                     sqlargs[k] = tuple(v)
@@ -132,7 +136,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         dbroot = self.dbroot
         kwargs = dict(host=dbroot.host, database='template1', user=dbroot.user,
                       password=dbroot.password, port=dbroot.port)
-        kwargs = dict([(k, v) for k, v in kwargs.items() if v != None])
+        kwargs = dict([(k, v) for k, v in list(kwargs.items()) if v != None])
         #conn = PersistentDB(psycopg2, 1000, **kwargs).connection()
         conn = psycopg2.connect(**kwargs)
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
@@ -211,7 +215,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         else:
             dump_options.append('-Fc')
             file_extension = '.pgd'
-        for parameter_name, parameter_label in available_parameters.items():
+        for parameter_name, parameter_label in list(available_parameters.items()):
             parameter_value = options[parameter_name]
             if parameter_value:
                 if parameter_label.endswith('='):
@@ -483,7 +487,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             else:
                 ref_dict[ref] = [ref, schema, tbl, [col], un_ref, un_schema, un_tbl, [un_col], upd_rule, del_rule,
                                  init_defer]
-        return ref_dict.values()
+        return list(ref_dict.values())
 
     def getPkey(self, table, schema):
         """:param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
@@ -640,7 +644,7 @@ class GnrDictCursor(_cursor):
             self._build_index()
         return super(GnrDictCursor, self).fetchall()
 
-    def next(self):
+    def __next__(self):
         if self._query_executed:
             self._build_index()
         res = super(GnrDictCursor, self).fetchone()
@@ -648,11 +652,11 @@ class GnrDictCursor(_cursor):
             raise StopIteration()
         return res
 
-    def execute(self, query, vars=None, async=0):
+    def execute(self, query, vars=None, async_=0):
         self.index = {}
         self._query_executed = 1
         if psycopg2.__version__.startswith('2.0'):
-            return super(GnrDictCursor, self).execute(query, vars, async)
+            return super(GnrDictCursor, self).execute(query, vars, async_)
         return super(GnrDictCursor, self).execute(query, vars)
     
     def setConstraintsDeferred(self):

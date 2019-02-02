@@ -4,6 +4,12 @@
 # Created by Francesco Porcari on 2010-09-08.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+from __future__ import division
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import range
+from past.utils import old_div
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
@@ -11,7 +17,7 @@ from gnr.core.gnrstring import fromJson
 from gnr.core.gnrlang import uniquify
 from datetime import datetime
 import httplib2
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import os
 import re
 SH_ENABLED = False
@@ -69,15 +75,15 @@ class MaintenancePlugin(BaseComponent):
 
     def getGitRepositoriesChanges(self,path):
         cd(path)
-        print 'PATH',path
-        print 'LS',ls()
+        print('PATH',path)
+        print('LS',ls())
         try:
             git('remote','update')
-        except Exception, e:
+        except Exception as e:
             raise
         try:
             status_result = git('status')
-        except Exception,e:
+        except Exception as e:
             raise
         status_result = status_result.stdout
         m = re.search("behind '\\w+/?\\w*' by (\\d+)", status_result)
@@ -123,15 +129,15 @@ class MaintenancePlugin(BaseComponent):
     @public_method
     def getPackagesBag(self):
         result = Bag()
-        for pkgid,pkg in self.site.gnrapp.packages.items():
-            result['%s/%s' %(pkg.project,pkgid)] = Bag(dict(pkg=pkgid,project=pkg.project,tables=','.join(self.db.packages[pkgid].tables.keys())))
+        for pkgid,pkg in list(self.site.gnrapp.packages.items()):
+            result['%s/%s' %(pkg.project,pkgid)] = Bag(dict(pkg=pkgid,project=pkg.project,tables=','.join(list(self.db.packages[pkgid].tables.keys()))))
         url = self.site.gnrapp.config['uke?url']
         result = self.site.callGnrRpcUrl(url,'commands','checkPackages',pkgbag=result)
         return result
 
     @public_method
     def pullRepository(self,repository=None):
-        print 'BEFORE PULL',repository
+        print('BEFORE PULL',repository)
         cd(repository)
         result = git('pull')
         return '<pre>%s</pre>' %result.stdout
@@ -289,7 +295,7 @@ class MaintenancePlugin(BaseComponent):
         result = Bag()
         now = datetime.now()
 
-        for key, item in items.items():
+        for key, item in list(items.items()):
             item = dict(item)
             item.pop('data',None)
             if exclude_guest and ( key.startswith('guest_') or item.get('user','').startswith('guest_')):
@@ -336,7 +342,7 @@ class MaintenancePlugin(BaseComponent):
                 color = 'orange'
             else:
                 color = 'red'
-            c = dict(height=1+n['nc']/4,color=color)
+            c = dict(height=1+old_div(n['nc'],4),color=color)
             result.append('<div style="background:%(color)s;height:%(height)ipx; width:3px; display:inline-block;margin-right:1px;"></div>' %c)
         item['page_profile'] = '<div>%s</div>'  %''.join(result)
 

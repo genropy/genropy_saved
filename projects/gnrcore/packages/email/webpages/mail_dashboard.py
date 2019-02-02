@@ -3,6 +3,7 @@
 # Created by FPorcari on 2011-03-25.
 # Copyright (c) 2011 Softwell sas. All rights reserved.
 
+from builtins import object
 from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
     maintable='email.mailbox'

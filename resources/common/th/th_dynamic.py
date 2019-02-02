@@ -36,7 +36,7 @@ class DynamicTableHandler(BaseComponent):
 
     def dh_lookupTablesDefaultStruct(self,struct):
         r = struct.view().rows()
-        for k,v in struct.tblobj.model.columns.items():
+        for k,v in list(struct.tblobj.model.columns.items()):
             attr = v.attributes
             if attr.get('counter'):
                 r.fieldcell(k,hidden=True,counter=True)

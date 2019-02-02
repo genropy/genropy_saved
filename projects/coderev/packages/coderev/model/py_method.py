@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from builtins import object
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('py_method', pkey='id', name_long='Method', name_plural='!!Methods',caption_field='name')

@@ -2,13 +2,15 @@
 # # -*- coding: utf-8 -*-
 
 
+from __future__ import print_function
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires='gnrcomponents/externalcall:BaseRpc'
 
     def rpc_checkPackages(self,pkgbag=None,**kwargs):
         pkgpkeys = ['%s/%s' %(prj,pkg) for prj,pkg in pkgbag.digest('#v.project,#v.pkg')]
         packages = self.db.table('uke.pkgtable').query(where='$package_identifier IN :identifiers',identifiers=pkgpkeys).fetchGrouped('package_identifier')
-        for p in pkgbag.values():
+        for p in list(pkgbag.values()):
             package_identifier = '%s/%s' %(p['project'],p['pkg'])
             tables = p.pop('tables')
             if package_identifier in packages:
@@ -37,7 +39,7 @@ class GnrCustomWebPage(object):
             prj_tbl = self.db.table('uke.project')
             project_code,pkg_code = package_identifier.split('/')
             if not prj_tbl.existsRecord(project_code):
-                print 'project_code',project_code
+                print('project_code',project_code)
                 prj_tbl.insert(dict(code=project_code))
             pkg_table.insert(dict(code=pkg_code,project_code=project_code))
         pkgtable_table = self.db.table('uke.pkgtable')

@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from builtins import object
 class Table(object):
     def config_db(self,pkg):
         tbl =  pkg.table('action_type',pkey='id',name_long='!!Action type',name_plural='!!Action types',caption_field='description')

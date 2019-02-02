@@ -76,7 +76,7 @@ class RecordToHtmlFrame(BaseComponent):
                            rebuild=rebuild)
         #rebuild='=%s.noCache' % controllerPath)
         rpc_args = {}
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             rpc_args['rpc_%s' % k] = v
 
         center = bc.stackContainer(region='center', background_color=background_color,

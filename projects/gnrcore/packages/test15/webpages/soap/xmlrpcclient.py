@@ -5,8 +5,12 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 """bageditor"""
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 from gnr.core.gnrbag import Bag
-import xmlrpclib
+import xmlrpc.client
 
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
@@ -16,6 +20,6 @@ class GnrCustomWebPage(object):
         return 'bageditor'
          
     def test_0_sum(self,pane):
-        s = xmlrpclib.ServerProxy('http://localhost:8083/test15/soap/xmlrpc')
-        print s.test("prova")
+        s = xmlrpc.client.ServerProxy('http://localhost:8083/test15/soap/xmlrpc')
+        print(s.test("prova"))
         

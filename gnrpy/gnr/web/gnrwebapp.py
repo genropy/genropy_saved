@@ -1,3 +1,6 @@
+from __future__ import print_function
+from past.builtins import basestring
+from builtins import object
 import os
 from datetime import datetime
 
@@ -63,7 +66,7 @@ class GnrWsgiWebApp(GnrApp):
             else:
                 records = [recordOrPkey]
         for record in records:
-            print 'notify dbevent',record
+            print('notify dbevent',record)
             self.notifyDbEvent(tblobj, record, 'U')
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None,**kwargs):
@@ -105,12 +108,12 @@ class GnrWsgiWebApp(GnrApp):
         dbevent_reason = self.db.currentEnv.pop('dbevent_reason',None)
         if dbeventsDict:
             page = self.site.currentPage
-            tables = [k for k,v in dbeventsDict.items() if v]
+            tables = [k for k,v in list(dbeventsDict.items()) if v]
             subscribed_tables = self.site.getSubscribedTables(tables)
             if subscribed_tables:
                 for table in set(tables).difference(subscribed_tables):
                     dbeventsDict.pop(table)         
-                for table,dbevents in dbeventsDict.items():
+                for table,dbevents in list(dbeventsDict.items()):
                     dbeventsDict[table] = self._compress_dbevents(dbevents)
                 page_id = None
                 pagename = None
@@ -140,7 +143,7 @@ class GnrWsgiWebApp(GnrApp):
                     event['dbevent'] = 'X'
                     filter_ignored = True
                 event_to_update.update(event)
-        return filter(lambda r: r['dbevent']!='X', result) if filter_ignored else result
+        return [r for r in result if r['dbevent']!='X'] if filter_ignored else result
 
     def _get_pagePackageId(self, filename):
         _packageId = None

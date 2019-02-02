@@ -19,6 +19,11 @@
 #You should have received a copy of the GNU Lesser General Public
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import time
 import os
 import base64
@@ -208,7 +213,7 @@ class GnrWsProxyHandler(tornado.web.RequestHandler,GnrBaseHandler):
             self.server.externalCommand(command, data)
             return
         if page_id == '*':
-            page_ids = self.channels.keys()
+            page_ids = list(self.channels.keys())
         else:
             page_ids = page_id.split(',')
         for dest_page_id in page_ids:
@@ -317,7 +322,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
     #
     def do_pdb_command(self, cmd=None, pdb_id=None,**kwargs):
         #self.debugger.put_data(data)
-        print 'CMD',cmd
+        print('CMD',cmd)
         debugkey = '%s,%s' %(self.page_id,pdb_id)
         if debugkey not in self.debug_queues:
             self.debug_queues[debugkey] = queues.Queue(maxsize=40)
@@ -338,7 +343,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
                 result = handler(**kwargs)
                 if isinstance(result,tuple):
                     result,resultAttrs=result
-            except Exception, e:
+            except Exception as e:
                 result = TraceBackResolver()()
                 error=str(e)
         envelope=Bag()
@@ -359,7 +364,7 @@ class GnrWebSocketHandler(websocket.WebSocketHandler,GnrBaseHandler):
         kwargs=fromJson(message)
         catalog = self.server.gnrapp.catalog
         result = dict()
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             k = k.strip()
             if isinstance(v, basestring):
                 try:
@@ -459,7 +464,7 @@ class SharedObject(object):
         data_column = self.sql_data_column
         with tblobj.recordToUpdate(self.shared_id) as record:
             if not self.data:
-                print 'NO DATA IN SAVING', self.shared_id
+                print('NO DATA IN SAVING', self.shared_id)
             record[data_column] = deepcopy(self.data)
             onSavingHandler=getattr(tblobj, 'shared_onSaving',None)
             if onSavingHandler:
@@ -471,7 +476,7 @@ class SharedObject(object):
                     record[backup_column] =  Bag()
                     n = 0
                 else:
-                    n = int(record[backup_column].keys()[-1].split('_')[1])+1
+                    n = int(list(record[backup_column].keys())[-1].split('_')[1])+1
                 record[backup_column].setItem('v_%s' % n, record[data_column], ts=datetime.now())
                 if len (record[backup_column]) > backup:
                     record[backup_column].popNode('#0')
@@ -503,7 +508,7 @@ class SharedObject(object):
         #print 'onUnsubscribePage',self.shared_id,page_id
     
     def onDestroy(self):
-        print 'onDestroy',self.shared_id
+        print('onDestroy',self.shared_id)
         if self.autoSave:
             self.save()
         
@@ -577,7 +582,7 @@ class SharedObject(object):
     def broadcast(self,command=None, data=None, from_page_id=None,):
         envelope = Bag(dict(command=command,data=data)).toXml()
         channels = self.server.channels
-        for p in self.subscribed_pages.keys():
+        for p in list(self.subscribed_pages.keys()):
             if p != from_page_id:
                 channels.get(p).write_message(envelope)
         
@@ -590,16 +595,16 @@ class SqlSharedObject(SharedObject):
 class SharedLogger(SharedObject):
     
     def onInit(self,**kwargs):
-        print 'onInit',self.shared_id
+        print('onInit',self.shared_id)
         
     def onSubscribePage(self,page_id):
-        print 'onSubscribePage',self.shared_id,page_id
+        print('onSubscribePage',self.shared_id,page_id)
         
     def onUnsubscribePage(self,page_id):
-        print 'onUnsubscribePage',self.shared_id,page_id
+        print('onUnsubscribePage',self.shared_id,page_id)
     
     def onDestroy(self):
-        print 'onDestroy',self.shared_id
+        print('onDestroy',self.shared_id)
     
    
 class SharedStatus(SharedObject):
@@ -662,7 +667,7 @@ class SharedStatus(SharedObject):
         if page:
             pagedata = self.users[page.user]['connections'][page.connection_id]['pages'][page_id]
             old_targetId=pagedata['evt_targetId']
-            for k,v in event.items():
+            for k,v in list(event.items()):
                 pagedata['evt_%s' %k] = v
             if old_targetId==event['targetId']:
                 if event['type']=='keypress':
@@ -753,7 +758,7 @@ class SharedObjectsManager(object):
 
                     
     def onShutdown(self):
-        for so in self.sharedObjects.values():
+        for so in list(self.sharedObjects.values()):
             so.onShutdown()
             
 
@@ -815,7 +820,7 @@ class GnrBaseAsyncServer(object):
         return DelayedCall(self,delay,cb,*args,**kwargs)
         
     def scheduler(self,*args,**kwargs):
-        print 'scheduler',args,kwargs
+        print('scheduler',args,kwargs)
 
     def externalCommand(self, command, data):
        # print 'receive externalCommand',command
@@ -835,7 +840,7 @@ class GnrBaseAsyncServer(object):
             #print 'Trying to retrieve page %s in gnrdaemon register' %page_id
             page = self.gnrsite.resource_loader.get_page_by_id(page_id)
             if not page:
-                print '     page %s not existing in gnrdaemon register' %page_id
+                print('     page %s not existing in gnrdaemon register' %page_id)
                 return
             else:
                 pass
@@ -889,12 +894,12 @@ class GnrBaseAsyncServer(object):
         if self.port:
             server.listen(int(self.port))
         sockets_dir = os.path.join(self.gnrsite.site_path, 'sockets')
-        print 'sockets_dir',sockets_dir
+        print('sockets_dir',sockets_dir)
         if not os.path.exists(sockets_dir):
             os.mkdir(sockets_dir)
         socket_path = os.path.join(sockets_dir, 'async.tornado')
         main_socket = bind_unix_socket(socket_path)
-        os.chmod(socket_path, 0666)
+        os.chmod(socket_path, 0o666)
             #server = HTTPServer(self.tornadoApp)
         server.add_socket(main_socket)
         debug_socket_path = os.path.join(sockets_dir, 'debugger.tornado')
@@ -934,7 +939,7 @@ class GnrAsyncServer(GnrBaseAsyncServer):
         self.addHandler(r"/wsproxy", GnrWsProxyHandler)
         if self.web:
             import tornado.wsgi
-            from tornado_wsgi import WSGIHandler
+            from .tornado_wsgi import WSGIHandler
             wsgi_gnrsite=GnrWsgiSite(self.instance_name, tornado=True, **self.site_options)
             with wsgi_gnrsite.register.globalStore() as gs:
                 gs.setItem('RESTART_TS',datetime.now())

@@ -17,7 +17,7 @@ class TableHandlerMain(BaseComponent):
         synctables = self.application.config.getItem('packages.gnrcore:hosting.synctables')
         if not synctables:
             return
-        r = filter(lambda r: r[0]==self.maintable,synctables.digest('#a.tbl,#a.permission'))
+        r = [r for r in synctables.digest('#a.tbl,#a.permission') if r[0]==self.maintable]
         if not r:
             return
         tbl,permission = r[0]

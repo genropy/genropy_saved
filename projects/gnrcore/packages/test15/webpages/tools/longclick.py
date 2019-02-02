@@ -5,6 +5,7 @@
 # Copyright (c) 2012 Softwell. All rights reserved.
 
 "Test page description"
+from builtins import object
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):

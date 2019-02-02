@@ -2,6 +2,11 @@
 # Genro  
 # Copyright (c) 2004 Softwell sas - Milano see LICENSE for details
 # Author Giovanni Porcari, Francesco Cavazzana, Saverio Porcari, Francesco Porcari
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from past.builtins import basestring
+from builtins import object
 import os.path
 from gnr.core.gnrbag import Bag
 
@@ -17,8 +22,8 @@ class Utils4D(object):
         if 'new' in b:
             b = b['new']
         if b:
-            keys = b.keys()
-            values = [k or [] for k in b.values()]
+            keys = list(b.keys())
+            values = [k or [] for k in list(b.values())]
             n = len(values[0])
             for v in values:
                 if len(v) < n:
@@ -28,7 +33,7 @@ class Utils4D(object):
 
     def listDictTobag4dTable(self, listdict):
         result = Bag()
-        for k in listdict[0].keys():
+        for k in list(listdict[0].keys()):
             result[k] = [d.get(k) for d in listdict]
         return result
 
@@ -70,7 +75,7 @@ class Pkg4D(object):
             for tbl in pkg.value['tables']:
                 for col in tbl.value['columns']:
                     newattrs = {}
-                    for k, v in col.attr.items():
+                    for k, v in list(col.attr.items()):
                         if v is not None:
                             lbl = convdict.get(k, k)
                             if lbl:
@@ -119,7 +124,7 @@ def gnr4dNetBag (host4D, method, params=None):
     params['NetBag.UserID'] = ''
 
     #xml = params.toXml(encoding='iso-8859-1')
-    xml = unicode(params.toXml(mode4d=True, encoding='iso-8859-1'), encoding='iso-8859-1')
+    xml = str(params.toXml(mode4d=True, encoding='iso-8859-1'), encoding='iso-8859-1')
     #print xml
     result = server.GNT_NetBags_Server(FourD_Arg1=xml)
     return Bag(result)
@@ -143,10 +148,10 @@ def gnr4dNetBag_ (host4D, method, params=None):
     params['NetBag.UserID'] = ''
 
     #xml = params.toXml(encoding='iso-8859-1')
-    xml = unicode(params.toXml(encoding='iso-8859-1'), encoding='iso-8859-1')
+    xml = str(params.toXml(encoding='iso-8859-1'), encoding='iso-8859-1')
     result = server.service.GNT_NetBags_Server(FourD_Arg1=xml)
 
     return Bag(result)
 
 if __name__ == '__main__':
-    print gnr4dNetBag('192.168.1.176:8080', 'ATestPy.Ping:pippo')
+    print(gnr4dNetBag('192.168.1.176:8080', 'ATestPy.Ping:pippo'))

@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2011-05-05.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 import os
@@ -93,7 +94,7 @@ class GnrCustomWebPage(object):
     @public_method
     def saveLocalizationFile(self,data=None,**kwargs):
         changesdict = dict()
-        for k,v in data['griddata'].items():
+        for k,v in list(data['griddata'].items()):
             filtered = v.filter(lambda n: '_loadedValue' in n.attr)
             if filtered:
                 changesdict[v['_lockey']] = dict(filtered)

@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 # # -*- coding: utf-8 -*-
 #--------------------------------------------------------------------------
@@ -23,6 +24,8 @@
 
 
 
+from builtins import str
+from builtins import object
 import Pyro4
 if hasattr(Pyro4.config, 'METADATA'):
     Pyro4.config.METADATA = False
@@ -87,7 +90,7 @@ class RemoteBagServerBase(object):
         self.identifiers = dict()        
         self.name = name
         self.parent = parent
-        print parent
+        print(parent)
         if parent is not None:
             self.daemon = parent.daemon
 
@@ -101,7 +104,7 @@ class RemoteBagServerBase(object):
         return '%s%s'%(self.class_prefix, self.name)
 
     def keys(self):
-        return self.store.keys()
+        return list(self.store.keys())
 
     def getUri(self,name):
         if not name in self.identifiers:
@@ -114,7 +117,7 @@ class RemoteBagServerBase(object):
         member = self.store.get(name)
         if not member:
             return
-        for child_name in member.keys():
+        for child_name in list(member.keys()):
             member.unregister(child_name)
         self.daemon.unregister(member)
         self.store.pop(name) 
@@ -160,7 +163,7 @@ class RemoteBagServer(RemoteBagServerBase):
         if not OLD_HMAC_MODE:
             self.daemon._pyroHmacKey = PYRO_HMAC_KEY
         self.main_uri = self.daemon.register(self,'RemoteBagServer')
-        print "uri=",self.main_uri
+        print("uri=",self.main_uri)
         self.daemon.requestLoop()
 
     def memberName(self):
@@ -219,7 +222,7 @@ class RemoteBagClientBase(object):
         return self.factory(uri)
 
     def keys(self):
-        return self.proxy.keys()
+        return list(self.proxy.keys())
 
     def __len__(self):
         return self.proxy.__len__()
@@ -261,9 +264,9 @@ def test_simple():
     test_bag = register['test_simple']
     test_bag['foo'] = 23
     assert test_bag['foo']==23, 'broken'
-    print len(test_bag)
-    print test_bag
-    print 'OK'
+    print(len(test_bag))
+    print(test_bag)
+    print('OK')
 
 
 
@@ -279,15 +282,15 @@ def test_chunk():
     dati['persone.p2.nome'] = 'Luigi'
     dati['persone.p2.cognome'] = 'Bianchi'
     dati['persone.p2.eta'] = 30
-    print dati
+    print(dati)
     z=dati.getItem('persone')
-    print z.asString()
+    print(z.asString())
     p1 = dati.chunk('persone.p1')
-    print p1.asString()
+    print(p1.asString())
    #print p1['nome']
    #p1['nome'] = 'Mariotto'
    #assert p1['nome'] == bag['dati.persone.p1.nome'], 'test fallito'
-    print 'OK'
+    print('OK')
 def test_client():
     client= RemoteBagClient(host=PYRO_HOST,port=PYRO_PORT)
     space = client['frillo']
@@ -301,7 +304,7 @@ def test_client():
     mybag['data.people.p2.surname']='Smith'
     mybag['data.people.p2.age']=29
     m=mybag.getItem('data')
-    print 'data.people.p1.name',m
+    print('data.people.p1.name',m)
 
         
 if __name__=="__main__":

@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 # --------------------------- GnrWebPage Standard header ---------------------------
+from builtins import object
 import os
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import NetBag

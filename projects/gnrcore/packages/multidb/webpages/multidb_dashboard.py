@@ -3,6 +3,7 @@
 #  Created by Francesco Porcari
 #
 # --------------------------- GnrWebPage subclass ---------------------------
+from builtins import object
 from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrbag import Bag
 from gnrpkg.multidb.utility import getSyncTables
@@ -226,7 +227,7 @@ class GnrCustomWebPage(object):
                     result[r[pkey]] = 'equal'
                 else:
                     difflist = ["<tr><th>Table</th><th>Main val</th><th>Ext val</th></tr>"]
-                    for k,v in r.items():
+                    for k,v in list(r.items()):
                         if v!=mr[k]:
                             difflist.append('<tr><td>%s</td><td>%s</td><td>%s</td></tr>' %(k,mr[k],v))
                     result[r[pkey]] = 'diff|<table class="difftable"><tbody>%s</tbody></table>' %''.join(difflist)
@@ -234,7 +235,7 @@ class GnrCustomWebPage(object):
                     result[r[pkey]] = 'nosub %s' %result[r[pkey]]
             else:
                 result[r[pkey]] = 'onlystore'
-        for k in main_f.keys():
+        for k in list(main_f.keys()):
             result[k] = 'onlymain'
         with self.pageStore() as store:
             store.setItem('currentSync',result)

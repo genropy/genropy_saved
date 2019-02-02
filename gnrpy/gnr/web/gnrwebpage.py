@@ -23,11 +23,17 @@
 #Created by Giovanni Porcari on 2007-03-24.
 #Copyright (c) 2007 Softwell. All rights reserved.
 
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import os
 import sys
 import shutil
-import urllib
-import thread
+import urllib.request, urllib.parse, urllib.error
+import _thread
 import copy
 
 from time import time
@@ -72,7 +78,7 @@ def formulaColumn(*args,**fcpars):
     """add a local formula column"""
     def decore(func):
         fcpars.setdefault('name',func.__name__)
-        setattr(func,'mixin_as','formulacolumn_%s' %(func.func_name))
+        setattr(func,'mixin_as','formulacolumn_%s' %(func.__name__))
         func.formulaColumn_kw = fcpars
         return func
     return decore
@@ -122,7 +128,7 @@ class GnrWebPage(GnrBaseWebPage):
                  filepath=None, packageId=None, pluginId=None, basename=None, environ=None, class_info=None,_avoid_module_cache=None):
         self._inited = False
         self._start_time = time()
-        self._thread = thread.get_ident()
+        self._thread = _thread.get_ident()
         self.workspace = dict()
         self.sql_count = 0
         self.sql_time = 0
@@ -162,7 +168,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._user_login = request_kwargs.pop('_user_login', None)
         self.page_timeout = self.site.config.getItem('page_timeout') or PAGE_TIMEOUT
         self.page_refresh = self.site.config.getItem('page_refresh') or PAGE_REFRESH
-        self.private_kwargs = dict([(k[:2], v)for k, v in request_kwargs.items() if k.startswith('__')])
+        self.private_kwargs = dict([(k[:2], v)for k, v in list(request_kwargs.items()) if k.startswith('__')])
         self.pagetemplate = request_kwargs.pop('pagetemplate', None) or getattr(self, 'pagetemplate', None) or \
                             self.site.config['dojo?pagetemplate'] or 'standard.tpl'
         self.css_theme = request_kwargs.pop('css_theme', None) or getattr(self, 'css_theme', None) \
@@ -506,12 +512,12 @@ class GnrWebPage(GnrBaseWebPage):
             auth = self._checkAuth(method=method, **parameters)
         try:
             result = self.rpc(method=method, _auth=auth, **parameters)
-        except GnrException,e:
+        except GnrException as e:
             if self.site.debug and (self.isDeveloper() or self.site.force_debug):
                 raise
             self.rpc.error = 'gnrexception'
             result = str(e)
-        except Exception,e:
+        except Exception as e:
             if self.site.debug and (self.isDeveloper() or self.site.force_debug):
                 raise
             else:
@@ -679,7 +685,7 @@ class GnrWebPage(GnrBaseWebPage):
                 mainNode = data.getNode('compiled.main')
                 editcols = mainNode.attr.get('editcols') if mainNode else None
                 if editcols:
-                    for k,v in data['varsbag'].items():
+                    for k,v in list(data['varsbag'].items()):
                         if v['editable']:
                             editcols[v['varname']] = self.app.getFieldcellPars(field=v['fieldpath'],table=table).asDict()
                             if v['editable'] is not True and '=' in v['editable']:
@@ -731,7 +737,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self.user == self.connection.guestname
 
     def callPackageHooks(self,method,*args,**kwargs):
-        for pkgId in self.packages.keys(): # custom methodname_packagename
+        for pkgId in list(self.packages.keys()): # custom methodname_packagename
             handlername = '%s_%s' %(method,pkgId)
             if hasattr(self,handlername):
                 getattr(self,handlername)(*args,**kwargs)
@@ -924,7 +930,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param innerHtml: TODO"""
         attributes = attributes or dict()
         attributes.update(kwargs)
-        attrString = ' '.join(['%s="%s"' % (k, str(v)) for k, v in attributes.items()])
+        attrString = ' '.join(['%s="%s"' % (k, str(v)) for k, v in list(attributes.items())])
         self._htmlHeaders.append('<%s %s>%s</%s>' % (tag, attrString, innerHtml, tag))
         
     def htmlHeaders(self):
@@ -1114,7 +1120,7 @@ class GnrWebPage(GnrBaseWebPage):
             localroot ='file://%s/app/lib/static/' %self.connection.electron_static
         if getattr(self,'_avoid_module_cache',None):
             kwargs['_avoid_module_cache'] = True
-        arg_dict['startArgs'] = toJson(dict([(k,self.catalog.asTypedText(v)) for k,v in kwargs.items()]))
+        arg_dict['startArgs'] = toJson(dict([(k,self.catalog.asTypedText(v)) for k,v in list(kwargs.items())]))
         arg_dict['page_id'] = self.page_id or getUuid()
         arg_dict['bodyclasses'] = self.get_bodyclasses()
         arg_dict['gnrModulePath'] = gnrModulePath
@@ -1190,7 +1196,7 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO
         
         :param path: TODO"""
-        params = urllib.urlencode(kwargs)
+        params = urllib.parse.urlencode(kwargs)
         path = '%s/%s' % (self.site.home_uri.rstrip('/'), path.lstrip('/'))
         if params:
             path = '%s?%s' % (path, params)
@@ -1229,7 +1235,7 @@ class GnrWebPage(GnrBaseWebPage):
     def get_css_genro(self):
         """TODO"""
         css_genro = self.frontend.css_genro_frontend()
-        for media in css_genro.keys():
+        for media in list(css_genro.keys()):
             css_genro[media] = [self.mtimeurl(self.gnrjsversion, 'css', '%s.css' % f) for f in css_genro[media]]
         return css_genro
         
@@ -1527,7 +1533,7 @@ class GnrWebPage(GnrBaseWebPage):
             uripath = fpath[len(packageFolder):].lstrip('/').split(os.path.sep)
             url = self.site.storage('pkg').url(pkg, *uripath)
         else:
-            for rsrc, rsrc_path in self.site.resources.items():
+            for rsrc, rsrc_path in list(self.site.resources.items()):
                 if fpath.startswith(rsrc_path):
                     uripath = fpath[len(rsrc_path):].lstrip('/').split(os.path.sep)
                     url = self.site.storage('rsrc').url(rsrc, *uripath)
@@ -1682,7 +1688,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param runKwargs: TODO"""
         script = self.loadTableScript(table=table, respath=respath, class_name=class_name)
         if runKwargs:
-            for k, v in runKwargs.items():
+            for k, v in list(runKwargs.items()):
                 kwargs[str(k)] = v
         result = script(**kwargs)
         return result
@@ -1792,7 +1798,7 @@ class GnrWebPage(GnrBaseWebPage):
                         fired=False, reason=None, replace=False,public=None,nodeId=None,noTrigger=None,**kwargs):
         page_id = page_id or self.page_id
         if filters:
-            page_id = self.site.register.pages(filters=filters).keys()
+            page_id = list(self.site.register.pages(filters=filters).keys())
         if isinstance(path, Bag):
             changeBag = path
             for changeNode in changeBag:
@@ -2158,7 +2164,7 @@ class GnrWebPage(GnrBaseWebPage):
         if handler:
             pane = self.newSourceRoot(_inheritedAttributes)
             self._root = pane
-            for k, v in kwargs.items():
+            for k, v in list(kwargs.items()):
                 if k.endswith('_path'):
                     kwargs[k[0:-5]] = kwargs.pop(k)[1:]
             handler(pane, **kwargs)
@@ -2209,7 +2215,7 @@ class GnrWebPage(GnrBaseWebPage):
             df_custom_templates = df_table.readColumns(pkey=fieldvalue,columns='$df_custom_templates')    
             df_custom_templates = Bag(df_custom_templates)
             #templates = ['auto']+df_custom_templates.keys()
-            for t in df_custom_templates.keys():
+            for t in list(df_custom_templates.keys()):
                 caption='Summary: %s' %t
                 recordpath = recordpath or '@%s' %field
                 fieldpath = '%s:%s.df_custom_templates.%s.tpl' %(prevRelation,recordpath,t)
@@ -2225,7 +2231,7 @@ class GnrWebPage(GnrBaseWebPage):
             subject = message.split('\n')[0]
             result = self.getService('mail').sendmail(to_address=email,
                                     body=message, subject=subject,
-                                    async=False)
+                                    async_=False)
         elif mobile:
             result = self.getService('sms').sendsms(receivers=mobile,data=message)
         elif fax:
@@ -2551,7 +2557,7 @@ class GnrWebPage(GnrBaseWebPage):
         mode = kwargs.pop('mode',None)
         mode = mode or 'log'
         self.clientPublish('gnrServerLog',msg=msg,args=args,kwargs=kwargs)
-        print 'pagename:%s-:page_id:%s >>\n' %(self.pagename,self.page_id),args,kwargs
+        print('pagename:%s-:page_id:%s >>\n' %(self.pagename,self.page_id),args,kwargs)
 
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated

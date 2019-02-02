@@ -20,6 +20,9 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import re
 import select
 
@@ -76,7 +79,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         kwargs = dict(host=dbroot.host, db=dbroot.dbname, user=dbroot.user, passwd=dbroot.password,
                       port=port , cursorclass=GnrDictCursor)
         kwargs = dict(
-                [(k, v) for k, v in kwargs.items() if v != None]) # remove None parameters, psycopg can't handle them
+                [(k, v) for k, v in list(kwargs.items()) if v != None]) # remove None parameters, psycopg can't handle them
         kwargs['charset'] = 'utf8'
         #kwargs['connection_factory'] = GnrDictConnection # build a DictConnection: provides cursors accessible by col number or col name
         return MySQLdb.connect(**kwargs)
@@ -354,7 +357,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             col = self._filterColInfo(col, '_my_')
             coltype = self.typesDict.get(col['dtype'], None) #for unrecognized types default dtype is T
             if not coltype:
-                print 'unrecognized column type: %s' % col['dtype']
+                print('unrecognized column type: %s' % col['dtype'])
                 coltype = 'T'
             dtype = col['dtype'] = coltype
             col['notnull'] = (col['notnull'] == 'NO')

@@ -8,6 +8,7 @@
 #
 
 
+from builtins import object
 class GnrCustomWebPage(object):
     maintable = 'adm.preference'
     py_requires = """public:Public"""

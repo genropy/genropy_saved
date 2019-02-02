@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """Context tester"""
+from __future__ import print_function
 
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 from datetime import datetime
@@ -36,7 +38,7 @@ class GnrCustomWebPage(object):
 
     @public_method
     def checkTransmission(self,previeousResult=None):
-        print 'previeousResult',previeousResult
-        print previeousResult['server_ts']
+        print('previeousResult',previeousResult)
+        print(previeousResult['server_ts'])
         return previeousResult
 

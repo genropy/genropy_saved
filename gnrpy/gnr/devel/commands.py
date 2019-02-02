@@ -29,7 +29,10 @@ Argument parsing inspired by Michele Simionato's plac.
     One Script to rule them all, One Script to find them,
     One Script to bring them all and in the darkness bind them
     In the Land of GenroPy where the Commands lie"""
+from __future__ import print_function
 
+from builtins import zip
+from builtins import object
 import sys
 import os.path
 import argparse
@@ -55,8 +58,8 @@ def command(name=None, description=None, *args, **kwargs):
     def decorator(cmd):
         global command_registry
         if command_registry.get(name, None) is not None:
-            raise KeyError, "Command '%(name)s' already defined in %(file)s" % dict(name=name, file=command_registry[
-                                                                                                    name].filename)
+            raise KeyError("Command '%(name)s' already defined in %(file)s" % dict(name=name, file=command_registry[
+                                                                                                    name].filename))
         desc = description if description else cmd.__doc__
         cmd = GnrCommand(main=cmd, name=name or cmd.__name__.lower(), description=desc, *args, **kwargs)
         command_registry[name] = cmd
@@ -123,7 +126,7 @@ class GnrCommand(object):
     def filename(self):
         """File where main is implemented"""
         try:
-            return self.main.func_code.co_filename
+            return self.main.__code__.co_filename
         except:
             return "(unknown)"
             
@@ -131,7 +134,7 @@ class GnrCommand(object):
     def lineno(self):
         """Line where main is implemented"""
         try:
-            return self.main.func_code.co_firstlineno
+            return self.main.__code__.co_firstlineno
         except:
             return "(unknown)"
             
@@ -210,7 +213,7 @@ class CmdRunner(object):
         sys.modules['gnr.commands'] = imp.new_module('gnr.commands')
         
         ad = AutoDiscovery()
-        for name, cmd in ad.all_commands.items():
+        for name, cmd in list(ad.all_commands.items()):
             imp.load_source('gnr.commands.%s' % name, cmd.path)
             
     def main(self):
@@ -227,7 +230,7 @@ class CmdRunner(object):
         global command_registry
         parser = argparse.ArgumentParser(description="Run Genro commands")
         subparsers = parser.add_subparsers(title="commands")
-        for cmd in command_registry.values():
+        for cmd in list(command_registry.values()):
             cmd.init_parser(subparsers)
         return parser
         
@@ -238,10 +241,10 @@ def commands(verbose=False):
     
     :param verbose: TODO"""
     global command_registry
-    for name, cmd in command_registry.items():
-        print "%(name)-20s %(filename)s:%(lineno)s" % dict(name=name, filename=cmd.filename, lineno=cmd.lineno)
+    for name, cmd in list(command_registry.items()):
+        print("%(name)-20s %(filename)s:%(lineno)s" % dict(name=name, filename=cmd.filename, lineno=cmd.lineno))
         if verbose and cmd.help:
-            print "%(space)20s %(help)s" % dict(space=" ", help=cmd.help)
+            print("%(space)20s %(help)s" % dict(space=" ", help=cmd.help))
             
 @command('adreport', help="Print AutoDiscovery report")
 @argument('full', '-f', '--full', help="Show full report")
@@ -259,12 +262,12 @@ def info(dirs=False):
     
     :param dirs: TODO"""
     ad = AutoDiscovery()
-    print "CURRENT_PROJECT=%s" % (ad.current_project.name if ad.current_project else '')
-    print "CURRENT_INSTANCE=%s" % (ad.current_instance.name if ad.current_instance else '')
-    print "CURRENT_PACKAGE=%s" % (ad.current_package.name if ad.current_package else '')
-    print "CURRENT_SITE=%s" % (ad.current_site.name if ad.current_site else '')
+    print("CURRENT_PROJECT=%s" % (ad.current_project.name if ad.current_project else ''))
+    print("CURRENT_INSTANCE=%s" % (ad.current_instance.name if ad.current_instance else ''))
+    print("CURRENT_PACKAGE=%s" % (ad.current_package.name if ad.current_package else ''))
+    print("CURRENT_SITE=%s" % (ad.current_site.name if ad.current_site else ''))
     if dirs:
-        print "CURRENT_PROJECT_DIR=%s" % (ad.current_project.path if ad.current_project else '')
-        print "CURRENT_INSTANCE_DIR=%s" % (ad.current_instance.path if ad.current_instance else '')
-        print "CURRENT_PACKAGE_DIR=%s" % (ad.current_package.path if ad.current_package else '')
-        print "CURRENT_SITE_DIR=%s" % (ad.current_site.path if ad.current_site else '')    
+        print("CURRENT_PROJECT_DIR=%s" % (ad.current_project.path if ad.current_project else ''))
+        print("CURRENT_INSTANCE_DIR=%s" % (ad.current_instance.path if ad.current_instance else ''))
+        print("CURRENT_PACKAGE_DIR=%s" % (ad.current_package.path if ad.current_package else ''))
+        print("CURRENT_SITE_DIR=%s" % (ad.current_site.path if ad.current_site else ''))    

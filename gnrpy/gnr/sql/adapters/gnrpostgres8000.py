@@ -20,6 +20,7 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from builtins import range
 import re
 import select
 
@@ -111,7 +112,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         kwargs = dict(host=dbroot.host, database=dbroot.dbname, user=dbroot.user, password=dbroot.password,
                       port=dbroot.port)
         kwargs = dict(
-                [(k, v) for k, v in kwargs.items() if v != None]) # remove None parameters, psycopg can't handle them
+                [(k, v) for k, v in list(kwargs.items()) if v != None]) # remove None parameters, psycopg can't handle them
         #kwargs['charset']='utf8'
         conn = DictConnectionWrapper(**kwargs)
         return conn
@@ -130,7 +131,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         dbroot = self.dbroot
         kwargs = dict(host=dbroot.host, database='template1', user=dbroot.user,
                       password=dbroot.password, port=dbroot.port)
-        kwargs = dict([(k, v) for k, v in kwargs.items() if v != None])
+        kwargs = dict([(k, v) for k, v in list(kwargs.items()) if v != None])
         #conn =  psycopg2.connect(**kwargs)
         conn = DictConnectionWrapper(**kwargs)
         #conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
@@ -262,7 +263,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                     r[7].append(un_col)
             else:
                 ref_dict[ref] = [ref, schema, tbl, [col], un_ref, un_schema, un_tbl, [un_col], upd_rule]
-        return ref_dict.values()
+        return list(ref_dict.values())
 
     def getPkey(self, table, schema):
         """

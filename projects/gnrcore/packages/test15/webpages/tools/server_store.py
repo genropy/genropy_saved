@@ -2,6 +2,7 @@
 # 
 """ServerStore tester"""
 
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull,storetester:StoreTester"
     

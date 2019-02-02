@@ -4,6 +4,8 @@
 #  Created by Saverio Porcari on 2013-04-06.
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
+from __future__ import print_function
+from past.builtins import basestring
 import os
 from gnr.web.gnrbaseclasses import BaseComponent
 
@@ -52,7 +54,7 @@ class Service(SftpService):
             sourcefiles = thermo_wrapper(thermo_wrapper)
         if callback is None:
             def cb(curr,total):
-                print 'dl %i/%i' %(curr,total)
+                print('dl %i/%i' %(curr,total))
             callback = cb
         with self(**kwargs) as sftp:
             for filepath in sourcefiles:
@@ -73,7 +75,7 @@ class Service(SftpService):
             sourcefiles = thermo_wrapper(thermo_wrapper)
         if callback is None:
             def cb(curr,total):
-                print 'up %i/%i' %(curr,total)
+                print('up %i/%i' %(curr,total))
             callback = cb
         with self(**kwargs) as sftp:
             for filepath in sourcefiles:

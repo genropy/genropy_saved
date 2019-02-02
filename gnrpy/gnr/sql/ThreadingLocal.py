@@ -12,6 +12,10 @@ To have a reliable solution that works the same with all Python versions,
 we fall back to this Python implemention in DBUtils.
 """
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 __all__ = ["local"]
 
 try:

@@ -6,6 +6,8 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
+from past.builtins import basestring
+from builtins import object
 from gnr.core.gnrbag import Bag, DirectoryResolver
 import os
 import re
@@ -52,7 +54,7 @@ class ResourceLoader(object):
         if 'webtools' in self.gnr_config['gnr.environment_xml']:
             for path in self.gnr_config['gnr.environment_xml'].digest('webtools:#a.path'):
                 webtool_pathlist.append(expandpath(path))
-        for package in self.gnrapp.packages.values():
+        for package in list(self.gnrapp.packages.values()):
             webtool_pathlist.append(os.path.join(package.packageFolder, 'webtools'))
         project_resource_path = os.path.join(self.site_path, '..', '..', 'webtools')
         webtool_pathlist.append(os.path.normpath(project_resource_path))
@@ -326,7 +328,7 @@ class ResourceLoader(object):
         if auto_resource_path:
             resources[self.site_name] = os.path.realpath(auto_resource_path)
 
-        for pkg in self.site.gnrapp.packages.values():
+        for pkg in list(self.site.gnrapp.packages.values()):
             rsrc_path = os.path.join(pkg.packageFolder, 'resources')
             label = 'pkg_%s' % (pkg.id)
             if os.path.isdir(rsrc_path):

@@ -23,13 +23,16 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 #import weakref
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 from gnr.core.gnrbag import Bag, BagNode
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
 from gnr.core.gnrsys import expandpath
 from lxml import etree
 from z3c.rml import document as pdfdoc
-import cStringIO
+import io
 import os
 from gnr.core.gnrlang import optArgs
 
@@ -160,7 +163,7 @@ class GnrRmlSrc(GnrStructData):
             for i, cell in enumerate(cell_list):
                 fill_cell(startcol + i, cell)
         else:
-            for cellname, cellidx in self.columns.items():
+            for cellname, cellidx in list(self.columns.items()):
                 fill_cell(cellidx, kwargs.get(cellname))
                 
         return row
@@ -826,7 +829,7 @@ class GnrPdf(object):
         self.root = GnrRmlSrc.makeRoot()
         self.document = self.root.document(filename=filename, debug=debug, compression=compression, invariant=invariant)
         self.stylesheet = self.document.stylesheet()
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             setattr(self, k, v)
         self.auxroot = GnrRmlSrc.makeRoot()
         
@@ -875,7 +878,7 @@ class GnrPdf(object):
             self.root.setAttr('#0', filename=os.path.basename(filename))
             output = open(expandpath(filename), 'wb')
         else:
-            output = cStringIO.StringIO()
+            output = io.StringIO()
         root = etree.fromstring(self.toRml())
         pdf = pdfdoc.Document(root)
         pdf.process(output)

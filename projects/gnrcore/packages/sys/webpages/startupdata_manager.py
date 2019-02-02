@@ -6,9 +6,12 @@
 #  Created by Francesco Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 import os
 import gzip
-from StringIO import StringIO
+from io import StringIO
 import pickle
 
 from gnr.core.gnrdecorator import public_method

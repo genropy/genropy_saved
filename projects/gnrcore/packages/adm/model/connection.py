@@ -1,5 +1,6 @@
 # encoding: utf-8
-from __future__ import with_statement
+from past.builtins import basestring
+from builtins import object
 from datetime import datetime
 
 class Table(object):
@@ -26,7 +27,7 @@ class Table(object):
 
     
     def dropExpiredConnections(self):
-        live_connections = self.db.application.site.register.connections().keys()
+        live_connections = list(self.db.application.site.register.connections().keys())
         ts = datetime.now()
         with self.db.tempEnv(connectionName='system'):
             updatedKeys = self.batchUpdate(dict(end_ts=ts,end_reason='aborted'),

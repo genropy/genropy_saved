@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from __future__ import with_statement
+from __future__ import print_function
 from lxml import etree
 from z3c.rml import document, interfaces
 import os
 import sys
 
-print 'Processing....' + sys.argv[1]
+print('Processing....' + sys.argv[1])
 with open(sys.argv[1]) as in_file:
     root = etree.fromstring(in_file.read())
 doc = document.Document(root)

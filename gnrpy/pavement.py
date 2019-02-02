@@ -1,5 +1,6 @@
-from __future__ import with_statement
-import urllib2
+from future import standard_library
+standard_library.install_aliases()
+import urllib.request, urllib.error, urllib.parse
 import tarfile
 import os
 import hashlib
@@ -70,7 +71,7 @@ def dojo():
     if get_dojo:
         with open(filename, 'wb') as dojo_file:
             url = DOJO_URL_BASE + DOJO_VERSION
-            dojo_file.write(urllib2.urlopen(DOJO_URL_BASE + filename).read())
+            dojo_file.write(urllib.request.urlopen(DOJO_URL_BASE + filename).read())
         dojo_tgz = tarfile.open(filename, 'r|*')
         dojo_tgz.extractall()
 
@@ -99,7 +100,7 @@ def install_genro():
 @task
 @cmdopts([('gnrhome=', 'i', 'Genro home path')])
 def configure():
-    if options.configure.has_key('gnrhome') and options.configure.gnrhome:
+    if 'gnrhome' in options.configure and options.configure.gnrhome:
         genro_path = options.configure.gnrhome
         with open('_gnrhome.py', 'w') as genrohomefile:
             genrohomefile.write('PATH="%s"\n' % genro_path)

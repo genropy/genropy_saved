@@ -7,8 +7,12 @@ Available functionality:
     * :class:`AutoDiscovery`, a class to auto-detect current instance, site, package and
       project from ``GENROPY_xxx`` environment variables and/or the current working directory.
 """
+from __future__ import division
+from __future__ import print_function
 
-from __future__ import with_statement
+from builtins import str
+from past.utils import old_div
+from builtins import object
 
 import time
 import math
@@ -165,21 +169,21 @@ class AutoDiscovery(object):
         
         :param all: if ``False``, print only the current project, instance, packages and site.
                     if ``True``, print a full report including all available items in this GenroPy installation"""
-        print "Current Project:", repr(self.current_project)
-        print "Current Instance:", repr(self.current_instance)
-        print "Current Package:", repr(self.current_package)
-        print "Current Site:", repr(self.current_site)
+        print("Current Project:", repr(self.current_project))
+        print("Current Instance:", repr(self.current_instance))
+        print("Current Package:", repr(self.current_package))
+        print("Current Site:", repr(self.current_site))
         
         if all:
-            print "---- Projects ----"
-            for p in self.all_projects.values():
-                print "  %-20s %s" % (p.name, p.path)
-            print "---- Instances ----"
-            for i in self.all_instances.values():
-                print "  %-20s %s" % (i.name, i.path)
-            print "---- Command files ----"
-            for c in self.all_commands.values():
-                print "  %-20s %s" % (c.name, c.path)
+            print("---- Projects ----")
+            for p in list(self.all_projects.values()):
+                print("  %-20s %s" % (p.name, p.path))
+            print("---- Instances ----")
+            for i in list(self.all_instances.values()):
+                print("  %-20s %s" % (i.name, i.path))
+            print("---- Command files ----")
+            for c in list(self.all_commands.values()):
+                print("  %-20s %s" % (c.name, c.path))
                 
     def _load_configuration(self):
         """Load GenroPy configuration"""
@@ -237,20 +241,20 @@ class AutoDiscovery(object):
             return all_items[current_name]
         current_path = normpath(getcwd())
         if project_items:
-            for item in project_items.itervalues():
+            for item in project_items.values():
                 if current_path.startswith(item.path):
                     return item
         if all_items:
-            for item in all_items.itervalues():
+            for item in all_items.values():
                 if current_path.startswith(item.path):
                     if project_items:
                         self.warn("current %s (from working directory) is not in the current project" % name)
                     return item
         if project_items and len(project_items) == 1:
-            return project_items.values()[0]
+            return list(project_items.values())[0]
 
     def warn(self, msg):
-        print >> sys.stderr, msg
+        print(msg, file=sys.stderr)
 
     class Item(object):
         """
@@ -364,7 +368,7 @@ class ProgressBar(object):
         self.fd = fd
         self.start_time = time.time()
         
-        print >> self.fd, self.label, "...",
+        print(self.label, "...", end=' ', file=self.fd)
         self.update(self.min_value)
 
     def __enter__(self):
@@ -373,9 +377,9 @@ class ProgressBar(object):
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is None:
             self.update(self.max_value)
-            print >> self.fd, "done."
+            print("done.", file=self.fd)
         else:
-            print >> self.fd, "ERROR (%s%s)" % (self.progress_label, str(self.progress_value))
+            print("ERROR (%s%s)" % (self.progress_label, str(self.progress_value)), file=self.fd)
 
     def update(self, value, progress_value=None):
         """Draws the progress bar.
@@ -391,12 +395,12 @@ class ProgressBar(object):
         free_bar = "-" * (self.bar_width - occupied_bar_chars)
         elapsed_seconds = time.time() - self.start_time
         if elapsed_seconds > 5 and progress > 0:
-            remaining_seconds = (elapsed_seconds / progress)
+            remaining_seconds = (old_div(elapsed_seconds, progress))
             time_msg = "(%s passed, %s remaining)" % (seconds_to_text(elapsed_seconds), seconds_to_text(remaining_seconds))
         else:
             time_msg = ""
-        print >> self.fd, "\r%*s [%s%s] % 5.2f%% %40s" % (
-        self.label_width, self.label, occupied_bar, free_bar, progress * 100.0, time_msg),
+        print("\r%*s [%s%s] % 5.2f%% %40s" % (
+        self.label_width, self.label, occupied_bar, free_bar, progress * 100.0, time_msg), end=' ', file=self.fd)
         self.fd.flush()
 
     def iterator(self, iterable, update_every=1):

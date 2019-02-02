@@ -20,19 +20,24 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import chr
+from builtins import str
+from past.builtins import basestring
 import smtplib
 from email.mime.text import MIMEText
-from email.MIMEMultipart import MIMEMultipart
+from six.moves.email_mime_multipart import MIMEMultipart
 from email.mime.image import MIMEImage
 from email.mime.application import MIMEApplication
 from email.utils import formatdate
-import re, htmlentitydefs
+import re, html.entities
 import mimetypes
 from gnr.core.gnrbag import Bag
 from gnr.lib.services import GnrBaseService
 from gnr.core.gnrlang import GnrException
 from gnr.core.gnrstring import templateReplace
-import thread
+import _thread
 import os
 import datetime
 import time
@@ -54,15 +59,15 @@ def clean_and_unescape(text):
             # character reference
             try:
                 if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
+                    return chr(int(text[3:-1], 16))
                 else:
-                    return unichr(int(text[2:-1]))
+                    return chr(int(text[2:-1]))
             except ValueError:
                 pass
         else:
             # named entity
             try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                text = chr(html.entities.name2codepoint[text[1:-1]])
             except KeyError:
                 pass
         return text # leave as it is written
@@ -239,7 +244,7 @@ class MailService(GnrBaseService):
     def sendmail_template(self, datasource, to_address=None, cc_address=None, bcc_address=None, reply_to=None, subject=None,
                           from_address=None, body=None, attachments=None, account=None,
                           smtp_host=None, port=None, user=None, password=None,
-                          ssl=False, tls=False, html=False, charset='utf-8', async=False, **kwargs):
+                          ssl=False, tls=False, html=False, charset='utf-8', async_=False, **kwargs):
         """Add???
 
         :param datasource: TODO
@@ -270,7 +275,7 @@ class MailService(GnrBaseService):
         :param html: boolean. If ``True``, html tags can be used in the body of the email.
                      Appropriate headers are attached
         :param charset: a different charser may be defined by its standard name
-        :param async: boolean. If ``True``, then a separate process is spawned to send the email and control
+        :param async_: boolean. If ``True``, then a separate process is spawned to send the email and control
                       is returned immediately to the calling function"""
         def get_templated(field):
             value = datasource.getItem('_meta_.%s' % field)
@@ -293,12 +298,12 @@ class MailService(GnrBaseService):
         self.sendmail(to_address=to_address, subject=subject, body=body, cc_address=cc_address, reply_to=reply_to, bcc_address=bcc_address,
                       attachments=attachments, account=account,
                       from_address=from_address, smtp_host=smtp_host, port=port, user=user, password=password,
-                      ssl=ssl, tls=tls, html=html, charset=charset, async=async, **kwargs)
+                      ssl=ssl, tls=tls, html=html, charset=charset, async_=async_, **kwargs)
 
     def sendmail(self, to_address=None, subject=None, body=None, cc_address=None, reply_to=None, bcc_address=None, attachments=None,
                  account=None,timeout=None,
                  from_address=None, smtp_host=None, port=None, user=None, password=None,message_id=None,message_date=None,
-                 ssl=False, tls=False, html=False, charset='utf-8', async=False,
+                 ssl=False, tls=False, html=False, charset='utf-8', async_=False,
                  cb=None, cb_args=None, cb_kwargs=None, **kwargs):
         """Send mail is a function called from the postoffice object to send an email.
 
@@ -327,7 +332,7 @@ class MailService(GnrBaseService):
 
         :param html: boolean. If ``True`` then html tags can be used in the body of the email. Appropriate headers are attached
         :param charset: a different charser may be defined by its standard name
-        :param async: if set to true, then a separate process is spawned to send the email and control
+        :param async_: if set to true, then a separate process is spawned to send the email and control
                       is returned immediately to the calling function"""
         account_params = self.get_account_params(account=account, from_address=from_address,bcc_address=bcc_address,
                                                  smtp_host=smtp_host, port=str(port) if port else None, user=user, password=password, ssl=ssl,
@@ -359,7 +364,7 @@ class MailService(GnrBaseService):
         #    msg['Bcc'] = bcc_address
         system_bcc = account_params.pop('system_bcc',None)
         if system_bcc:
-            if isinstance(bcc_address,(str,unicode)):
+            if isinstance(bcc_address,str):
                 bcc_address = [addr for addr in bcc_address.split(',') if addr]
             bcc_address = bcc_address or []
             bcc_address.append(system_bcc)
@@ -367,7 +372,7 @@ class MailService(GnrBaseService):
 
         msg_string = msg.as_string()
         sendmail_args=(account_params, from_address, to_address, cc_address, bcc_address, msg_string)
-        if not async:
+        if not async_:
             self._sendmail(*sendmail_args)
             if cb:
                 cb_args = cb_args or ()
@@ -376,7 +381,7 @@ class MailService(GnrBaseService):
 
         else:
             thread_params = dict(call=self._sendmail, call_args=sendmail_args, cb=cb, cb_args=cb_args, cb_kwargs=cb_kwargs)
-            thread.start_new_thread(self._send_with_cb,(),thread_params)
+            _thread.start_new_thread(self._send_with_cb,(),thread_params)
 
 
     def _send_with_cb(self, call=None, call_args=None, call_kwargs=None, cb=None, cb_args=None, cb_kwargs=None):
@@ -403,7 +408,7 @@ class MailService(GnrBaseService):
     def sendmail_many(self, to_address, subject, body, attachments=None, account=None,
                       from_address=None, smtp_host=None, port=None, user=None, password=None,
                       ssl=False, tls=False, html=False, multiple_mode=False, progress_cb=None, charset='utf-8',
-                      async=False,timeout=None):
+                      async_=False,timeout=None):
         """TODO
 
         :param to_address: the email receiver

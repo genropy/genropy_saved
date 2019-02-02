@@ -6,6 +6,9 @@
 
 """thermo"""
 
+from builtins import str
+from builtins import range
+from builtins import object
 import random
 import time
 
@@ -75,7 +78,7 @@ class GnrCustomWebPage(object):
             
         except self.btc.exception_stopped:
             self.btc.batch_aborted()
-        except Exception, e:
+        except Exception as e:
             self.btc.batch_error(error=str(e))
         self.btc.batch_complete(result='Execution completed', result_attr=dict(url='http://www.apple.com'))
         
@@ -95,7 +98,7 @@ class GnrCustomWebPage(object):
                         time.sleep(sleep_time)
         except self.btc.exception_stopped:
             self.btc.batch_aborted()
-        except Exception, e:
+        except Exception as e:
             self.btc.batch_error(error=str(e))
         self.btc.batch_complete(result='Execution completed', result_attr=dict(url='http://www.apple.com'))
         
@@ -130,13 +133,13 @@ class GnrCustomWebPage(object):
         self.btc.batch_create(title='testbatch', note='This is a test batch_3 %i' % int(random.random() * 100))
         
         def clients_cb():
-            return range(int(random.random() * cli_max))
+            return list(range(int(random.random() * cli_max)))
             
         def invoices_cb(client=None):
-            return range(int(random.random() * invoice_max))
+            return list(range(int(random.random() * invoice_max)))
             
         def rows_cb(invoice=None):
-            return range(int(random.random() * row_max))
+            return list(range(int(random.random() * row_max)))
             
         try:
             for client in btc.thermo_wrapper(clients_cb, 'clients'):
@@ -145,6 +148,6 @@ class GnrCustomWebPage(object):
                         time.sleep(sleep_time)
         except self.btc.exception_stopped:
             self.btc.batch_aborted()
-        except Exception, e:
+        except Exception as e:
             self.btc.batch_error(error=str(e))
         self.btc.batch_complete(result='Execution completed', result_attr=dict(url='http://www.apple.com'))

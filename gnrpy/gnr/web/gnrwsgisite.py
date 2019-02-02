@@ -1,7 +1,13 @@
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 from gnr.core.gnrbag import Bag,DirectoryResolver
-from weberror.evalexception import EvalException
+#from weberror.evalexception import EvalException
 #from paste.exceptions.errormiddleware import ErrorMiddleware
-from weberror.errormiddleware import ErrorMiddleware
+#from weberror.errormiddleware import ErrorMiddleware
 from webob import Request, Response
 from webob.exc import WSGIHTTPException, HTTPInternalServerError, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError, HTTPMovedPermanently,HTTPTemporaryRedirect
 from gnr.web.gnrwebapp import GnrWsgiWebApp
@@ -11,22 +17,22 @@ import glob
 import re
 import logging
 import subprocess
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import httplib2
 import locale
 from gnr.core import gnrstring
-
+import six
 from time import time
 from collections import defaultdict
 from gnr.core.gnrlang import deprecated,GnrException,GnrDebugException,tracebackBag
 from gnr.core.gnrdecorator import public_method, callers
 from gnr.app.gnrconfig import getGnrConfig
 from threading import RLock
-import thread
+import _thread
 import mimetypes
 from gnr.core.gnrsys import expandpath
-import cPickle
+import pickle
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrdecorator import extract_kwargs
 
@@ -143,12 +149,12 @@ class UrlInfo(object):
         self.basepath = mobilepath or self.basepath
         self.request_args = path_list
 
-class SafeEvalException(EvalException):
-    def __call__(self, environ, start_response):
-        if not environ['wsgi.multiprocess']:
-            return super(SafeEvalException, self).__call__(environ, start_response)
-        else:
-            return self.application(environ, start_response)
+#class SafeEvalException(EvalException):
+#    def __call__(self, environ, start_response):
+#        if not environ['wsgi.multiprocess']:
+#            return super(SafeEvalException, self).__call__(environ, start_response)
+#        else:
+#            return self.application(environ, start_response)
 
 class GnrWsgiSite(object):
     """TODO"""
@@ -166,9 +172,9 @@ class GnrWsgiSite(object):
         :param code: TODO"""
         if getattr(self, 'debug', True):
             if code and code in OP_TO_LOG:
-                print '***** %s : %s' % (code, msg)
+                print('***** %s : %s' % (code, msg))
             elif not code:
-                print '***** OTHER : %s' % (msg)
+                print('***** OTHER : %s' % (msg))
 
     def setDebugAttribute(self, options):
         self.force_debug = False
@@ -267,7 +273,7 @@ class GnrWsgiSite(object):
         if counter == 0 and options and options.source_instance:
             self.gnrapp.importFromSourceInstance(options.source_instance)
             self.db.commit()
-            print 'End of import'
+            print('End of import')
 
         cleanup = self.custom_config.getAttr('cleanup') or dict()
         self.cleanup_interval = int(cleanup.get('interval') or 120)
@@ -341,7 +347,7 @@ class GnrWsgiSite(object):
                 attr = dict(n.attr)
                 if boolean(attr.pop('enabled',False)):
                     self.extraFeatures[n.label] = True
-                    for k,v in attr.items():
+                    for k,v in list(attr.items()):
                         self.extraFeatures['%s_%s' %(n.label,k)] = v
 
 
@@ -601,7 +607,7 @@ class GnrWsgiSite(object):
                     v = node.value
                     attr = node.attr
                     currnode = custom_config.getNode(pathlist,autocreate=True)
-                    for k,v in attr.items():
+                    for k,v in list(attr.items()):
                         if v not in ('',None):
                             currnode.attr[k] = v
                     if v and not isinstance(v,Bag):
@@ -629,7 +635,7 @@ class GnrWsgiSite(object):
             kwargs[k] = self.gnrapp.catalog.asTypedText(kwargs[k])
         if method:
             url = '%s/%s' %(url,method)
-        url= urllib2.urlopen(url,urllib.urlencode(kwargs))
+        url= urllib.request.urlopen(url,urllib.parse.urlencode(kwargs))
         return url.read()
 
     def callGnrRpcUrl(self,url,method,*args,**kwargs):
@@ -640,7 +646,7 @@ class GnrWsgiSite(object):
         url = '/'.join(urlargs)
         http = httplib2.Http()
         headers = {'Content-type': 'application/x-www-form-urlencoded'}
-        response,content = http.request(url, 'POST', headers=headers, body=urllib.urlencode(kwargs))
+        response,content = http.request(url, 'POST', headers=headers, body=urllib.parse.urlencode(kwargs))
         return self.gnrapp.catalog.fromTypedText(content)
 
     def writeException(self, exception=None, traceback=None):
@@ -652,8 +658,8 @@ class GnrWsgiSite(object):
                                                       user=user,
                                                       user_ip=user_ip,
                                                       user_agent=user_agent)
-        except Exception,writingErrorException:
-            print '\n ####writingErrorException %s for exception %s' %(str(writingErrorException),str(exception))
+        except Exception as writingErrorException:
+            print('\n ####writingErrorException %s for exception %s' %(str(writingErrorException),str(exception)))
 
     @public_method
     def writeError(self, description=None,error_type=None, **kwargs):
@@ -661,8 +667,8 @@ class GnrWsgiSite(object):
             page = self.currentPage
             user, user_ip, user_agent = (page.user, page.user_ip, page.user_agent) if page else (None, None, None)
             self.db.table('sys.error').writeError(description=description,error_type=error_type,user=user,user_ip=user_ip,user_agent=user_agent,**kwargs)
-        except Exception,e:
-            print str(e)
+        except Exception as e:
+            print(str(e))
             pass
 
     def loadResource(self, pkg, *path):
@@ -699,7 +705,7 @@ class GnrWsgiSite(object):
 
         :param params: TODO"""
         out_dict = dict()
-        for name in params.iterkeys():
+        for name in list(params.keys()):
             name = str(name)
             try:
                 if name.endswith('[]'):
@@ -759,7 +765,7 @@ class GnrWsgiSite(object):
                 self.currentMaintenance = 'register_error'
                 self._register = None
                 return self.maintenanceDispatcher(environ, start_response)
-            except Exception,e:
+            except Exception as e:
                 page = self.currentPage
                 if self.debug and ((page and page.isDeveloper()) or self.force_debug):
                     raise
@@ -793,7 +799,7 @@ class GnrWsgiSite(object):
     def configurationItem(self,path,mandatory=False):
         result = self.config[path]
         if mandatory and result is None:
-            print 'Missing mandatory configuration item: %s' %path
+            print('Missing mandatory configuration item: %s' %path)
         return result
 
     def _dispatcher(self, environ, start_response):
@@ -836,7 +842,7 @@ class GnrWsgiSite(object):
                     return result
                 response = self.setResultInResponse(result, response, info_GnrTime=time() - t,info_GnrSiteMaintenance=self.currentMaintenance)
                 self.cleanup()
-            except Exception,exc:
+            except Exception as exc:
                 raise
             finally:
                 self.cleanup()
@@ -862,9 +868,9 @@ class GnrWsgiSite(object):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='STATIC')
             try:
                 return self.statics.static_dispatcher(path_list, environ, start_response, **request_kwargs)
-            except GnrDebugException,exc:
+            except GnrDebugException as exc:
                 raise
-            except Exception, exc:
+            except Exception as exc:
                 return self.not_found_exception(environ,start_response)
         else:
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='RESOURCE')
@@ -872,9 +878,9 @@ class GnrWsgiSite(object):
                 page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
                 if page:
                     page.download_name = download_name
-            except WSGIHTTPException, exc:
+            except WSGIHTTPException as exc:
                 return exc(environ, start_response)
-            except Exception, exc:
+            except Exception as exc:
                 log.exception("wsgisite.dispatcher: self.resource_loader failed with non-HTTP exception.")
                 log.exception(str(exc))
                 raise
@@ -886,12 +892,17 @@ class GnrWsgiSite(object):
                 result = page()
 
                 if page.download_name:
-                    download_name = unicode(page.download_name)
+                    download_name = str(page.download_name)
                     content_type = getattr(page,'forced_mimetype',None) or mimetypes.guess_type(download_name)[0]
                     if content_type:
                         page.response.content_type = content_type
                     page.response.add_header("Content-Disposition", str("attachment; filename=%s" %download_name))
-                if isinstance(result, file):
+                import io
+                try:
+                    file_types = file, io.IOBase
+                except NameError:
+                    file_types = (io.IOBase,)
+                if isinstance(result, file_types):
                     return self.statics.fileserve(result, environ, start_response,nocache=True,download_name=page.download_name)
             except GnrUnsupportedBrowserException:
                 return self.serve_htmlPage('html_pages/unsupported.html', environ, start_response)
@@ -955,12 +966,12 @@ class GnrWsgiSite(object):
         :param response: TODO
         :param totaltime: TODO"""
         if forced_headers:
-            for k,v in forced_headers.items():
+            for k,v in list(forced_headers.items()):
                 response.headers[k] = str(v)
-        for k,v in info_kwargs.items():
+        for k,v in list(info_kwargs.items()):
             if v is not None:
                 response.headers['X-%s' %k] = str(v)
-        if isinstance(result, unicode):
+        if isinstance(result, str):
             response.content_type = kwargs.get('mimetype') or 'text/plain'
             response.unicode_body = result # PendingDeprecationWarning: .unicode_body is deprecated in favour of Response.text
         elif isinstance(result, basestring):
@@ -1015,7 +1026,7 @@ class GnrWsgiSite(object):
         for header_name, header_value in headers:
             response.add_header(header_name, header_value)
 
-        if isinstance(result, unicode):
+        if isinstance(result, str):
             response.content_type = 'text/plain'
             response.unicode_body = result
         elif isinstance(result, basestring):
@@ -1118,7 +1129,8 @@ class GnrWsgiSite(object):
                   )
 
         if self.debug:
-            wsgiapp = SafeEvalException(wsgiapp, debug=True)
+            pass
+            #wsgiapp = SafeEvalException(wsgiapp, debug=True)
         else:
             err_kwargs = dict(debug=True)
             if 'debug_email' in self.config:
@@ -1135,7 +1147,7 @@ class GnrWsgiSite(object):
                 self.error_smtp_kwargs = dict(error_smtp_kwargs)
                 self.error_smtp_kwargs['error_email_from'] = self.error_smtp_kwargs.pop('from_address')
                 err_kwargs.update(error_smtp_kwargs)
-                wsgiapp = ErrorMiddleware(wsgiapp, **err_kwargs)
+                #wsgiapp = ErrorMiddleware(wsgiapp, **err_kwargs)
         if gzip:
             from paste.gzipper import middleware as gzipper_middleware
             wsgiapp = gzipper_middleware(wsgiapp)
@@ -1321,32 +1333,32 @@ class GnrWsgiSite(object):
 
     def _get_currentPage(self):
         """property currentPage it returns the page currently used in this thread"""
-        return self._currentPages.get(thread.get_ident())
+        return self._currentPages.get(_thread.get_ident())
 
     def _set_currentPage(self, page):
         """set currentPage for this thread"""
-        self._currentPages[thread.get_ident()] = page
+        self._currentPages[_thread.get_ident()] = page
 
     currentPage = property(_get_currentPage, _set_currentPage)
 
 
     def _get_currentMaintenance(self):
         """property currentPage it returns the page currently used in this thread"""
-        return self._currentMaintenances.get(thread.get_ident())
+        return self._currentMaintenances.get(_thread.get_ident())
 
     def _set_currentMaintenance(self, page):
         """set currentPage for this thread"""
-        self._currentMaintenances[thread.get_ident()] = page
+        self._currentMaintenances[_thread.get_ident()] = page
 
     currentMaintenance = property(_get_currentMaintenance, _set_currentMaintenance)
 
     def _get_currentRequest(self):
         """property currentRequest it returns the request currently used in this thread"""
-        return self._currentRequests.get(thread.get_ident())
+        return self._currentRequests.get(_thread.get_ident())
 
     def _set_currentRequest(self, request):
         """set currentRequest for this thread"""
-        self._currentRequests[thread.get_ident()] = request
+        self._currentRequests[_thread.get_ident()] = request
 
     currentRequest = property(_get_currentRequest, _set_currentRequest)
 
@@ -1373,7 +1385,7 @@ class GnrWsgiSite(object):
         :param runKwargs: TODO"""
         script = self.loadTableScript(page=page, table=table, respath=respath, class_name=class_name)
         if runKwargs:
-            for k, v in runKwargs.items():
+            for k, v in list(runKwargs.items()):
                 kwargs[str(k)] = v
         result = script(**kwargs)
         return result
@@ -1398,7 +1410,7 @@ class GnrWsgiSite(object):
 
     def _get_resources_dirs(self):
         if not hasattr(self, '_resources_dirs'):
-            self._resources_dirs = self.resources.values()
+            self._resources_dirs = list(self.resources.values())
             self._resources_dirs.reverse()
         return self._resources_dirs
 
@@ -1414,7 +1426,7 @@ class GnrWsgiSite(object):
         """TODO
 
         :param tool: TODO"""
-        kwargs_string = '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()])
+        kwargs_string = '&'.join(['%s=%s' % (k, v) for k, v in list(kwargs.items())])
         return '%s%s_tools/%s?%s' % (self.external_host, self.home_uri, tool, kwargs_string)
 
     def serve_ping(self, response, environ, start_response, page_id=None, reason=None, **kwargs):
@@ -1431,15 +1443,15 @@ class GnrWsgiSite(object):
         """
         catalog = self.gnrapp.catalog
         result = dict()
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             k = k.strip()
             if isinstance(v, basestring):
                 try:
                     v = catalog.fromTypedText(v)
-                    if isinstance(v, basestring):
+                    if isinstance(v, basestring) and six.PY2:
                         v = v.decode('utf-8')
                     result[k] = v
-                except Exception, e:
+                except Exception as e:
                     raise
             else:
                 result[k] = v
@@ -1467,7 +1479,7 @@ class GnrWsgiSite(object):
             self.shellCall('convert','-density','300',filepath,'-depth','8',tifname)
             self.shellCall('tesseract', tifname, filename)
         except Exception:
-            print 'missing tesseract in this installation'
+            print('missing tesseract in this installation')
             return
         result = ''
         if not os.path.isfile(txtname):
@@ -1546,7 +1558,7 @@ class GnrWsgiSite(object):
         """TODO
 
         :param path: TODO"""
-        params = urllib.urlencode(kwargs)
+        params = urllib.parse.urlencode(kwargs)
         #path = os.path.join(self.homeUrl(), path)
         if path == '':
             path = self.home_uri

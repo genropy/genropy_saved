@@ -7,6 +7,7 @@
 
 
 "Palettes"
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull,th/th:TableHandler" #gnrcomponents/palette_manager"
     auto_polling = 0

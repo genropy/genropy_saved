@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from gnr.core.gnrbag import Bag, BagNode, BagResolver
 import datetime
 import socket, os
@@ -6,7 +9,7 @@ import socket, os
 def setup_module(module):
     module.BAG_DATA = os.path.join(os.path.dirname(__file__), 'data/testbag.xml')
 
-class TestBasicBag:
+class TestBasicBag(object):
     def setup_class(cls):
         cls.mybag = Bag(BAG_DATA)
 
@@ -102,16 +105,16 @@ class TestBasicBag:
         assert b['#0'] == 4
 
     def test_keys(self):
-        k = self.mybag.keys()
-        print k
+        k = list(self.mybag.keys())
+        print(k)
         assert k == [u'name', u'surname', u'birthday', u'phone']
 
     def test_values(self):
-        v = self.mybag.values()
+        v = list(self.mybag.values())
         assert v[0] == 'John'
 
     def test_items(self):
-        i = self.mybag.items()
+        i = list(self.mybag.items())
         assert i[0][1] == 'John'
 
     def test_iterators(self):
@@ -140,16 +143,16 @@ class TestBasicBag:
         pass
 
     def test_has_key(self):
-        assert self.mybag.has_key('name')
+        assert 'name' in self.mybag
 
     def test_iterators(self):
-        ik = self.mybag.iterkeys()
-        assert ik.next() == 'name'
-        iv = self.mybag.itervalues()
-        iv.next()
-        assert iv.next() == 'Doe'
-        ii = self.mybag.iteritems()
-        assert ii.next() == ('name', 'John')
+        ik = iter(self.mybag.keys())
+        assert next(ik) == 'name'
+        iv = iter(self.mybag.values())
+        next(iv)
+        assert next(iv) == 'Doe'
+        ii = iter(self.mybag.items())
+        assert next(ii) == ('name', 'John')
 
     def test_pop(self):
         b = Bag(BAG_DATA)
@@ -159,7 +162,7 @@ class TestBasicBag:
     def test_clear(self):
         b = Bag(BAG_DATA)
         b.clear()
-        assert b.items() == []
+        assert list(b.items()) == []
 
     def test_copy(self):
         b = self.mybag.copy()
@@ -186,7 +189,7 @@ class TestBasicBag:
         b.setBackRef()
         assert b['just.a.simple'].fullpath == 'just.a.simple'
 
-class TestBagTrigger:
+class TestBagTrigger(object):
     def setup_class(cls):
         cls.mybag = Bag(BAG_DATA)
         cls.updNodeValue = False
@@ -227,17 +230,17 @@ class TestBagTrigger:
         self.mybag.pop('phone.office')
         assert self.delNode is True
 
-class TestBagResolver:
+class TestBagResolver(object):
     def setup_class(cls):
         cls.mybag = Bag(BAG_DATA)
         cls.mybag['connection.info'] = MyResolver()
 
     def test_load(self):
         """docstring for test_load"""
-        print self.mybag['connection.info.hostname'] == socket.gethostname()
+        print(self.mybag['connection.info.hostname'] == socket.gethostname())
 
 
-class TestBagFormula:
+class TestBagFormula(object):
     def setup_class(cls):
         cls.mybag = Bag(BAG_DATA)
 
@@ -265,10 +268,10 @@ class MyResolver(BagResolver):
 
 def testToTree():
     b = Bag()
-    b['alfa'] = Bag(dict(number=1, text='group1', title='alfa', date=datetime.date(2010, 05, 10)))
-    b['beta'] = Bag(dict(number=1, text='group2', title='beta', date=datetime.date(2010, 05, 05)))
-    b['gamma'] = Bag(dict(number=2, text='group1', title='gamma', date=datetime.date(2010, 05, 10)))
-    b['delta'] = Bag(dict(number=2, text='group2', title='delta', date=datetime.date(2010, 05, 05)))
+    b['alfa'] = Bag(dict(number=1, text='group1', title='alfa', date=datetime.date(2010, 0o5, 10)))
+    b['beta'] = Bag(dict(number=1, text='group2', title='beta', date=datetime.date(2010, 0o5, 0o5)))
+    b['gamma'] = Bag(dict(number=2, text='group1', title='gamma', date=datetime.date(2010, 0o5, 10)))
+    b['delta'] = Bag(dict(number=2, text='group2', title='delta', date=datetime.date(2010, 0o5, 0o5)))
     treeBag = b.toTree(group_by=('number', 'text'), caption='title', attributes=('date', 'text'))
 
     expectedStr =\

@@ -6,6 +6,8 @@ create a new genroproject
 usage: gnrmkproject projectname
 
 """
+from __future__ import print_function
+from builtins import str
 import sys, os
 
 from gnr.core.gnrbag import Bag
@@ -32,7 +34,7 @@ def site_name_to_path(site_name, gnr_config=None):
         site_path = os.path.join(path, site_name)
         if os.path.isdir(site_path):
             return site_path
-    print 'Error: no site named %s found'
+    print('Error: no site named %s found')
 
 
 def build_apache_site(site_name, apache_path='/etc/apache2/sites-available/', 
@@ -85,7 +87,7 @@ def build_apache_site(site_name, apache_path='/etc/apache2/sites-available/',
             ErrorLog %(site_path)s/error.log
     </VirtualHost>
     """ % params
-    print apache_file_content
+    print(apache_file_content)
     #outpath= os.path.join(apache_path, filename)
     # #if os.path.exists(outpath):
     #    print 'A file named %s already exists' % filename

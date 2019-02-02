@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2011-05-05.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.app.gnrconfig import getGenroRoot

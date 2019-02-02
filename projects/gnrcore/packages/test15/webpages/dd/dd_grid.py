@@ -6,6 +6,8 @@
 
 """Grid with drag & drop"""
 
+from builtins import range
+from builtins import object
 from gnr.core.gnrbag import Bag
 import datetime
 

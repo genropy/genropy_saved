@@ -18,6 +18,9 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebpage import GnrUserNotAllowed,GnrBasicAuthenticationError
 
@@ -26,7 +29,7 @@ from dateutil import parser as dtparser
 import datetime
 from decimal import Decimal
 from gnr.core.gnrdecorator import public_method
-from xmlrpclib import dumps as xmlrpcdumps,loads as xmlrpcloads, Marshaller, Fault
+from xmlrpc.client import dumps as xmlrpcdumps,loads as xmlrpcloads, Marshaller, Fault
 
 def dump_decimal(self,value, write):
     write("<value><double>")
@@ -107,7 +110,7 @@ class NetBagRpc(BaseComponent):
             method = self.rpc_index
         try:
             result = method(*args, **kwargs)
-        except Exception,e:
+        except Exception as e:
             result = Bag(dict(error=str(e)))
         if not isinstance(result,Bag):
             result = Bag(dict(result=result))
@@ -146,11 +149,11 @@ class XmlRpc(BaseComponent):
         method=method.replace('.','_')
         try:
             handler = self.getPublicMethod('rpc',method)
-        except GnrBasicAuthenticationError, e:
+        except GnrBasicAuthenticationError as e:
             return self.returnFault(-2,str(e))
-        except GnrUserNotAllowed,e:
+        except GnrUserNotAllowed as e:
             return self.returnFault(-2,'User not allowed for method %s' %method)
-        except Exception,e:
+        except Exception as e:
             return self.returnFault(-2,str(e))
         if not handler:
             return self.returnFault(-2,'Not existing method:%s' % method)
@@ -162,7 +165,7 @@ class XmlRpc(BaseComponent):
             result = handler(*args, **kwargs)
             xmlRpcResult = xmlrpcdumps((result,),encoding='UTF-8',methodresponse=True,allow_none=True)
             return xmlRpcResult
-        except Exception,e:
+        except Exception as e:
             import sys,os
             tb = sys.exc_info()[2]
             while tb is not None :

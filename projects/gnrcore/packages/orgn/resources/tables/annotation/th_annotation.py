@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from builtins import object
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method,metadata
 from datetime import datetime,timedelta
@@ -361,7 +362,7 @@ class Form(BaseComponent):
                         viewResource='orgn_components:ViewActionComponent',
                         view_structCb=following_actions_struct,searchOn=False,
                         nodeId='orgn_action_#',default_rec_type='AC',default_priority='L',
-                        **dict([('default_%s' %k,v) for k,v in sub_action_default_kwargs.items()]))
+                        **dict([('default_%s' %k,v) for k,v in list(sub_action_default_kwargs.items())]))
         rpc = bc.dataRpc('dummy',self.orgn_getDefaultActionsRows,annotation_type_id='^#FORM.record.annotation_type_id',
                         _if='annotation_type_id&&_is_newrecord',_is_newrecord='=#FORM.controller.is_newrecord',**sub_action_default_kwargs)
         rpc.addCallback("""if(result){

@@ -41,7 +41,7 @@ class Package(GnrDboPackage):
         if caption.startswith('!!'):
             caption = '[%s]' %caption
         entity = '%s:%s' %(code,caption)
-        linked_attrs = dict([('linked_%s' %k,v) for k,v in kwargs.items()])
+        linked_attrs = dict([('linked_%s' %k,v) for k,v in list(kwargs.items())])
         if fkey in curr_columns:
             colsrc = src['columns'][fkey]
             related_column = colsrc.getAttr('relation')['related_column']

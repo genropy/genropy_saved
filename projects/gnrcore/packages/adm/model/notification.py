@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from builtins import object
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('notification', pkey='id', name_long='!!Notification', name_plural='!!Notifications',caption_field='title')

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 #
  
+from builtins import object
 from gnr.web.gnrhtmlpage import GnrHtmlDojoPage as page_factory
  
 class GnrCustomWebPage(object):

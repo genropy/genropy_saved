@@ -5,6 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 "Test page description"
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
 
@@ -37,6 +38,6 @@ class GnrCustomWebPage(object):
     def rpc_applyOnRemote(self,p_id=None,editedData=None,currpath=None,**kwargs):
         currpath = currpath.replace('data.','')
         with self.pageStore(p_id) as store:
-            for row in editedData.values():
+            for row in list(editedData.values()):
                 if row['attr_name'] == '*value':
                     store.setItem(currpath,row['attr_value'])

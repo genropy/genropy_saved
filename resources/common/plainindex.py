@@ -19,7 +19,7 @@ class PlainIndex(BaseComponent):
         root.div('Package:%s' % self.package.name,margin='20px',font_size='18px',color='#145698')
         box = root.div(margin='20px',border='2px solid #AFCBEC',rounded=6,
                                 padding='10px',color='#444',font_weight='bold',_class='treecont')
-        if not folder.keys():
+        if not list(folder.keys()):
             box.div('No pages in this package: create one in folder "webpages"')
         else:
             root.style('.treecont .dijitTreeLabel{cursor:pointer;} .treecont .dijitTreeLabel:hover{text-decoration:underline} ')

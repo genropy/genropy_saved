@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
+from past.builtins import basestring
+from builtins import object
 from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage
 from gnr.core.gnrdecorator import metadata
 from gnr.core.gnrbag import Bag
@@ -41,8 +44,8 @@ class Package(GnrDboPackage):
 
     def mixinMultidbMethods(self):
         db = self.application.db
-        for pkg,pkgobj in db.packages.items():
-            for tbl,tblobj in pkgobj.tables.items():
+        for pkg,pkgobj in list(db.packages.items()):
+            for tbl,tblobj in list(pkgobj.tables.items()):
                 if tblobj.dbtable.multidb:
                     instanceMixin(tblobj.dbtable, MultidbTable)
 
@@ -106,14 +109,14 @@ class Package(GnrDboPackage):
     def checkFullSyncTables(self,errorlog_folder=None,
                             dbstores=None,store_block=5,packages=None,tbllist=None):
         if dbstores is None:
-            dbstores = self.db.dbstores.keys()
+            dbstores = list(self.db.dbstores.keys())
         elif isinstance(dbstores,basestring):
             dbstores = dbstores.split(',')
         while dbstores:
             block = dbstores[0:store_block]
             dbstores = dbstores[store_block:]
             self.checkFullSyncTables_do(errorlog_folder=errorlog_folder,dbstores=block,packages=packages,tbllist=tbllist)
-            print 'dbstore to do',len(dbstores)
+            print('dbstore to do',len(dbstores))
 
     def checkFullSyncTables_do(self,errorlog_folder=None,dbstores=None,packages=None,tbllist=None):
         errors = Bag()
@@ -137,7 +140,7 @@ class Package(GnrDboPackage):
                 tbl.checkSyncPartial(dbstores=dbstores,main_fetch=main_f,errors=errors)
 
         if errorlog_folder:
-            for dbstore,v in errors.items():
+            for dbstore,v in list(errors.items()):
                 p = '%s/%s.xml' %(errorlog_folder,dbstore)
                 if v:
                     v.toXml(p,autocreate=True)
@@ -203,11 +206,11 @@ class MultidbTable(object):
 
             for store in stores_to_check:
                 with self.db.tempEnv(storename=store,_multidbSync=True):
-                    print 'in store',store
+                    print('in store',store)
                     if store in common_stores:
                         sr = self.record(pkey=sourcePkey,for_update=True).output('dict')
                         dr = self.record(pkey=destPkey,for_update=True).output('dict')
-                        print 'unifiy in ',store
+                        print('unifiy in ',store)
                         self._unifyRecords_default(sr,dr)
                     elif store in sourceRecord_stores:
                         with self.db.tempEnv(storename=self.db.rootstore):
@@ -257,7 +260,7 @@ class MultidbTable(object):
             
     def _onUpdating_master(self, record,old_record=None,**kwargs):
         if record['__multidb_default_subscribed']:
-            for f in self.relations_one.keys():
+            for f in list(self.relations_one.keys()):
                 if record.get(f):
                     relcol = self.column(f)
                     relatedTable = relcol.relatedTable().dbtable
@@ -381,10 +384,10 @@ class MultidbTable(object):
                     diff = self.getRecordDiff(main_r,r)
                     to_update = False
                     localdiff = dict()
-                    for field,values in diff.items():
+                    for field,values in list(diff.items()):
                         main_value,store_value = values
                         if main_value is not None:
-                            print '\t\t setting',field,main_value,'instead of',store_value
+                            print('\t\t setting',field,main_value,'instead of',store_value)
                             r[field] = main_value
                             to_update = True
                         elif r[field] is not None:
@@ -447,7 +450,7 @@ class MultidbTable(object):
                         r[self.logicalDeletionField] = ts
                         self.raw_update(r,old_r)
                 continue
-            checkdiff = [(k,v,main_r[k]) for k,v in r.items() if k not in ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related') if v!=main_r[k]]
+            checkdiff = [(k,v,main_r[k]) for k,v in list(r.items()) if k not in ('__ins_ts','__mod_ts','__version','__del_ts','__moved_related') if v!=main_r[k]]
             if checkdiff:
                 diffrec.append((main_r,r))
             self._checkSyncChildren(main_r[pkeyfield])
@@ -458,7 +461,7 @@ class MultidbTable(object):
             except Exception:
                 for r,oldr in diffrec:
                     self.raw_update(r,oldr)
-                for main_r in checkdict.values():
+                for main_r in list(checkdict.values()):
                     self.raw_insert(main_r)
 
 
@@ -490,7 +493,7 @@ class MultidbTable(object):
             store = self.multidb_getForcedStore(record)
             return [store] if store else []
         elif self.multidb == '*' or record.get('__multidb_default_subscribed'):
-            return self.db.dbstores.keys()
+            return list(self.db.dbstores.keys())
         elif multidb is True:
             tablename = self.fullname
             tblsub = self.db.table('multidb.subscription')
@@ -524,7 +527,7 @@ class MultidbTable(object):
         main_record = self.record(pkey=record[self.pkey],
                                 _storename=False).output('record')
         changelist = []
-        for k,v in main_record.items():
+        for k,v in list(main_record.items()):
             if k not in FIELD_BLACKLIST:
                 if record[k] != v:
                     changelist.append(k)
@@ -534,7 +537,7 @@ class MultidbTable(object):
 
     def getRecordDiff(self,main_record,store_record):
         result = dict()
-        for k,v in main_record.items():
+        for k,v in list(main_record.items()):
             if k not in FIELD_BLACKLIST:
                 if store_record[k] != v:
                     result[k] = (v,store_record[k])

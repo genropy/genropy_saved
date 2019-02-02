@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # 
 """css3make tester"""
+from __future__ import print_function
 
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
@@ -20,4 +22,4 @@ class GnrCustomWebPage(object):
         smsservice = self.site.getService('sms')
         assert smsservice,'set in siteconfig the service smsmobyt'
         result = smsservice.sendsms(receiver=sms_to,sender=sms_from,data=sms_text)
-        print result
+        print(result)

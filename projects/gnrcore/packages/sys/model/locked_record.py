@@ -1,4 +1,6 @@
-from __future__ import with_statement
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 from datetime import datetime
 
 class Table(object):

@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2012-04-05.
 # Copyright (c) 2012 Softwell. All rights reserved.
 
+from builtins import str
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
@@ -149,13 +150,13 @@ class ExtDbExplorer(BaseComponent):
         dbname = connection_params['dbname'] or connection_params['filename']
         legacydb,ext = os.path.splitext(os.path.basename(dbname))
         parsdict = dict()
-        for k,v in connection_params.items():
+        for k,v in list(connection_params.items()):
             if v not in ('',None):
                 parsdict[k] = v
         instance_bag.setItem('legacy_db.%s' %legacydb,None,**parsdict)
         instance_bag.toXml(instance_path,typevalue=False,pretty=True)
-        for srcpkg,tables in data.items():
-            for tablename,columns in self.utils.quickThermo(tables.items(),labelcb=lambda r: '%s.%s' %(srcpkg,r[0]),maxidx=len(tables)):
+        for srcpkg,tables in list(data.items()):
+            for tablename,columns in self.utils.quickThermo(list(tables.items()),labelcb=lambda r: '%s.%s' %(srcpkg,r[0]),maxidx=len(tables)):
                 firstColAttr = columns.getAttr('#0')
                 tablename = tablename.lower()
                 tablename = tablename.replace(' ','_').replace('.','_')
@@ -196,7 +197,7 @@ class ExtDbExplorer(BaseComponent):
         sourcedb.model.build()
         result = Bag()
         tbl = sourcedb.table(table)
-        cols = ','.join(['$%s' %c.name for c in sourcedb.table(table).columns.values() if c.name!='_multikey'])
+        cols = ','.join(['$%s' %c.name for c in list(sourcedb.table(table).columns.values()) if c.name!='_multikey'])
         f = tbl.query(columns=cols,addPkeyColumn=False,limit=200).fetch()
         sourcedb.closeConnection()
         for i,r in enumerate(f):
@@ -226,10 +227,10 @@ class ExtDbExplorer(BaseComponent):
             project_path = p.project_name_to_path(project)
             modelpath = os.path.join(project_path,'packages',package,'model')
             if os.path.isdir(modelpath):
-                existing_tables = map(lambda r: os.path.splitext(r)[0], filter(lambda r: r.endswith('.py'), os.listdir(modelpath)))
+                existing_tables = [os.path.splitext(r)[0] for r in [r for r in os.listdir(modelpath) if r.endswith('.py')]]
         src = externaldb.model.src
         result = Bag()
-        for pkg in src['packages'].keys():
+        for pkg in list(src['packages'].keys()):
             pkgval = Bag()
             result.setItem(pkg, pkgval,name=pkg,checked=False)
             tables = src['packages'][pkg]['tables']
@@ -244,7 +245,7 @@ class ExtDbExplorer(BaseComponent):
                 pkgval.setItem(table,tableval,**tblattr)
                 for column,colattr,colval in tblval['columns'].digest('#k,#a,#v'):
                     cv = dict(colattr)
-                    for t,v in tblattr.items():
+                    for t,v in list(tblattr.items()):
                         cv['table_%s' %t] = v
                     #cv['checked'] = False
                     cv['name'] = column
@@ -269,7 +270,7 @@ class ExtDbExplorer(BaseComponent):
         if connection_params and (connection_params['dbname'] or connection_params['filename']):
             sourcedb = self.extdb_getSourceDb(connection_params)
             sourcedb.model.build()
-            for table in destdb.tablesMasterIndex()[package].keys():
+            for table in list(destdb.tablesMasterIndex()[package].keys()):
                 self.extdb_importTable(sourcedb,destdb,package,table)
                 destdb.commit()
             sourcedb.closeConnection()
@@ -281,7 +282,7 @@ class ExtDbExplorer(BaseComponent):
             return
         sourcetable = sourcedb.table(desttable.attributes['legacy_name'])
         columns = []
-        for k,c in desttable.columns.items():
+        for k,c in list(desttable.columns.items()):
             legacy_name = c.attributes.get('legacy_name')
             if legacy_name:
                 columns.append(" $%s AS %s " %(legacy_name,k))

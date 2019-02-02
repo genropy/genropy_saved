@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from builtins import range
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
 
@@ -42,7 +43,7 @@ class ThermoUtils(BaseComponent):
         else:
             params = dict(progress_1=progress_1, message_1=message_1, maximum_1=maximum_1)
             params.update(kwargs)
-            for k, v in params.items():
+            for k, v in list(params.items()):
                 if v is not None:
                     key, thermo = k.split('_')
                     thermoBag['t%s.%s' % (thermo, key)] = v

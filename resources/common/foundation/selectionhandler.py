@@ -20,6 +20,7 @@
 
 """""" # don't delete this line! MANDATORY for Sphinx autodoc
 
+from past.builtins import basestring
 from gnr.web.gnrbaseclasses import BaseComponent
 import warnings
 
@@ -76,14 +77,14 @@ class SelectionHandler(BaseComponent):
         # These warnings can be disabled by the calling code (see the 'warnings' module in Python Standard Library Reference)
 
         if selectionPars:
-            for k, p in selectionPars.items():
+            for k, p in list(selectionPars.items()):
                 if isinstance(p, basestring):
                     if p.startswith('^'):
                         warnings.warn("[selectionhandler] use '=' and not '^' in selectionPars: %s=%s" % (k, repr(p)),
                                       stacklevel=2)
 
         if dialogPars:
-            for k, p in dialogPars.items():
+            for k, p in list(dialogPars.items()):
                 if isinstance(p, basestring):
                     if p.startswith('^'):
                         warnings.warn("[selectionhandler] use '=' and not '^' in dialogPars: %s=%s" % (k, repr(p)),

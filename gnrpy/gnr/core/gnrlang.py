@@ -20,17 +20,31 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import inspect
 #import weakref
 import sys, imp, traceback, datetime
 import os.path
-import thread
+import _thread
 import warnings
 import atexit
 import uuid
 import base64
 import time
 from gnr.core.gnrdecorator import deprecated,extract_kwargs # keep for compatibility
+from types import MethodType as _MethodType
+import six
+if six.PY2:
+    class MethodType(_MethodType):
+        def __init__(self, method, obj):
+            super(_MethodType, self).__init__(method, obj, obj.__class__)
+else:
+    MethodType = _MethodType
 thread_ws = dict()
 _mixincount = 0
  
@@ -68,7 +82,7 @@ def tracebackBag(limit=None):
         tb_bag['line'] = line
         #tb_bag['locals'] = Bag(f.f_locals.items())
         loc = Bag()
-        for k,v in f.f_locals.items():
+        for k,v in list(f.f_locals.items()):
             try:
                 if isinstance(v,GnrStructData):
                     v = '*STRUCTURE*'
@@ -101,7 +115,7 @@ class FilterList(list):
 
 def thlocal():
     """TODO"""
-    return thread_ws.setdefault(thread.get_ident(), {})
+    return thread_ws.setdefault(_thread.get_ident(), {})
     
 def boolean(x):
     """Control if a string is "True" or "False" respect to Genro acceptable "True" and "False" strings
@@ -143,10 +157,10 @@ def debug_call(func):
         tloc = thlocal()
         indent = tloc['debug_call_indent'] = tloc.get('debug_call_indent', -1) + 1
         indent = ' ' * indent
-        print'%sSTART: %s (args:%s, kwargs=%s)' % (indent, func.func_name, args, kwargs)
+        print('%sSTART: %s (args:%s, kwargs=%s)' % (indent, func.__name__, args, kwargs))
         _timer_ = time.time()
         result = func(self, *args, **kwargs)
-        print'%sEND  : %s ms: %.4f' % (indent, func.func_name, (time.time() - _timer_) * 1000)
+        print('%sEND  : %s ms: %.4f' % (indent, func.__name__, (time.time() - _timer_) * 1000))
         tloc['debug_call_indent'] -= 1
         return result
         
@@ -160,25 +174,25 @@ def debug_call_new(attribute_list=None, print_time=False):
     attribute_list=attribute_list or []
     def decore(func):
         def wrapper(*arg, **kw):
-            thread_ident = thread.get_ident()
+            thread_ident = _thread.get_ident()
             t1 = time.time()
             tloc = thlocal()
             indent = tloc['debug_call_indent'] = tloc.get('debug_call_indent', -1) + 1
-            print'%sSTART: %s in %s (args:%s, kwargs=%s)' % (indent, func.func_name, thread_ident, arg, kw)
+            print('%sSTART: %s in %s (args:%s, kwargs=%s)' % (indent, func.__name__, thread_ident, arg, kw))
             if attribute_list:
-                values_dict = dict(map(lambda a: (a,getattr(arg[0],a,None)),attribute_list))
-                print values_dict
-            print'%sEND  : %s' % (indent, func.func_name)
+                values_dict = dict([(a,getattr(arg[0],a,None)) for a in attribute_list])
+                print(values_dict)
+            print('%sEND  : %s' % (indent, func.__name__))
             res = func(*arg, **kw)
             t2 = time.time()
             if print_time:
-                print '-' * 80
-                print '%s took %0.3f ms' % (func.func_name, (t2 - t1) * 1000.0)
-                print 10 * ' ' + 28 * '-' + 'args' + 28 * '-' + 10 * ' '
-                print arg
-                print 10 * ' ' + 27 * '-' + 'kwargs' + 27 * '-' + 10 * ' '
-                print kw or (hasattr(arg[0], 'kwargs') and arg[0].kwargs)
-                print '-' * 80
+                print('-' * 80)
+                print('%s took %0.3f ms' % (func.__name__, (t2 - t1) * 1000.0))
+                print(10 * ' ' + 28 * '-' + 'args' + 28 * '-' + 10 * ' ')
+                print(arg)
+                print(10 * ' ' + 27 * '-' + 'kwargs' + 27 * '-' + 10 * ' ')
+                print(kw or (hasattr(arg[0], 'kwargs') and arg[0].kwargs))
+                print('-' * 80)
             #time_list.append((func.func_name, (t2 - t1) * 1000.0))
             return res
         return wrapper
@@ -198,30 +212,33 @@ def timer_call(time_list=None, print_time=True):
             res = func(*arg, **kw)
             t2 = time.time()
             if print_time:
-                print '-' * 80
-                print '%s took %0.3f ms' % (func.func_name, (t2 - t1) * 1000.0)
-                print 10 * ' ' + 28 * '-' + 'args' + 28 * '-' + 10 * ' '
-                print arg
-                print 10 * ' ' + 27 * '-' + 'kwargs' + 27 * '-' + 10 * ' '
-                print kw or (hasattr(arg[0], 'kwargs') and arg[0].kwargs)
-                print '-' * 80
-            time_list.append((func.func_name, (t2 - t1) * 1000.0))
+                print('-' * 80)
+                print('%s took %0.3f ms' % (func.__name__, (t2 - t1) * 1000.0))
+                print(10 * ' ' + 28 * '-' + 'args' + 28 * '-' + 10 * ' ')
+                print(arg)
+                print(10 * ' ' + 27 * '-' + 'kwargs' + 27 * '-' + 10 * ' ')
+                print(kw or (hasattr(arg[0], 'kwargs') and arg[0].kwargs))
+                print('-' * 80)
+            time_list.append((func.__name__, (t2 - t1) * 1000.0))
             return res
             
         return wrapper
         
     return decore
 
+
+
 def getUuid():
     """Return a Python Universally Unique IDentifier 3 (UUID3) through the Python \'base64.urlsafe_b64encode\' method"""
-    return base64.urlsafe_b64encode(uuid.uuid3(uuid.uuid1(), str(thread.get_ident())).bytes)[0:22].replace('-','_')
-    
+    uuid_to_encode = uuid.uuid3(uuid.uuid1(), str(six.moves._thread.get_ident())).bytes
+    return base64.urlsafe_b64encode(uuid_to_encode)[0:22].replace(b'-', b'_').decode()
+
 def safe_dict(d):
     """Use the str method, coercing all the dict keys into a string type and return the dict
     with string-type keys
     
     :param d: a dict"""
-    return dict([(str(k), v) for k, v in d.items()])
+    return dict([(str(k), v) for k, v in list(d.items())])
     
 def uniquify(seq):
     """TODO
@@ -239,7 +256,7 @@ def uniquify(seq):
             
 def optArgs(**kwargs):
     """TODO"""
-    return dict([(k, v) for k, v in kwargs.items() if v != None])
+    return dict([(k, v) for k, v in list(kwargs.items()) if v != None])
             
 def moduleDict(module, proplist):
     """TODO
@@ -293,11 +310,11 @@ def gnrImport(source, importAs=None, avoidDup=False, silent=True,avoid_module_ca
         try:
             module = imp.load_module(segment, module_file, module_path, module_description)
             path = getattr(module, '__path__', None)
-        except SyntaxError, e:
+        except SyntaxError as e:
             raise
-        except ImportError,e:
+        except ImportError as e:
             raise
-        except Exception, e:
+        except Exception as e:
             if not silent:
                 raise
             module = None
@@ -347,7 +364,7 @@ class GnrException(Exception):
         :param msgargs: TODO"""
         if self.localizer:
             msg = self.localize(msg)
-            for k, v in msgargs.items():
+            for k, v in list(msgargs.items()):
                 if isinstance(v, basestring) and v.startswith('!!'):
                     msgargs[k] = self.localize(msgargs[k])
         return msg % msgargs % msgargs # msgargs is use 2 times as we could have msgargs nested(max 1 level)
@@ -420,7 +437,7 @@ class GnrImportedModule(object):
             m = self.getMember(memberName)
         if m:
             doc = m.__doc__
-        if doc: doc = unicode(doc, 'UTF-8')
+        if doc: doc = str(doc, 'UTF-8')
         else: doc = ""
         return doc
         
@@ -509,7 +526,7 @@ class GnrAddOn(object):
                 if not dstargs: args = args[:nargs]
                 if not dstkwargs:
                     dstkw = dstargname[-len(dstdefaults):]
-                    kwargs = dict([(key, value) for key, value in kwargs.items() if key in dstkw])
+                    kwargs = dict([(key, value) for key, value in list(kwargs.items()) if key in dstkw])
             return selectorMethod(*args, **kwargs)
             
     dosuper = staticmethod(superdo)
@@ -524,8 +541,8 @@ class GnrAddOn(object):
             if not importAs: importAs = 'abcd'
             compiled = compile(src, importAs, 'exec')
             auxDict = {}
-            exec compiled in auxDict
-            for name, obj in auxDict.items():
+            exec(compiled, auxDict)
+            for name, obj in list(auxDict.items()):
                 self.setCallable(obj, name, bound=bound)
         elif inspect.isfunction(src):
             if not importAs: importAs = src.__name__
@@ -568,7 +585,7 @@ class GnrRemeberableAddOn(GnrAddOn):
         
         :param cls: TODO"""
         #return [v() for v in cls._gnr_members__.values()]
-        return [v for v in cls._gnr_members__.values()]
+        return [v for v in list(cls._gnr_members__.values())]
         
     rememberedMembers = classmethod(rememberedMembers)
         
@@ -577,7 +594,7 @@ class GnrRemeberableAddOn(GnrAddOn):
         
         :param cls: TODO"""
         #return dict([(name,cls._gnr_members__[objid]()) for  name,objid in cls._gnr_namedmembers__.items()])
-        return dict([(name, cls._gnr_members__[objid]) for  name, objid in cls._gnr_namedmembers__.items()])
+        return dict([(name, cls._gnr_members__[objid]) for  name, objid in list(cls._gnr_namedmembers__.items())])
         
     rememberedNamedMembers = classmethod(rememberedNamedMembers)
         
@@ -600,7 +617,7 @@ class GnrMetaString(object):
         """TODO
         
         :param cls: TODO"""
-        return cls._glossary.keys()
+        return list(cls._glossary.keys())
         
     glossary = classmethod(glossary)
         
@@ -661,7 +678,7 @@ def setMethodFromText(obj, src, importAs):
     :param importAs: TODO"""
     compiled = compile(src, 'xyz', 'exec')
     auxDict = {}
-    exec compiled in auxDict
+    exec(compiled, auxDict)
     addBoundCallable(obj, auxDict[importAs], importAs)
         
 def getObjCallables(obj):
@@ -743,7 +760,7 @@ def cloneClass(name, source_class):
     
     :param name: TODO
     :param source_class: TODO"""
-    return type(name, source_class.__bases__, dict([(k, v) for k, v in source_class.__dict__.items()
+    return type(name, source_class.__bases__, dict([(k, v) for k, v in list(source_class.__dict__.items())
                                                     if not k in ('__dict__', '__module__', '__weakref__', '__doc__')]))
                                                     
 def moduleClasses(m):
@@ -807,9 +824,9 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
     mlist = [k for k in dir(source_class) if
              ((only_callables and callable(getattr(source_class, k))) or not only_callables) and not k in exclude_list]
     if methods:
-        mlist = filter(lambda item: item in FilterList(methods), mlist)
+        mlist = [item for item in mlist if item in FilterList(methods)]
     if exclude:
-        mlist = filter(lambda item: item not in FilterList(exclude), mlist)
+        mlist = [item for item in mlist if item not in FilterList(exclude)]
     proxy = getattr(source_class, 'proxy', None)
     if proxy:
         if proxy==True:
@@ -828,7 +845,7 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
         new = None
         found = False
         while not found:
-            base_class = base_generator.next()
+            base_class = next(base_generator)
             if name in base_class.__dict__:
                 new = base_class.__dict__.get(name)
                 found = True
@@ -914,16 +931,21 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
              callable(getattr(source, k)) and not k in dir(type) + ['__weakref__', '__onmixin__','mixin']]
     instmethod = type(obj.__init__)
     if methods:
-        mlist = filter(lambda item: item in FilterList(methods), mlist)
+        mlist = [item for item in mlist if item in FilterList(methods)]
     if exclude:
-        mlist = filter(lambda item: item not in FilterList(exclude), mlist)
+        mlist = [item for item in mlist if item not in FilterList(exclude)]
     __mixin_pkg = getattr(source, '__mixin_pkg', None)
     __mixin_path = getattr(source, '__mixin_path', None)
     for name in mlist:
-        method = getattr(source, name).im_func
+        method = getattr(source, name)
+        if type(method) == MethodType:
+            method = method.__func__
+        k = MethodType(method, obj)
+        
+        #method = getattr(source, name).__func__
         method.__mixin_pkg = __mixin_pkg
         method.__mixin_path = __mixin_path
-        k = instmethod(method, obj, obj.__class__)
+        #k = instmethod(method, obj, obj.__class__)
         curr_prefix = prefix
         name_as =getattr(method,'instance_mixin_as',name)
         if mangling_kwargs and '_' in name:
@@ -951,14 +973,14 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
             if hasattr(source, attribute):
                 setattr(obj, attribute, getattr(source, attribute))
     if hasattr(source, '__onmixin__'):
-        source.__onmixin__.im_func(obj, _mixinsource=source, **kwargs)
+        source.__onmixin__.__func__(obj, _mixinsource=source, **kwargs)
     return _mixined
     
 def safeStr(self, o):
     """Return a safe string
     
     :param o: the string to be checked"""
-    if isinstance(o, unicode):
+    if isinstance(o, str):
         return o.encode('UTF-8', 'ignore')
     else:
         return str(o)
@@ -1018,7 +1040,7 @@ def errorTxt():
         e = e.tb_next
         
     locals_list = []
-    for k, v in e.tb_frame.f_locals.items():
+    for k, v in list(e.tb_frame.f_locals.items()):
         try:
             from gnr.core.gnrstring import toText
             strvalue = toText(v)
@@ -1040,9 +1062,9 @@ def errorLog(proc_name, host=None, from_address='', to_address=None, user=None, 
         
     ts = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S: ')
     title = '%s - Error in %s' % (ts, proc_name)
-    print title
+    print(title)
     tb_text = errorTxt()
-    print tb_text.encode('ascii', 'ignore')
+    print(tb_text.encode('ascii', 'ignore'))
         
     if (host and to_address):
         try:
@@ -1096,7 +1118,7 @@ def callAsync(call=None, call_args=None, call_kwargs=None, cb=None, cb_args=None
     thread_params = dict(call=call, call_args=call_args, cb=cb, cb_args=cb_args, cb_kwargs=cb_kwargs)
     status_dict = dict(running=False, ended=False)
     thread_params['status_dict'] = status_dict
-    thread.start_new_thread(_calledAync,(),thread_params)
+    _thread.start_new_thread(_calledAync,(),thread_params)
     atexit.register(_waitChild,status_dict=status_dict, exit_timeout=exit_timeout)
 
 

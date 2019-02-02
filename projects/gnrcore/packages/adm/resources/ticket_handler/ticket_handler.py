@@ -1,3 +1,5 @@
+from future import standard_library
+standard_library.install_aliases()
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs
@@ -5,7 +7,7 @@ from gnr.core.gnrbag import Bag,NetBag
 from datetime import datetime
 import os
 import shutil
-import urlparse
+import urllib.parse
 
 
 class TicketHandler(BaseComponent):
@@ -118,7 +120,7 @@ class TicketHandler(BaseComponent):
         url = helpdesk['url']
         user = helpdesk['user']
         password = helpdesk['password']
-        sp = urlparse.urlsplit(url)
+        sp = urllib.parse.urlsplit(url)
         return '%s://%s:%s@%s%s' %(sp.scheme,user,password,sp.netloc,sp.path)
     
 

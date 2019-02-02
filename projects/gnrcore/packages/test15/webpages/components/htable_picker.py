@@ -6,6 +6,7 @@
 
 """HPicker test page"""
 
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = 'gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/htablehandler:HTablePicker'
     htable = 'base.category'

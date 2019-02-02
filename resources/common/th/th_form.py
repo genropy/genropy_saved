@@ -107,7 +107,7 @@ class TableHandlerForm(BaseComponent):
 
     def _th_getPluggedCols(self,table):
         tblobj = self.db.table(table)
-        collist = tblobj.columns.items()+tblobj.model['virtual_columns'].items()
+        collist = list(tblobj.columns.items())+list(tblobj.model['virtual_columns'].items())
         return [(col,colobj.attributes.get('_pluggedBy'),colobj.attributes['plugToForm']) for col,colobj in collist if colobj.attributes.get('plugToForm')]
 
 
@@ -285,7 +285,7 @@ class TableHandlerForm(BaseComponent):
 
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=mangler,asDict=True)
-            for hook in hooks.values():
+            for hook in list(hooks.values()):
                 hook(getattr(form,side))   
         defaultPrompt = options.get('defaultPrompt')
         if defaultPrompt:

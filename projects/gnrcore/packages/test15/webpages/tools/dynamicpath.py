@@ -6,6 +6,7 @@
 
 "iframerunner"
 
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 

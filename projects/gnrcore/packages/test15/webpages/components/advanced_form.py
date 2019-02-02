@@ -1,7 +1,9 @@
 #!/usr/bin/python
 
 """advanced form"""
+from __future__ import print_function
 
+from builtins import object
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
@@ -35,5 +37,5 @@ class GnrCustomWebPage(object):
         return self.db.table('glbl.provincia').recordAs(pkey, 'bag')
 
     def rpc_salvaDati(self, dati, **kwargs):
-        print "Dati salvati:"
-        print dati
+        print("Dati salvati:")
+        print(dati)

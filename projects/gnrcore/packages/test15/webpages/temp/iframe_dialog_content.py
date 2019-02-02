@@ -6,6 +6,7 @@
 
 """hello"""
 
+from builtins import object
 class GnrCustomWebPage(object):
 
     def main(self, root, **kwargs):

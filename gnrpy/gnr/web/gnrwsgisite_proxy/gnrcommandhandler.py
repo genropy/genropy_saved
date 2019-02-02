@@ -1,6 +1,8 @@
+from __future__ import print_function
 
 # -*- coding: utf-8 -*-
 
+from builtins import object
 import os
 
 class CommandHandler(object):
@@ -30,7 +32,7 @@ class CommandHandler(object):
 
     def command_clearTableUserConfig(self,pkg=None,table=None):
         if not table:
-            pkglist = [pkg] if pkg else self.db.application.packages.keys()
+            pkglist = [pkg] if pkg else list(self.db.application.packages.keys())
             for p in pkglist:
                 self.db.application.packages[p].tableBroadcast('clearUserConfiguration')
         else:
@@ -43,6 +45,6 @@ class CommandHandler(object):
         self.send(command='test',pars=kwargs)
 
     def command_test(self,**kwargs):
-        print 'test',kwargs,'pid',os.getpid()
+        print('test',kwargs,'pid',os.getpid())
 
 

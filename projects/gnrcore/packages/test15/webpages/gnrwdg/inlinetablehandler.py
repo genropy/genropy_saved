@@ -5,6 +5,7 @@
 
 "dialogTableHandler"
 
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 
 class GnrCustomWebPage(object):
@@ -16,7 +17,7 @@ class GnrCustomWebPage(object):
 
     def mystruct(self,struct):
         r = struct.view().rows()
-        for k,v in struct.tblobj.model.columns.items():
+        for k,v in list(struct.tblobj.model.columns.items()):
             attr = v.attributes
             if not (attr.get('_sysfield') or attr.get('dtype') == 'X'):
                 r.fieldcell(k,edit=attr['cell_edit'] if 'cell_edit' in attr else True)

@@ -21,6 +21,13 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 # 
 
+from __future__ import division
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.utils import old_div
+from builtins import object
 try:
     import memcache
 
@@ -28,13 +35,13 @@ try:
 except ImportError:
     HAS_MEMCACHE = False
 
-import cPickle as pickle
+import pickle as pickle
 import os
 
 from datetime import timedelta
 import time
 from threading import RLock
-import thread
+import _thread
 
 MAX_RETRY = 500
 DEBUG_LIMIT = 50
@@ -81,9 +88,9 @@ class SharedLocker(object):
     def __exit__(self, exception_type, value, traceback):
         self.timer_exec = time.time() - self.timer_start - self.timer_getlock
         if exception_type:
-            print 'error in locking execution %s' %self
+            print('error in locking execution %s' %self)
         elif self.timer_exec>.5:
-            print 'Long locking time %s' %self
+            print('Long locking time %s' %self)
         return self.sd.unlock(self.key)
 
     def __str__(self):
@@ -102,7 +109,7 @@ class GnrSharedData(object):
                             retry_time=retry_time, caller=caller, reason=reason)
 
     def lockcount(self, key, delta):
-        lockdict = self._locks.setdefault(thread.get_ident(), {})
+        lockdict = self._locks.setdefault(_thread.get_ident(), {})
         lockdict[key] = lockcount = max(0, lockdict.get(key, 0) + delta)
         return lockcount
 
@@ -122,11 +129,11 @@ class GnrSharedData(object):
         while k:
             if self.add('%s_lock' % key, True, expiry=lock_time):
                 if max_retry - k > DEBUG_LIMIT:
-                    print  "TRIED TO LOCK AND GOT AFTER: %f" % ((max_retry-k) / RETRY_TIME)
+                    print("TRIED TO LOCK AND GOT AFTER: %f" % (old_div((max_retry-k), RETRY_TIME)))
                 return True
             k -= 1
             time.sleep(retry_time)
-        print '************UNABLE TO LOCK : %s max_retry:%i***************' % (key, max_retry)
+        print('************UNABLE TO LOCK : %s max_retry:%i***************' % (key, max_retry))
 
     def dump(self):
         pass
@@ -151,7 +158,7 @@ class GnrSharedData_dict(GnrSharedData):
             
     def dump(self):
         """TODO"""
-        print 'DUMP SHARED DATA'
+        print('DUMP SHARED DATA')
         with open(self.storage_path, 'w') as shared_data_file:
             pickle.dump(self.storage, shared_data_file)
 
@@ -159,9 +166,9 @@ class GnrSharedData_dict(GnrSharedData):
         try:
             with open(self.storage_path) as shared_data_file:
                 self.storage = pickle.load(shared_data_file)
-                print 'LOAD SHARED DATA'
+                print('LOAD SHARED DATA')
         except EOFError:
-            print 'UNABLE TO LOAD SHARED DATA'
+            print('UNABLE TO LOAD SHARED DATA')
         os.remove(self.storage_path)
 
     def key(self, key):
@@ -284,7 +291,7 @@ class GnrSharedData_memcache(GnrSharedData):
             if doraise:
                 raise self.site.exception('memcached not started')
             else:
-                print '****** memcached not started ********'
+                print('****** memcached not started ********')
 
     def key(self, key):
         """TODO"""
@@ -293,8 +300,8 @@ class GnrSharedData_memcache(GnrSharedData):
         return prefixed_key  #MIKI: why don't we strip the result?
 
     def debug_keys(self):
-        for key in self.visited_keys.values():
-            print self.get(key)
+        for key in list(self.visited_keys.values()):
+            print(self.get(key))
 
     def get(self, key):
         prefixed_key = self.key(key).strip()
@@ -323,7 +330,7 @@ class GnrSharedData_memcache(GnrSharedData):
         if status:
             return value
         else:
-            print 'wrong status unable to add in memcache %s' %key
+            print('wrong status unable to add in memcache %s' %key)
 
     def replace (self, key, value, expiry=0):
         status = self.storage.replace(self.key(key), value, time=exp_to_epoch(expiry))

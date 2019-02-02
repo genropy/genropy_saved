@@ -3,6 +3,7 @@
 #
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
+from builtins import object
 from gnr.lib.services.storage import StorageService,StorageNode,StorageResolver
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method

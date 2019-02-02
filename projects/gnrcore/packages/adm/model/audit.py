@@ -1,4 +1,5 @@
 # encoding: utf-8
+from builtins import object
 from gnr.core.gnrbag import Bag
 class Table(object):        
     def config_db(self, pkg):
@@ -31,7 +32,7 @@ class Table(object):
         if event == 'U':
             assert old_record, 'Missing old_record in an update that uses audit feature tbl: %s' %tblobj.fullname
             changes = Bag()
-            for k in record.keys():
+            for k in list(record.keys()):
                 if k in ('__version','__mod_ts'):
                     continue
                 if record[k] != old_record.get(k):

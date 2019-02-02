@@ -23,6 +23,7 @@
 #Created by Giovanni Porcari on 2007-03-24.
 #Copyright (c) 2007 Softwell. All rights reserved.
 
+from past.builtins import basestring
 from gnr.lib.services.mail import MailService,MailError
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrbaseclasses import TableTemplateToHtml

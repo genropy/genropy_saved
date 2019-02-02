@@ -19,7 +19,7 @@ class Main(BaseResourceAction):
     def do(self):
         counterfields = self.batch_parameters['counterfields']
         fix_duplicate = self.batch_parameters['fix_duplicate']
-        for k,v in counterfields.items():
+        for k,v in list(counterfields.items()):
             to_align = v['to_align']
             if to_align:
                 self.db.table('adm.counter').alignSequences(self.tblobj,field=k,to_align=to_align,fix_duplicate=fix_duplicate,thermo_wrapper=self.btc.thermo_wrapper)

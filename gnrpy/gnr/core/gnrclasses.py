@@ -20,6 +20,12 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import division
+from __future__ import print_function
+from builtins import str
+from past.builtins import basestring
+from builtins import object
+from past.utils import old_div
 import datetime
 import re
 
@@ -205,8 +211,8 @@ class GnrClassCatalog(object):
         if clsname == 'JS':
             try:
                 return self.fromJson(txt)
-            except Exception, e:
-                print 'error decoding json ',e
+            except Exception as e:
+                print('error decoding json ',e)
                 return txt
         f = self.parsers.get(clsname, None)
         if f:
@@ -278,13 +284,13 @@ class GnrClassCatalog(object):
         """
         from gnr.core.gnrbag import Bag
         
-        self.addClass(cls=unicode, key='T', aliases=['TEXT', 'P', 'A','text'], altcls=[basestring, str], empty='')
+        self.addClass(cls=str, key='T', aliases=['TEXT', 'P', 'A','text'], altcls=[basestring, str], empty='')
         #self.addSerializer("asText", unicode, lambda txt: txt)
         
         self.addClass(cls=float, key='R', aliases=['REAL', 'FLOAT', 'F'], align='R', empty=0.0)
         self.addParser(float, self.parse_float)
         
-        self.addClass(cls=int, key='L', aliases=['LONG', 'LONGINT', 'I', 'INT', 'INTEGER'], altcls=[long], align='R',
+        self.addClass(cls=int, key='L', aliases=['LONG', 'LONGINT', 'I', 'INT', 'INTEGER'], altcls=[int], align='R',
                       empty=0)
                       
         self.addClass(cls=bool, key='B', aliases=['BOOL', 'BOOLEAN'], empty=False)
@@ -356,11 +362,11 @@ class GnrClassCatalog(object):
         if funcName.startswith('rpc_'):
             funcName = funcName[4:]
         proxy_name=getattr(func, 'proxy_name', None)
-        _gnrPublicName = getattr(func.im_class,'_gnrPublicName',None)
+        _gnrPublicName = getattr(func.__self__.__class__,'_gnrPublicName',None)
         if _gnrPublicName:
             proxy_name = _gnrPublicName
-        if func.im_class.__name__=='SqlTable':
-            proxy_name = "_table.%s" % func.im_self.fullname
+        if func.__self__.__class__.__name__=='SqlTable':
+            proxy_name = "_table.%s" % func.__self__.fullname
         if proxy_name:
             funcName = '%s.%s'%(proxy_name,funcName)
         __mixin_pkg = getattr(func, '__mixin_pkg', None)
@@ -409,11 +415,11 @@ class GnrClassCatalog(object):
         t = td.seconds
         seconds = t%60
         seconds += microseconds
-        t = t/60
+        t = old_div(t,60)
         minutes = t%60
-        t = t/60
+        t = old_div(t,60)
         hours = t%24
-        days = t/24
+        days = old_div(t,24)
         result = "%02i:%02i:%02s" %(hours,minutes,('%.3f' %seconds).zfill(6)) 
         if days:
             "%s days %s" %(days,result)

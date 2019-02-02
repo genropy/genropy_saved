@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Red Baron test"""
 
+from builtins import object
 import sys
 from gnr.core.gnrdecorator import public_method
 from redbaron import RedBaron
@@ -39,7 +40,7 @@ class GnrCustomWebPage(object):
             value = fred.pop('value',None)
             t = fred.pop('type')
             if not formatting:
-                fred = dict([(k,v) for k,v in fred.items() if not k.endswith('_formatting')])
+                fred = dict([(k,v) for k,v in list(fred.items()) if not k.endswith('_formatting')])
             value = getattr(self,'baronToBag_%s' %t,self.baronToBag_default)(value,fred)
             return (t,value,fred)
         elif isinstance(fred,list):

@@ -5,7 +5,9 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """paletteImporter"""
+from __future__ import print_function
 
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 
 class GnrCustomWebPage(object):
@@ -47,7 +49,7 @@ class GnrCustomWebPage(object):
 
     @public_method
     def testUpl(*args,**kwargs):
-        print 'pippo'
+        print('pippo')
 
     @public_method
     def importFileTest(self,filepath=None,name=None):

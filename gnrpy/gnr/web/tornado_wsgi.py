@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from builtins import str
+from builtins import next
 import itertools
 import logging
 import sys
@@ -65,7 +67,7 @@ class WSGIHandler(web.RequestHandler):
             environ["CONTENT_TYPE"] = request.headers.pop("Content-Type")
         if "Content-Length" in request.headers:
             environ["CONTENT_LENGTH"] = request.headers.pop("Content-Length")
-        for key, value in request.headers.items():
+        for key, value in list(request.headers.items()):
             environ["HTTP_" + key.replace("-", "_").upper()] = value
         return environ
 

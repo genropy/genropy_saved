@@ -23,12 +23,13 @@
 
 
 
+from builtins import object
 import datetime
 import pytz
 from gnr.core.gnrlocale import localize, parselocal
 from decimal import Decimal
 
-class TestLocalize:
+class TestLocalize(object):
     def setup_class(cls):
         cls.date = datetime.date(2007, 12, 10)
         cls.datetime = datetime.datetime(2007, 12, 10, 22, 15, 36)

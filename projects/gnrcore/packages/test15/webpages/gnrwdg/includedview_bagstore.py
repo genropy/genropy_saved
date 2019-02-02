@@ -5,6 +5,8 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 "includedview: bagstore"
+from builtins import range
+from builtins import object
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):

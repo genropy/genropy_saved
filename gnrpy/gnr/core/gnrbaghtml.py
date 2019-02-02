@@ -6,6 +6,11 @@
 # Created by Francesco Porcari on 2010-10-16.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+from __future__ import division
+from __future__ import print_function
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import os
 from gnr.core.gnrstring import toText,templateReplace
 from gnr.core.gnrhtml import GnrHtmlBuilder
@@ -132,7 +137,7 @@ class BagToHtml(object):
         self.is_draft = is_draft
         self.record = record
         self.setData('record', record) #compatibility
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             self.setData(k, v)
         if not filepath:
             folder = folder or tempfile.mkdtemp()
@@ -356,9 +361,9 @@ class BagToHtml(object):
     
     def copyHeight(self):
         """TODO"""
-        return (self.page_height - self.page_margin_top - self.page_margin_bottom -\
+        return old_div((self.page_height - self.page_margin_top - self.page_margin_bottom -\
                 self.page_header_height - self.page_footer_height -\
-                self.copy_extra_height * (self.copies_per_page - 1)) / self.copies_per_page
+                self.copy_extra_height * (self.copies_per_page - 1)), self.copies_per_page)
                 
     def copyWidth(self):
         """TODO"""
@@ -531,7 +536,7 @@ class BagToHtml(object):
         object to which you have to append a :meth:`layout <gnr.core.gnrhtml.GnrHtmlSrc.layout>`
         
         :param page: the page object"""
-        print 'mainLayout must be overridden'
+        print('mainLayout must be overridden')
         
     def _openPage(self):
         #if self.page_header_height:
@@ -576,7 +581,7 @@ class BagToHtml(object):
         define the layout of the grid
         
         :param grid: the :ref:`print_layout_grid`"""
-        print 'gridLayout must be overridden'
+        print('gridLayout must be overridden')
         
  
     def gridHeader(self, row):

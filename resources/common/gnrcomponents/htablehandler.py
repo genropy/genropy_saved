@@ -18,6 +18,9 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from builtins import str
+from builtins import range
+from past.builtins import basestring
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrdict import dictExtract
@@ -506,7 +509,7 @@ class HTableHandler(HTableHandlerBase):
             if isinstance(childTypes, dict):
                 childTypesMenu = Bag()
                 storepath = '.tree.childTypesMenu'
-                for k, v in childTypes.items():
+                for k, v in list(childTypes.items()):
                     childTypesMenu.setItem(k, None, caption=v)
                     pane.data(storepath, childTypesMenu)
             ddb = pane.div(label='!!Add', hidden=disabled,

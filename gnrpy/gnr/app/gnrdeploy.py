@@ -1,3 +1,8 @@
+from __future__ import print_function
+from past.builtins import execfile
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import os
 import sys
 import glob
@@ -122,7 +127,7 @@ def build_instanceconfig_xml(path=None):
     password = get_random_password(size=6)
     instanceconfig_bag.setItem('authentication.xml_auth.admin',None, dict(
         pwd=password, tags='superadmin,_DEV_,admin,user'))
-    print "Default password for user admin is %s, you can change it by editing %s" %(password, path)
+    print("Default password for user admin is %s, you can change it by editing %s" %(password, path))
     instanceconfig_bag.toXml(path,typevalue=False,pretty=True)
     
 def build_siteconfig_xml(path=None, gnrdaemon_password=None, gnrdaemon_port=None):
@@ -187,7 +192,7 @@ WantedBy=multi-user.target
 def gnrdaemonServiceBuilder():
     import pwd
     service_name = 'gnrdaemon'
-    if os.environ.has_key('VIRTUAL_ENV') or hasattr(sys,'real_prefix'):
+    if 'VIRTUAL_ENV' in os.environ or hasattr(sys,'real_prefix'):
         pyprefix = os.environ.get('VIRTUAL_ENV', sys.prefix)
         environments = "Environment=VIRTUAL_ENV=%s" %pyprefix
         service_name = '%s_%s'%(service_name, os.path.basename(pyprefix))
@@ -199,7 +204,7 @@ def gnrdaemonServiceBuilder():
     service_name = '%s.service'%service_name
     with open(service_name,'w') as service_file:
         service_file.write(content)
-    print """
+    print("""
 Gnrdaemon service created Now run these commands:
 
 $ sudo cp %(service_name)s /lib/systemd/system/%(service_name)s
@@ -210,7 +215,7 @@ $ sudo systemctl start %(service_name)s
 ...
 $ sudo systemctl status %(service_name)s
 $ sudo journalctl -e -u %(service_name)s
-        """ % dict(service_name=service_name)
+        """ % dict(service_name=service_name))
 
 
 GNRSITERUNNERSERVICE_TPL = """
@@ -237,7 +242,7 @@ def gnrsiterunnerServiceBuilder():
     ctl_binpath = which('supervisorctl')
     binroot = ''
     service_name = 'gnrsiterunner'
-    if os.environ.has_key('VIRTUAL_ENV') or hasattr(sys, 'real_prefix'):
+    if 'VIRTUAL_ENV' in os.environ or hasattr(sys, 'real_prefix'):
         pyprefix = os.environ.get('VIRTUAL_ENV', sys.prefix)
         environments = "Environment=VIRTUAL_ENV=%s" %pyprefix
         binroot = os.path.join(pyprefix,'bin')
@@ -254,7 +259,7 @@ def gnrsiterunnerServiceBuilder():
     service_name = '%s.service'%service_name
     with open(service_name,'w') as service_file:
         service_file.write(content)
-    print """
+    print("""
 Gnrsiterunner service created, now run these commands:
 
 $ sudo cp %(service_name)s /lib/systemd/system/%(service_name)s
@@ -268,7 +273,7 @@ $ sudo systemctl status %(service_name)s
 # Blah blah blah you should see something happy and green
 # Want to check your logs?
 $ sudo journalctl -e -u %(service_name)s
-        """ % dict(service_name=service_name)
+        """ % dict(service_name=service_name))
 
 def activateVirtualEnv(name=None):
     activate_file=os.path.join(name, "bin", "activate_this.py")
@@ -278,7 +283,7 @@ def createVirtualEnv(name=None, copy_genropy=False, copy_projects=None,
     branch=None):
     import virtualenv
     venv_path = os.path.join(os.getcwd(), name)
-    print 'Creating virtual environment %s in %s'%(name, venv_path)
+    print('Creating virtual environment %s in %s'%(name, venv_path))
     virtualenv.create_environment(name)
     gitrepos_path = os.path.join(venv_path, 'gitrepos')
     if not os.path.exists(gitrepos_path):
@@ -294,23 +299,23 @@ def createVirtualEnv(name=None, copy_genropy=False, copy_projects=None,
             prj_path = path_resolver.project_name_to_path(project)
             if prj_path:
                 destpath = os.path.join(projects_path, project)
-                print 'Copying project %s from %s to %s'%(project, prj_path, destpath)
+                print('Copying project %s from %s to %s'%(project, prj_path, destpath))
                 try:
                     shutil.copytree(prj_path, destpath)
                 except shutil.Error as e:
-                    print e
+                    print(e)
     if copy_genropy:
         newgenropy_path = os.path.join(gitrepos_path, 'genropy')
         gnr_config = getGnrConfig()
         genropy_path = gnr_config['gnr.environment_xml.environment.gnrhome?value']
         if genropy_path:
-            print 'Copying genropy from %s to %s'%(genropy_path,newgenropy_path)
+            print('Copying genropy from %s to %s'%(genropy_path,newgenropy_path))
             shutil.copytree(genropy_path,newgenropy_path)
             if branch:
                 curr_cwd = os.getcwd()
                 os.chdir(newgenropy_path)
                 import subprocess
-                print 'Switching to branch %s'%branch
+                print('Switching to branch %s'%branch)
                 subprocess.check_call(['git', 'stash'])
                 subprocess.check_call(['git', 'fetch'])
                 subprocess.check_call(['git', 'checkout', branch])
@@ -334,12 +339,12 @@ def projectBag(project_name,packages=None,branches=None,exclude_branches=None):
     packages = packages.split(',') if isinstance(packages,basestring) else (packages or [])
 
     dr = DirectoryResolver(p.project_name_to_path(project_name),include='*.py',dropext=True)
-    for pkg,pkgval in dr['packages'].items():
+    for pkg,pkgval in list(dr['packages'].items()):
         if packages and pkg not in packages:
             continue
         packagecontent = Bag()
         result[pkg] = packagecontent
-        for tbl in pkgval['model'].keys():
+        for tbl in list(pkgval['model'].keys()):
             if tbl=='_packages':
                 continue
             packagecontent['tables.%s' %tbl] = '%s.%s' %(pkg,tbl)
@@ -762,7 +767,7 @@ class ThPackageResourceMaker(object):
         self.app = application 
         self.package = package
         self.bag_columns=bag_columns or dict(view=False, form=False)
-        self.tables = tables if tables else self.app.db.packages[self.package].tables.keys() 
+        self.tables = tables if tables else list(self.app.db.packages[self.package].tables.keys()) 
         self.packageFolder = self.app.packages(package).packageFolder
 
     
@@ -823,7 +828,7 @@ class ThPackageResourceMaker(object):
         searchcol = tblobj.attributes.get('caption_field') 
         
         if not searchcol:
-            l = filter(lambda c: c.attributes.get('dtype') in ('A','T','C') and not c.attributes.get('_sysfield'),tblobj.columns.values())
+            l = [c for c in list(tblobj.columns.values()) if c.attributes.get('dtype') in ('A','T','C') and not c.attributes.get('_sysfield')]
             if l:
                 searchcol = l[0].name
         self.write("return dict(column='%s', op='contains', val='')"%searchcol, indent=2)
@@ -880,13 +885,13 @@ class ThPackageResourceMaker(object):
         name = 'th_%s.py'%table
         path = os.path.join(resourceFolder, name)
         if os.path.exists(path) and not self.option_force:
-            print '%s exist: will be skipped, use -f/--force to force replace' % name
+            print('%s exist: will be skipped, use -f/--force to force replace' % name)
             return
         view_columns=[]
         form_columns=[]
         max_size = 35
         tbl_obj =  self.app.db.table('%s.%s'%(self.package,table))
-        for col_name,column in tbl_obj.columns.items():
+        for col_name,column in list(tbl_obj.columns.items()):
             dtype = column.dtype
             if column.attributes.get('_sysfield') or dtype =='O': 
                 continue
@@ -912,7 +917,7 @@ class ThPackageResourceMaker(object):
             self.writeImports()
             self.writeViewClass(tbl_obj, view_columns)
             self.writeFormClass(tbl_obj, form_columns)
-            print '%s created' % name
+            print('%s created' % name)
 
 ################################# DEPLOY CONF BUILDERS ################################
 
@@ -998,7 +1003,7 @@ class GunicornDeployBuilder(object):
         self.supervisor_conf_path_py = os.path.join(self.gnr_path,'supervisord.py') 
         self.supervisor_conf_path_ini = os.path.join(self.gnr_path,'supervisord.conf')
         self.supervisor_log_path = os.path.join(self.gnr_path,'supervisord.log')
-        self.bin_folder = os.path.join(os.environ.get('VIRTUAL_ENV'),'bin') if os.environ.has_key('VIRTUAL_ENV') else ''
+        self.bin_folder = os.path.join(os.environ.get('VIRTUAL_ENV'),'bin') if 'VIRTUAL_ENV' in os.environ else ''
         self.socket_path = os.path.join(self.site_path, 'sockets')
         self.logs_path = os.path.join(self.site_path, 'logs')
         self.pidfile_path = os.path.join(self.site_path, '%s_pid' % site_name)
@@ -1030,7 +1035,7 @@ class GunicornDeployBuilder(object):
         pars['max_requests_jitter'] = self.default_max_requests_jitter
         pars['chdir'] = self.site_path if os.path.exists(os.path.join(self.site_path,'root.py')) else self.instance_path
         conf_content = GUNICORN_DEFAULT_CONF_TEMPLATE %pars
-        print 'write gunicorn file',self.gunicorn_conf_path
+        print('write gunicorn file',self.gunicorn_conf_path)
         with open(self.gunicorn_conf_path,'w') as conf_file:
             conf_file.write(conf_content)
 

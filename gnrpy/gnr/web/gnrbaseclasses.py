@@ -23,6 +23,8 @@
 #Created by Giovanni Porcari on 2007-03-24.
 #Copyright (c) 2007 Softwell. All rights reserved.
 
+from past.builtins import basestring
+from builtins import object
 import os,sys
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrdecorator import extract_kwargs
@@ -150,7 +152,7 @@ class BaseComponent(object):
 class BaseResource(GnrObject):
     """Base class for a webpage resource"""
     def __init__(self, **kwargs):
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             if v:
                 setattr(self, k, v)
                 
@@ -158,7 +160,7 @@ class BaseProxy(object):
     """Base class for a webpage proxy"""
         
     def __init__(self, **kwargs):
-        for argname, argvalue in kwargs.items():
+        for argname, argvalue in list(kwargs.items()):
             setattr(self, argname, argvalue)
             
 class BaseWebtool(object):

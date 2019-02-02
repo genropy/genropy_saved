@@ -6,6 +6,7 @@ create a new genroproject
 usage: gnrmkproject projectname
 
 """
+from __future__ import print_function
 import sys, os, shutil
 
 from gnr.core.gnrbag import Bag
@@ -21,15 +22,15 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
     base_path = getattr(options, 'base_path', None)
     if not args:
-        print 'You should specify a package name'
+        print('You should specify a package name')
     else:
         package_name = args[0]
         if '.' in args[0]:
             path_resolver = PathResolver()
             project_name, package_name = args[0].split('.')
             base_path = base_path or os.path.join(path_resolver.project_name_to_path(project_name), 'packages')
-        print 'Creating package %s in %s...' % (package_name, base_path or 'current directory')
+        print('Creating package %s in %s...' % (package_name, base_path or 'current directory'))
         package_maker = PackageMaker(package_name, base_path=base_path)
-        print 'Package %s created' % package_name
+        print('Package %s created' % package_name)
         package_maker.do()
         

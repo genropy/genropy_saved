@@ -1,4 +1,6 @@
 # encoding: utf-8
+from builtins import str
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 
 
@@ -24,8 +26,8 @@ class Table(object):
                 body = '%s <br/> $link' %mail_message 
                 self.getService('mail').sendmail_template(record,to_address=email,
                                     body=body, subject=mail_subject or 'Confirm user',
-                                    async=mail_async or False,html=True)
+                                    async_=mail_async or False,html=True)
             self.db.commit()
-        except Exception,e:
+        except Exception as e:
             return dict(error=str(e))
 

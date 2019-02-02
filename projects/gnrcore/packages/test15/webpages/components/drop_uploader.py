@@ -5,7 +5,9 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 """Test drop uploader"""
+from __future__ import print_function
 
+from builtins import object
 from gnr.core.gnrlist import XlsReader
 from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.core.gnrdecorator import public_method
@@ -61,8 +63,8 @@ class GnrCustomWebPage(object):
     @public_method
     def onUploaded_test_uploader(self, file_url=None, file_path=None, file_ext=None, pippo=None,
                                   action_results=None, **kwargs):
-        print pippo
-        print file_path
+        print(pippo)
+        print(file_path)
         #def test_2_dropFileGrid(self,pane):
         #    """dropFileGrid"""
         #    def footer(footer,**kwargs):
@@ -143,7 +145,7 @@ class GnrCustomWebPage(object):
         #reader = XlsReader(file_path)
         #headers = reader.headers()
         #content = list(reader())
-        print result
+        print(result)
         return result
         
 

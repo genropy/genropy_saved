@@ -7,6 +7,7 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 class GnrCustomWebPage(object):
@@ -70,7 +71,7 @@ class GnrCustomWebPage(object):
     def update_data(self, user_guest=None,user_logged=None,**kwargs):
         result = Bag()
         users = self.site.register.users()
-        user_keys = users.keys()
+        user_keys = list(users.keys())
         if not user_logged:
             [users.pop(k) for k in user_keys if not k.startswith('guest_')]
         if not user_guest:
@@ -84,7 +85,7 @@ class GnrCustomWebPage(object):
 
     def get_items(self, items, child_name=None, **kwargs):
         result = Bag()
-        for key, item in items.items():
+        for key, item in list(items.items()):
 
             _customClasses = []
             item['_pkey'] = key

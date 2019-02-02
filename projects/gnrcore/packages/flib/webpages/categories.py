@@ -1,3 +1,4 @@
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = 'public:Public,gnrcomponents/htablehandler:HTableHandler'
 

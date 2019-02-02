@@ -22,6 +22,14 @@
 
 
 #import weakref
+from __future__ import division
+from __future__ import print_function
+from past.builtins import cmp
+from builtins import str
+from builtins import range
+from past.builtins import basestring
+from past.utils import old_div
+from builtins import object
 import os
 import re
 
@@ -67,7 +75,7 @@ class RecordUpdater(object):
             oldrecord = None
             if self.insertMissing:
                 self.record.update(self.tblobj.defaultValues())
-                for k,v in self.kwargs.items():
+                for k,v in list(self.kwargs.items()):
                     if k in self.tblobj.columns and v is not None:
                         self.record[k] = v
                 self.insertMode = True
@@ -75,7 +83,7 @@ class RecordUpdater(object):
                 self.record = None
         else:
             oldrecord = dict(self.record)
-            for k,v in oldrecord.items():
+            for k,v in list(oldrecord.items()):
                 if v and isinstance(v,Bag):
                     oldrecord[k] = v.deepcopy()
         self.oldrecord = oldrecord
@@ -292,7 +300,7 @@ class SqlTable(GnrObject):
         if not kw:
             return
         result = dict()
-        result['field'] = kw.keys()[0]
+        result['field'] = list(kw.keys())[0]
         result['path'] = kw[result['field']]
         col = self.column(result['field'])
         if col.relatedColumn() is None:
@@ -446,11 +454,11 @@ class SqlTable(GnrObject):
         default_table_permissions = ['ins','upd','del','archive','export','import','print','mail','action']
         if not hasattr(self,'_availablePermissions'):
             customPermissions = dict()
-            for pkgid,pkgobj in self.db.packages.items():
+            for pkgid,pkgobj in list(self.db.packages.items()):
                 customPermissions.update(dictExtract(pkgobj.attributes,'permission_'))
             customPermissions.update(dictExtract(self.attributes,'permission_'))
-            customPermissions = default_table_permissions+customPermissions.keys()
-            for k,handler in self.__dict__.items():
+            customPermissions = default_table_permissions+list(customPermissions.keys())
+            for k,handler in list(self.__dict__.items()):
                 permissions = getattr(handler,'permissions',None)
                 if permissions:
                     customPermissions = customPermissions + permissions.split(',')
@@ -463,7 +471,7 @@ class SqlTable(GnrObject):
         :param record: an object implementing dict interface as colname, colvalue
         :param null: TODO"""
         converter = self.db.typeConverter
-        for k in record.keys():
+        for k in list(record.keys()):
             if not k.startswith('@'):
                 if self.column(k) is None:
                     continue
@@ -538,7 +546,7 @@ class SqlTable(GnrObject):
         
         :param fields: TODO"""
         newrecord = Bag()
-        for fld in self.columns.keys():
+        for fld in list(self.columns.keys()):
             v = fields.get(fld)
             info = dict(self.columns[fld].attributes)
             dtype = info.get('dtype')
@@ -598,7 +606,7 @@ class SqlTable(GnrObject):
         if allrecords:
             return [r['pkey'] for r in q.fetch()]
         else:
-            return [l[0]['pkey'] for l in q.fetchGrouped('_duplicate_finder').values()]
+            return [l[0]['pkey'] for l in list(q.fetchGrouped('_duplicate_finder').values())]
 
 
     def opTranslate(self,column,op,value,dtype=None,sqlArgs=None):
@@ -700,7 +708,7 @@ class SqlTable(GnrObject):
         pass
 
     def unifyRelatedRecords(self,sourceRecord=None,destRecord=None,moved_relations=None,relations=None):
-        relations = self.model.relations.keys()
+        relations = list(self.model.relations.keys())
         old_destRecord = dict(destRecord)
         upd_destRec = False
         for k in relations:
@@ -816,7 +824,7 @@ class SqlTable(GnrObject):
         original_record = self.recordAs(recordOrKey,mode='dict')
         record = dict(original_record)
         pkey = record.pop(self.pkey,None)
-        for colname,obj in self.model.columns.items():
+        for colname,obj in list(self.model.columns.items()):
             if colname == self.draftField or colname == 'parent_id':
                 continue
             if obj.attributes.get('unique') or obj.attributes.get('_sysfield'):
@@ -864,7 +872,7 @@ class SqlTable(GnrObject):
             # The record is either a dict or a bag, so it accepts indexing operations
             return record.get('pkey', None) or record.get(self.pkey)
         if mode == 'dict' and not isinstance(record, dict):
-            return dict([(k, v) for k, v in record.items() if not k.startswith('@')])
+            return dict([(k, v) for k, v in list(record.items()) if not k.startswith('@')])
         if mode == 'bag' and (virtual_columns or not isinstance(record, Bag)):
             pkey=record.get('pkey', None) or record.get(self.pkey)
             if pkey:
@@ -875,13 +883,13 @@ class SqlTable(GnrObject):
     def defaultValues(self):
         """Override this method to assign defaults to new record. Return a dictionary - fill
         it with defaults"""
-        return dict([(x.name, x.attributes['default'])for x in self.columns.values() if 'default' in x.attributes])
+        return dict([(x.name, x.attributes['default'])for x in list(self.columns.values()) if 'default' in x.attributes])
         
 
     def sampleValues(self):
         """Override this method to assign defaults to new record. Return a dictionary - fill
         it with defaults"""
-        return dict([(x.name, x.attributes['sample'])for x in self.columns.values() if 'sample' in x.attributes])
+        return dict([(x.name, x.attributes['sample'])for x in list(self.columns.values()) if 'sample' in x.attributes])
 
     def createSysRecords(self):
         pass
@@ -923,7 +931,7 @@ class SqlTable(GnrObject):
         :param mode: TODO
         :param \*\*kwargs: another way to pass sql query parameters"""
         joinConditions = joinConditions or {}
-        for v in jc_kwargs.values():
+        for v in list(jc_kwargs.values()):
             rel,cond = v.split(':',1)
             one_one = None
             if rel.endswith('*'):
@@ -1047,7 +1055,7 @@ class SqlTable(GnrObject):
             data = not (False in dd) if (aggregator or 'AND')=='AND' else (True in dd)
         elif dtype in ('R','L','N'):
             aggregator = aggregator or 'SUM'
-            dd = filter(lambda r: r is not None, data)
+            dd = [r for r in data if r is not None]
             if not dd:
                 data = None
             elif aggregator=='SUM':
@@ -1057,7 +1065,7 @@ class SqlTable(GnrObject):
             elif aggregator=='MIN':
                 data = min(dd)
             elif aggregator=='AVG':
-                data = sum(dd)/len(dd) if len(dd) else 0
+                data = old_div(sum(dd),len(dd)) if len(dd) else 0
             elif aggregator=='CNT':
                 data = len(data) if data else 0
         else:
@@ -1069,7 +1077,7 @@ class SqlTable(GnrObject):
     def setColumns(self, pkey,**kwargs):
         record = self.record(pkey,for_update=True).output('dict')
         old_record = dict(record)
-        for k,v in kwargs.items():
+        for k,v in list(kwargs.items()):
             if record[k]!=v:
                 record[k] = v
         if record != old_record:
@@ -1244,7 +1252,7 @@ class SqlTable(GnrObject):
 
     def expandBagFields(self,record,columns=None):
         if not columns:
-            columns = [k for k,v in self.model.columns.items() if v.dtype=='X']
+            columns = [k for k,v in list(self.model.columns.items()) if v.dtype=='X']
         if isinstance(columns,basestring):
             columns = columns.split(',')
         for c in columns:
@@ -1259,7 +1267,7 @@ class SqlTable(GnrObject):
     
     def checkDuplicate(self,excludeDraft=None,**kwargs):
         """TODO"""
-        where = ' AND '.join(['$%s=:%s' % (k, k) for k in kwargs.keys()])
+        where = ' AND '.join(['$%s=:%s' % (k, k) for k in list(kwargs.keys())])
         return self.query(where=where,excludeDraft=excludeDraft,**kwargs).count()>0
     
     def insertOrUpdate(self, record):
@@ -1437,7 +1445,7 @@ class SqlTable(GnrObject):
                                                  oldValue=fnode.getAttr('oldValue'),
                                                  newValue=main_record[fname])
                     main_record[fname] = fnode.value
-        for rel_name, rel_recordClusterNode in relatedOne.items():
+        for rel_name, rel_recordClusterNode in list(relatedOne.items()):
             rel_recordCluster = rel_recordClusterNode.value
             rel_recordClusterAttr = rel_recordClusterNode.getAttr()
             rel_column = self.model.column(rel_name)
@@ -1457,7 +1465,7 @@ class SqlTable(GnrObject):
             self.insert(main_record,blackListAttributes=blackListAttributes)
         elif main_changeSet:
             self.update(main_record, old_record=old_record, pkey=pkey,blackListAttributes=blackListAttributes)
-        for rel_name, rel_recordClusterNode in relatedMany.items():
+        for rel_name, rel_recordClusterNode in list(relatedMany.items()):
             rel_recordCluster = rel_recordClusterNode.value
             rel_recordClusterAttr = rel_recordClusterNode.getAttr()
             if rel_name.endswith('_removed'):
@@ -1502,9 +1510,9 @@ class SqlTable(GnrObject):
                         relatedMany[n.label] = nodes.pop(j)
         if debugPath:
             self.xmlDebug(recordCluster, debugPath)
-            for k, v in relatedOne.items():
+            for k, v in list(relatedOne.items()):
                 self.xmlDebug(v, debugPath, k)
-            for k, v in relatedMany.items():
+            for k, v in list(relatedMany.items()):
                 self.xmlDebug(v, debugPath, k)
         return recordCluster, relatedOne, relatedMany
         
@@ -1520,12 +1528,12 @@ class SqlTable(GnrObject):
     def _doExternalPkgTriggers(self, triggerEvent, record,**kwargs):
         if not self.db.application:
             return
-        for pkg_id in self.db.application.packages.keys():
+        for pkg_id in list(self.db.application.packages.keys()):
             trigger_name = 'trigger_%s_%s'%(triggerEvent, pkg_id)
             avoid_trigger_par = self.db.currentEnv.get('avoid_trigger_%s' %pkg_id)
             if avoid_trigger_par:
                 if avoid_trigger_par=='*' or triggerEvent in avoid_trigger_par.split(','):
-                    print 'avoiding trigger',triggerEvent
+                    print('avoiding trigger',triggerEvent)
                     continue
             trgFunc = getattr(self, trigger_name, None)
             if callable(trgFunc):
@@ -1589,9 +1597,9 @@ class SqlTable(GnrObject):
     def baseViewColumns(self):
         """TODO"""
         allcolumns = self.model.columns
-        result = [k for k, v in allcolumns.items() if v.attributes.get('base_view')]
+        result = [k for k, v in list(allcolumns.items()) if v.attributes.get('base_view')]
         if not result:
-            result = [col for col, colobj in allcolumns.items() if not colobj.isReserved]
+            result = [col for col, colobj in list(allcolumns.items()) if not colobj.isReserved]
         return ','.join(result)
         
     def getResource(self, path):
@@ -1682,7 +1690,7 @@ class SqlTable(GnrObject):
         
         :param record: TODO
         :param old_record: TODO"""
-        print 'You should override for diagnostic'
+        print('You should override for diagnostic')
         return
     
     def diagnostic_warnings(self, record, old_record=None):
@@ -1690,7 +1698,7 @@ class SqlTable(GnrObject):
         
         :param record: TODO
         :param old_record: TODO"""
-        print 'You should override for diagnostic'
+        print('You should override for diagnostic')
         return
 
 
@@ -1873,7 +1881,7 @@ class SqlTable(GnrObject):
             filepath = os.path.join(path, '%s_dump.xml' % self.name)
         data = Bag(filepath)
         if data:
-            for record in data['records'].values():
+            for record in list(data['records'].values()):
                 record.pop('_isdeleted')
                 self.insert(record)
 
@@ -2005,8 +2013,8 @@ class SqlTable(GnrObject):
         if src_version!=dest_version:
             assert dest_version > src_version, 'table %s version conflict from %i to %i' %(self.fullname,src_version,dest_version)
             converters = ['_convert_%i_%i' %(x,x+1) for x in range(src_version,dest_version)]
-            if filter(lambda m: not hasattr(self,m), converters):
-                print 'missing converter',self.fullname
+            if [m for m in converters if not hasattr(self,m)]:
+                print('missing converter',self.fullname)
                 return 
         self.copyToDb(source_db,self.db,empty_before=empty_before,excludeLogicalDeleted=excludeLogicalDeleted,
                       source_records=source_records,excludeDraft=excludeDraft,
@@ -2146,7 +2154,7 @@ class SqlTable(GnrObject):
                 if not attributes.get('user_forbidden'):
                     resultAppend(result, relnode.label, attributes, omit)
             
-        for vcolname, vcol in tblmodel.virtual_columns.items():
+        for vcolname, vcol in list(tblmodel.virtual_columns.items()):
             targetcol = self.column(vcolname)
             attributes = dict(targetcol.attributes)
             attributes.update(vcol.attributes)
@@ -2155,7 +2163,7 @@ class SqlTable(GnrObject):
             attributes['dtype'] = attributes.get('dtype') or 'T'
             resultAppend(result, vcolname, attributes, omit)
             
-        for aliastbl in tblmodel.table_aliases.values():
+        for aliastbl in list(tblmodel.table_aliases.values()):
             relpath = tblmodel.resolveRelationPath(aliastbl.relation_path)
             attributes = dict(tblmodel.relations.getAttr(relpath))
             attributes['name_long'] = aliastbl.attributes.get('name_long') or self.relationName(relpath)
@@ -2171,7 +2179,7 @@ class SqlTable(GnrObject):
             resultAppend(result, aliastbl.name, attributes, omit)
         if dosort:
             result.sort(lambda a, b: cmp(a.getAttr('group', '').split('.'), b.getAttr('group', '').split('.')))
-            grdict = dict([(k[6:], v) for k, v in self.attributes.items() if k.startswith('group_')])
+            grdict = dict([(k[6:], v) for k, v in list(self.attributes.items()) if k.startswith('group_')])
             if not grdict:
                 return result
             newresult = Bag()
@@ -2200,7 +2208,7 @@ class SqlTable(GnrObject):
         if _raw and _ignore_totalizer:
             return
         totalizers = dictExtract(self.attributes,'totalizer_')
-        for tbl in totalizers.values():
+        for tbl in list(totalizers.values()):
             self.db.table(tbl).tt_totalize(record=record,old_record=old_record)
             
 if __name__ == '__main__':

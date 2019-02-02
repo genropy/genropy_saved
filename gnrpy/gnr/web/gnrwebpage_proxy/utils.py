@@ -6,10 +6,15 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
+from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.utils import old_div
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 import os
-import urllib
-import StringIO
+import urllib.request, urllib.parse, urllib.error
+import io
 import datetime
 import zipfile
 from gnr.core.gnrdecorator import public_method,extract_kwargs
@@ -56,8 +61,8 @@ class GnrWebUtils(GnrBaseProxy):
         topath = self.rootFolder(*args, **kwargs)
         if fromPage:
             fromPage = self.rootFolder(*args, **{'reverse': True})
-            fromPage = '%s?%s' % (fromPage, urllib.urlencode(fromPageArgs))
-            topath = '%s?%s' % (topath, urllib.urlencode({'fromPage': fromPage}))
+            fromPage = '%s?%s' % (fromPage, urllib.parse.urlencode(fromPageArgs))
+            topath = '%s?%s' % (topath, urllib.parse.urlencode({'fromPage': fromPage}))
         return topath
 
     def quickThermo(self,iterator,path=None,maxidx=None,labelfield=None,
@@ -68,7 +73,7 @@ class GnrWebUtils(GnrBaseProxy):
             maxidx = len(iterator)
         interval = 1
         if maxidx and maxidx >1000:
-            interval = maxidx/100
+            interval = old_div(maxidx,100)
         
         thermo = """<div class="quickthermo_box"> <div class="form_waiting"></div> </div>""" 
         title = """<div class="quickthermo_title">%s</div>""" %title if title else ""
@@ -178,7 +183,7 @@ class GnrWebUtils(GnrBaseProxy):
         else:
             response.content_type = 'application/zip'
             response.add_header("Content-Disposition", "attachment; filename=%s.zip" % filename)
-            zipresult = StringIO.StringIO()
+            zipresult = io.StringIO()
             zip = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED)
             zipstring = zipfile.ZipInfo('%s.%s' % (filename, ext), datetime.datetime.now().timetuple()[:6])
             zipstring.compress_type = zipfile.ZIP_DEFLATED
@@ -257,7 +262,7 @@ class GnrWebUtils(GnrBaseProxy):
             tblobj = self.page.db.table(table)
             sql_count = tblobj.query(ignorePartition=True,excludeDraft=False, excludeLogicalDeleted=False).count()
             result['sql_count'] = sql_count
-            for colname,colobj in tblobj.model.columns.items():
+            for colname,colobj in list(tblobj.model.columns.items()):
                 table_col_list.append(colname)
                 if colobj.attributes.get('legacy_name'):
                     legacy_match[colobj.attributes['legacy_name']] = colname
@@ -271,7 +276,7 @@ class GnrWebUtils(GnrBaseProxy):
             result['import_mode'] = 'insert_only'
             result['methodlist'] = ','.join([k[9:] for k in dir(tblobj) if k.startswith('importer_')])
 
-        for k,i in sorted(reader.index.items(),key=lambda tup:tup[1]):
+        for k,i in sorted(list(reader.index.items()),key=lambda tup:tup[1]):
             columns.setItem(k,None,name=k,field=k,width='10em')
             if k in table_col_list:
                 dest_field = k 
@@ -315,7 +320,7 @@ class GnrWebUtils(GnrBaseProxy):
                                                 sql_mode=sql_mode,constants=constants,
                                                 mandatories=struct.get('mandatories'))
                 results.append(res)
-                errors = filter(lambda r: r!='OK', results)
+                errors = [r for r in results if r!='OK']
                 if errors:
                     return 'ER'
         elif import_method:
@@ -369,7 +374,7 @@ class GnrWebUtils(GnrBaseProxy):
         for row in self.quickThermo(reader(),maxidx=reader.nrows if hasattr(reader,'nrows') else None,
                         labelfield=tblobj.attributes.get('caption_field') or tblobj.name):
             r = dict(constants) if constants else dict()
-            f =  {v:row[k] for k,v in match_index.items() if v is not ''}
+            f =  {v:row[k] for k,v in list(match_index.items()) if v is not ''}
             r.update(f)
             tblobj.recordCoerceTypes(r)
             if sql_mode:

@@ -1,5 +1,5 @@
 # encoding: utf-8
-from __future__ import with_statement
+from builtins import object
 from datetime import datetime
 
 class Table(object):

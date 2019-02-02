@@ -6,6 +6,7 @@
 
 "gnrlayout"
 
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/graphiframe/graphiframe:GraphIframe"
     

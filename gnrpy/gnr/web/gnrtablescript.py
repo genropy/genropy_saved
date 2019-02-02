@@ -6,6 +6,11 @@ gnrtablescript.py
 Created by Saverio Porcari on 2009-07-08.
 Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 """
+from __future__ import division
+from __future__ import print_function
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import os.path
 import tempfile
 from gnr.core.gnrbag import Bag, BagCbResolver
@@ -74,7 +79,7 @@ class TableScriptOnRecord(TableScript):
         self._data['record'] = self.db.table(self.maintable or self.resource_table).recordAs(record, mode='bag')
         if kwargs:
             self._data['kwargs'] = Bag()
-            for k, v in kwargs.items():
+            for k, v in list(kwargs.items()):
                 self._data['kwargs.%s' % k] = v
         return self.onRecordLoaded(**kwargs)
 
@@ -254,9 +259,9 @@ class RecordToHtmlNew(RecordToHtmlPage):
 
 
     def copyHeight(self):
-        return (self.page_height - self.page_margin_top - self.page_margin_bottom -\
+        return old_div((self.page_height - self.page_margin_top - self.page_margin_bottom -\
                 self.page_header_height - self.page_footer_height -\
-                self.copy_extra_height * (self.copies_per_page - 1)) / self.copies_per_page
+                self.copy_extra_height * (self.copies_per_page - 1)), self.copies_per_page)
 
     def copyWidth(self):
         return (self.page_width - self.page_margin_left - self.page_margin_right -\
@@ -390,7 +395,7 @@ class RecordToHtmlNew(RecordToHtmlPage):
 
     def gridLayout(self, grid):
         """must be overridden"""
-        print 'gridLayout must be overridden'
+        print('gridLayout must be overridden')
 
     def gridHeader(self, row):
         """can be overridden"""
@@ -408,7 +413,7 @@ class RecordToHtmlNew(RecordToHtmlPage):
 
     def gridFooter(self, row):
         """can be overridden"""
-        print 'gridFooter must be overridden'
+        print('gridFooter must be overridden')
 
     def fillBodyGrid(self):
         row = self.copyValue('body_grid').row()
@@ -526,7 +531,7 @@ class RecordToHtml(TableScriptOnRecord):
         self.loadRecord(record, **kwargs)
         if kwargs:
             self._data['kwargs'] = Bag()
-            for k, v in kwargs.items():
+            for k, v in list(kwargs.items()):
                 self._data['kwargs.%s' % k] = v
 
         #if not (dontSave or pdf):

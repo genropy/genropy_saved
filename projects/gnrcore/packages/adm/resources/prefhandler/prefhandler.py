@@ -24,6 +24,7 @@
 Component for preference handling:
 """
 
+from past.builtins import basestring
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.core.gnrdecorator import public_method
@@ -33,7 +34,7 @@ from gnr.web.gnrwebstruct import struct_method
 class BasePreferenceTabs(BaseComponent):
     def _pr_makePreferenceTabs(self,parent,packages='*',datapath=None,context_dbstore=None,**kwargs):
         if isinstance(packages,basestring):
-            packages = self.application.packages.keys() if packages == '*' else packages.split(',')
+            packages = list(self.application.packages.keys()) if packages == '*' else packages.split(',')
         tc = parent.tabContainer(datapath=datapath,context_dbstore=context_dbstore,nodeId='PREFROOT',**kwargs)
         for pkgId in packages:
             pkg = self.application.packages[pkgId]

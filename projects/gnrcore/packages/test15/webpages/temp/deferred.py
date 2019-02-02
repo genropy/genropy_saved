@@ -6,6 +6,7 @@
 
 "deferred"
 
+from builtins import object
 from time import sleep
 
 class GnrCustomWebPage(object):

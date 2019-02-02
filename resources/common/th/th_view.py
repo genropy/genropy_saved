@@ -3,6 +3,7 @@
 # th_view.py
 # Created by Francesco Porcari on 2011-05-04.
 # Copyright (c) 2011 Softwell. All rights reserved.
+from builtins import str
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs,metadata
@@ -124,7 +125,7 @@ class TableHandlerView(BaseComponent):
 
     def th_batchAssignEnabled(self,tblobj):
         result = False
-        for colobj in tblobj.columns.values():
+        for colobj in list(tblobj.columns.values()):
             attr = colobj.attributes
             batch_assign = attr.get('batch_assign')
             if not batch_assign:
@@ -365,7 +366,7 @@ class TableHandlerView(BaseComponent):
                             matchColumns=matchColumns,
                             _tags=tags,
                             _tablePermissions=dict(table=table,permissions='ins,upd,import'),
-                            match_values= ','.join(self.db.table(table).model.columns.keys()) if not matchColumns else None,
+                            match_values= ','.join(list(self.db.table(table).model.columns.keys())) if not matchColumns else None,
                             dockButton_iconClass='iconbox inbox',title='!!Importer',**kwargs)
 
     @struct_method
@@ -601,7 +602,7 @@ class TableHandlerView(BaseComponent):
                 self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
             pyqueries['default_duplicate_finder'] = self.th_default_find_duplicates
             pyqueries['default_duplicate_finder_to_del'] = self.th_default_find_duplicates_to_del
-        for k,v in pyqueries.items():
+        for k,v in list(pyqueries.items()):
             pars = dictExtract(dict(v.__dict__),'query_')
             code = pars.get('code')
             q.setItem(code,None,tip=pars.get('description'),filteringPkeys=v,**pars)
@@ -634,7 +635,7 @@ class TableHandlerView(BaseComponent):
                             gridId=gridId)
         q = Bag()
         pyviews = self._th_hook('struct',mangler=th_root,asDict=True)
-        for k,v in pyviews.items():
+        for k,v in list(pyviews.items()):
             prefix,name=k.split('_struct_')
             q.setItem(name,self._prepareGridStruct(v,table=table),caption=v.__doc__)
         pane.data('.grid.resource_structs',q)
@@ -1168,7 +1169,7 @@ class THViewUtils(BaseComponent):
             result.setItem('queryModes.%s' % op, None, caption=caption)
         for op in listop:
             result.setItem('op.%s' % op, None, caption=wt.opCaption(op))
-        for optype, values in optype_dict.items():
+        for optype, values in list(optype_dict.items()):
             for operation in values:
                 result.setItem('op_spec.%s.%s' % (optype, operation), operation,
                                caption=wt.opCaption(operation))

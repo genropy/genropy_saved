@@ -7,8 +7,8 @@ from gnr.core.gnrbag import Bag
 def getSyncTables(db,filterstring=None,multidbMode=None):
     filterstring = filterstring or ''
     result = Bag()
-    for pkgobj in db.packages.values():
-        for tableobj in pkgobj.tables.values():
+    for pkgobj in list(db.packages.values()):
+        for tableobj in list(pkgobj.tables.values()):
             tblattr = tableobj.attributes
             tablename = tableobj.fullname
             if tblattr.get('multidb') and filterstring in tablename:

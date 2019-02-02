@@ -5,6 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 "panetree"
+from builtins import object
 from gnrpkg.test15.test_test import pippo
 
 class GnrCustomWebPage(object):

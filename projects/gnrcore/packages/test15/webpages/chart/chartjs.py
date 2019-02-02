@@ -5,6 +5,7 @@
  
 """Test Protovis"""
 
+from builtins import object
 from gnr.core.gnrbag import Bag 
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull,th/th:TableHandler,js_plugins/chartjs/chartjs:ChartManager"

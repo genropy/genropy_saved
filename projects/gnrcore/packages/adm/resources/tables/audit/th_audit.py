@@ -43,7 +43,7 @@ class ViewRecordHistory(BaseComponent):
             b = Bag(row['data'])
             result = dict()
             if row['version'] >0:
-                result['changed_fields'] = '<br/>'.join(b.keys())
+                result['changed_fields'] = '<br/>'.join(list(b.keys()))
             b.pop('__ins_ts')
             b.pop('__version')
             b.pop('__mod_ts')

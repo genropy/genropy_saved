@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2011-05-04.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+from builtins import str
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
@@ -51,7 +52,7 @@ class TableHandlerCommon(BaseComponent):
             condition_kwargs['fkey'] = '=#FORM.pkey'
         if (relation_attr.get('onDelete')=='setnull') or (relation_attr.get('onDelete_sql')=='setnull'):
             original_kwargs['store_unlinkdict'] = dict(one_name = relation_attr.get('one_rel_name',tblrel.name_plural),field=relation_attr['many_relation'].split('.')[-1])
-        for suffix,altrelation in relation_kwargs.items():
+        for suffix,altrelation in list(relation_kwargs.items()):
             alt_relation_attr = tblrel.model.relations.getAttr(altrelation, 'joiner')
             altcond,table,altfkey = self._th_relationExpand_one(tblrel,alt_relation_attr,condition=condition,condition_kwargs=condition_kwargs,suffix=suffix)
             relcondition = '%s OR %s' %(relcondition,altcond)
@@ -95,7 +96,7 @@ class TableHandlerCommon(BaseComponent):
         
         enabled_packages = self._call_kwargs.get('enabled_packages','*')
         if enabled_packages=='*':
-            enabled_packages = self.application.packages.keys() 
+            enabled_packages = list(self.application.packages.keys()) 
         else:
             enabled_packages = enabled_packages.split(',')
         for refpkg in enabled_packages:

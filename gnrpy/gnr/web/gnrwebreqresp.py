@@ -20,6 +20,9 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 import gnr.web.gnrcookie as Cookie
 
 cookie_types = {'marshal': Cookie.MarshalCookie,

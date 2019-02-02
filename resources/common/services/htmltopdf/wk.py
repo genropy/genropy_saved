@@ -1,6 +1,7 @@
 #!/usr/bin/env pythonw
 # -*- coding: utf-8 -*-
 
+from builtins import str
 import os
 
 from gnr.lib.services.htmltopdf import HtmlToPdfService,HtmlToPdfError
@@ -29,7 +30,7 @@ class Service(HtmlToPdfService):
         args = ['wkhtmltopdf']
         pdf_kwargs.pop('page_height', None)
         pdf_kwargs.pop('page_width', None)
-        for k,v in pdf_kwargs.items():
+        for k,v in list(pdf_kwargs.items()):
             if v is not False and v is not None and v!='':
                 args.append('--%s' %k.replace('_','-'))
                 if v is not True:

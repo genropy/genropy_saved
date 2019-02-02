@@ -18,6 +18,7 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from past.builtins import basestring
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs,public_method
@@ -128,7 +129,7 @@ class TableHandler(BaseComponent):
                     picker_base_condition = '$%(_fkey_name)s IS NULL OR $%(_fkey_name)s!=:fkey' %condition_kwargs 
                 picker_custom_condition = picker_kwargs.get('condition')
                 picker_kwargs['condition'] = picker_base_condition if not picker_custom_condition else '(%s) AND (%s)' %(picker_base_condition,picker_custom_condition)
-                for k,v in condition_kwargs.items():
+                for k,v in list(condition_kwargs.items()):
                     picker_kwargs['condition_%s' %k] = v
                 if delrow:
                     tblname = tblattr.get('name_plural') or tblattr.get('name_one') or tblobj.name
@@ -423,7 +424,7 @@ class TableHandler(BaseComponent):
         pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
         #pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
         #box = pane.div(_class='detacher',z_index=30)
-        kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
+        kwargs = dict([('main_%s' %k,v) for k,v in list(kwargs.items())])
         iframe = pane.iframe(main=self.th_iframedispatcher,main_methodname=method,
                             main_table=pane.getInheritedAttributes().get('table'),
                             main_pkey='=#FORM.pkey',
@@ -440,7 +441,7 @@ class TableHandler(BaseComponent):
         kwargs.setdefault('readOnly',True)
         kwargs.setdefault('showfooter',False)
         kwargs.setdefault('showtoolbar',False)
-        kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
+        kwargs = dict([('main_%s' %k,v) for k,v in list(kwargs.items())])
         table = pane.getInheritedAttributes()['table']
         if not related_table:
             tblobj = self.db.table(table)
@@ -566,12 +567,12 @@ class MultiButtonForm(BaseComponent):
             sc.contentPane(pageName='emptypage').div(emptyPageMessage,_class='hiderMessage',height='50px',position='absolute',top='25%',left=0,right=0,text_align='center')
             columnslist.append('$%s' %switch)
             switchdict = dict()
-            for formId,pars in formhandler_kwargs.items():
+            for formId,pars in list(formhandler_kwargs.items()):
                 self._th_appendExternalForm(sc,formId=formId,pars=pars,columnslist=columnslist,
                                             switchdict=switchdict,storetable=table,
                                             caption_field=caption_field,frameCode=frameCode,
                                             switch=switch)
-            formIdlist = formhandler_kwargs.keys()
+            formIdlist = list(formhandler_kwargs.keys())
             bar.dataController("""if(!storebag || storebag.len()==0){
                     SET .pkey = null;
                 }

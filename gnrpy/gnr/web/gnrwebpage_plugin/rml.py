@@ -7,8 +7,12 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
 # --------------------------- GnrWebPage subclass ---------------------------
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 from gnr.web.gnrwebpage_plugin.gnrbaseplugin import GnrBasePlugin
-from mako.lookup import TemplateLookup
+from .mako.lookup import TemplateLookup
 
 
 class Plugin(GnrBasePlugin):
@@ -25,7 +29,7 @@ class Plugin(GnrBasePlugin):
         filename = os.path.split(path)[-1].split('.')[0]
         inline_attr = (inline and 'inline') or 'attachment'
         self.response.add_header("Content-Disposition", str("%s; filename=%s.pdf" % (inline_attr, filename)))
-        import cStringIO
+        import io
         from lxml import etree
         from z3c.rml import document
 
@@ -33,7 +37,7 @@ class Plugin(GnrBasePlugin):
         tmp = tmp.replace('&', '&amp;')
         root = etree.fromstring(tmp)
         doc = document.Document(root)
-        output = cStringIO.StringIO()
+        output = io.StringIO()
         doc.process(output)
         output.seek(0)
         return output.read()

@@ -111,7 +111,7 @@ class GnrHtmlDojoSrc(GnrHtmlSrc):
                      'GoogleMap': ''
 
     };
-    widgetNS = widgetcatalog.keys()
+    widgetNS = list(widgetcatalog.keys())
     gnr_dojoNS = []
     htmlNS = html_base_NS + html_autocontent_NS
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
@@ -140,7 +140,7 @@ class GnrHtmlPage(GnrWebPage):
     def setCssRequires(self):
         css_import_statements_list=[]
         css_requires = getattr(self, 'css_requires', [])
-        css_requires.extend([k.split('.')[0] for k in self.envelope_css_requires.keys()])
+        css_requires.extend([k.split('.')[0] for k in list(self.envelope_css_requires.keys())])
         for css_require in css_requires:
              urls =self.getResourceExternalUriList(css_require,'css') or []
              for url in urls:
@@ -151,7 +151,7 @@ class GnrHtmlPage(GnrWebPage):
 
     def setJsRequires(self):
         js_requires = getattr(self, 'js_requires', [])
-        js_requires.extend([k.split('.')[0] for k in self.envelope_js_requires.keys()])
+        js_requires.extend([k.split('.')[0] for k in list(self.envelope_js_requires.keys())])
         for js_require in js_requires:
              urls =self.getResourceExternalUriList(js_require,'js',add_mtime=True) or []
              for url in urls:
@@ -159,7 +159,7 @@ class GnrHtmlPage(GnrWebPage):
         
     def gnr_css(self):
         css_genro = self.get_css_genro()
-        for css_media, css_link in css_genro.items():
+        for css_media, css_link in list(css_genro.items()):
             import_statements = ';\n'.join(css_link)
             self.builder.head.style(import_statements + ';', type="text/css", media=css_media)
 
@@ -206,7 +206,7 @@ class GnrHtmlDojoPage(GnrHtmlPage):
         dojorequire = {}
         self.finalizeDojo_inner(self.builder.body, widgetcatalog, dojorequire)
         if dojorequire:
-            dojorequires = ''.join(dojorequire.values())
+            dojorequires = ''.join(list(dojorequire.values()))
             self.builder.body.script(dojorequires)
             
     def finalizeDojo_inner(self, src, widgetcatalog, dojorequire):

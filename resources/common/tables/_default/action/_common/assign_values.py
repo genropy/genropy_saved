@@ -21,7 +21,7 @@ class Main(BaseResourceAction):
         values = self.batch_parameters.get('values')
         do_trigger = self.batch_parameters.get('do_trigger')
         def updater(row):
-            for k,data in values.items():
+            for k,data in list(values.items()):
                 if row[k] is not None and not data['replace']:
                     continue
                 if data['forced_null']:
@@ -40,7 +40,7 @@ class Main(BaseResourceAction):
         do_trigger = False
         box = pane.div(max_height='600px',overflow='auto')
         fb = box.formbuilder(margin='5px',cols=3,border_spacing='3px',dbtable=table,datapath='.values')
-        for k,v in tblobj.columns.items():
+        for k,v in list(tblobj.columns.items()):
             attr = v.attributes
             batch_assign = attr.get('batch_assign')
             if not batch_assign:

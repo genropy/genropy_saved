@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 
 class Table(object):
@@ -16,11 +17,11 @@ class Table(object):
         currentPackages = pkgtable.query().fetchAsDict('pkgid')
         current = self.query().fetchAsDict('tblid')
         docommit =False
-        for pkgId,pkg in self.db.packages.items():
+        for pkgId,pkg in list(self.db.packages.items()):
             if not pkgId in currentPackages:
                 pkgtable.insert(dict(pkgid=pkgId))
                 docommit = True
-            for tbl in pkg.tables.values():
+            for tbl in list(pkg.tables.values()):
                 if not tbl.fullname in current:
                     self.insert(dict(pkgid=pkgId,tblid=tbl.fullname))
                 docommit = True
@@ -31,7 +32,7 @@ class Table(object):
     def getTblInfoCols(self,tbl=None,**kwargs):
         tblobj = self.db.table(tbl.split('/')[0])
         result = []
-        for field,colobj in tblobj.model.columns.items():
+        for field,colobj in list(tblobj.model.columns.items()):
             result.append('%s:%s' %(field,field))
         return ','.join(result)
 

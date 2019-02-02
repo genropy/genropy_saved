@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from builtins import object
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('ckstyle', pkey='id', name_long='Ckeditor style', name_plural='!!Ckeditor styles',caption_field='name',lookup=True)
@@ -31,7 +32,7 @@ class Table(object):
                 sdict[st['name']] = st
             cs.update(sdict)
         if cs:
-            return [dict(v) for v in cs.values()]
+            return [dict(v) for v in list(cs.values())]
 
 
 

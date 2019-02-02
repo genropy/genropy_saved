@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from gnr.core.gnrlang import  GnrException
 
 try:
@@ -143,11 +146,11 @@ class PrintHandler(object):
         printersBag = Bag()
         if self.hasCups:
             cups_connection = cups.Connection()
-            for printer_name, printer in cups_connection.getPrinters().items():
+            for printer_name, printer in list(cups_connection.getPrinters().items()):
                 printer.update(dict(name=printer_name))
                 printersBag.setItem('%s.%s' % (printer['printer-location'], printer_name.replace(':','_')), None, printer)
         else:
-            print 'pyCups is not installed'
+            print('pyCups is not installed')
         return printersBag
         
     def getPrinterAttributes(self, printer_name):

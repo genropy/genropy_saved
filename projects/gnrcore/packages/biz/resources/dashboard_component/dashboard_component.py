@@ -76,7 +76,7 @@ class DashboardItem(BaseComponent):
                     node.attr['item_parameters'] = item_parameters
                 if di_userObjectEditor:
                     node.attr['di_userObjectEditor'] = di_userObjectEditor
-        for pkgid,pkgobj in self.db.application.packages.items():
+        for pkgid,pkgobj in list(self.db.application.packages.items()):
             di_folder = os.path.join(pkgobj.packageFolder,'resources','dashboard_items') 
             d = DirectoryResolver(di_folder,include='*.py')
             content = Bag(d())
@@ -186,7 +186,7 @@ class DashboardGallery(BaseComponent):
                                 selfsubscribe_updatedChannels="""this._dashboardManager.updatedChannels($1)""",
                                 nodeId=dashboardNodeId,
                                 _editMode = edit,_storepath=storepath,_anchor=True,
-                                _externalChannels = channel_kwargs.keys(),
+                                _externalChannels = list(channel_kwargs.keys()),
                                 formsubscribe_onLoading = 'this._dashboardManager.clearRoot();' if edit else None,
                                 onCreated="""if(!genro.dashboards){
                                     genro.dashboards = objectPop(window,'genro_plugin_dashboards');
@@ -338,9 +338,9 @@ class DashboardGallery(BaseComponent):
     @public_method
     def di_userObjectItems(self,objtypes=None,**kwargs):
         result = Bag()
-        for pkgId,pkgObj in self.packages.items():
-            for tblid,tblobj in pkgObj.tables.items():
-                userobjects = self.db.table('adm.userobject').userObjectMenu(objtype=objtypes.keys(),table=tblobj.fullname)
+        for pkgId,pkgObj in list(self.packages.items()):
+            for tblid,tblobj in list(pkgObj.tables.items()):
+                userobjects = self.db.table('adm.userobject').userObjectMenu(objtype=list(objtypes.keys()),table=tblobj.fullname)
                 if userobjects:
                     b = Bag()
                     b.update(userobjects)

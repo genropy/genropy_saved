@@ -4,6 +4,10 @@
 # Created by Francesco Porcari on 2010-07-02.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
 from gnr.web.batch.btcaction import BaseResourceAction
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdict import dictExtract
@@ -30,7 +34,7 @@ class Main(BaseResourceAction):
         self.preProcessValues(how_many)
         for i in range(how_many):
             record = dict()
-            for field,field_pars in self.batch_parameters['fields'].items():
+            for field,field_pars in list(self.batch_parameters['fields'].items()):
                 condition_field= field_pars['_if']
                 null_perc = field_pars['null_perc']
                 if not condition_field or self.checkCondition(record,condition_field):
@@ -68,7 +72,7 @@ class Main(BaseResourceAction):
 
                 r[field]=rnd_record[field_pars['from_column']]
                 if 'copy_columns' in field_pars:
-                    for k in field_pars.get('copy_columns').keys():
+                    for k in list(field_pars.get('copy_columns').keys()):
                         r[k]=rnd_record.get(k)
             return
 
@@ -122,14 +126,14 @@ class Main(BaseResourceAction):
         elif dtype == 'D':
             return v.toordinal()
         elif dtype =='DH':
-            return int(v.strftime('%s'))/60
+            return old_div(int(v.strftime('%s')),60)
         elif dtype == 'N':
             return float(v)
         return v
 
     def convertFromNumber(self, v, dtype):
         if dtype=='H':
-            return time(v/60,v%60)
+            return time(old_div(v,60),v%60)
         if dtype == 'D':
             return date.fromordinal(v)
         if dtype == 'DH':
@@ -205,7 +209,7 @@ class Main(BaseResourceAction):
 
 
     def preProcessValues(self, how_many):
-        for field,field_pars in self.batch_parameters['fields'].items():
+        for field,field_pars in list(self.batch_parameters['fields'].items()):
             if 'equal_to' in field_pars:
                 continue
 
@@ -236,7 +240,7 @@ class Main(BaseResourceAction):
                     where = '%s AND %s' % (where, field_pars['condition'])
                 columns='$%s, $%s' % (from_column,based_on_field)
                 if 'copy_columns' in field_pars:
-                    copy_columns=['%s AS %s' % (v,k) for k,v in field_pars['copy_columns'].items()]
+                    copy_columns=['%s AS %s' % (v,k) for k,v in list(field_pars['copy_columns'].items())]
                     columns = '%s, %s' % (columns, ', '.join(copy_columns))
                 columns='*'
                 query=from_tbl_obj.query(columns=columns, where=where, based_on_pkeys=based_on_pkeys)
@@ -255,7 +259,7 @@ class Main(BaseResourceAction):
                 field_pars['values'] = [random.choice(pkeys) for x in range(how_many)]
                 field_pars['distinct_pkeys'] = set(field_pars['values'])
                 if 'copy_columns' in field_pars:
-                    columns_list=['%s AS %s' % (v,k) for k,v in field_pars['copy_columns'].items()]
+                    columns_list=['%s AS %s' % (v,k) for k,v in list(field_pars['copy_columns'].items())]
                     field_pars['copied_values'] = related_tbl.query(columns='.'.join(columns_list),
                                             where='$%s IN :pkeys' % related_tbl.pkey,
                                             pkeys=field_pars['distinct_pkeys']).fetchAsDict(key=related_tbl.pkey)
@@ -276,7 +280,7 @@ class Main(BaseResourceAction):
         randomValuesDict = dict()
         if hasattr(tblobj, 'randomValues'):
             randomValuesDict = getattr(tblobj, 'randomValues')()
-        for col_name, col in tblobj.columns.items():
+        for col_name, col in list(tblobj.columns.items()):
             attr = col.attributes
             dtype=attr.get('dtype')
             if not col_name in randomValuesDict and (attr.get('_sysfield') or dtype == 'X'):

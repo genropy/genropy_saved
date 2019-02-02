@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from builtins import str
+from builtins import object
 from gnr.app.gnrdeploy import InstanceMaker, SiteMaker
 from gnr.core.gnrbag import Bag
 import os
@@ -125,7 +127,7 @@ class Table(object):
 
     def prepopulate_instance(self, hosted_app):
         hosted_db = hosted_app.db
-        for pkg in hosted_db.packages.values():
+        for pkg in list(hosted_db.packages.values()):
             pkg.updateFromExternalDb(self.db)
                 
     def trigger_onInserting(self, *args, **kwargs):
@@ -149,7 +151,7 @@ class Table(object):
         self.prepare_hosted_instance(record_data)
         if record_data['slot_configuration']:
             self.db.table('hosting.slot').set_slots(record_data['slot_configuration'], record_data['id'])
-        for pkg in self.db.application.packages.values():
+        for pkg in list(self.db.application.packages.values()):
             if hasattr(pkg, 'onInstanceCreated'):
                 getattr(pkg, 'onInstanceCreated')(record_data)
         if sys.platform.startswith('linux'):
@@ -166,7 +168,7 @@ class Table(object):
 
 
     def trigger_onUpdating(self, record_data, old_record):
-        for pkg in self.db.application.packages.values():
+        for pkg in list(self.db.application.packages.values()):
             if hasattr(pkg, 'onInstanceUpdated'):
                 getattr(pkg, 'onInstanceUpdated')(record_data)
                 

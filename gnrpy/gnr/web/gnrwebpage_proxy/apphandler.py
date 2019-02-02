@@ -25,6 +25,10 @@
 #Created by Giovanni Porcari on 2007-03-24.
 #Copyright (c) 2007 Softwell. All rights reserved.
 
+from __future__ import print_function
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import os
 import re
 import time
@@ -78,7 +82,7 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def _getAppId(self):
         if not hasattr(self, '_appId'):
-            instances = self.page.site.config['instances'].keys()
+            instances = list(self.page.site.config['instances'].keys())
             if len(instances) == 1:
                 self._appId = instances[0]
             else:
@@ -91,7 +95,7 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def getPackages(self):
         """TODO"""
-        return [[pkgobj.name_full, pkg] for pkg, pkgobj in self.db.packages.items()]
+        return [[pkgobj.name_full, pkg] for pkg, pkgobj in list(self.db.packages.items())]
 
     rpc_getPackages = getPackages
 
@@ -105,7 +109,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                     the tables are extracted"""
         tables = self.db.package(pkg).tables
         if tables:
-            return [[tblobj.name_full.capitalize(), tbl] for tbl, tblobj in tables.items()]
+            return [[tblobj.name_full.capitalize(), tbl] for tbl, tblobj in list(tables.items())]
         return []
 
     rpc_getTables = getTables
@@ -114,12 +118,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         """Set a :class:`Bag <gnr.core.gnrbag.Bag>` with the structure of the :ref:`database tables
         <table>` of a :ref:`package <packages>`"""
         result = Bag()
-        for pkg, pkgobj in self.db.packages.items():
+        for pkg, pkgobj in list(self.db.packages.items()):
             if pkgobj.attributes.get('reserved', 'n').upper() != 'Y':
                 tblbag = Bag()
                 label = pkgobj.name_full.capitalize()
                 result.setItem(pkg, tblbag, label=label)
-                for tbl, tblobj in pkgobj.tables.items():
+                for tbl, tblobj in list(pkgobj.tables.items()):
                     label = tblobj.name_full.capitalize()
                     tblbag.setItem(tbl, None, label=label, tableid='%s.%s' % (pkg, tbl))
         return result
@@ -333,7 +337,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param js_resolver_one: TODO
         :param sqlContextName: TODO"""
         if query_columns:
-            print 'QUERY COLUMNS PARAMETER NOT EXPECTED!!'
+            print('QUERY COLUMNS PARAMETER NOT EXPECTED!!')
         columns = columns or query_columns
         t = time.time()
         joinBag = None
@@ -383,7 +387,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             result.setItem('%s' % spkey, None, _pkey=spkey, _relation_value=pkey,
                            _attributes=row, _removeNullAttributes=False, **relOneParams)
 
-        relOneParams.update(dict([(k, None) for k in sel.colAttrs.keys() if not k == 'pkey']))
+        relOneParams.update(dict([(k, None) for k in list(sel.colAttrs.keys()) if not k == 'pkey']))
         resultAttributes.update(dbtable=dbtable, totalrows=len(sel))
         resultAttributes.update({'servertime': int((time.time() - t) * 1000),
                                  'newproc': getattr(self, 'self.newprocess', 'no'),
@@ -448,7 +452,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             else:
                 params = dict(progress_1=progress_1, message_1=message_1, maximum_1=maximum_1)
                 params.update(kwargs)
-                for k, v in params.items():
+                for k, v in list(params.items()):
                     if v is not None:
                         key, thermo = k.split('_')
                         thermoBag['t%s.%s' % (thermo, key)] = v
@@ -556,10 +560,10 @@ class GnrWebAppHandler(GnrBaseProxy):
         sqlContextBag = self._getSqlContextConditions(sqlContextName)
         storedata = self.page.pageStore().data
         if sqlContextBag:
-            for joinBag in sqlContextBag.values():
+            for joinBag in list(sqlContextBag.values()):
                 if joinBag['condition']: # may be a relatedcolumns only
                     params = (joinBag['params'] or Bag()).asDict(ascii=True)
-                    for k, v in params.items():
+                    for k, v in list(params.items()):
                         if isinstance(v, basestring):
                             if v.startswith('^'):
                                 params[k] = storedata[v[1:]]
@@ -570,7 +574,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                                          one_one=joinBag['one_one'], **params)
 
     def _getApplyMethodPars(self, kwargs, **optkwargs):
-        result = dict([(k[6:], v) for k, v in kwargs.items() if k.startswith('apply_')])
+        result = dict([(k[6:], v) for k, v in list(kwargs.items()) if k.startswith('apply_')])
         if optkwargs:
             result.update(optkwargs)
         return result
@@ -603,12 +607,12 @@ class GnrWebAppHandler(GnrBaseProxy):
             eventdict.setdefault(change['dbevent'],[]).append(change['pkey'])
         deleted = eventdict.get('D',[])
         if deleted:
-            if bool(filter(lambda r: r['pkey'] in deleted,selection.data)):
+            if bool([r for r in selection.data if r['pkey'] in deleted]):
                 return True #update required delete in selection
 
         updated = eventdict.get('U',[])
         if updated:
-            if bool(filter(lambda r: r['pkey'] in updated,selection.data)):
+            if bool([r for r in selection.data if r['pkey'] in updated]):
                 return True #update required update in selection
 
         inserted = eventdict.get('I',[])
@@ -634,7 +638,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     @public_method
     def counterFieldChanges(self,table=None,counterField=None,changes=None):
         updaterDict = dict([(d['_pkey'],d['new']) for d in changes] )
-        pkeys = updaterDict.keys()
+        pkeys = list(updaterDict.keys())
         tblobj = self.db.table(table)
         def cb(r):
             r[counterField] = updaterDict[r[tblobj.pkey]]
@@ -750,7 +754,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         resultAttributes = {}
         if checkPermissions is True:
             checkPermissions = self.page.permissionPars
-        for k in kwargs.keys():
+        for k in list(kwargs.keys()):
             if k.startswith('format_'):
                 formats[7:] = kwargs.pop(k)
         if selectionName.startswith('*'):
@@ -833,7 +837,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                                     row_count=row_count,
                                     totalrows=len(selection))
         generator = selection.output(mode='generator', offset=row_start, limit=row_count, formats=formats)
-        _addClassesDict = dict([(k, v['_addClass']) for k, v in selection.colAttrs.items() if '_addClass' in v])
+        _addClassesDict = dict([(k, v['_addClass']) for k, v in list(selection.colAttrs.items()) if '_addClass' in v])
         data = self.gridSelectionData(selection, generator, logicalDeletionField=tblobj.logicalDeletionField,
                                       recordResolver=recordResolver, numberedRows=numberedRows,
                                       _addClassesDict=_addClassesDict)
@@ -865,8 +869,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                 resultAttributes['sum_%s' % col] = False
 
         if prevSelectedDict:
-            keys = prevSelectedDict.keys()
-            resultAttributes['prevSelectedIdx'] = map(lambda m: m['rowidx'],filter(lambda r: r['pkey'] in keys,selection.data))
+            keys = list(prevSelectedDict.keys())
+            resultAttributes['prevSelectedIdx'] = [m['rowidx'] for m in [r for r in selection.data if r['pkey'] in keys]]
         if wherebag:
             resultAttributes['whereAsPlainText'] = self.db.whereTranslator.toHtml(tblobj,wherebag)
         resultAttributes['hardQueryLimitOver'] = hardQueryLimit and resultAttributes['totalrows'] == hardQueryLimit
@@ -874,9 +878,9 @@ class GnrWebAppHandler(GnrBaseProxy):
             with self.page.pageStore() as store:
                 slaveSelections = store.getItem('slaveSelections.%s' %selectionName)
                 if slaveSelections:
-                    for page_id,grids in slaveSelections.items():
+                    for page_id,grids in list(slaveSelections.items()):
                         if self.page.site.register.exists(page_id,register_name='page'):
-                            for nodeId in grids.keys():
+                            for nodeId in list(grids.keys()):
                                 self.page.clientPublish('%s_refreshLinkedSelection' %nodeId,value=True,page_id=page_id)
                         else:
                             slaveSelections.popNode(page_id)
@@ -909,7 +913,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             columns = ','.join(columns)
         if expressions:
             expr_dict = getattr(self.page, 'expr_%s' % expressions)()
-            expr_dict = dict([(k, '%s AS %s' % (v, k)) for k, v in expr_dict.items()])
+            expr_dict = dict([(k, '%s AS %s' % (v, k)) for k, v in list(expr_dict.items())])
             columns = templateReplace(columns, expr_dict, safeMode=True)
         hasProtectionColumns = tblobj.hasProtectionColumns()
         if hasProtectionColumns:
@@ -921,9 +925,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         storedict = dict()
         for r in selection.data:
             storedict.setdefault(r['_external_store'],[]).append(r)
-        for store,subsel in storedict.items():
+        for store,subsel in list(storedict.items()):
             with self.db.tempEnv(storename=store):
-                for k,v in external_queries.items():
+                for k,v in list(external_queries.items()):
                     tblobj = self.db.table(k)
                     extfkeyname = '%s_fkey' %k.replace('.','_')
                     fkeys = [r[extfkeyname] for r in selection.data]
@@ -964,7 +968,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                         else:
                             masterStore.popNode(slavekey)
                 if command == 'unsubscribe':
-                    for k in linkedSelectionPars.keys():
+                    for k in list(linkedSelectionPars.keys()):
                         linkedSelectionPars[k] = None
                 slaveStore.setItem(lsKey,linkedSelectionPars)
         if linkedSelectionPars['masterTable']:
@@ -1076,7 +1080,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         if not isinstance(joinConditions,Bag):
             return joinConditions
         result = dict()
-        for jc in joinConditions.values():
+        for jc in list(joinConditions.values()):
             sqlcondition,kwargs = tblobj.sqlWhereFromBag(jc['condition'], kwargs)
             result[jc['relation']] = dict(condition=sqlcondition,one_one=jc['one_one'])
         return result
@@ -1119,7 +1123,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if isDeleted:
                 _customClasses.append('logicalDeleted')
             if _addClassesDict:
-                for fld, _class in _addClassesDict.items():
+                for fld, _class in list(_addClassesDict.items()):
                     if row[fld]:
                         _customClasses.append(_class)
 
@@ -1138,7 +1142,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             value = None 
             attributes = kw.get('_attributes')
             colAttrs = selection.colAttrs
-            for k,v in attributes.items():
+            for k,v in list(attributes.items()):
                 if v and colAttrs.get(k,{}).get('dataType') == 'X':
                     attributes[k] = "%s::X" %v
             if attributes and '__value__' in attributes:
@@ -1228,10 +1232,10 @@ class GnrWebAppHandler(GnrBaseProxy):
                         if '_loadedValue' in n.attr:
                             row[n.label] = n.value
         if updated:
-            pkeys = [pkey for pkey in updated.keys() if pkey]
+            pkeys = [pkey for pkey in list(updated.keys()) if pkey]
             tblobj.batchUpdate(cb,where='$%s IN :pkeys' %pkeyfield,pkeys=pkeys,bagFields=True)
         if inserted:
-            for k,r in inserted.items():
+            for k,r in list(inserted.items()):
                 tblobj.insert(r)
                 insertedRecords[k] = r[pkeyfield]
         if deletedNode:
@@ -1284,7 +1288,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if commit:
                 self.db.commit()
             
-        except GnrSqlDeleteException, e:
+        except GnrSqlDeleteException as e:
             return ('delete_error', {'msg': e.message})
 
 
@@ -1314,7 +1318,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                     updated = True
             if commit and updated:
                 self.db.commit()
-        except GnrSqlDeleteException, e:
+        except GnrSqlDeleteException as e:
             return ('archive_error', {'msg': e.message})
 
     @public_method
@@ -1393,7 +1397,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             columns_to_add = (captioncolumns or [])+(['__protecting_reasons','__is_protected_row'] if hasProtectionColumns else [])
             columns_to_add = [c.replace('$','') for c in columns_to_add]
             virtual_columns = virtual_columns.split(',') if virtual_columns else []
-            vlist = tblobj.model.virtual_columns.items()
+            vlist = list(tblobj.model.virtual_columns.items())
             virtual_columns.extend([k for k,v in vlist if v.attributes.get('always') or k in columns_to_add])
             virtual_columns = ','.join(uniquify(virtual_columns or []))
         rec = tblobj.record(eager=eager or self.page.eagers.get(dbtable),
@@ -1482,7 +1486,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         if newrecord and tblobj.counterColumns():
             try:
                 tblobj._sequencesOnLoading(record,recInfo)
-            except GnrSqlException, e:
+            except GnrSqlException as e:
                 recInfo['_onLoadingError'] = str(e)
         recInfo['caption'] = tblobj.recordCaption(record, newrecord)
         return (record, recInfo)
@@ -1496,7 +1500,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 target_fld=str(attr['_target_fld'])
                 kwargs={}
                 resolver_kwargs = attr.get('_resolver_kwargs') or dict()
-                for k,v in resolver_kwargs.items():
+                for k,v in list(resolver_kwargs.items()):
                     if str(v).startswith('='):
                         v = v[1:]
                         resolver_kwargs[k] = record.get(v[1:]) if v.startswith('.') else None
@@ -1517,7 +1521,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         
         :param record: TODO
         :param defaults: TODO"""
-        for k, v in defaults.items():
+        for k, v in list(defaults.items()):
             if k in record:
                 record[k] = v
                 
@@ -1807,7 +1811,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         def cb(row):
             for f in fields:
                 row[f] = changesDict[row[tblobj.pkey]] if f==field else False
-        tblobj.batchUpdate(cb,where='$%s IN :pkeys' %tblobj.pkey,pkeys=changesDict.keys())
+        tblobj.batchUpdate(cb,where='$%s IN :pkeys' %tblobj.pkey,pkeys=list(changesDict.keys()))
         self.db.commit()
         
     def _relPathToCaption(self, table, relpath):
@@ -1838,7 +1842,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         fb = pane.formbuilder(cols=cols)
         tblobj = self.db.table(table)
         if not columns:
-            columns = [colname for colname, col in tblobj.columns.items() if
+            columns = [colname for colname, col in list(tblobj.columns.items()) if
                        not col.isReserved and not col.dtype == 'X'and not col.dtype == 'Z']
         elif isinstance(columns, basestring):
             columns = splitAndStrip(columns)
@@ -1900,7 +1904,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 if name == st or name.startswith('%s_' % st):
                     return True
 
-        for k, v in colAttr.items():
+        for k, v in list(colAttr.items()):
             if isStyleAttr(k):
                 style.append('%s: %s;' % (k.replace('_', '-'), v))
         style = ' '.join([v for v in style if v])
@@ -1919,8 +1923,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         storebag = self._getStoreBag(storebag)
         columns = []
         colAttrs = {}
-        for view in structbag.values():
-            for row in view.values():
+        for view in list(structbag.values()):
+            for row in list(view.values()):
                 for cell in row:
                     col = self.db.colToAs(cell.getAttr('field'))
                     columns.append(col)
@@ -1942,7 +1946,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         #fpath = self.page.pageLocalDocument(filename)
         fpath = self.page.temporaryDocument(filename)
         f = open(fpath, 'w')
-        if isinstance(result, unicode):
+        if isinstance(result, str):
             result = result.encode('utf-8')
         f.write(result)
         f.close()

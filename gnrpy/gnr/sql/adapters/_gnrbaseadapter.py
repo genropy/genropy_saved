@@ -20,6 +20,11 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import division
+from builtins import str
+from past.builtins import basestring
+from builtins import object
+from past.utils import old_div
 import re
 
 from gnr.core.gnrbag import Bag
@@ -194,9 +199,9 @@ class SqlDbAdapter(object):
         :param colinfo: dict of column infos
         :param prefix: adapter specific prefix
         :returns: a new colinfo dict"""
-        d = dict([(k, v) for k, v in colinfo.items() if
+        d = dict([(k, v) for k, v in list(colinfo.items()) if
                   k in ('name', 'default', 'notnull', 'dtype', 'position', 'length')])
-        d.update(dict([(prefix + k, v) for k, v in colinfo.items() if
+        d.update(dict([(prefix + k, v) for k, v in list(colinfo.items()) if
                        k not in ('name', 'default', 'notnull', 'dtype', 'position', 'length')]))
         return d
 
@@ -230,7 +235,7 @@ class SqlDbAdapter(object):
         return sql, kwargs
 
     def adaptTupleListSet(self,sql,sqlargs):
-        for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set)]:
+        for k, v in [(k, v) for k, v in list(sqlargs.items()) if isinstance(v, list) or isinstance(v, tuple) or isinstance(v, set)]:
             sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])
             sqlargs.pop(k)
             sqlargs.update(dict([('%s%i' % (k, i), ov) for i, ov in enumerate(v)]))
@@ -273,7 +278,7 @@ class SqlDbAdapter(object):
     def sqlFireEvent(self, link_txt, path, column,**kwargs):
         kw = dict(onclick= """genro.fireEvent(' ||quote_literal('%s')|| ',' ||quote_literal(%s)||')""" %(path, column),href="#" )
         kw.update(kw)
-        result = """'<a %s >%s</a>'""" % (' '.join(['%s="%s"' %(k,v) for k,v in kw.items()]), link_txt)
+        result = """'<a %s >%s</a>'""" % (' '.join(['%s="%s"' %(k,v) for k,v in list(kw.items())]), link_txt)
         return result
 
     def setLocale(self,locale):
@@ -286,7 +291,7 @@ class SqlDbAdapter(object):
            @dateArg: name of the parameter that contains the reference date
            @timeUnit: year,month,week,day,hour,minute,second. Defaulted to day"""
         dateArg = dateArg or 'env_workdate'
-        timeUnitDict = dict(year=365 * 24 * 60 * 60, month=365 * 24 * 60 * 60 / 12, week=7 * 24 * 60 * 60,
+        timeUnitDict = dict(year=365 * 24 * 60 * 60, month=old_div(365 * 24 * 60 * 60, 12), week=7 * 24 * 60 * 60,
                             day=24 * 60 * 60, hour=60 * 60, minute=60, second=1)
         return """CAST((EXTRACT (EPOCH FROM(cast(:%s as date))) - 
                         EXTRACT (EPOCH FROM(%s)))/%i as bigint)""" % (dateArg, dateColumn,
@@ -329,7 +334,7 @@ class SqlDbAdapter(object):
         """
         data_out = {}
         tbl_virtual_columns = tblobj.virtual_columns
-        for k in record_data.keys():
+        for k in list(record_data.keys()):
             if not (k.startswith('@') or k=='pkey' or  k in tbl_virtual_columns):
                 v = record_data[k]
                 if isinstance(v, Bag):
@@ -340,7 +345,7 @@ class SqlDbAdapter(object):
                     v = v.toXml() if v else None
                     #data_out[str(k.lower())] = v
                 data_out[str(k)] = v
-        sql_value_cols = [k for k,v in tblobj.columns.items() if 'sql_value' in v.attributes and not k in data_out]
+        sql_value_cols = [k for k,v in list(tblobj.columns.items()) if 'sql_value' in v.attributes and not k in data_out]
         for k in sql_value_cols:
             data_out[k] = None
         return data_out
@@ -363,7 +368,7 @@ class SqlDbAdapter(object):
         record_data = self.prepareRecordData(record_data,tblobj=tblobj,**kwargs)
         sql_flds = []
         data_keys = []
-        for k in record_data.keys():
+        for k in list(record_data.keys()):
             sqlcolname = tblobj.sqlnamemapper.get(k)
             if sqlcolname: # skip aliasColumns
                 sql_flds.append(sqlcolname)
@@ -380,7 +385,7 @@ class SqlDbAdapter(object):
                 record[pkeyColumn] = dbtable.newPkeyValue(record)
         sql_flds = []
         columns = []
-        sqlnamemapper_items = filter(lambda x:x[0] in records[0].keys(), tblobj.sqlnamemapper.items())
+        sqlnamemapper_items = [x for x in list(tblobj.sqlnamemapper.items()) if x[0] in list(records[0].keys())]
         for colname,sqlcolname in sqlnamemapper_items:
             sql_flds.append(sqlcolname)
             columns.append(colname)
@@ -410,7 +415,7 @@ class SqlDbAdapter(object):
         tblobj = dbtable.model
         record_data = self.prepareRecordData(record_data,tblobj=tblobj,**kwargs)
         sql_flds = []
-        for k in record_data.keys():
+        for k in list(record_data.keys()):
             sqlcolname = tblobj.sqlnamemapper.get(k)
             sql_par_prefix = ':'
             if sqlcolname:
@@ -917,7 +922,7 @@ class GnrWhereTranslator(object):
         result = []
         sqlArgs = {}
         tblobj = self.db.table(table)
-        for k, v in whereDict.items():
+        for k, v in list(whereDict.items()):
             negate = ''
             op = 'equal'
             ksplit = k.split('_')

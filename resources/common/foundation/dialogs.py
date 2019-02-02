@@ -186,6 +186,6 @@ class Dialogs(BaseComponent):
         center.div(msg, _class='dlg_msgbox')
         bottom.button(btn_ok, action=action_ok, float='right')
         bottom.button(btn_cancel, action=action_cancel, float='right')
-        for btn, action in [(kwargs[k], kwargs.get('action_%s' % k[4:])) for k in kwargs.keys() if
+        for btn, action in [(kwargs[k], kwargs.get('action_%s' % k[4:])) for k in list(kwargs.keys()) if
                             k.startswith('btn_')]:
             bottom.button(btn, action=action, float='left')                           

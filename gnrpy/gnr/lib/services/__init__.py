@@ -23,6 +23,9 @@
 #Created by Giovanni Porcari on 2007-03-24.
 #Copyright (c) 2007 Softwell. All rights reserved.
 
+from builtins import map
+from builtins import str
+from builtins import object
 import os
 
 import sys
@@ -50,7 +53,7 @@ class ServiceHandler(object):
         service_types_factories = {}
         self.service_types = {}
         services_roots = [LIB_ROOT]
-        for pkg,pkgobj in self.site.gnrapp.packages.items():
+        for pkg,pkgobj in list(self.site.gnrapp.packages.items()):
             pkglibroot = os.path.join(pkgobj.packageFolder,'lib','services')
             if os.path.isdir(pkglibroot):
                 services_roots.append(pkglibroot)
@@ -114,14 +117,14 @@ class BaseServiceType(object):
     
     def configurations(self):
         l = self.serviceConfigurationsFromSiteConfig()
-        if 'sys' in self.site.gnrapp.packages.keys():
+        if 'sys' in list(self.site.gnrapp.packages.keys()):
             dbservices = self.site.db.table('sys.service').query(where='$service_type=:st',st=self.service_type).fetch()
             l += [dict(implementation=r['implementation'],service_name=r['service_name'],service_type=r['service_type']) for r in dbservices]
         return l
 
 
     def getServiceConfigurationFromDb(self,service_name):
-        if 'sys' in self.site.gnrapp.packages.keys():
+        if 'sys' in list(self.site.gnrapp.packages.keys()):
             service_record = self.site.db.table('sys.service').record(service_type=self.service_type,
                                                             service_name=service_name,ignoreMissing=True).output('dict')
             if not service_record:

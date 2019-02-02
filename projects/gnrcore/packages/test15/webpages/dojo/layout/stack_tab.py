@@ -6,6 +6,7 @@
 
 """stackContainer"""
 
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     auto_polling = 0

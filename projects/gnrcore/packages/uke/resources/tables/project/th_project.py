@@ -121,7 +121,7 @@ class Form(BaseComponent):
         localizations_deleted = recordCluster.pop('localizations_deleted')
         if localizations or localizations_deleted:
             localizationTable = self.db.table('uke.localization')
-            for n in filter(lambda n: n.value.filter(lambda j: '__old' in j.attr),localizations.nodes):
+            for n in [n for n in localizations.nodes if n.value.filter(lambda j: '__old' in j.attr)]:
                 with localizationTable.recordToUpdate(n.label) as rec:
                     v = n.value
                     v.popNode('_key')

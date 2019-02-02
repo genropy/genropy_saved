@@ -3,6 +3,7 @@
 # user_page.py
 # Created by Francesco Porcari on 2011-04-08.
 # Copyright (c) 2011 softwell All rights reserved.
+from builtins import object
 import hashlib
 
 class GnrCustomWebPage(object):

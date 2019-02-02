@@ -79,13 +79,13 @@ class ReportHandler(BaseComponent):
             if not col.startswith('@'):
                 col = '$%s' %col
             return col
-        for v in group_by.values():
+        for v in list(group_by.values()):
             col = getfield(v)
             group_list.append(col)
             if v['field']!= v['name']:
                 col = '%s AS %s' %(col,v['name'])
             columns_list.append(col)
-        for v in values.values():
+        for v in list(values.values()):
             col = getfield(v)
             aggregator = v['aggregator']
             if not aggregator:

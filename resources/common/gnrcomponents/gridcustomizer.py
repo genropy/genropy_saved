@@ -162,7 +162,7 @@ class GridCustomizer(BaseComponent):
         struct_grid = Bag()
         struct_print = Bag()
         modes = dictExtract(tblobj.attributes,'md_mode_') or {DEFAULT_MD_MODE:'STANDARD'}
-        for mode in modes.keys():
+        for mode in list(modes.keys()):
             mode_struct = fullstruct.deepcopy()
             cells = mode_struct['view_0.rows_0']
             for cell_label,cell_attr in cells.digest('#k,#a'):
@@ -202,7 +202,7 @@ class GridCustomizer(BaseComponent):
         if customizerBag:
             filtered_grid_columns = []
             colsdict = dict([(d['field'],dict(d)) for d in printInstance.grid_columns])
-            for v in customizerBag.values():
+            for v in list(customizerBag.values()):
                 d = colsdict.get(v['field']) or {}
                 custattr = dict(field=v['field'],name=v['name'],mm_width=v['mm_width'],format=v['format'],style=v['style'])
                 d.update(custattr)

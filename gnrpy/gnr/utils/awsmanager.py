@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import map
+from builtins import object
 import boto3
 import json
 import inspect
@@ -199,7 +202,7 @@ class EC2Manager(BaseAwsService):
     def get_instances(self):
         ec2 = self.resource
         idd=self.instance_description_to_dict
-        instances = map(idd,ec2.instances.all())
+        instances = list(map(idd,ec2.instances.all()))
         return dict([(i['name'],i) for i in instances])
 
     def get_key_pairs(self):
@@ -373,8 +376,8 @@ class ELBV2Manager(BaseAwsService):
             )
 
     def rule_description_to_dict(self, rule=None):
-        return dict(actions = map(self.action_dict, rule['Actions']),
-            conditions = map(self.contition_dict, rule['Conditions']),
+        return dict(actions = list(map(self.action_dict, rule['Actions'])),
+            conditions = list(map(self.contition_dict, rule['Conditions'])),
             rule_arn=rule['RuleArn'], isdefault=rule['IsDefault'],
             priority=rule['Priority'])
 
@@ -477,7 +480,7 @@ def main():
     #print aws.EC2.get_vpcs()
 
     #print aws.ELBV2.get_listeners(load_balancer_name='load-ld')
-    print aws.ELBV2.get_target_groups()
+    print(aws.ELBV2.get_target_groups())
     #ec2.create_ec2_instance(image_id='ami-1112223333',
     #    instance_name='test-site', file_system_id='fs-44333929')
 

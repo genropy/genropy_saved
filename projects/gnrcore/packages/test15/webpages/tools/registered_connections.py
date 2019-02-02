@@ -2,6 +2,8 @@
 
 """Registered connections tester"""
 
+from builtins import str
+from builtins import object
 import datetime
 from gnr.core.gnrbag import Bag, BagResolver
 
@@ -50,7 +52,7 @@ class ConnectionListResolver(BagResolver):
         page = register.get_register_item(self.connectionId)
         item = Bag()
         data = page.pop('data', None)
-        item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in page.items()])
+        item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in list(page.items())])
         item['data'] = data
         item.setItem('pages', PageListResolver(), cacheTime=2)
         return item
@@ -58,7 +60,7 @@ class ConnectionListResolver(BagResolver):
     def list_connections(self):
         connectionsDict = self._page.site.register_connection.connections()
         result = Bag()
-        for connection_id, connection in connectionsDict.items():
+        for connection_id, connection in list(connectionsDict.items()):
             delta = (datetime.datetime.now() - connection['start_ts']).seconds
             user = connection['user'] or 'Anonymous'
             ip = connection['user_ip'].replace('.', '_')
@@ -86,14 +88,14 @@ class PageListResolver(BagResolver):
         page = register.get_register_item(self.pageId)
         item = Bag()
         data = page.pop('data', None)
-        item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in page.items()])
+        item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in list(page.items())])
         item['data'] = data
         return item
         
     def list_pages(self):
         pagesDict = self._page.site.register_page.pages()
         result = Bag()
-        for page_id, page in pagesDict.items():
+        for page_id, page in list(pagesDict.items()):
             delta = (datetime.datetime.now() - page['start_ts']).seconds
             pagename = page['pagename'].replace('.py', '')
             user = page['user'] or 'Anonymous'

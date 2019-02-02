@@ -43,7 +43,7 @@ class Package(GnrDboPackage):
             changes_dict = dict()
             app = GnrApp(os.path.join(self.instance_folder(instance_name), 'instanceconfig.xml'))
             if storename == '*':
-                stores = [None] + app.db.dbstores.keys()
+                stores = [None] + list(app.db.dbstores.keys())
             else:
                 stores = [storename]
             for storename in stores:
@@ -64,7 +64,7 @@ class Package(GnrDboPackage):
         if self.instance_exists(instance_name):
             app = GnrApp(self.instance_folder(instance_name))
             if storename == '*':
-                stores = [None] + app.db.dbstores.keys()
+                stores = [None] + list(app.db.dbstores.keys())
             else:
                 stores = [storename]
             for storename in stores:

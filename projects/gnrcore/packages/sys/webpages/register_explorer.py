@@ -7,6 +7,7 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
+from builtins import object
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
@@ -149,7 +150,7 @@ class GnrCustomWebPage(object):
 
     def get_items(self, items, child_name=None, **kwargs):
         result = Bag()
-        for key, item in items.items():
+        for key, item in list(items.items()):
             _customClasses = []
             item['_pkey'] = key
             if item['last_refresh_age'] > 60:

@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 
+from builtins import object
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('localita', pkey='id', name_long='Localita', rowcaption='nome,@provincia.sigla:%s (%s)')

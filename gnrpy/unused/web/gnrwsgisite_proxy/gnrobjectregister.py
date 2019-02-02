@@ -21,6 +21,10 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 # 
 
+from __future__ import print_function
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 from datetime import datetime
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.web.gnrwebpage import ClientDataChange
@@ -308,11 +312,11 @@ class SiteRegister(object):
             lastCleanupTs = self.sd.get(self.cleanup_key)
             thisCleanupTs = time.time()
             if not lastCleanupTs or ((thisCleanupTs - lastCleanupTs) > self.site.cleanup_interval):
-                for page_id, page in self.pages().items():
+                for page_id, page in list(self.pages().items()):
                     page_last_refresh_age = page.get('last_refresh_age')
                     if (page_last_refresh_age and (page_last_refresh_age > self.site.page_max_age)):
                         self.drop_page(page_id)
-                for connection_id, connection in self.connections().items():
+                for connection_id, connection in list(self.connections().items()):
                     connection_last_refresh_age = connection.get('last_refresh_age')
                     if (connection_last_refresh_age and connection_last_refresh_age > self.site.connection_max_age):
                         self.drop_connection(connection_id,cascade=True)
@@ -320,11 +324,11 @@ class SiteRegister(object):
                 self.site._lastCleanUp = thisCleanupTs
 
     def cleanup_page_connection(self, max_age=300):
-        for page_id, page in self.pages().items():
+        for page_id, page in list(self.pages().items()):
             page_last_refresh_age = page.get('last_refresh_age')
             if (page_last_refresh_age and (page_last_refresh_age > max_age)):
                 self.drop_page(page_id)
-        for connection_id, connection in self.connections().items():
+        for connection_id, connection in list(self.connections().items()):
             connection_last_refresh_age = connection.get('last_refresh_age')
             if (connection_last_refresh_age and connection_last_refresh_age > max_age):
                 self.drop_connection(connection_id)
@@ -357,7 +361,7 @@ class SiteRegister(object):
         self.pop_connections_from_user(user, connection_item, delete_if_empty=cascade or self.c_register.is_guest(connection_item))
 
     def log_drop_page(self,page_id=None,page=None,page_last_rpc_age=None,page_max_age=None):
-        print '\n\n IT SHOULD DROP THE PAGE ',page_id,page.get('pagename',''),'\n',page,'page_last_rpc_age ',page_last_rpc_age,'page_max_age ',page_max_age
+        print('\n\n IT SHOULD DROP THE PAGE ',page_id,page.get('pagename',''),'\n',page,'page_last_rpc_age ',page_last_rpc_age,'page_max_age ',page_max_age)
 
         
     @lock_page
@@ -395,14 +399,14 @@ class SiteRegister(object):
         result = {}
         item = self.u_register.read(user)
         if item:
-            result = self.c_register.get_multi_items(item['connections'].keys())
+            result = self.c_register.get_multi_items(list(item['connections'].keys()))
         return result
 
     def connection_pages(self, connection_id):
         result = {}
         item = self.c_register.read(connection_id)
         if item:
-            result = self.p_register.get_multi_items(item['pages'].keys())
+            result = self.p_register.get_multi_items(list(item['pages'].keys()))
         return result
 
     def connections(self, *args, **kwargs):
@@ -425,12 +429,12 @@ class SiteRegister(object):
         with self.u_register as user_register:
             with self.c_register as connection_register:
                 with self.p_register as page_register:
-                    for page_id, page in self.pages().items():
+                    for page_id, page in list(self.pages().items()):
                         if page['last_refresh_age'] > max_age:
                             self.drop_page(page_id, page_register=page_register,
                                            connection_register=connection_register,
                                            user_register=user_register, cascade=cascade)
-                    for connection_id, connection in self.connections().items():
+                    for connection_id, connection in list(self.connections().items()):
                         if connection['last_refresh_age'] > max_age:
                             self._drop_connection(connection_id, connection_register=connection_register,
                                                   user_register=user_register, cascade=cascade)
@@ -607,14 +611,14 @@ class BaseRegister(object):
     def items(self, index_name=None):
         """Registered register_items"""
         index = self.sd.get(self._get_index_key(index_name)) or {}
-        return self.get_multi_items(index.keys())
+        return self.get_multi_items(list(index.keys()))
 
     def get_multi_items(self, keys):
         sd = self.sd
         items = sd.get_multi(keys, '%s_IT_' % self.prefix)
         items_lastused = sd.get_multi(keys, '%s_LU_' % self.prefix)
         now = datetime.now()
-        for k, register_item in items.items():
+        for k, register_item in list(items.items()):
             oldlastused = items_lastused.get(k)
             if oldlastused:
                 self._set_last_ts_in_item(register_item, oldlastused, now=now)
@@ -622,7 +626,7 @@ class BaseRegister(object):
 
     def log(self, command, **kwargs):
         if False:
-            print '-->%s:%s\n                       (%s)' % (self.name, command, str(kwargs))
+            print('-->%s:%s\n                       (%s)' % (self.name, command, str(kwargs)))
 
 class PageRegister(BaseRegister):
     name = 'page'
@@ -687,9 +691,9 @@ class PageRegister(BaseRegister):
             except:
                 return False
 
-        for page_id, page in pages.items():
+        for page_id, page in list(pages.items()):
             page = Bag(page)
-            for fltname, fltval in fltdict.items():
+            for fltname, fltval in list(fltdict.items()):
                 if checkpage(page, fltname, fltval):
                     filtered[page_id] = page
         return filtered
@@ -784,13 +788,13 @@ class PagesTreeResolver(BagResolver):
     def list_users(self):
         usersDict = self._page.site.register.users()
         result = Bag()
-        for user, item_user in usersDict.items():
+        for user, item_user in list(usersDict.items()):
             item = Bag()
             data = item_user.pop('data', None)
             item_user.pop('datachanges', None)
             item_user.pop('datachanges_idx', None)
             item_user.pop('connections')
-            item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in item_user.items()])
+            item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in list(item_user.items())])
             item['data'] = data
             item.setItem('connections', PagesTreeResolver(user=user), cacheTime=3)
             result.setItem(user, item, user=user)
@@ -799,7 +803,7 @@ class PagesTreeResolver(BagResolver):
     def list_connections(self, user):
         connectionsDict = self._page.site.register.user_connections(user)
         result = Bag()
-        for connection_id, connection in connectionsDict.items():
+        for connection_id, connection in list(connectionsDict.items()):
             delta = (datetime.now() - connection['start_ts']).seconds
             user = connection['user'] or 'Anonymous'
             connection_name = connection['connection_name']
@@ -807,7 +811,7 @@ class PagesTreeResolver(BagResolver):
             item = Bag()
             connection.pop('pages', None)
             data = connection.pop('data', None)
-            item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in connection.items()])
+            item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in list(connection.items())])
             item['data'] = data
             item.setItem('pages', PagesTreeResolver(user=user, connection_id=connection_id), cacheTime=2)
             result.setItem(itemlabel, item, user=user, connection_id=connection_id)
@@ -816,13 +820,13 @@ class PagesTreeResolver(BagResolver):
     def list_pages(self, connection_id):
         pagesDict = self._page.site.register.connection_pages(connection_id)
         result = Bag()
-        for page_id, page in pagesDict.items():
+        for page_id, page in list(pagesDict.items()):
             delta = (datetime.now() - page['start_ts']).seconds
             pagename = page['pagename'].replace('.py', '')
             itemlabel = '%s (%i)' % (pagename, delta)
             item = Bag()
             data = page.pop('data', None)
-            item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in page.items()])
+            item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in list(page.items())])
             item['data'] = data
             result.setItem(itemlabel, item, user=item['user'], connection_id=item['connection_id'], page_id=page_id)
         return result     

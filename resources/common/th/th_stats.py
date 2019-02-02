@@ -18,6 +18,7 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from past.builtins import basestring
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import public_method,extract_kwargs
@@ -309,7 +310,7 @@ class TableHandlerStats(BaseComponent):
             where.append(condition)
             where_kwargs.update(condition_kwargs)
         if filters:
-            for fkey,filter_pkeys in filters.items():
+            for fkey,filter_pkeys in list(filters.items()):
                 if filter_pkeys:
                     where.append(' $%s IN :filters_%s' %(fkey,fkey))
                     where_kwargs['filters_%s' %fkey] = filter_pkeys.split(',')
@@ -362,7 +363,7 @@ class TableHandlerStats(BaseComponent):
             pddf = df.dataframe
             if not len(pddf):
                 return
-            for fv in stat_fields.values():
+            for fv in list(stat_fields.values()):
                 if not fv['calculated']:
                     continue
                 if fv['value']:

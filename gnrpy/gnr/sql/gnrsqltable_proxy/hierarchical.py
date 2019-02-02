@@ -20,6 +20,8 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from builtins import str
+from builtins import object
 from gnr.core.gnrstring import encode36
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.core.gnrdict import dictExtract
@@ -114,7 +116,7 @@ class TableHandlerTreeResolver(BagResolver):
                 caption_field = tblobj.attributes.get('caption_field')
             self.caption_field = caption_field
         condition_kwargs = self.condition_kwargs or dict()
-        for k,v in condition_kwargs.items():
+        for k,v in list(condition_kwargs.items()):
             condition_kwargs.pop(k)
             condition_kwargs[str(k)] = v
         condition_pkeys = None

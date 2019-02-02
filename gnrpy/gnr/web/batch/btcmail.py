@@ -33,7 +33,7 @@ class BaseResourceMail(BaseResourceBatch):
                                     attachments=attachments or mp['attachments'], 
                                     account=mp['account'],
                                     smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
-                                    ssl=mp['ssl'], tls=mp['tls'], html=mp['html'], async=False)
+                                    ssl=mp['ssl'], tls=mp['tls'], html=mp['html'], async_=False)
             
             with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
                 self.db.table('adm.sent_email').insert(dict(code=mail_code,tbl=tbl,mail_address=to_address,sent_ts=now,record_id=_record_id))

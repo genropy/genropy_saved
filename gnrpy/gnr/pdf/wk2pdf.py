@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from __future__ import print_function
+from past.builtins import basestring
+from builtins import object
 import sys
 import signal
 import re
@@ -47,7 +50,7 @@ class WK2pdf(object):
     def __init__(self, *args, **kwargs):
         self.app = QApplication(sys.argv)
         self.option_defaults.update(kwargs)
-        for k, v in self.option_defaults.items():
+        for k, v in list(self.option_defaults.items()):
             if isinstance(v, basestring):
                 if k in ['margin_left', 'margin_right', 'margin_top', 'margin_bottom']:
                     v = self.parseUnitReal(v)
@@ -229,7 +232,7 @@ class WK2pdf(object):
         #if not ok:
         #    raise Exception("Failed loading page")
         if not self.quiet:
-            print "Waiting for redirect"
+            print("Waiting for redirect")
 
         if self.loading == 0:
             QTimer.singleShot(self.jsredirectwait, self.printPage)
@@ -240,7 +243,7 @@ class WK2pdf(object):
 
     def loadProgress(self, progress):
         if not self.quiet:
-            print "Loading page: %02i\r" % progress
+            print("Loading page: %02i\r" % progress)
 
     def exec_(self):
         return self.app.exec_()

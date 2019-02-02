@@ -9,6 +9,7 @@ instanceName defaults to the current directory name
 siteName     defaults to instanceName
 
 """
+from builtins import object
 import re
 import sys, os, shutil
 import getopt
@@ -32,13 +33,13 @@ class SiteLocalizer(object):
 
     def do(self):
         missingBag = Bag(os.path.join(self.sitepath, 'data', '_missingloc'))['_missingloc']
-        for pkg, mbag in missingBag.items():
+        for pkg, mbag in list(missingBag.items()):
             pkglocpath = os.path.join('/usr', 'local', 'genro', 'packages', pkg, 'localization.xml')
             if os.path.exists(pkglocpath):
                 pkgloc = Bag(pkglocpath)
             else:
                 pkgloc = Bag()
-            for missing in mbag.values():
+            for missing in list(mbag.values()):
                 _key = missing['txt']
 
                 lbl = re.sub('\W', '_', _key).replace('__', '_')

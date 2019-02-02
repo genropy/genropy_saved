@@ -31,11 +31,11 @@ def send_message(page=None,message=None, account=None, attachments=None):
     password = account['password']
     ssl=account['ssl']
     tls=account['tls']
-    async = True
+    async_ = True
     mail_handler.sendmail(to_address=to_address, subject=subject, body=body, cc_address=cc_address,
                     bcc_address=bcc_address, attachments=attachments,
                  from_address=from_address, smtp_host=smtp_host, port=port, user=user, password=password,
-                 ssl=ssl, tls=tls, html=html, async=async)
+                 ssl=ssl, tls=tls, html=html, async_=async_)
                       
 
 def send_pending(page=None, account=None):
@@ -49,10 +49,10 @@ def send_pending(page=None, account=None):
     else:
         accounts=dict(account['id']=account)
     messages=messages_table.query(where="$sent IS NOT TRUE AND $account_id in :account and date <=:now",now=datetime.now(),
-                                            account=accounts.keys(),for_update=True).fetch()
+                                            account=list(accounts.keys()),for_update=True).fetch()
     message_pkeys = [m['id'] for m in messages]
     attachments = attachments_table.query(where='$message_id IN :message_pkeys', message_pkeys=message_pkeys).fetchAsDict(key='message_id')
-    for account_id,messages in account_messages.items():
+    for account_id,messages in list(account_messages.items()):
         for message in messages:
             send_message(page=page, message=message, account=accounts[message['account_id']], attachments=attachments.get(message['id']))
             message['sent'] = True

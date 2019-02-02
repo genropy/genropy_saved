@@ -54,13 +54,22 @@ to interact with BagNode instances inside a Bag.
           You will see this notation frequently in the :ref:`Genro Library Reference <library_reference>`
           
 .. note:: Some methods have the "square-brackets notation": it is a shorter notation for the method"""
+from __future__ import print_function
 
 #import weakref
+from past.builtins import cmp
+from future import standard_library
+standard_library.install_aliases()
+from builtins import zip
+from builtins import chr
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import copy
-import cPickle as pickle
+import pickle as pickle
 from datetime import datetime, timedelta
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 from gnr.core import gnrstring
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrlang import setCallable, GnrObject, GnrException
@@ -141,7 +150,7 @@ class BagNode(object):
             
     def setValidators(self, validators):
         """TODO"""
-        for k, v in validators.items():
+        for k, v in list(validators.items()):
             self.addValidator(k, v)
             
     def _get_parentbag(self):
@@ -234,7 +243,7 @@ class BagNode(object):
             self._value = value
         changed = oldvalue != self._value
         if not changed and _attributes:
-            for attr_k,attr_v in _attributes.items():
+            for attr_k,attr_v in list(_attributes.items()):
                 if self.attr.get(attr_k) != attr_v:
                     changed = True
                     break
@@ -245,7 +254,7 @@ class BagNode(object):
             self.setAttr(_attributes, trigger=False, _updattr=_updattr,
                          _removeNullAttributes=_removeNullAttributes)
         if trigger:
-            for subscriber in self._node_subscribers.values():
+            for subscriber in list(self._node_subscribers.values()):
                 subscriber(node=self, info=oldvalue, evt='upd_value')
         if self.parentbag != None and self.parentbag.backref:
             if hasattr(value,'_htraverse'):
@@ -355,12 +364,12 @@ class BagNode(object):
         if kwargs:
             self.attr.update(kwargs)
         if _removeNullAttributes:
-            [self.attr.__delitem__(k) for k, v in self.attr.items() if v == None]
+            [self.attr.__delitem__(k) for k, v in list(self.attr.items()) if v == None]
 
         if trigger:
             if self._node_subscribers:
-                upd_attrs = [k for k in self.attr.keys() if (k not in oldattr.keys() or self.attr[k] != oldattr[k])]
-                for subscriber in self._node_subscribers.values():
+                upd_attrs = [k for k in list(self.attr.keys()) if (k not in list(oldattr.keys()) or self.attr[k] != oldattr[k])]
+                for subscriber in list(self._node_subscribers.values()):
                     subscriber(node=self, info=upd_attrs, evt='upd_attrs')
             if self.parentbag != None and self.parentbag.backref:
                 self.parentbag._onNodeChanged(self, [self.label], evt='upd_attrs',reason=trigger)
@@ -370,7 +379,7 @@ class BagNode(object):
         if isinstance(attrToDelete, basestring):
             attrToDelete = attrToDelete.split(',')
         for attr in attrToDelete:
-            if attr in self.attr.keys():
+            if attr in list(self.attr.keys()):
                 self.attr.pop(attr)
 
     def __str__(self):
@@ -617,17 +626,17 @@ class Bag(GnrObject):
         if isinstance(group_by, basestring):
             group_by = group_by.split(',')
         result = Bag()
-        for key, item in self.iteritems():
+        for key, item in self.items():
             path = []
             for g in group_by:
-                path.append(unicode(item[g]))
+                path.append(str(item[g]))
             if caption is None:
                 val = key
             else:
                 val = item[caption]
-            path.append(unicode(val).replace(u'.', u'_'))
+            path.append(str(val).replace(u'.', u'_'))
             if attributes == '*':
-                attributes = item.keys()
+                attributes = list(item.keys())
             attrs = dict([(k, item[k]) for k in attributes])
             result.addItem('.'.join(path), None, attrs)
         return result
@@ -668,10 +677,10 @@ class Bag(GnrObject):
             result = []
             wlist = what.split(',')
             for w in wlist:
-                result.append(sum(map(lambda n: n or 0, self.digest(w))))
+                result.append(sum([n or 0 for n in self.digest(w)]))
             return result
         else:
-            return sum(map(lambda n: n or 0, self.digest(what)))
+            return sum([n or 0 for n in self.digest(what)])
             
     def get(self, label, default=None, mode=None):
         """TODO
@@ -709,7 +718,7 @@ class Bag(GnrObject):
                 result = currnode.getAttr(mode)
             else:
                 if cmd == 'k:':
-                    result = currvalue.keys()
+                    result = list(currvalue.keys())
                 elif cmd.startswith('d:') or cmd.startswith('digest:'):
                     result = currvalue.digest(mode.split(':')[1])
         return result
@@ -777,7 +786,7 @@ class Bag(GnrObject):
  
     def __call__(self, what=None):
         if not what:
-            return self.keys()
+            return list(self.keys())
         return self[what]
         
     def __pow__(self,kwargs):
@@ -790,7 +799,7 @@ class Bag(GnrObject):
             exploredNodes = {}
         outlist = []
         for idx, el in enumerate(self._nodes):
-            attr = '<' + ' '.join(["%s='%s'" % attr for attr in el.attr.items()]) + '>'
+            attr = '<' + ' '.join(["%s='%s'" % attr for attr in list(el.attr.items())]) + '>'
             if attr == '<>': attr = ''
             try:
                 value = el.getValue(mode)
@@ -806,18 +815,18 @@ class Bag(GnrObject):
                 else:
                     exploredNodes[el_id] = el.label
                     innerBagStr = '\n'.join(["    %s" % (line,)
-                                             for line in unicode(
+                                             for line in str(
                             value.__str__(exploredNodes, mode=mode)).split('\n')])
                 outlist.append(innerBagStr)
             else:
                 currtype = str(type(value)).split(" ")[1][1:][:-2]
                 if currtype == 'NoneType': currtype = 'None'
                 if '.' in currtype: currtype = currtype.split('.')[-1]
-                if not isinstance(value, unicode):
+                if not isinstance(value, str):
                     if isinstance(value, basestring):
                         value = value.decode('UTF-8', 'ignore')
                 outlist.append(("%s - (%s) %s: %s  %s" % (str(idx), currtype,
-                                                          el.label, unicode(value), attr)))
+                                                          el.label, str(value), attr)))
         return '\n'.join(outlist)
 
     def asString(self, encoding='UTF-8', mode='weak'):
@@ -956,7 +965,7 @@ class Bag(GnrObject):
             return result
         if len(result) == 1:
             return result.pop()
-        return zip(*result)
+        return list(zip(*result))
         
     def columns(self, cols, attrMode=False):
         """TODO
@@ -1058,7 +1067,7 @@ class Bag(GnrObject):
         :param otherbag: the Bag to merge into
         :param resolved: TODO"""
         if isinstance(otherbag, dict):
-            for k, v in otherbag.items():
+            for k, v in list(otherbag.items()):
                 self.setItem(k, v)
             return
         if isinstance(otherbag, basestring):
@@ -1072,7 +1081,7 @@ class Bag(GnrObject):
             if node_resolver is None or resolved:
                 node_value = n.value
                 node_resolver = None
-            if n.label in self.keys():
+            if n.label in list(self.keys()):
                 currNode = self.getNode(n.label)
                 currNode.attr.update(n.attr)
                 if node_resolver is not None:
@@ -1149,9 +1158,9 @@ class Bag(GnrObject):
                 if upd_attr and add_attr:
                     attr.update(oattr)
                 elif upd_attr:
-                    attr = dict([(ak, oattr.get(ak, av)) for ak, av in attr.items()])
+                    attr = dict([(ak, oattr.get(ak, av)) for ak, av in list(attr.items())])
                 elif add_attr:
-                    oattr = dict([(ak, av) for ak, av in oattr.items() if not ak in attr.keys()])
+                    oattr = dict([(ak, av) for ak, av in list(oattr.items()) if not ak in list(attr.keys())])
                     attr.update(oattr)
                 ov = onode.getValue()
                 if isinstance(v, Bag) and isinstance(ov, Bag):
@@ -1160,7 +1169,7 @@ class Bag(GnrObject):
                     v = ov
             result.setItem(k, v, _attributes=attr)
         if add_values:
-            for k, n in othernodes.items():
+            for k, n in list(othernodes.items()):
                 result.setItem(k, n.getValue(), _attributes=n.getAttr())
         return result
 
@@ -1404,7 +1413,7 @@ class Bag(GnrObject):
         :param ascii: boolean. TODO
         :param lower: boolean. TODO"""
         d = self.asDict(ascii=ascii, lower=lower)
-        for k, v in d.items():
+        for k, v in list(d.items()):
             if isinstance(v, Bag):
                 d[k] = v.asDictDeeply(ascii=ascii, lower=lower)
         return d
@@ -1563,7 +1572,7 @@ class Bag(GnrObject):
                     if el._validators:
                         self.getNode(el.label)._validators = el._validators
             elif 'items' in dir(item_value):
-                for key, v in item_value.items(): self.setItem(key, v)
+                for key, v in list(item_value.items()): self.setItem(key, v)
             return self
         else:
             obj, label = self._htraverse(item_path, autocreate=True)
@@ -1622,7 +1631,7 @@ class Bag(GnrObject):
         :param kwargs: a key-value couple which represents the formula and the string that describes it"""
         if self._symbols == None:
             self._symbols = {}
-        for key, value in kwargs.items():
+        for key, value in list(kwargs.items()):
             self._symbols['formula:%s' % key] = value
 
     def formula(self, formula, **kwargs):
@@ -1872,7 +1881,7 @@ class Bag(GnrObject):
             self._nodes = [BagNode(self, *x.asTuple()) for x in source]
             
         elif callable(getattr(source, 'items',None)):
-            for key, value in source.items():
+            for key, value in list(source.items()):
                 if not isinstance(value,Bag) and hasattr(value, 'items'):
                     value = Bag(value)
                 self.setItem(key, value)
@@ -1935,7 +1944,7 @@ class Bag(GnrObject):
         if sys.platform == "win32" and ":\\" in source:
             urlparsed = ('file', None, source)
         else:
-            urlparsed = urlparse.urlparse(source)
+            urlparsed = urllib.parse.urlparse(source)
         if not urlparsed[0] or urlparsed[0] == 'file':
             source = urlparsed[2]
             if os.path.exists(source):
@@ -1960,7 +1969,7 @@ class Bag(GnrObject):
                     return source, False, 'isdir' #it's a directory
             else:
                 return originalsource, False, 'unknown' #short string of unknown type
-        urlobj = urllib.urlopen(source)
+        urlobj = urllib.request.urlopen(source)
         info = urlobj.info()
         contentType = info.gettype().lower()
         if 'xml' in contentType or 'html' in contentType:
@@ -1982,7 +1991,7 @@ class Bag(GnrObject):
         if isinstance(json,list):
             if not json:
                 return
-            if listJoiner and all(map(lambda r: isinstance(r,basestring) and not converter.isTypedText(r),json)):
+            if listJoiner and all([isinstance(r,basestring) and not converter.isTypedText(r) for r in json]):
                 return listJoiner.join(json)
             for n,v in enumerate(json):
                 result.setItem('r_%i' %n,self._fromJson(v,listJoiner=listJoiner),_autolist=True)
@@ -1990,7 +1999,7 @@ class Bag(GnrObject):
         elif isinstance(json,dict):
             if not json:
                 return
-            for k,v in json.items():
+            for k,v in list(json.items()):
                 result.setItem(k,self._fromJson(v,listJoiner=listJoiner))
         else:
             if isinstance(json,basestring) and converter.isTypedText(json):
@@ -2080,7 +2089,7 @@ class Bag(GnrObject):
                          where the event was catched
         :param evt: it is the event type, that is insert, delete, upd_value or upd_attrs
         :param oldvalue: it is the previous node's value"""
-        for s in self._upd_subscribers.values():
+        for s in list(self._upd_subscribers.values()):
             s(node=node, pathlist=pathlist, oldvalue=oldvalue, evt=evt,reason=reason)
         if self.parent:
             self.parent._onNodeChanged(node, [self.parentNode.label] + pathlist, evt, oldvalue,reason=reason)
@@ -2098,7 +2107,7 @@ class Bag(GnrObject):
 
         if pathlist == None:
             pathlist = []
-        for s in self._ins_subscribers.values():
+        for s in list(self._ins_subscribers.values()):
             s(node=node, pathlist=pathlist, ind=ind, evt='ins',reason=reason)
         if self.parent:
             self.parent._onNodeInserted(node, ind, [self.parentNode.label] + pathlist,reason=reason)
@@ -2110,7 +2119,7 @@ class Bag(GnrObject):
         :param ind: TODO
         :param pathlist: it includes the Bag subscribed's path linked to the node
                          where the event was catched"""
-        for s in self._del_subscribers.values():
+        for s in list(self._del_subscribers.values()):
             s(node=node, pathlist=pathlist, ind=ind, evt='del',reason=reason)
         if self.parent:
             if pathlist == None:
@@ -2229,7 +2238,7 @@ class Bag(GnrObject):
         if blankIsNone:
             empties.append('')
         for node in self.nodes:
-            if any(map(lambda a: a not in empties, node.attr.values())):
+            if any([a not in empties for a in list(node.attr.values())]):
                 return False
             if isinstance(node.value,Bag):
                 if not node.value.isEmpty():
@@ -2313,7 +2322,7 @@ class Bag(GnrObject):
                 raise BagException('Cannot change %s from %s to %s' % (childname, where.getAttr(childname, 'tag'), tag))
             else:
                 kwargs = dict(
-                        [(k, v) for k, v in kwargs.items() if v != None]) # default kwargs don't clear old attributes
+                        [(k, v) for k, v in list(kwargs.items()) if v != None]) # default kwargs don't clear old attributes
                 result = where[childname]
                 result.attributes.update(**kwargs)
         else:
@@ -2464,7 +2473,7 @@ class BagValidationList(object):
         :param value: TODO
         :param oldvalue: TODO
         :param parameterString: TODO"""
-        print 'manca il validatore'
+        print('manca il validatore')
 
 class BagResolver(object):
     """BagResolver is an abstract class, that defines the interface for a new kind
@@ -2485,7 +2494,7 @@ class BagResolver(object):
             classKwargs.pop(parname, None)
             kwargs.pop(parname, None)
 
-        for parname, dflt in classKwargs.items():
+        for parname, dflt in list(classKwargs.items()):
             setattr(self, parname, kwargs.pop(parname, dflt))
         self.kwargs.update(kwargs)
 
@@ -2517,7 +2526,7 @@ class BagResolver(object):
 
     def _get_instanceKwargs(self):
         result = {}
-        for par, dflt in self.classKwargs.items():
+        for par, dflt in list(self.classKwargs.items()):
             result[par] = getattr(self, par)
         for par in self.classArgs:
             result[par] = getattr(self, par)
@@ -2526,7 +2535,7 @@ class BagResolver(object):
     instanceKwargs = property(_get_instanceKwargs)
 
     def _attachKwargs(self):
-        for k, v in self.kwargs.items():
+        for k, v in list(self.kwargs.items()):
             setattr(self, k, v)
             if k in self.classKwargs:
                 self.kwargs.pop(k)
@@ -2605,15 +2614,15 @@ class BagResolver(object):
 
     def keys(self):
         """same method of the dict :meth:`keys()`"""
-        return self().keys()
+        return list(self().keys())
         
     def items(self):
         """same method of the dict :meth:`items()`"""
-        return self().items()
+        return list(self().items())
         
     def values(self):
         """same method of the dict :meth:`values()`"""
-        return self().values()
+        return list(self().values())
         
     def digest(self, k=None):
         """same method of the dict :meth:`digest()`"""
@@ -2625,15 +2634,15 @@ class BagResolver(object):
         
     def iterkeys(self):
         """TODO"""
-        return self().iterkeys()
+        return iter(self().keys())
         
     def iteritems(self):
         """TODO"""
-        return self().iteritems()
+        return iter(self().items())
 
     def itervalues(self):
         """TODO"""
-        return self().itervalues()
+        return iter(self().values())
         
     def __iter__(self):
         return self().__iter__()
@@ -2667,7 +2676,7 @@ class VObjectBag(Bag):
         if isinstance(source,basestring):
             source, fromFile, mode = self._sourcePrepare(source)
             if fromFile:
-                urlobj = urllib.urlopen(source)
+                urlobj = urllib.request.urlopen(source)
                 info = urlobj.info()
                 contentType = info.gettype().lower()
                 source= urlobj.read()
@@ -2713,7 +2722,7 @@ class GeoCoderBag(Bag):
         urlparams = dict(address=address,sensor='false')
         if language:
             urlparams['language']=language
-        url = "http://maps.googleapis.com/maps/api/geocode/xml?%s" % urllib.urlencode(urlparams)
+        url = "http://maps.googleapis.com/maps/api/geocode/xml?%s" % urllib.parse.urlencode(urlparams)
         self._result = Bag()
         answer = Bag(url)
         if answer['GeocodeResponse.status']=='OK':
@@ -2751,7 +2760,7 @@ class UrlResolver(BagResolver):
         
     def load(self):
         """TODO"""
-        x = urllib.urlopen(self.url)
+        x = urllib.request.urlopen(self.url)
         result = {}
         result['data'] = x.read()
         result['info'] = x.info()
@@ -2769,10 +2778,10 @@ class NetBag(BagResolver):
     def load(self):
 
         try:
-            params = {k:self.converter.asTypedText(v) for k,v in self.kwargs.items()}
+            params = {k:self.converter.asTypedText(v) for k,v in list(self.kwargs.items())}
             response = self.requests.post('%s/%s' %(self.url,self.method),data=params)
             return Bag(response.text)
-        except Exception, e:
+        except Exception as e:
             return Bag(dict(error=str(e)))
         
         
@@ -2923,7 +2932,7 @@ class BagFormula(BagResolver):
     def init(self):
         """TODO"""
         parameters = {}
-        for key, value in self.parameters.items():
+        for key, value in list(self.parameters.items()):
             if key.startswith('_'):
                 parameters[key] = "curr.getResolver('%s')" % value
             else:
@@ -3022,7 +3031,7 @@ class BagResolverNew(object):
         
     def _updateKwargs(self, kwargs):
         reset = False
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             if self.kwargs.get(k) != v:
                 reset = True
                 self.kwargs[k] =v
@@ -3066,13 +3075,13 @@ class BagResolverNew(object):
         return self()._htraverse(*args, **kwargs)
 
     def keys(self):
-        return self().keys()
+        return list(self().keys())
 
     def items(self):
-        return self().items()
+        return list(self().items())
 
     def values(self):
-        return self().values()
+        return list(self().values())
 
     def digest(self, k=None):
         return self().digest(k)
@@ -3081,13 +3090,13 @@ class BagResolverNew(object):
         return self().sum(k)
 
     def iterkeys(self):
-        return self().iterkeys()
+        return iter(self().keys())
 
     def iteritems(self):
-        return self().iteritems()
+        return iter(self().items())
 
     def itervalues(self):
-        return self().itervalues()
+        return iter(self().values())
 
     def __iter__(self):
         return self().__iter__()
@@ -3151,22 +3160,22 @@ def testFormule():
 
     a = b['ft1.righe.1.lordo']
 
-    print b
-    print b['?']
-    print b['ft1.righe.?']
+    print(b)
+    print(b['?'])
+    print(b['ft1.righe.?'])
 
-    print b['ft1.totalefattura']
-    print b['ft1.netto']
-    print b['ft1.iva']
+    print(b['ft1.totalefattura'])
+    print(b['ft1.netto'])
+    print(b['ft1.iva'])
 
-    print b['ft1.righe.1.lordo']
-    print b['ft1.righe.1.netto']
-    print b['ft1.righe.2.lordo']
-    print b['ft1.righe.2.netto']
-    print b['ft1.righe.3.lordo']
-    print b['ft1.righe.3.netto']
+    print(b['ft1.righe.1.lordo'])
+    print(b['ft1.righe.1.netto'])
+    print(b['ft1.righe.2.lordo'])
+    print(b['ft1.righe.2.netto'])
+    print(b['ft1.righe.3.lordo'])
+    print(b['ft1.righe.3.netto'])
     b['ft1.sconto'] = 10
-    print b['ft1.totalefattura']
+    print(b['ft1.totalefattura'])
 
 class TraceBackResolver(BagResolver):
     classKwargs = {'cacheTime': 0, 'limit': None}
@@ -3200,14 +3209,14 @@ class TraceBackResolver(BagResolver):
             tb_bag['lineno'] = lineno
             tb_bag['name'] = name
             tb_bag['line'] = line
-            tb_bag['locals'] = Bag(f.f_locals.items())
+            tb_bag['locals'] = Bag(list(f.f_locals.items()))
             tb = tb.tb_next
             n = n + 1
             result['%s method: %s line: %s' % (tb_bag['module'], name, lineno)] = tb_bag
         return result
 
 def testfunc (**kwargs):
-    print kwargs
+    print(kwargs)
 
 #import Pyro.core
 #class PyroBag(Bag, Pyro.core.ObjBase):
@@ -3218,4 +3227,4 @@ def testfunc (**kwargs):
 if __name__ == '__main__':
     b = Bag()
     b.setItem('aa', 4, _attributes={'aa': 4, 'bb': None}, _removeNullAttributes=False)
-    print b.toXml()
+    print(b.toXml())

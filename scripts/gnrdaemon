@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 # encoding: utf-8
 # 
+from __future__ import print_function
 from gnr.web.gnrdaemonhandler import GnrDaemon,GnrDaemonProxy
 
 
@@ -67,22 +68,22 @@ if __name__=="__main__":
         server = GnrDaemon()
         server.start(use_environment=True,**options)
     elif command=='make_service':
-        print "gnrdaemon make_service is deprecated, use gnrdeploybuilder --make_gnrdaemon"
+        print("gnrdaemon make_service is deprecated, use gnrdeploybuilder --make_gnrdaemon")
     else:
         p = GnrDaemonProxy(use_environment=True, host=options.get('host'),port=options.get('port'),socket=options.get('socket'),hmac_key=options.get('hmac_key'),compression=options.get('compression'))
         proxy = p.proxy()
         if command=='stop':
-            print 'savestatus',options.get('savestatus')
+            print('savestatus',options.get('savestatus'))
             result = proxy.stop(saveStatus=options.get('savestatus'))   
-            print result
+            print(result)
         elif command =='restart':
             result = proxy.restart(sitename='*')
         elif command in ('stopping','starting'):
             result = getattr(proxy,command)()
-            print result
+            print(result)
         else:
             h = getattr(proxy,command,None)
             if h:
-                print h(**options)
+                print(h(**options))
             else:
-                print 'unknown command:%s' %command
+                print('unknown command:%s' %command)

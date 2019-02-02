@@ -10,7 +10,7 @@ def structToPyFull(sourcepath, destpath):
         os.mkdir(destpath)
     fullstruct = Bag(sourcepath)
     packages = fullstruct['packages']
-    for k,v in packages.items():
+    for k,v in list(packages.items()):
         if not v: continue
         package_dir_path = os.path.join(destpath,k)
         package_maker = PackageMaker(k, base_path=destpath)
@@ -38,7 +38,7 @@ class Table(object):
             colAttr['name_long'] = '!!%s' % colName.title()
             x = colAttr.pop('tag', None)
             atlst = []
-            for k, v in colAttr.items():
+            for k, v in list(colAttr.items()):
                 atlst.append("%s ='%s'" % (k, v))
             f.write("        tbl.column('%s', %s)  \n" % (colName, ', '.join(atlst)))
         f.close()

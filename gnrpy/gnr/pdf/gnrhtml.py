@@ -23,11 +23,17 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 #import weakref
+from __future__ import division
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from past.utils import old_div
+from builtins import object
 from gnr.core.gnrbag import Bag, BagNode
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
 from gnr.core.gnrsys import expandpath
-import cStringIO
+import io
 import os
 from gnr.core.gnrlang import optArgs
 
@@ -67,7 +73,7 @@ class GnrHtmlSrc(GnrStructData):
             return GnrHtmlElem(self, '%s' % (self.genroNameSpace[fnamelower]))
             
         else:
-            raise AttributeError, fname
+            raise AttributeError(fname)
             
     def toHtml(self):
         """TODO"""
@@ -158,7 +164,7 @@ class GnrHtmlSrc(GnrStructData):
             if top is not None:
                 style_dict['top'] = self.valueAndUm(top, um)
                 
-            style = ''.join(['%s:%s;' % (k, v) for k, v in style_dict.items()])
+            style = ''.join(['%s:%s;' % (k, v) for k, v in list(style_dict.items())])
         if style:
             kwargs['style'] = style
         if _class:
@@ -275,10 +281,10 @@ class GnrHtmlSrc(GnrStructData):
         idx = attr.pop('idx')
         if width == 0:
             wl = [float(w) for w in self.digest('#a.width')][idx:]
-            width = (self.max_width - (self.curr_x + sum(wl))) / wl.count(0.0)
+            width = old_div((self.max_width - (self.curr_x + sum(wl))), wl.count(0.0))
         if self.height == 0:
             hl = [float(h) for h in self.container.digest('#a.height')][self.idx:]
-            self.height = (self.container.height - (self.container.height_calc + sum(hl))) / hl.count(0.0)
+            self.height = old_div((self.container.height - (self.container.height_calc + sum(hl))), hl.count(0.0))
         width = width - bs
         attr['width'] = width + dbs
         attr['height'] = self.height - bs + dbs
@@ -334,7 +340,7 @@ class GnrHtmlSrc(GnrStructData):
                     pass
                 style_dict[name] = value
                 
-        attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in style_dict.items()])
+        attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in list(style_dict.items())])
         
     def globalCss(self, layout_name='', um='mm', border_size=0.1, border_color='gray', border_style='solid'):
         """handle the css attributes and return them
@@ -463,4 +469,4 @@ if __name__ == '__main__':
     test0(body)
     pdf.root.toXml('testhtml/test0.xml', autocreate=True)
     pdf.toHtml('testhtml/test0.html')
-    print body
+    print(body)

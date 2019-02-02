@@ -6,6 +6,7 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
 
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"

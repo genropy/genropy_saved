@@ -1,3 +1,5 @@
+from __future__ import print_function
+from builtins import object
 from datetime import datetime
 import caldav
 from caldav.elements import dav, cdav
@@ -86,15 +88,15 @@ if __name__=='__main__':
     c=test1()
     calendars=c.principal.calendars()
     c0= calendars[0]
-    print c0._get_properties([dav.DisplayName(),])
-    print ss
+    print(c0._get_properties([dav.DisplayName(),]))
+    print(ss)
     c.calendar.get_properties([dav.DisplayName(),])
-    print c.calendars
+    print(c.calendars)
    
     b=c.eventsBag('Promemoria')
     #print b
-    for event in b.values():
+    for event in list(b.values()):
         s=event['#0'].digest('#v',condition=lambda n: n.attr.get('vtag') in ('VTODO','VEVENT'))
     for event in s:
-        print event
+        print(event)
     

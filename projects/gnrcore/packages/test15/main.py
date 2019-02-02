@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from builtins import object
 from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage
 
 class Package(GnrDboPackage):

@@ -2,6 +2,9 @@
 # Genro  
 # Copyright (c) 2004 Softwell sas - Milano see LICENSE for details
 # Author Giovanni Porcari, Francesco Cavazzana, Saverio Porcari, Francesco Porcari
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import os
 import time, datetime
 from logging.handlers import TimedRotatingFileHandler
@@ -45,7 +48,7 @@ class Struct4D(object):
 
     def areaFolder(self, area):
         path = os.path.join(self.packages_folder, area)
-        print 'areaFolder:', path
+        print('areaFolder:', path)
         if not os.path.isdir(path):
             os.mkdir(path)
         return path
@@ -71,16 +74,16 @@ class Struct4D(object):
         return self.names4d.get(fullname.lower())
 
     def get4dTables(self):
-        return [k[4:-1] for k, v in self.names4d.items() if k.startswith('4d') and not v[2]]
+        return [k[4:-1] for k, v in list(self.names4d.items()) if k.startswith('4d') and not v[2]]
 
     def buildNames4d(self):
         result = {}
         namesdict = {}
-        for sname, sbag in self.folder4dstructBag.items():
+        for sname, sbag in list(self.folder4dstructBag.items()):
             sname = sname.lower()
             tablesbag = sbag['tables4d']
             if tablesbag:
-                for tbag in tablesbag.values():
+                for tbag in list(tablesbag.values()):
                     table4D, tableSql = self.fromNameAs(tbag['name'])
                     path4d = '4D_[%s]' % table4D
                     namesdict[
@@ -88,13 +91,13 @@ class Struct4D(object):
                     if tableSql.startswith('%s_' % sname): #strip the area code from table name
                         tableSql = tableSql.lower().split('_', 1)[1]
                     result[path4d.lower()] = (sname, tableSql, None)
-                    for fldbag in tbag['fields'].values():
+                    for fldbag in list(tbag['fields'].values()):
                         name4D, nameSql = self.fromNameAs(fldbag['name'])
                         path4d = '4D_[%s]%s' % (table4D, name4D)
                         result[path4d.lower()] = (sname, tableSql, nameSql)
             tablesbag = sbag['tablesGnr']
             if tablesbag:
-                for tbag in tablesbag.values():
+                for tbag in list(tablesbag.values()):
                     table4D, tableSql = self.fromNameAs(tbag['name'])
                     path4d = 'GNR_[%s]' % table4D
                     if tableSql in namesdict:
@@ -102,14 +105,14 @@ class Struct4D(object):
                     if tableSql.startswith('%s_' % sname): #strip the area code from table name
                         tableSql = tableSql.lower().lstrip('_').split('_', 1)[1]
                     result[path4d.lower()] = (sname, tableSql, None)
-                    for fldbag in tbag['fields'].values():
+                    for fldbag in list(tbag['fields'].values()):
                         name4D, nameSql = self.fromNameAs(fldbag['name'])
                         path4d = 'GNR_[%s]%s' % (table4D, name4D)
                         result[path4d.lower()] = (sname, tableSql, nameSql)
         return result
 
     def build(self, configBag):
-        for sname, sbag in self.folder4dstructBag.items():
+        for sname, sbag in list(self.folder4dstructBag.items()):
             sname = sname.lower()
             area = self.buildArea(sname, sbag)
             if area: #if an area has no tables don't build the folder at all
@@ -124,12 +127,12 @@ class Struct4D(object):
         exportArea = False
         if tablesbag:
             exportArea = True
-            for tbag in tablesbag.values():
+            for tbag in list(tablesbag.values()):
                 self.buildTable(pkg, tbag)
         tablesbag = sbag['tablesGnr']
         if tablesbag:
             exportArea = True
-            for tbag in tablesbag.values():
+            for tbag in list(tablesbag.values()):
                 self.buildTable(pkg, tbag, mode='GNR')
         if exportArea:
             return result
@@ -146,10 +149,10 @@ class Struct4D(object):
         table = pkg.table(name=name, comment=comment,
                           name_short=name_short,
                           pkey=pkey)
-        for fldbag in tbag['fields'].values():
+        for fldbag in list(tbag['fields'].values()):
             self.buildField(table, fldbag)
         if 'extrafields' in tbag:
-            for fldbag in tbag['extrafields'].values():
+            for fldbag in list(tbag['extrafields'].values()):
                 self.buildField(table, fldbag)
 
     def buildField(self, table, fldbag):
@@ -181,7 +184,7 @@ class Struct4D(object):
                 target = '%s.%s.%s' % (sqltarget[0], sqltarget[1], sqltarget[2])
                 fld.relation(target)
             else:
-                print "Error: missing field \n%s" % str(fldbag['relate'])
+                print("Error: missing field \n%s" % str(fldbag['relate']))
 
 
 class GnrAppSync4D(GnrApp):
@@ -336,7 +339,7 @@ class GnrAppSync4D(GnrApp):
         names.sort()
         for fname in names:
             fullname = os.path.join(folderpath, fname)
-            print 'Reading: %s'%fullname
+            print('Reading: %s'%fullname)
             self.importFile(fullname)
             dataOutPath = os.path.join(self.folder4dDataOut, folder)
             if not os.path.exists(dataOutPath):

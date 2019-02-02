@@ -7,6 +7,7 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
 # --------------------------- GnrWebPage subclass ---------------------------
+from builtins import object
 class GnrBasePlugin(object):
     def __init__(self, page, **kwargs):
         self.page = page

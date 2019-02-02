@@ -5,6 +5,7 @@
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
 
+from past.builtins import basestring
 from gnr.lib.services import GnrBaseService
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip

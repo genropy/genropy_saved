@@ -138,6 +138,6 @@ class Service(BaseLocalService):
                 else:
                     mtime = random.random() * 100000
                 kwargs['mtime'] = '%0.0f' % (mtime)
-            url = '%s?%s' % (url, '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()]))
+            url = '%s?%s' % (url, '&'.join(['%s=%s' % (k, v) for k, v in list(kwargs.items())]))
             return url
 

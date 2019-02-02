@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from builtins import object
 class GnrCustomWebPage(object):
     def main(self,root,**kwargs):
         root.css('.event_type_keydown',"color:red;")

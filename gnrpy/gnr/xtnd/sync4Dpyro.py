@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 
 import Pyro.core
@@ -17,7 +18,7 @@ class Sync4DCommander(Pyro.core.ObjBase):
 
 
     def loopCondition(self):
-        print 'loop'
+        print('loop')
         self.app.do()
         return True
 
@@ -28,8 +29,8 @@ class Sync4DCommander(Pyro.core.ObjBase):
         self.daemon.useNameServer(self.ns)
         uri = self.daemon.connect(self, "sync4d_%s" % self.instancename)
 
-        print "The daemon runs on port:", self.daemon.port
-        print "The object's uri is:", uri
+        print("The daemon runs on port:", self.daemon.port)
+        print("The object's uri is:", uri)
 
         self.daemon.requestLoop(timeout=self.app.sync4d_timing, condition=self.loopCondition)
 

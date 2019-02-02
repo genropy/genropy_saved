@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from builtins import object
 from datetime import datetime
 
 class Table(object):

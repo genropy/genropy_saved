@@ -6,13 +6,15 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
+from future import standard_library
+standard_library.install_aliases()
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.core.gnrlang import optArgs
 import datetime
 import zipfile
-import StringIO
+import io
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 
 class GnrWebSession(GnrBaseProxy):
@@ -52,9 +54,9 @@ class GnrWebSession(GnrBaseProxy):
     def getActivePages(self, connection_id):
         result = {}
         items = dict(self.session)
-        if items.has_key('_accessed_time'): del items['_accessed_time']
-        if items.has_key('_creation_time'): del items['_creation_time']
-        for page_id, pagedata in items.items():
+        if '_accessed_time' in items: del items['_accessed_time']
+        if '_creation_time' in items: del items['_creation_time']
+        for page_id, pagedata in list(items.items()):
             if page_id != 'common' and pagedata['connection_id'] == connection_id:
                 result[page_id] = pagedata
         return result

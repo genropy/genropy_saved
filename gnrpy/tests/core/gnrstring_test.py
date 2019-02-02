@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 from gnr.core import gnrstring
 import datetime
 
@@ -55,7 +56,7 @@ def test_filter():
     assert not gnrstring.filter(txt, 'my*', '', '*')
     assert gnrstring.filter(txt, '$beauti$', '$cwp$', '$')
     assert gnrstring.filter(txt, include='*my*', wildcard='*')
-    print not gnrstring.filter(txt, exclude='%princess')
+    print(not gnrstring.filter(txt, exclude='%princess'))
 
 def test_regexDelete():
     """docstring for test_regexDelete"""

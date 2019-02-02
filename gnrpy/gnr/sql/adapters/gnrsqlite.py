@@ -20,6 +20,10 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #import weakref
+from __future__ import print_function
+from builtins import map
+from builtins import str
+from builtins import range
 import os, re, time
 
 import datetime
@@ -75,7 +79,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         curs = conn.cursor(GnrSqliteCursor)
         attached = [self.defaultMainSchema()]
         if self.dbroot.packages:
-            for schema, pkg in self.dbroot.packages.items():
+            for schema, pkg in list(self.dbroot.packages.items()):
                 sqlschema = pkg.sqlschema
                 if sqlschema:
                     if not sqlschema in attached:
@@ -329,13 +333,13 @@ class GnrSqliteCursor(pysqlite.Cursor):
         global logger
         if params:
             if isinstance(params, str):
-                params = unicode(params)
+                params = str(params)
             elif isinstance(params, list):
-                params = map(lambda s: unicode(s) if isinstance(s, str) else s, params)
+                params = [str(s) if isinstance(s, str) else s for s in params]
             elif isinstance(params,dict):
-                for k,v in params.items():
+                for k,v in list(params.items()):
                     if isinstance(v, str):
-                        params[k] = unicode(v)
+                        params[k] = str(v)
             args = (params, ) + args
 
         if not sql.startswith('ATTACH'):
@@ -346,19 +350,19 @@ class GnrSqliteCursor(pysqlite.Cursor):
         self._index = None
         try:
             return pysqlite.Cursor.execute(self, sql, *args, **kwargs)
-        except pysqlite.OperationalError,e:
+        except pysqlite.OperationalError as e:
             if str(e)=='disk I/O error':
                 count = 0
                 while count<5:
-                    print 'retry sql read',count
+                    print('retry sql read',count)
                     time.sleep(1)
                     try:
                         c = pysqlite.Cursor.execute(self, sql, *args, **kwargs)
                         return c
-                    except pysqlite.OperationalError,e:
+                    except pysqlite.OperationalError as e:
                         count += 1
             raise e
-        except Exception, e:
+        except Exception as e:
             logger.exception(e)
             raise
 
@@ -368,7 +372,7 @@ def adapt_time(val):
     return val.isoformat()
 
 def convert_time(val):
-    return datetime.time(*map(int, val.split(':')))
+    return datetime.time(*list(map(int, val.split(':'))))
 
 pysqlite.register_adapter(datetime.time, adapt_time)
 pysqlite.register_converter("time", convert_time)
@@ -382,7 +386,7 @@ pysqlite.register_converter('numeric', lambda x: decimal.Decimal(str(x)))
 
 def convert_date(val):
     val = val.partition(' ')[0] # take just the date part, if we received a datetime string
-    return datetime.date(*map(int, val.split("-")))
+    return datetime.date(*list(map(int, val.split("-"))))
 
 pysqlite.register_converter("date", convert_date)
 

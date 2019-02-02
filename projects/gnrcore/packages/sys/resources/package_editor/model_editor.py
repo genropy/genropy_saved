@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2012-04-05.
 # Copyright (c) 2012 Softwell. All rights reserved.
 
+from past.builtins import basestring
 from gnr.web.gnrwebpage import BaseComponent
 from redbaron import RedBaron
 from gnr.core.gnrdecorator import public_method
@@ -27,7 +28,7 @@ class TableModuleWriter(BaseComponent):
         if not arguments:
             return ''
         atlst = []
-        for k,v in arguments.items():
+        for k,v in list(arguments.items()):
             if v in ('',None):
                 continue
             if isinstance(v,basestring):
@@ -64,7 +65,7 @@ class Table(object):
         config_db_node.replace("""def config_db(self,pkg):\n        tbl =  pkg.table('%s'%s)""" %(table,self.bagToArgString(table_data)))
         if sysFields and sysFields.pop('_enabled'):
             config_db_node.append('self.sysFields(tbl%s)' %self.bagToArgString(self._sysFieldsArguments(sysFields)))
-        for col in columns.values():
+        for col in list(columns.values()):
             relation = col.pop('_relation')
             s = self._columnPythonCode(col,relation)
             config_db_node.append(s)
@@ -74,7 +75,7 @@ class Table(object):
     def _sysFieldsArguments(self,sysFields):
         counter = sysFields.pop('counter')
         arguments = OrderedDict()
-        for k,v in sysFields.items():
+        for k,v in list(sysFields.items()):
             if v is None:
                 continue
             if k == 'hierarchical' and v=='True':
@@ -134,11 +135,11 @@ class Table(object):
             attributes['relation_name'] = relation_name
         if foreignkey:
             attributes['mode'] = 'foreignkey'
-        for k, v in relation.items():
+        for k, v in list(relation.items()):
             if v is not None:
                 attributes[k] = v
         atlst = []
-        for k,v in attributes.items():
+        for k,v in list(attributes.items()):
             if v == 'True':
                 v = True
             if isinstance(v,basestring):
@@ -154,7 +155,7 @@ class TableModuleEditor(BaseComponent):
     py_requires='package_editor/model_editor:TableModuleWriter'
     def handleSysFields(self,red=None):
         sysFieldBaronNode = red.find('name','sysFields') if red else None
-        result = Bag(SYSFIELDS_DEFAULT.items())
+        result = Bag(list(SYSFIELDS_DEFAULT.items()))
         if not sysFieldBaronNode:
             result['_enabled'] = False
             return result
@@ -162,7 +163,7 @@ class TableModuleEditor(BaseComponent):
         result['_enabled'] = True
         args,kwargs = self.parsBaronNodeCall(sysFieldBaronNode.parent[2])
         counters = []
-        for k,v in kwargs.items():
+        for k,v in list(kwargs.items()):
             if k in ('hierarchical','counter'):
                 if v is True:
                     v = 'True'
@@ -186,7 +187,7 @@ class TableModuleEditor(BaseComponent):
         else:
             fval = ckwargs.pop(firstArg,firstArgDefault)
         cbag[firstArg] = fval
-        for k,v in ckwargs.items():
+        for k,v in list(ckwargs.items()):
             cbag[k] = v
         return cbag
 
@@ -218,7 +219,7 @@ class TableModuleEditor(BaseComponent):
             mode = rkwargs.pop('mode',None)
             _relation['relation'] = rargs[0]
             _relation['foreignkey'] = mode=='foreignkey'
-            for k,v in rkwargs.items():
+            for k,v in list(rkwargs.items()):
                 _relation[k] = v
             cbag['_relation'] = _relation
         return cbag
@@ -230,7 +231,7 @@ class TableModuleEditor(BaseComponent):
         if _sysfield:
             return
         cbag['name'] = colname
-        for attrname,attrvalue in cattr.items():
+        for attrname,attrvalue in list(cattr.items()):
             if attrname in ('name','dtype','size','group','name_long','name_short','indexed','unique'):
                 cbag[attrname] = cattr.pop(attrname)
         return cbag
@@ -438,7 +439,7 @@ class TableModuleEditor(BaseComponent):
         table_data['name'] = tblname
         columns_bag = Bag()
         table_data['_columns'] = columns_bag
-        for c in colsbag.values():
+        for c in list(colsbag.values()):
             legacy_name = c['source_field']
             colname = c['dest_field'] or legacy_name
             b = Bag(dict(name=colname,legacy_name=legacy_name,

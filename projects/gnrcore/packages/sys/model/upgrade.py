@@ -1,4 +1,7 @@
 # encoding: utf-8
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import os 
 from gnr.core.gnrlang import gnrImport
 
@@ -19,7 +22,7 @@ class Table(object):
 
     def runUpgrades(self):
         alreadyRun= self.query(where='$error IS NULL').fetchAsDict('codekey')
-        for pkg,pkgobj in self.db.application.packages.items():
+        for pkg,pkgobj in list(self.db.application.packages.items()):
             upgradefolder = os.path.join(pkgobj.packageFolder,'lib','upgrades') 
             if not os.path.isdir(upgradefolder):
                 continue
@@ -29,7 +32,7 @@ class Table(object):
                     continue
                 upgradekey = '%s|%s' %(pkg,filename)
                 if upgradekey not in alreadyRun:
-                    print 'upgrade',upgradekey
+                    print('upgrade',upgradekey)
                     self.runUpgrade(upgradekey)
     
     def runUpgrade(self,codekey):
@@ -47,7 +50,7 @@ class Table(object):
             r['pkg'] = pkg
             r['filename'] = filename
         if error:
-            print 'ERROR',codekey,error
+            print('ERROR',codekey,error)
         self.db.commit()
 
     def use_dbstores(self,**kwargs):

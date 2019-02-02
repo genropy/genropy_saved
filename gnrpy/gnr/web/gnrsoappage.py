@@ -21,6 +21,7 @@
 #You should have received a copy of the GNU Lesser General Public
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+from builtins import str
 from gnr.web.gnrwebpage import GnrWebPage
 from soaplib.core.service import DefinitionBase
 from soaplib.core._base import MethodContext
@@ -66,7 +67,7 @@ class GnrSoapPage(GnrWebPage, DefinitionBase):
         try:
             in_object = self.soap_app.deserialize_soap(ctx, self.soap_app.IN_WRAPPER,
                                                                    root, xmlids)
-        except Fault,e:
+        except Fault as e:
             if getattr(self, 'debug_soap',False):
                 raise
             ctx.in_error = e
@@ -104,7 +105,7 @@ class GnrSoapPage(GnrWebPage, DefinitionBase):
             out_obj = self.get_out_object(ctx, in_obj)
             out_string = self.get_out_string(ctx, out_obj)
             return self.on_out_string(out_string)
-        except Exception, e:
+        except Exception as e:
             if getattr(self, 'debug_soap',False):
                 raise
             self.response.status='500 Internal Server Error'

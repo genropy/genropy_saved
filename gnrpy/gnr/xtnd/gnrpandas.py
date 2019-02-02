@@ -4,6 +4,11 @@
 #  Created by Saverio Porcari on 2013-04-06.
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import os
 from gnr.core.gnrbag import Bag
 from datetime import datetime
@@ -60,7 +65,7 @@ REPORT_HTML = """
 """
 
 try:
-    import cPickle as pickle
+    import pickle as pickle
 except ImportError:
     import pickle
 
@@ -109,7 +114,7 @@ class GnrPandas(object):
         li_list = []
         build_ts = datetime.now().microsecond
         index_url = os.path.join(self.report_folderurl,'index.html?_no_cache=%s' %build_ts)
-        for k,v in self.report_links.items():
+        for k,v in list(self.report_links.items()):
             li_list.append('<li><a href="%(url)s?_no_cache=%(build_ts)s">%(title)s</a></li>' %dict(build_ts=build_ts,
                                                                                 title=v['title'],url=os.path.join(self.report_folderurl,'%s.html' %k)))
             with open(os.path.join(self.report_folderpath,'%s.html' %k),'w') as f:
@@ -156,7 +161,7 @@ class GnrPandas(object):
         with open(os.path.join(path,'meta.pik'), 'wb') as storagefile:
             pickle.dump(self.steps,storagefile)
             pf = {}
-            for dfname,gnrdf in self.dataframes.items():
+            for dfname,gnrdf in list(self.dataframes.items()):
                 pf[dfname] = os.path.join(path,dfname)
                 gnrdf.to_pickle(path)
             pickle.dump(pf,storagefile)
@@ -217,7 +222,7 @@ class GnrDataframe(object):
     def applyChanges(self,changedDataframeInfo,inplace=None):
         colToDel = dict(self.colInfo)
         df = self.dataframe
-        for v in changedDataframeInfo.values():
+        for v in list(changedDataframeInfo.values()):
             cname = v['fieldname']
             formula = v['formula']
             if v['newserie'] and formula:
@@ -236,7 +241,7 @@ class GnrDataframe(object):
                 self.colInfo[cname].update(v.asDict(ascii=True))
                 colToDel.pop(cname)
 
-        for k in colToDel.keys():
+        for k in list(colToDel.keys()):
             df.drop(k, axis=1, inplace=True)
             self.colInfo.pop(k)
         return self.getInfo()
@@ -305,7 +310,7 @@ class GnrDataframe(object):
         if isinstance(values,Bag):
             values_dict = OrderedDict()
             values_list = []
-            for k,v in values.items():
+            for k,v in list(values.items()):
                 values_list.append(k)
                 aggregators = v['aggregators']
                 if not aggregators:
@@ -346,7 +351,7 @@ class GnrDataframe(object):
             return self.dataframe
         querylist = []
         mylocals = locals()
-        for col,values in filters.items():
+        for col,values in list(filters.items()):
             if values:
                 mapper =  dict([(str(p),p)for p in self.dataframe[col]])
                 mylocals['filter_%s'%col] = [mapper[v] for v in values.split(',')]
@@ -407,7 +412,7 @@ class GnrDbDataframe(GnrDataframe):
         return self.dataframe
 
     def setColInfo(self,colInfo):
-        for k,v in colInfo.items():
+        for k,v in list(colInfo.items()):
             self.colInfo[k].update(v)
 
     def convertData(self,cursor):
@@ -421,12 +426,12 @@ class GnrDbDataframe(GnrDataframe):
             c = dict(r)
             if not hasattr(self,'dbColAttrs'):
                 self.dbColAttrs = self.gnrquery._prepColAttrs(cursor.index)
-                for k,v in self.dbColAttrs.items():
+                for k,v in list(self.dbColAttrs.items()):
                     self.colInfo[k] = dict(name=self.translate(v.get('label')),
                                         name_short=self.translate(v.get('name_short')),
                                         width=v.get('print_width'),format=v.get('format'),
                                         dtype= v.get('dataType'))
-                for k,v in self.dbColAttrs.items():
+                for k,v in list(self.dbColAttrs.items()):
                     dtype = v['dataType']
                     if dtype in ('N','R'):
                         decimalCols.append(k)
@@ -451,11 +456,11 @@ class GnrDbDataframe(GnrDataframe):
 
     def defaultColumns(self,tblobj):
         columns = []
-        allcols = tblobj.columns.keys() + tblobj.model.virtual_columns.keys()
+        allcols = list(tblobj.columns.keys()) + list(tblobj.model.virtual_columns.keys())
         for f in allcols:
             if tblobj.column(f).attributes.get('stats'):
                 columns.append('$%s' %f)
-        columns = columns or tblobj.columns.keys()
+        columns = columns or list(tblobj.columns.keys())
         return ','.join(columns) 
 
     

@@ -6,6 +6,7 @@
 
 """palette_manager"""
 
+from builtins import object
 from gnr.core.gnrbag import Bag
 
 "Palettes"

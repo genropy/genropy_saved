@@ -1,3 +1,7 @@
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwsgisite import GnrWsgiSite
 import sys
@@ -9,7 +13,7 @@ from uwsgidecorators import timer
 from gnr.core.gnrsys import expandpath, listdirs
 from gnr.app.gnrconfig import gnrConfigPath, getSiteHandler, getGnrConfig
 from gnr.core.gnrstring import boolean
-from ConfigParser import ConfigParser, NoSectionError
+from configparser import ConfigParser, NoSectionError
 from datetime import datetime
 fnull = open(os.devnull, 'w')
 MAXFD = 1024
@@ -74,7 +78,7 @@ class GnrReloaderMonitor(object):
                 filenames.extend(file_callback())
             except:
                 continue
-        for module in sys.modules.values():
+        for module in list(sys.modules.values()):
             try:
                 filename = module.__file__
             except (AttributeError, ImportError):
@@ -95,7 +99,7 @@ class GnrReloaderMonitor(object):
             if not filename in self.module_mtimes:
                 self.module_mtimes[filename] = mtime
             elif self.module_mtimes[filename] < mtime:
-                print "-- [%i-%i-%i %i:%i:%i] -- %s changed; reloading..." % (time.localtime()[:6]+(filename,))
+                print("-- [%i-%i-%i %i:%i:%i] -- %s changed; reloading..." % (time.localtime()[:6]+(filename,)))
                 return True
         return False
 
@@ -170,7 +174,7 @@ class Server(object):
                 vassal_params = dict(config_parser.items('genropy'))
             except NoSectionError:
                 pass
-        for option in wsgi_options.keys():
+        for option in list(wsgi_options.keys()):
             if options.get(option, None) is None: # not specified on the command-line
                 site_option = self.siteconfig['wsgi?%s' % option]
                 self.options[option] = site_option or wsgi_options.get(option)
@@ -182,7 +186,7 @@ class Server(object):
                     env_value = boolean(env_value)
                 self.options.__dict__[key] = env_value
         if vassal_params:
-            for key,value in vassal_params.items():
+            for key,value in list(vassal_params.items()):
                 self.options[key]=value   
 
 

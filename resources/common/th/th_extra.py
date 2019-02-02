@@ -4,6 +4,8 @@
 # Created by Francesco Porcari on 2011-09-12.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+from __future__ import print_function
+from past.builtins import basestring
 from gnr.web.gnrwebpage import BaseComponent
 
 from gnr.core.gnrbag import Bag
@@ -32,7 +34,7 @@ class THStatsHandler(BaseComponent):
         bar = pane.slotToolbar('back,selector,*')
         bar.back.slotButton('!!Main view',action='SET .selectedPage="th_main";',iconClass='iconbox dismiss')
         fb = bar.selector.formbuilder(cols=2, border_spacing='0')
-        fb.filteringSelect(values=','.join(["%s:%s" % (k, v) for k, v in self.stats_modes_dict().items()]),
+        fb.filteringSelect(values=','.join(["%s:%s" % (k, v) for k, v in list(self.stats_modes_dict().items())]),
                            value='^.stats.tree.tot_mode', lbl='!!Mode')
 
     def stats_left(self, pane):
@@ -171,7 +173,7 @@ class THStatsHandler(BaseComponent):
     def stats_totalize(self, selectionName=None, group_by=None, sum_cols=None, keep_cols=None,
                            collect_cols=None, distinct_cols=None, key_col=None, captionCb=None,
                            tot_mode=None, **kwargs):
-        print 'totalizing'
+        print('totalizing')
         selection = self.stats_get_selection(selectionName)
         analyzer = AnalyzingBag()
         self.btc.batch_create(batch_id='%s_%s' % (selectionName, self.getUuid()),

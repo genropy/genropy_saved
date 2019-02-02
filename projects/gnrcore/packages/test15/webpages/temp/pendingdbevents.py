@@ -5,6 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 "Test page description"
+from builtins import object
 import datetime
 from gnr.core.gnrdecorator import public_method
 

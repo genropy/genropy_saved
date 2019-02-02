@@ -24,6 +24,13 @@
 
 #import weakref
 
+from __future__ import division
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from past.builtins import basestring
+from past.utils import old_div
+from builtins import object
 from gnr.core.gnrbag import Bag,BagCbResolver,DirectoryResolver
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
@@ -339,7 +346,7 @@ class GnrDomSrc(GnrStructData):
             obj = GnrStructData.child(self, 'div', childname='*_#', **envelope)
         else:
             obj = self
-        for k,v in kwargs.items():
+        for k,v in list(kwargs.items()):
             if isinstance(v,GnrStructData):
                 kwargs[k]=v.js_sourceNode()
         if kwargs.get('nodeId'):
@@ -355,7 +362,7 @@ class GnrDomSrc(GnrStructData):
                 self.data(clientpath,value,**sourceNodeValueAttr)
         if childname and childname != '*_#':
             kwargs['_childname'] = childname
-        _strippedKwargs=','.join([k for k,v in kwargs.items() if v is None])
+        _strippedKwargs=','.join([k for k,v in list(kwargs.items()) if v is None])
         if _strippedKwargs:
             kwargs['_strippedKwargs'] = _strippedKwargs
         return GnrStructData.child(obj, tag, childname=childname, childcontent=childcontent,**kwargs)
@@ -695,7 +702,7 @@ class GnrDomSrc(GnrStructData):
             parentAttr['remote_handler'] = method
             if cachedRemote:
                 parentAttr['_cachedRemote'] = cachedRemote
-            for k, v in kwargs.items():
+            for k, v in list(kwargs.items()):
                 if k.endswith('_path'):
                     v = u'§%s' % v
                 parentAttr['remote_%s' % k] = v
@@ -829,7 +836,7 @@ class GnrDomSrc(GnrStructData):
         if kwargs.get('fbname'):
             kwargs['fbname'] = kwargs['fbname'] if not dbtable else '%s:%s' %(dbtable,kwargs['fbname'])
         commonPrefix = ('lbl_', 'fld_', 'row_', 'tdf_', 'tdl_')
-        commonKwargs = dict([(k, kwargs.pop(k)) for k in kwargs.keys() if len(k) > 4 and k[0:4] in commonPrefix])
+        commonKwargs = dict([(k, kwargs.pop(k)) for k in list(kwargs.keys()) if len(k) > 4 and k[0:4] in commonPrefix])
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
         formNode = self.parentNode.attributeOwnerNode('formId') if self.parentNode else None
         excludeCols = kwargs.pop('excludeCols',None)
@@ -1250,7 +1257,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             kwargs['_content'] = kwargs.pop('content')
         if not columns:
             if columnsFromView:
-                print 'columnsFromView is deprecated'
+                print('columnsFromView is deprecated')
                 columns = '=grids.%s.columns' % columnsFromView #it is the view id
             else:
                 columns = '*'
@@ -2096,10 +2103,10 @@ class GnrFormBuilder(object):
         row = self.getRow(r)
         row, r, c = nc(row, r, c)
         if self.lblpos == 'L':
-            while not 'c_%i_l' % c in row.keys():
+            while not 'c_%i_l' % c in list(row.keys()):
                 row, r, c = nc(row, r, c)
         else:
-            while not 'c_%i' % c in row[0].keys():
+            while not 'c_%i' % c in list(row[0].keys()):
                 row, r, c = nc(row, r, c)
         return r, c
                 
@@ -2176,7 +2183,7 @@ class GnrFormBuilder(object):
                 lblhref = field.pop('lbl_href')
                 lblvalue = lbl
                 lbl = None
-            for k in field.keys():
+            for k in list(field.keys()):
                 attr_name = k[4:]
                 if attr_name == 'class':
                     attr_name = '_class'
@@ -2203,8 +2210,8 @@ class GnrFormBuilder(object):
             cspan = int(field.pop('colspan', '1'))
             if cspan > 1:
                 for cs in range(c + 1, c + cspan):
-                    if ((self.lblpos == 'L') and ('c_%i_l' % cs in row.keys())) or (
-                    (self.lblpos == 'T') and ('c_%i' % cs in row[0].keys())):
+                    if ((self.lblpos == 'L') and ('c_%i_l' % cs in list(row.keys()))) or (
+                    (self.lblpos == 'T') and ('c_%i' % cs in list(row[0].keys()))):
                         colspan = colspan + 1
                     else:
                         break
@@ -2229,7 +2236,7 @@ class GnrFormBuilder(object):
                 cell = row.td(childname='c_%i_l' % c, align=lblalign, vertical_align=lblvalign, **td_lbl_attr)
                 if lbl:
                     cell.div(childcontent=lbl, **lbl_kwargs)
-            for k, v in row_attributes.items():
+            for k, v in list(row_attributes.items()):
                 # TODO: warn if row_attributes already contains the attribute k (and it has a different value)
                 row.parentNode.attr[k] = v
             if colspan > 1:
@@ -2258,7 +2265,7 @@ class GnrFormBuilder(object):
                 lbl_kwargs['_class'] = self.lblclass
             row[0].td(childname='c_%i' % c, childcontent=lbl, align=lblalign, vertical_align=lblvalign, **lbl_kwargs)
             td = row[1].td(childname='c_%i' % c, align=fldalign, vertical_align=fldvalign, **kwargs)
-            for k, v in row_attributes.items():
+            for k, v in list(row_attributes.items()):
                 # TODO: warn if row_attributes already contains the attribute k (and it has a different value)
                 row[0].parentNode.attr[k] = v
                 row[1].parentNode.attr[k] = v
@@ -2559,7 +2566,7 @@ class GnrGridStruct(GnrStructData):
             
         if totalWidth:
             for j, w in enumerate(widths):
-                widths[j] = int(w * totalWidth / wtot)
+                widths[j] = int(old_div(w * totalWidth, wtot))
         for j, field in enumerate(fields):
             #self.child('cell', field=field, childname=names[j], width='%i%s'%(widths[j],unit), dtype=dtypes[j])
             self.cell(field=field, name=names[j], width='%i%s' % (widths[j], unit), dtype=dtypes[j], **fld_kwargs[j])
@@ -2600,4 +2607,4 @@ if __name__ == '__main__':
     fb.field('@card_id.name')
     fb.field('.address')
     a = root.toXml()
-    print a
+    print(a)

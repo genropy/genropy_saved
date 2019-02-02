@@ -6,6 +6,7 @@
 #Created by Francesco Porcari on 2010-10-16.
 #Copyright (c) 2011 Softwell. All rights reserved.
 
+from builtins import object
 from gnr.web.batch.btcbase import BaseResourceBatch
 
 from gnr.core.gnrxls import XlsWriter
@@ -87,8 +88,8 @@ class BaseResourceExport(BaseResourceBatch):
             columnsets[None]=''
             for columnset in info['columnsets']:
                 columnsets[columnset.getAttr('code')]=columnset.getAttr('name')
-        for view in struct.values():
-            for row in view.values():
+        for view in list(struct.values()):
+            for row in list(view.values()):
                 curr_columnset = dict(start=0, name='')
                 curr_column = 0
                 for curr_column,cell in enumerate(row):
@@ -127,7 +128,7 @@ class BaseResourceExport(BaseResourceBatch):
             if not struct:
                 self.columns = selection.columns
                 self.columns = [c for c in self.columns if not c in ('pkey', 'rowidx')]
-                self.coltypes = dict([(k, v['dataType']) for k, v in selection.colAttrs.items()])
+                self.coltypes = dict([(k, v['dataType']) for k, v in list(selection.colAttrs.items())])
                 self.headers = self.columns
             else:
                 self.prepareFromStruct(struct)

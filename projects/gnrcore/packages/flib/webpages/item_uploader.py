@@ -6,6 +6,7 @@ Copyright (c) 2009 Softwell. All rights reserved.
 """
 
 
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = """flib:FlibUploaderMain"""
         

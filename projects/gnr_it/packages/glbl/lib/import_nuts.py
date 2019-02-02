@@ -1,3 +1,4 @@
+from __future__ import print_function
 from gnr.core.gnrlist import XlsReader
 from gnr.app.gnrapp import GnrApp
 
@@ -23,4 +24,4 @@ if __name__ == '__main__':
     db = GnrApp('autosped').db
     d = importXlsNuts(db, '../../../data/nuts.xls')
     db.commit()
-    print 'OK'
+    print('OK')

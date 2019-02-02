@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2012-04-03.
 # Copyright (c) 2012 Softwell. All rights reserved.
 
+from builtins import str
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrbag import Bag
@@ -297,7 +298,7 @@ class THPicker(BaseComponent):
         result = Bag()
         tblobj = self.db.table(dbtable)
         caption_field = tblobj.attributes['caption_field']
-        condition_kwargs = dict([(str(k),v) for k,v in condition_kwargs.items()]) #fix unicode
+        condition_kwargs = dict([(str(k),v) for k,v in list(condition_kwargs.items())]) #fix unicode
         fetch = tblobj.query(columns='*,$%s' %(caption_field),where=condition,**condition_kwargs).fetch()
         for i,r in enumerate(fetch):
             result.setItem('r_%i' %i,None,caption=r[caption_field],pkey=r['pkey'])

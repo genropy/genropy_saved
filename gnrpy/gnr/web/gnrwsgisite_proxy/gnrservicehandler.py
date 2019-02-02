@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from builtins import str
+from builtins import object
 from gnr.core.gnrbag import Bag
 import inspect
 import os
@@ -66,7 +68,7 @@ class ServiceHandlerManager(object):
             service_class = getattr(module,resclass)
             #self.add(service_class,**kw)
             return service_class
-        except ImportError, import_error:
+        except ImportError as import_error:
             log.exception("Could not import %s"%module)
             log.exception(str(import_error))
         

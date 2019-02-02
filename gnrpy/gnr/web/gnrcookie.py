@@ -39,12 +39,18 @@ by the two browsers tested (IE and Safari). As a result of this,
 perhaps trying to be RFC-compliant (by automatically providing
 Max-Age and Version) could be a waste of cookie space...
 """
+from __future__ import print_function
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 import time
 import re
 import hmac
 import marshal
 import base64
+from future.utils import with_metaclass
 
 # import apache
 
@@ -55,7 +61,7 @@ class metaCookie(type):
     def __new__(cls, clsname, bases, clsdict):
         _valid_attr = (
         "version", "path", "domain", "secure",
-        "comment", "expires", "max_age",
+        "comment", "max_age",
         # RFC 2965
         "commentURL", "discard", "port",
         # Microsoft Extension
@@ -77,7 +83,7 @@ class metaCookie(type):
                 try:
                     t = time.strptime(value, "%a, %d-%b-%Y %H:%M:%S GMT")
                 except ValueError:
-                    raise ValueError, "Invalid expires time: %s" % value
+                    raise ValueError("Invalid expires time: %s" % value)
                 t = time.mktime(t)
             else:
                 # otherwise assume it's a number
@@ -94,13 +100,11 @@ class metaCookie(type):
             
         return type.__new__(cls, clsname, bases, clsdict)
             
-class Cookie(object):
+class Cookie(with_metaclass(metaCookie, object)):
     """This class implements the basic Cookie functionality. Note that
     unlike the Python Standard Library Cookie class, this class represents
     a single cookie (not a list of Morsels).
     """
-    
-    __metaclass__ = metaCookie
     
     DOWNGRADE = 0
     IGNORE = 1
@@ -210,8 +214,15 @@ class SignedCookie(Cookie):
         :returns: TODO
         """
         if not self.__data__["secret"]:
-            raise CookieError, "Cannot sign without a secret"
-        _hmac = hmac.new(self.__data__["secret"], self.name)
+            raise CookieError("Cannot sign without a secret")
+
+        secret = self.__data__["secret"].encode()
+        name = self.name.encode()
+        print(secret)
+        print(type(secret))
+        print(name)
+        print(type(name))
+        _hmac = hmac.new(secret, name)
         _hmac.update(str)
         return _hmac.hexdigest()
         
@@ -232,15 +243,16 @@ class SignedCookie(Cookie):
         :param secret: TODO
         """
         sig, val = self.value[:32], self.value[32:]
-        
-        mac = hmac.new(secret, self.name)
-        mac.update(val)
+        secret = secret.encode()
+        name = self.name.encode()
+        mac = hmac.new(secret, name)
+        mac.update(val.encode())
         
         if mac.hexdigest() == sig:
             self.value = val
             self.__data__["secret"] = secret
         else:
-            raise CookieError, "Incorrectly Signed Cookie: %s=%s" % (self.name, self.value)
+            raise CookieError("Incorrectly Signed Cookie: %s=%s" % (self.name, self.value))
             
 class MarshalCookie(SignedCookie):
     """This is a variation of SignedCookie that can store more than
@@ -292,8 +304,13 @@ class MarshalCookie(SignedCookie):
         m = base64.encodestring(marshal.dumps(self.value))
         # on long cookies, the base64 encoding can contain multiple lines
         # separated by \n or \r\n
-        m = ''.join(m.split())
-        
+        m = m.decode()
+        print(type(m))
+        print(m)
+        m = (''.join(m.split())).encode()
+        print(type(m))
+        print(m)
+        print('-------')
         result = ["%s=%s%s" % (self.name, self.hexdigest(m), m)]
         for name in self._valid_attr:
             if hasattr(self, name):
@@ -313,12 +330,12 @@ class MarshalCookie(SignedCookie):
         try:
             data = base64.decodestring(self.value)
         except:
-            raise CookieError, "Cannot base64 Decode Cookie: %s=%s" % (self.name, self.value)
+            raise CookieError("Cannot base64 Decode Cookie: %s=%s" % (self.name, self.value))
             
         try:
             self.value = marshal.loads(data)
         except (EOFError, ValueError, TypeError):
-            raise CookieError, "Cannot Unmarshal Cookie: %s=%s" % (self.name, self.value)
+            raise CookieError("Cannot Unmarshal Cookie: %s=%s" % (self.name, self.value))
             
 # This is a simplified and in some places corrected
 # (at least I think it is) pattern from standard lib Cookie.py
@@ -368,7 +385,7 @@ def add_cookie(res, cookie, value="", **kw):
         # make a cookie
         cookie = Cookie(cookie, value, **kw)
         
-    if not res.headers.has_key("Set-Cookie"):
+    if "Set-Cookie" not in res.headers:
         res.headers.add("Cache-Control", 'no-cache="set-cookie"')
         
     res.headers.add("Set-Cookie", str(cookie))
@@ -400,6 +417,6 @@ def get_cookie(req, name, Class=Cookie, **kw):
     :returns: TODO
     """
     cookies = get_cookies(req, Class, names=[name], **kw)
-    if cookies.has_key(name):
+    if name in cookies:
         return cookies[name]
         

@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from __future__ import print_function
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import datetime
 import warnings as warnings_module
 import os
@@ -166,7 +170,7 @@ class GnrDboPackage(object):
             pkeyField = tblobj.pkey
             hasSysCode = tblobj.column('__syscode') is not None
             if hasSysCode:
-                currentSysCodes = [r['__syscode'] for r in currentRecords.values() if r['__syscode']]
+                currentSysCodes = [r['__syscode'] for r in list(currentRecords.values()) if r['__syscode']]
             for r in records:
                 if r[pkeyField] in currentRecords:
                     continue
@@ -184,7 +188,7 @@ class GnrDboPackage(object):
 
 
     def startupData_tables(self):
-        return  [tbl for tbl in self.db.tablesMasterIndex()[self.name].keys() if self.table(tbl).dbtable.isInStartupData()]
+        return  [tbl for tbl in list(self.db.tablesMasterIndex()[self.name].keys()) if self.table(tbl).dbtable.isInStartupData()]
 
     @public_method
     def createStartupData(self,basepath=None):
@@ -345,7 +349,7 @@ class TableBase(object):
                 self.sysFields_counter(tbl,'_row_count',counter=counter,group=group,name_long='!!Counter')
                 tbl.attributes.setdefault('order_by','$_row_count')
         if counter_kwargs:
-            for k,v in counter_kwargs.items():
+            for k,v in list(counter_kwargs.items()):
                 self.sysFields_counter(tbl,'_row_count_%s' %k,counter=v,group=group,name_long='!!Counter %s' %k)
         audit = tbl.attributes.get('audit')
         if audit:
@@ -383,10 +387,10 @@ class TableBase(object):
         tbl.formulaColumn('__protecting_reasons',sql_formula=True,group=group,name_long='!!Protecting reasons',_sysfield=True)
         tbl.formulaColumn('__is_protected_row',"$__protecting_reasons!=''",group=group,name_long='!!Row Protected',_sysfield=True)
 
-        if filter(lambda r: r!='_release_' and r.startswith('_release_'), dir(self)):
+        if [r for r in dir(self) if r!='_release_' and r.startswith('_release_')]:
             tbl.column('__release', dtype='L', name_long='Sys Version', group=group,_sysfield=True)
             
-        if filter(lambda r: r!='sysRecord_' and r.startswith('sysRecord_'), dir(self)):
+        if [r for r in dir(self) if r!='sysRecord_' and r.startswith('sysRecord_')]:
             tbl.column('__syscode',size=':20',unique=True,indexed=True,
                 _sysfield=True,group=group,name_long='!!Internal code')
             tbl.formulaColumn('__protected_by_syscode',
@@ -429,7 +433,7 @@ class TableBase(object):
 
     def hasProtectionColumns(self):
         result = False
-        if filter(lambda r: r.startswith('__protected_by_'), self.model.virtual_columns.keys()) or self.attributes.get('protectionColumn'):
+        if [r for r in list(self.model.virtual_columns.keys()) if r.startswith('__protected_by_')] or self.attributes.get('protectionColumn'):
             result = True
         return result
 
@@ -438,7 +442,7 @@ class TableBase(object):
         if self.attributes.get('protectionColumn'):
             pcol = self.attributes['protectionColumn']
             protections.append("( CASE WHEN $%s IS NULL THEN NULL ELSE '%s' END ) " %(pcol,pcol))
-        for field in filter(lambda r: r.startswith('__protected_by_'), self.model.virtual_columns.keys()):
+        for field in [r for r in list(self.model.virtual_columns.keys()) if r.startswith('__protected_by_')]:
             protections.append("""( CASE WHEN $%s IS TRUE THEN '%s' ELSE NULL END )  """ %(field,field[15:]))
         if protections:
             return "array_to_string(ARRAY[%s],',')"   %','.join(protections)
@@ -492,7 +496,7 @@ class TableBase(object):
             return
         result = Bag()
         invdict = fromJson(record['__invalid_fields'])
-        for k,v in invdict.items():
+        for k,v in list(invdict.items()):
             result.setItem(k,'%(fieldcaption)s:%(error)s' %v)
         return result
 
@@ -595,7 +599,7 @@ class TableBase(object):
                     updated_version = getattr(self,'sysRecord_%s' %syscode)()
                     rec = f[syscode]
                     oldrecord = dict(rec)
-                    for k,v in updated_version.items():
+                    for k,v in list(updated_version.items()):
                         rec[k] = v
                     rec['__syscode'] = syscode
                     self.update(rec,oldrecord)
@@ -637,7 +641,7 @@ class TableBase(object):
             return
         headers = set(reader.headers)
         convertdict = {}
-        for k,v in checkfields.items():
+        for k,v in list(checkfields.items()):
             intersection =  headers.intersection(set(v.lower().replace(' ','_').replace('.','_').split(',')))
             if intersection:
                 convertdict[list(intersection)[0]] = k
@@ -651,7 +655,7 @@ class TableBase(object):
             return
         match_index = self.importerMatchIndex(reader)
         errors = []
-        matched_cols =  match_index.values()
+        matched_cols =  list(match_index.values())
         for k in mandatories.split(','):
             if k not in matched_cols:
                 errors.append(k)
@@ -690,7 +694,7 @@ class TableBase(object):
         where = None
         wherekw = dict()       
         if counter_fkey is not True:
-            filtered = filter(lambda n: record.get(n),counter_fkey.split(','))
+            filtered = [n for n in counter_fkey.split(',') if record.get(n)]
             if not filtered:
                 return
             counter_fkey = filtered[0]
@@ -793,7 +797,7 @@ class TableBase(object):
                          'D': 'date', 'H': 'time without time zone','L': 'bigint', 'R': 'real'}
         for r in fetch:
             df_fields = Bag(r['df_fields'])
-            for v in df_fields.values():
+            for v in list(df_fields.values()):
                 if v['querable']:
                     dtype = dtype=v['data_type']
                     sql_formula = """ (xpath('/GenRoBag/%s/text()', CAST($%s as XML) ) )[1] """ %(v['code'],field)
@@ -859,9 +863,9 @@ class TableBase(object):
         f = self.query(where=where,p=p,suffix='/%%',order_by=order_by,columns=columns).fetch()
         result = Bag()
         for r in f:
-            for v in Bag(r['df_fields']).values():
+            for v in list(Bag(r['df_fields']).values()):
                 result.setItem(v['code'],v)
-        return [v.asDict(ascii=True) for v in result.values()]
+        return [v.asDict(ascii=True) for v in list(result.values())]
 
     def df_getFieldsRows_table(self,fieldstable,pkey=None,**kwargs):
         fieldstable = self.db.table(fieldstable)
@@ -962,7 +966,7 @@ class TableBase(object):
               excludeDraft=False,where='$%s IN :pk' %pkey,pk=[r[pkey] for r in source_rows]).fetchAsDict(pkey)
         all_dest.update(existing_dest)
         if source_rows:
-            fieldsToCheck = ','.join([c for c in source_rows[0].keys() if c not in ('__ins_ts','__mod_ts','__ins_user','__mod_user')])
+            fieldsToCheck = ','.join([c for c in list(source_rows[0].keys()) if c not in ('__ins_ts','__mod_ts','__ins_user','__mod_user')])
             for r in source_rows:
                 r = dict(r)
                 if r[pkey] in all_dest:
@@ -1072,7 +1076,7 @@ class GnrDboTable(TableBase):
 
 
     def populateFromMasterDb(self,master_db=None,from_table=None,**kwargs):
-        print 'populating %s from %s' %(self.fullname,from_table or '')
+        print('populating %s from %s' %(self.fullname,from_table or ''))
         descendingRelations = self.model.manyRelationsList(cascadeOnly=True)
         ascendingRelations = self.model.oneRelationsList(foreignkeyOnly=True)
         onPopulatingFromMasterDb = getattr(self,'onPopulatingFromMasterDb',None)
@@ -1087,12 +1091,12 @@ class GnrDboTable(TableBase):
             if r[self.pkey] in valuesset:
                 continue
             self.raw_insert(r)
-            print '.',
+            print('.', end=' ')
             valuesset.add(r[self.pkey])
             for tbl,fkey in descendingRelations:
                 if tbl!=from_table and tbl!=self.fullname:
                     self.db.table(tbl).populateFromMasterDb(master_db,where='$%s=:fkey' %fkey, fkey=r[self.pkey])
-        print '\n'
+        print('\n')
 
 
     def populateAscendingRelationsFromMasterDb(self,record,master_db=None,ascendingRelations=None,foreignkeyOnly=None):
@@ -1304,7 +1308,7 @@ class TotalizeTable(GnrDboTable):
     def tt_totalize_pars(self):
         tot_keys = {}
         tot_fields = {}
-        for colname,colobj in self.columns.items():
+        for colname,colobj in list(self.columns.items()):
             attr =  colobj.attributes
             for attr_key,dest in (('totalize_key',tot_keys),('totalize_value',tot_fields)):
                 if not attr_key in attr:
@@ -1325,7 +1329,7 @@ class TotalizeTable(GnrDboTable):
 
     def tt_record(self,record,tot_keys):
         result = {}
-        for k,pars in tot_keys.items():
+        for k,pars in list(tot_keys.items()):
             result[k] = self.tt_getvalue(record,pars)
         return result
 
@@ -1337,7 +1341,7 @@ class TotalizeTable(GnrDboTable):
         return pars['const']
 
     def _tt_has_changes(self,record=None,old_record=None,tot_fields=None):
-        for totalizer_field,pars in tot_fields.items():
+        for totalizer_field,pars in list(tot_fields.items()):
             if self.tt_getvalue(record,pars) != self.tt_getvalue(old_record,pars):
                 return True
         return False
@@ -1370,7 +1374,7 @@ class TotalizeTable(GnrDboTable):
         subtractFromOld = (old_record is not None) and (self.totalize_exclude(old_record) is not True)
         self.tt_totalize_allowed(record,old_record=old_record)
         with self.recordToUpdate(self.pkeyValue(tot_record),insertMissing=True,**tot_record) as tot:
-            for totalizer_field,pars in tot_fields.items():
+            for totalizer_field,pars in list(tot_fields.items()):
                 if addFromCurrent:
                     value = self.tt_getvalue(record,pars) 
                     tot[totalizer_field] = (tot[totalizer_field] or value.__class__(0)) + value
@@ -1392,7 +1396,7 @@ class TotalizeTable(GnrDboTable):
         if not tot:
             tot.update(tot_record)
             tot[self.pkey] = self.newPkeyValue(tot)
-        for totalizer_field,pars in tot_fields.items():
+        for totalizer_field,pars in list(tot_fields.items()):
             value = self.tt_getvalue(record,pars) 
             tot[totalizer_field] = (tot.get(totalizer_field) or value.__class__(0)) + value
 
@@ -1400,7 +1404,7 @@ class TotalizeTable(GnrDboTable):
         local_records = defaultdict(dict)
         for r in records:
             self.tt_totalize(record=r,local_records=local_records)
-        self.insertMany(local_records.values())
+        self.insertMany(list(local_records.values()))
 
 
     def tt_realign(self,empty=False):
@@ -1438,7 +1442,7 @@ class Table_sync_event(TableBase):
         tsfield = tblobj.lastTs
         if tsfield and event != 'I':
             event_check_ts = old_record[tsfield] if event=='U' else record[tsfield]
-        print 'TABLE TRIGGER SYNC'
+        print('TABLE TRIGGER SYNC')
         event_record = dict(tablename=tblobj.fullname,event_type=event,
                     event_pkey=record[tblobj.pkey],
                     event_data=Bag(record),

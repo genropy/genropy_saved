@@ -25,7 +25,10 @@
 """
 this test module focus on SqlSelection's methods
 """
+from __future__ import print_function
 
+from past.builtins import basestring
+from builtins import object
 import os
 import datetime
 
@@ -105,9 +108,9 @@ class BaseDb(object):
         assert sel.output('list', formats={'title': 'Title: - %s - '},
                           dfltFormats={datetime.date: 'full'},
                           locale='it')[0][1] == 'Title: - Match point - '
-        print sel.output('bag', formats={'title': 'Titolo: - %s - '},
+        print(sel.output('bag', formats={'title': 'Titolo: - %s - '},
                          dfltFormats={datetime.date: 'full'},
-                         locale='it')['#0.title'] == 'Title: - Match point - '
+                         locale='it')['#0.title'] == 'Title: - Match point - ')
 
     def teardown_class(cls):
         cls.db.closeConnection()

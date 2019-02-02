@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
 from gnr.app.gnrdbo import GnrDboTable
 from gnr.core.gnrdecorator import public_method
          
@@ -204,7 +205,7 @@ class DynamicFieldsTable(GnrDboTable):
         mastertbl = self.fullname.replace('_df','')
         tblobj = self.db.table(mastertbl)
         if tblobj.column('df_fields') is not None:
-            print 'IMPORTING DynamicFields FROM LEGACY',mastertbl
+            print('IMPORTING DynamicFields FROM LEGACY',mastertbl)
             tblobj.df_importLegacyScript()
             return True
             

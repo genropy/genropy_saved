@@ -6,6 +6,7 @@
 #  Created by Francesco Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
+from builtins import object
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import GnrMixinError
 from gnr.core.gnrdecorator import public_method
 class GnrCustomWebPage(object):

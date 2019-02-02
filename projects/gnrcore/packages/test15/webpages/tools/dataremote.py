@@ -6,6 +6,7 @@
 
 """dataRemote"""
 
+from builtins import object
 import datetime
 from gnr.core.gnrdecorator import public_method
 

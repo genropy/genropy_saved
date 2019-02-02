@@ -6,6 +6,9 @@
 #Created by Francesco Porcari on 2010-10-16
 #Copyright (c) 2011 Softwell. All rights reserved.
 
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from gnr.core.gnrbag import Bag
 from datetime import datetime
 
@@ -64,15 +67,15 @@ class BaseResourceBatch(object):
         except self.btc.exception_stopped:
             self.btc.batch_aborted()
             self.batch_log_write('Batch Aborted')
-        except Exception, e:
+        except Exception as e:
             if self.page.isDeveloper():
                 raise
             else:
                 try:
                     self.btc.batch_error(error=str(e))
                     self.batch_log_write('Error in batch %s' %str(e))
-                except Exception, e:
-                    print e
+                except Exception as e:
+                    print(e)
                     raise
         finally:
             if self.batch_dblog:

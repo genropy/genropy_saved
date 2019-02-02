@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 # encoding: utf-8
 # 
+from __future__ import print_function
 from gnr.core.gnrremotebag import RemoteBagServer
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrsys import expandpath
@@ -54,10 +55,10 @@ if __name__=="__main__":
         sharedstoreconfig=sharedstores.getNode(name)
         assert sharedstoreconfig,"Miissing sharedstore '%s' configuration."% name
         curropt=options
-        print 'curopt',curropt
+        print('curopt',curropt)
         options=sharedstoreconfig.attr
-        print 'conf options',options
+        print('conf options',options)
         options.update(curropt)
-        print 'final options',options
+        print('final options',options)
     server =RemoteBagServer()
     server.start(**options)

@@ -23,8 +23,11 @@
 #Created by Giovanni Porcari and Francesco Cavazzana on 2007-03-24.
 #Copyright (c) 2007 Softwell. All rights reserved.
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 import zipfile
-import StringIO
+import io
 import datetime
 
 from gnr.core import gnrstring
@@ -38,7 +41,7 @@ class TableBuilder(object):
                  header='', footer='', filename=None, tot_cb=None, row_template_totals=None,
                  locale=None, row_formatDict=None, row_maskDict=None,
                  **kwargs):
-        self.defaultFormats = {long: '#,##0', int: '#,##0', float: '#,##0.00', Decimal: '#,##0.00'}
+        self.defaultFormats = {int: '#,##0', int: '#,##0', float: '#,##0.00', Decimal: '#,##0.00'}
         self.page = page # weakref was better ???
         self.source = source
         self.title = title
@@ -77,7 +80,7 @@ class TableBuilder(object):
         else:
             self.response.content_type = 'application/zip'
             self.response.add_header("Content-Disposition", "attachment; filename=%s.zip" % filename)
-            zipresult = StringIO.StringIO()
+            zipresult = io.StringIO()
             zip = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED)
             zipstring = zipfile.ZipInfo('%s.%s' % (filename, ext), datetime.datetime.now().timetuple()[:6])
             zipstring.compress_type = zipfile.ZIP_DEFLATED
@@ -137,7 +140,7 @@ class TableBuilder(object):
             self._counter = self._counter - 1
             return ''
             
-        for k, v in row.items():
+        for k, v in list(row.items()):
             row[k] = gnrstring.toText(v, locale=self.locale, format=self.getColumnFormat(k, v),
                                       mask=self.row_maskDict.get(k)) or '&nbsp;'
                                       
@@ -214,7 +217,7 @@ class PageTableBuilder(TableBuilder):
         styles = self.page.get_css_genro()
         print_styles = styles.pop('print', [])
         
-        for cssmedia, cssnames  in styles.items():
+        for cssmedia, cssnames  in list(styles.items()):
             for cssname in cssnames:
                 all_css.append('@import url("%s") %s;' % (cssname, cssmedia))
                 
@@ -232,7 +235,7 @@ class PageTableBuilder(TableBuilder):
         for cssname in css_path:
             all_css.append('@import url("%s");' % cssname)
             
-        for cssmedia, cssnames  in css_media_path.items():
+        for cssmedia, cssnames  in list(css_media_path.items()):
             for cssname in cssnames:
                 all_css.append('@import url("%s") %s;' % (cssname, cssmedia))
                 
@@ -269,7 +272,7 @@ class ExcelTableBuilder(TableBuilder):
         row = self.prepareTableRow(row)
         if not row: return ''
         if self.excel_nobr:
-            for k, v in row.items():
+            for k, v in list(row.items()):
                 if '\n' in v or '<br />' in v.lower():
                     row[k] = v.replace('\n', ' ').replace('<br />', ' ')
         return self.templateReplaceRow(row)
@@ -337,14 +340,14 @@ class RowFormatter(object):
         self.locale = locale
         self.colformats = colformats or {}
         self.colmasks = colmasks or {}
-        self.typeformats = {int: '#,##0', long: '#,##0', float: '#,##0.00', Decimal: '#,##0.00'}
+        self.typeformats = {int: '#,##0', int: '#,##0', float: '#,##0.00', Decimal: '#,##0.00'}
         if typeformats:
             self.typeformats.update(typeformats)
         self.emptyValue = emptyValue
         
     def __call__(self, row):
         result = {}
-        for k, v in row.items():
+        for k, v in list(row.items()):
             result[k] = gnrstring.toText(v, locale=self.locale,
                                          format=self.colformats.get(k) or self.typeformats.get(type(v)),
                                          mask=self.colmasks.get(k)

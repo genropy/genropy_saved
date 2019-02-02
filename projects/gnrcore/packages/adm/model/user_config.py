@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from builtins import object
 from datetime import datetime
 from gnr.core.gnrdecorator import metadata,public_method
 from gnr.core.gnrbag import Bag
@@ -78,7 +79,7 @@ class Table(object):
         d = dict(standard_codes)
         if tbl:
             custom_codes = self.db.table('adm.tblinfo_item').query(where='$tblid=:t AND $item_type=:it AND $code NOT IN :c',
-                                        t=tbl,it=item_type,c=d.keys(),columns='$code,$description').fetch()
+                                        t=tbl,it=item_type,c=list(d.keys()),columns='$code,$description').fetch()
             if custom_codes:
                 for r in custom_codes:
                     standard_codes.append((r['code'],r['description']))
@@ -87,7 +88,7 @@ class Table(object):
             f = [(_id,d[_id])]
         else:
             chunk = _querystring.replace('*','').lower()
-            f = filter(lambda c: (chunk in c[1].lower() or chunk in c[0].lower()),standard_codes)
+            f = [c for c in standard_codes if (chunk in c[1].lower() or chunk in c[0].lower())]
         for i,r in enumerate(f):
             result.setItem('%s_%s' %(r[0],i),None,
                code=r[0],description=r[1],_pkey=r[0],caption=r[1])
@@ -159,7 +160,7 @@ class Table(object):
             pkg = tbl.split('.')[0]
             tblobj =  self.db.table(tbl)
             cols_permission_base = Bag()
-            allcols = tblobj.columns.keys() + tblobj.model.virtual_columns.keys()
+            allcols = list(tblobj.columns.keys()) + list(tblobj.model.virtual_columns.keys())
             result['cols_permission'] = cols_permission_base
         if user and not user_group:
             user_group = self.db.table('adm.user').readColumns(where='$username=:u',u=user,columns='$group_code')
@@ -176,7 +177,7 @@ class Table(object):
                 result['cols_permission'] = self._updateColsPermission(result['cols_permission'],
                                                                         last_permissions or Bag(),
                                                                         allcols,_editMode)
-            for k,v in data.items():
+            for k,v in list(data.items()):
                 if v is not None:
                     result[k] = v
         return result
@@ -196,12 +197,12 @@ class Table(object):
     def _colsPickerStore(self,table=None):
         tblobj = self.db.table(table)
         result = Bag()
-        for field,colobj in tblobj.model.columns.items():
+        for field,colobj in list(tblobj.model.columns.items()):
             colattr = colobj.attributes
             result.setItem(field,None,colname=field,name_long=colattr.get('name_long'),
                                     datatype=colattr.get('dtype','T'),_pkey=field)
 
-        for field,colobj in tblobj.model.virtual_columns.items():
+        for field,colobj in list(tblobj.model.virtual_columns.items()):
             colattr = colobj.attributes
             result.setItem(field,None,colname=field,name_long=colattr.get('name_long'),datatype=colattr.get('dtype','T'),_customClasses='virtualCol',_pkey=field)
         return result

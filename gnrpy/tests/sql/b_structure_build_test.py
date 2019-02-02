@@ -22,6 +22,8 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import print_function
+from builtins import object
 import os
 import datetime
 
@@ -44,13 +46,13 @@ class TestSqlStructure(object):
 
     def test_modelObj(self):
         assert isinstance(self.db.model.obj, DbModelObj)
-        assert self.db.packages.keys() == ['video']
+        assert list(self.db.packages.keys()) == ['video']
 
     def test_SqlPackageObj(self):
         pkg = self.db.package('video')
         assert isinstance(pkg, DbPackageObj)
         assert isinstance(pkg.tables, DbTableListObj)
-        assert pkg.tables.keys() == ['people', 'cast', 'movie', 'dvd']
+        assert list(pkg.tables.keys()) == ['people', 'cast', 'movie', 'dvd']
         tbl = pkg.table('movie')
         assert isinstance(tbl, DbTableObj)
         assert pkg.tableSqlName(tbl) == 'video_movie'
@@ -65,7 +67,7 @@ class TestSqlStructure(object):
         assert tbl.sqlfullname == 'main.video_movie'
         assert tbl.pkg.name == self.db.package('video').name
         assert isinstance(tbl.columns, DbColumnListObj)
-        assert tbl.columns.keys() == ['id', 'title', 'genre', 'year', 'nationality', 'description']
+        assert list(tbl.columns.keys()) == ['id', 'title', 'genre', 'year', 'nationality', 'description']
         assert isinstance(tbl.indexes, DbIndexListObj)
         assert isinstance(tbl.db, GnrSqlDb)
         col = tbl.column('title')
@@ -74,7 +76,7 @@ class TestSqlStructure(object):
 
     def test_SqlTableObj_indexes(self):
         tbl = self.db.model.table('video.movie')
-        indexes = tbl.indexes.keys()
+        indexes = list(tbl.indexes.keys())
         indexes.sort()
         indexes == ['i_title', 'movie_genre_key', 'movie_year_key']
 
@@ -112,5 +114,5 @@ class TestSqlStructure(object):
 
 
 def teardown_module(module):
-    print 'teardown sql_test'
+    print('teardown sql_test')
     

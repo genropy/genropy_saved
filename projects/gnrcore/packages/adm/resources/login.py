@@ -5,6 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 # Frameindex component
 
+from builtins import str
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
@@ -212,7 +213,7 @@ class LoginComponent(BaseComponent):
             avatar = self.application.getAvatar(user, password=password,authenticate=True)
             if not avatar:
                 return result
-        except GnrRestrictedAccessException, e:
+        except GnrRestrictedAccessException as e:
             return Bag(login_error_msg=e.description)
         status = getattr(avatar,'status',None)
         if not status:
@@ -368,9 +369,9 @@ class LoginComponent(BaseComponent):
             body = self.loginPreference('confirm_user_tpl') or 'Dear $greetings to confirm click $link'
             self.getService('mail').sendmail_template(data,to_address=email,
                                 body=body, subject=self.loginPreference('subject') or 'Confirm user',
-                                async=False,html=True)
+                                async_=False,html=True)
             self.db.commit()
-        except Exception,e:
+        except Exception as e:
             return dict(error=str(e))
         return dict(ok=self.loginPreference('new_user_ok_message') or 'Check your email to confirm')
 
@@ -408,7 +409,7 @@ class LoginComponent(BaseComponent):
         body = self.loginPreference('confirm_user_tpl') or 'Dear $greetings to confirm click $link'
         self.getService('mail').sendmail_template(recordBag,to_address=email,
                                 body=body, subject=self.loginPreference('subject') or 'Password recovery',
-                                async=False,html=True)
+                                async_=False,html=True)
         self.db.commit()
 
         return 'ok'
@@ -432,7 +433,7 @@ class LoginComponent(BaseComponent):
 
             self.getService('mail').sendmail_template(recordBag,to_address=email,
                                     body=body, subject=self.loginPreference('confirm_password_subject') or 'Password recovery',
-                                    async=False,html=True)
+                                    async_=False,html=True)
         return 'ok'
             #self.sendMailTemplate('confirm_new_pwd.xml', recordBag['email'], recordBag)
 

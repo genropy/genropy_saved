@@ -1,4 +1,5 @@
 # encoding: utf-8
+from builtins import object
 import random
 import string
 from datetime import datetime, date

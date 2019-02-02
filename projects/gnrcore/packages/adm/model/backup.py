@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
+from builtins import object
 import os
 
 class Table(object):
@@ -14,7 +16,7 @@ class Table(object):
     def trigger_onDeleted(self,record):
         try:
             path = self.db.application.site.getStaticPath('site:maintenance','backups','%s.zip' %record['name'])
-            print 'backup to delete',path
+            print('backup to delete',path)
             os.remove(path)
         except Exception:
             pass

@@ -20,11 +20,17 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from __future__ import with_statement
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import filter
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 
 
 import logging
-import cPickle
+import pickle
 import os
 import shutil
 from time import time
@@ -41,7 +47,7 @@ from gnr.core.gnrclasses import GnrClassCatalog
 #from gnr.sql.adapters import *
 from datetime import datetime
 import re
-import thread
+import _thread
 import locale
 
 MAIN_CONNECTION_NAME = '_main_connection'
@@ -186,7 +192,7 @@ class GnrSqlDb(GnrObject):
         return self.application.localizer if self.application else DbLocalizer
 
     def importArchive(self,archive,thermo_wrapper=None):
-        tables = archive.keys()
+        tables = list(archive.keys())
         if thermo_wrapper:
             tables = thermo_wrapper(tables, maximum=len(tables),message=lambda item, k, m, **kwargs: '%s %i/%i' % (item, k, m), line_code='tables')
         for tbl in tables:
@@ -228,11 +234,11 @@ class GnrSqlDb(GnrObject):
             stores[dbname] = os.path.join(extractpath,f)
         dbstoreconfig = Bag(stores.pop('_dbstores'))
         mainfilepath = stores.pop('mainstore',None)
-        for s in self.stores_handler.dbstores.keys():
+        for s in list(self.stores_handler.dbstores.keys()):
             self.stores_handler.drop_store(s)
         if mainfilepath:
             self._autoRestore_one(dbname=self.dbname,filepath=mainfilepath,sqltextCb=sqltextCb,onRestored=onRestored)
-        for storename,filepath in stores.items():
+        for storename,filepath in list(stores.items()):
             conf = dbstoreconfig.getItem(storename)
             dbattr = conf.getAttr('db')
             dbname = dbattr.pop('dbname')
@@ -242,11 +248,11 @@ class GnrSqlDb(GnrObject):
             shutil.rmtree(extractpath)
 
     def _autoRestore_one(self,dbname=None,filepath=None,**kwargs):
-        print 'drop',dbname
+        print('drop',dbname)
         self.dropDb(dbname)
-        print 'create',dbname
+        print('create',dbname)
         self.createDb(dbname)
-        print 'restore',dbname,filepath
+        print('restore',dbname,filepath)
         self.restore(filepath,dbname=dbname,**kwargs)
 
 
@@ -297,10 +303,10 @@ class GnrSqlDb(GnrObject):
         
     def closeConnection(self):
         """Close a connection"""
-        thread_ident = thread.get_ident()
+        thread_ident = _thread.get_ident()
         connections_dict = self._connections.get(thread_ident)
         if connections_dict:
-            for conn_name in connections_dict.keys():
+            for conn_name in list(connections_dict.keys()):
                 conn = connections_dict.pop(conn_name)
                 try:
                     conn.close()
@@ -313,15 +319,15 @@ class GnrSqlDb(GnrObject):
     
     def clearCurrentEnv(self):
         """Clear the current env"""
-        self._currentEnv[thread.get_ident()] = {}
+        self._currentEnv[_thread.get_ident()] = {}
         
     def _get_currentEnv(self):
         """property currentEnv - Return the env currently used in this thread"""
-        return self._currentEnv.setdefault(thread.get_ident(), {})
+        return self._currentEnv.setdefault(_thread.get_ident(), {})
         
     def _set_currentEnv(self, env):
         """set currentEnv for the current thread"""
-        self._currentEnv[thread.get_ident()] = env
+        self._currentEnv[_thread.get_ident()] = env
         
     currentEnv = property(_get_currentEnv, _set_currentEnv)
 
@@ -348,7 +354,7 @@ class GnrSqlDb(GnrObject):
         """Update the currentEnv"""
         if _excludeNoneValues:
             currentEnv = self.currentEnv
-            for k,v in kwargs.items():
+            for k,v in list(kwargs.items()):
                 if v is not None:
                     currentEnv[k] = v
         else:
@@ -392,7 +398,7 @@ class GnrSqlDb(GnrObject):
         return  '_'.join((storename or self.currentStorename,self.currentConnectionName))
             
     def _get_store_connection(self, storename):
-        thread_ident = thread.get_ident()
+        thread_ident = _thread.get_ident()
         thread_connections = self._connections.setdefault(thread_ident, {})
         connectionTuple = (storename or self.currentStorename,self.currentConnectionName)
         connection = thread_connections.get(connectionTuple)
@@ -407,7 +413,7 @@ class GnrSqlDb(GnrObject):
         storename = self.currentStorename
         if storename=='*' or ',' in storename:
             if storename=='*':
-                storenames = self.dbstores.keys()
+                storenames = list(self.dbstores.keys())
             else:
                 storenames = storename.split(',')
             return [self._get_store_connection(s) for s in storenames]
@@ -440,7 +446,7 @@ class GnrSqlDb(GnrObject):
         """
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
-        envargs = dict([('env_%s' % k, v) for k, v in self.currentEnv.items() if not k.startswith('dbevents')])
+        envargs = dict([('env_%s' % k, v) for k, v in list(self.currentEnv.items()) if not k.startswith('dbevents')])
         if not 'env_workdate' in envargs:
             envargs['env_workdate'] = self.workdate
         envargs.update(sqlargs or {})
@@ -448,7 +454,7 @@ class GnrSqlDb(GnrObject):
             storename = self.rootstore
         storename = storename or envargs.get('env_storename', self.rootstore)
         sqlargs = envargs
-        for k,v in sqlargs.items():
+        for k,v in list(sqlargs.items()):
             if isinstance(v,basestring) and (v.startswith(r'\$') or v.startswith(r'\@')):
                 sqlargs[k] = v[1:]
         if dbtable and self.table(dbtable).use_dbstores(**sqlargs) is False:
@@ -479,13 +485,13 @@ class GnrSqlDb(GnrObject):
                 if self.debugger:
                     self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable,delta_time=time()-t_0)
             
-            except Exception, e:
+            except Exception as e:
                 #print sql
-                gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, unicode(sqlargs))
+                gnrlogger.warning('error executing:%s - with kwargs:%s \n\n', sql, str(sqlargs))
                 #if self.debugger:
                 #    self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable, error=str(e))
-                print str('error %s executing:%s - with kwargs:%s \n\n' % (
-                str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
+                print(str('error %s executing:%s - with kwargs:%s \n\n' % (
+                str(e), sql, str(sqlargs).encode('ascii', 'ignore'))))
                 self.rollback()
                 raise
             if autocommit:
@@ -584,11 +590,11 @@ class GnrSqlDb(GnrObject):
     def commit(self):
         """Commit a transaction"""
         self.onCommitting()
-        thread_connections = self._connections.get(thread.get_ident(), {})
+        thread_connections = self._connections.get(_thread.get_ident(), {})
         currentConnectionName = self.currentConnectionName
         currentStorename = self.currentStorename
         if self.usingMainConnection and self.usingRootstore :
-            for c,conn in thread_connections.items():
+            for c,conn in list(thread_connections.items()):
                 storename,connectionName = c
                 if connectionName == currentConnectionName:
                     conn.commit()
@@ -627,7 +633,7 @@ class GnrSqlDb(GnrObject):
     def autoCommit(self):
         if not self.dbevents:
             return
-        if all([all(map(lambda v: v.get('autoCommit'),t)) for t in self.dbevents.values()]):
+        if all([all([v.get('autoCommit') for v in t]) for t in list(self.dbevents.values())]):
             self.commit()
         else:
             raise GnrMissedCommitException('Db events not committed')
@@ -683,14 +689,14 @@ class GnrSqlDb(GnrObject):
     packages = property(_get_packages)
 
     def tablesMasterIndex(self,hard=False,filterCb=None):
-        packages = self.packages.keys()
+        packages = list(self.packages.keys())
         toImport = []
         dependencies = dict()
         for k,pkg in enumerate(packages):
             pkgobj = self.package(pkg)
-            tables = pkgobj.tables.values()
+            tables = list(pkgobj.tables.values())
             if filterCb:
-                tables = filter(filterCb,tables)
+                tables = list(filter(filterCb,tables))
             toImport.extend(tables)
             for tbl in tables:
                 dset = set()
@@ -705,9 +711,9 @@ class GnrSqlDb(GnrObject):
         self._tablesMasterIndex_step(toImport=toImport,imported=imported,dependencies=dependencies,result=result,deferred=deferred,blocking=blocking)
         if len(deferred)==0:
             return result
-        for k,v in deferred.items():
-            print 'table ',k,
-            print '\t\t blocked by',v
+        for k,v in list(deferred.items()):
+            print('table ',k, end=' ')
+            print('\t\t blocked by',v)
         raise GnrSqlException(description='Blocked dependencies')
 
 
@@ -783,14 +789,14 @@ class GnrSqlDb(GnrObject):
         :param omit: TODO
         :param tabletype: TODO"""
         result = Bag()
-        packages = self.packages.keys() if packages == '*' else packages
-        for pkg, pkgobj in self.packages.items():
+        packages = list(self.packages.keys()) if packages == '*' else packages
+        for pkg, pkgobj in list(self.packages.items()):
             if (pkg in packages and omit) or (not pkg in packages and not omit):
                 continue
             pkgattr = dict(pkgobj.attributes)
             pkgattr['caption'] = pkgobj.attributes.get('name_long', pkg)
             result.setItem(pkg, Bag(), **pkgattr)
-            for tbl, tblobj in pkgobj.tables.items():
+            for tbl, tblobj in list(pkgobj.tables.items()):
                 tblattr = dict(tblobj.attributes)
                 if tabletype and tblattr.get('tabletype') != tabletype:
                     continue
@@ -834,7 +840,7 @@ class GnrSqlDb(GnrObject):
         if kwargs:
             prefix = str(id(kwargs))
             currentEnv = self.currentEnv
-            for k,v in kwargs.items():
+            for k,v in list(kwargs.items()):
                 newk = '%s_%s' %(prefix,k)
                 currentEnv[newk] = v
                 result = re.sub("(:)(%s)(\\W|$)" %k,lambda m: '%senv_%s%s'%(m.group(1),newk,m.group(3)), result)
@@ -931,7 +937,7 @@ class GnrSqlDb(GnrObject):
         if not os.path.exists(filename):
             return []
         with open(filename) as f:
-            return cPickle.load(f)
+            return pickle.load(f)
 
     def unfreezeSelection(self, fpath):
         """Get a pickled selection and return it
@@ -941,7 +947,7 @@ class GnrSqlDb(GnrObject):
         if not os.path.exists(filename):
             return
         with open('%s.pik' % fpath) as f:
-            selection = cPickle.load(f)
+            selection = pickle.load(f)
         selection.dbtable = self.table(selection.tablename)
         return selection
         
@@ -963,7 +969,7 @@ class TempEnv(object):
             currentEnv = self.db.currentEnv
             self.savedValues = dict()
             self.addedKeys = []
-            for k,v in self.kwargs.items():
+            for k,v in list(self.kwargs.items()):
                 if k in currentEnv:
                     self.savedValues[k] = currentEnv.get(k) 
                 else:

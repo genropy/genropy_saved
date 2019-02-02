@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2011-02-02.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires='public:Public'
 

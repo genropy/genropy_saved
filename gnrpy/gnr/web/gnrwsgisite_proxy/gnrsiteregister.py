@@ -20,8 +20,14 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import time
-import thread
+import _thread
 import Pyro4
 import os
 import re
@@ -51,7 +57,7 @@ class GnrDaemonLocked(GnrDaemonException):
 
 
 try:
-    import cPickle as pickle
+    import pickle as pickle
 except ImportError:
     import pickle
 
@@ -76,11 +82,11 @@ def remotebag_wrapper(func):
 
 class BaseRemoteObject(object):
     def onSizeExceeded(self, msg_size, method, vargs, kwargs):
-        print '[%i-%i-%i %i:%i:%i]-----%s-----'%((time.localtime()[:6])+(self.__class__.__name__.upper(),))
-        print 'Message size:', msg_size
-        print 'Method :', method
-        print 'vargs, kwargs', vargs, kwargs
-        print '**********'
+        print('[%i-%i-%i %i:%i:%i]-----%s-----'%((time.localtime()[:6])+(self.__class__.__name__.upper(),)))
+        print('Message size:', msg_size)
+        print('Method :', method)
+        print('vargs, kwargs', vargs, kwargs)
+        print('**********')
 
 #------------------------------- REMOTEBAG server SIDE ---------------------------
 class RemoteStoreBagHandler(BaseRemoteObject):
@@ -90,6 +96,8 @@ class RemoteStoreBagHandler(BaseRemoteObject):
 
     def __getattr__(self,name):
         if name=='_pyroId':
+            if not '_pyroId' in self.__dict__:
+                raise AttributeError
             return self._pyroId
         def decore(*args,**kwargs):
             register_name = kwargs.pop('_siteregister_register_name',None)
@@ -238,7 +246,7 @@ class BaseRegister(BaseRemoteObject):
 
     def invalidateTableCache(self,table):
         table_cache = self.cached_tables.pop(table)
-        for register_item_id,pathset in table_cache.items():
+        for register_item_id,pathset in list(table_cache.items()):
             data = self.get_item_data(register_item_id)
             if not data:
                 continue #dead item
@@ -268,17 +276,17 @@ class BaseRegister(BaseRemoteObject):
         return register_item_id in self.registerItems
 
     def keys(self):
-        return self.registerItems.keys()
+        return list(self.registerItems.keys())
 
     def items(self,include_data=None):
         if not include_data:
-            return self.registerItems.items()
-        return [(k,self.get_item(k,include_data=True)) for k in self.keys()]
+            return list(self.registerItems.items())
+        return [(k,self.get_item(k,include_data=True)) for k in list(self.keys())]
 
     def values(self,include_data=False):
         if not include_data:
-            return self.registerItems.values()
-        return [self.get_item(k,include_data=True) for k in self.keys()]
+            return list(self.registerItems.values())
+        return [self.get_item(k,include_data=True) for k in list(self.keys())]
 
     def refresh(self,register_item_id,last_user_ts=None,last_rpc_ts=None,refresh_ts=None):
         item = self.registerItems.get(register_item_id)
@@ -444,10 +452,10 @@ class ConnectionRegister(BaseRegister):
                 self.siteregister.drop_user(user)
 
     def user_connection_keys(self,user):
-        return [k for k,v in self.items() if v['user'] == user]
+        return [k for k,v in list(self.items()) if v['user'] == user]
 
     def user_connection_items(self,user):
-        return [(k,v) for k,v in self.items() if v['user'] == user]
+        return [(k,v) for k,v in list(self.items()) if v['user'] == user]
 
 
 
@@ -496,24 +504,24 @@ class PageRegister(BaseRegister):
 
     def filter_subscribed_tables(self,table_list):
         s = set()
-        for k,v in self.items():
+        for k,v in list(self.items()):
             s.update(v['subscribed_tables'])
         return list(s.intersection(table_list))
 
     def subscribed_table_page_keys(self,table):
-        return [k for k,v in self.items() if table in v['subscribed_tables']]
+        return [k for k,v in list(self.items()) if table in v['subscribed_tables']]
 
     def subscribed_table_page_items(self,table):
-        return [(k,v) for k,v in self.items() if table in v['subscribed_tables']]
+        return [(k,v) for k,v in list(self.items()) if table in v['subscribed_tables']]
 
     def subscribed_table_pages(self,table):
-        return [v for k,v in self.items() if table in v['subscribed_tables']]
+        return [v for k,v in list(self.items()) if table in v['subscribed_tables']]
 
     def connection_page_keys(self,connection_id):
-        return [k for k,v in self.items() if v['connection_id'] == connection_id]
+        return [k for k,v in list(self.items()) if v['connection_id'] == connection_id]
 
     def connection_page_items(self,connection_id):
-        return [(k,v) for k,v in self.items() if v['connection_id'] == connection_id]
+        return [(k,v) for k,v in list(self.items()) if v['connection_id'] == connection_id]
 
     def pages(self,connection_id=None,user=None,include_data=None,filters=None):
         pages = self.values(include_data=include_data)
@@ -540,7 +548,7 @@ class PageRegister(BaseRegister):
                 return False
         for page in pages:
             page = Bag(page)
-            for fltname, fltval in fltdict.items():
+            for fltname, fltval in list(fltdict.items()):
                 if checkpage(page, fltname, fltval):
                     filtered.append(page)
         return filtered
@@ -571,7 +579,7 @@ class PageRegister(BaseRegister):
                 subscribed_tables.remove(table)
 
     def notifyDbEvents(self,dbeventsDict=None,origin_page_id=None,dbevent_reason=None):
-        for table,dbevents in dbeventsDict.items():
+        for table,dbevents in list(dbeventsDict.items()):
             if not dbevents: 
                 continue
             table_code = table.replace('.', '_')
@@ -639,7 +647,7 @@ class SiteRegister(BaseRemoteObject):
                 proxy.on_reloader_restart(sitename=self.sitename)
 
     def on_site_stop(self):
-        print 'site stopped'
+        print('site stopped')
 
     def table_script_put(self, page_id=None, batch_kwargs=None):
         if self.batch_queue:
@@ -732,7 +740,7 @@ class SiteRegister(BaseRemoteObject):
 
     def pages(self, connection_id=None,user=None,index_name=None, filters=None,include_data=None):
         if index_name:
-            print 'call subscribed_table_pages instead of pages'
+            print('call subscribed_table_pages instead of pages')
             return self.subscribed_table_pages(index_name)
         return self.page_register.pages(connection_id=connection_id,user=user,filters=filters,include_data=include_data)
         
@@ -825,7 +833,7 @@ class SiteRegister(BaseRemoteObject):
         store_datachanges = []
         datachanges = self.user_register.get_datachanges(user)
         user_item_data = self.user_register.get_item_data(user)
-        storesubscriptions_items = user_subscriptions.items()
+        storesubscriptions_items = list(user_subscriptions.items())
         global_offsets = user_item_data.getItem('_subscriptions.offsets')
         if global_offsets is None:
             global_offsets = {}
@@ -858,7 +866,7 @@ class SiteRegister(BaseRemoteObject):
         if _serverstore_changes:
             self.set_serverstore_changes(page_id, _serverstore_changes)
         if _children_pages_info:
-            for k,v in _children_pages_info.items():
+            for k,v in list(_children_pages_info.items()):
                 child_lastUserEventTs = v.pop('_lastUserEventTs', None)
                 child_lastRpc = v.pop('_lastRpc', None)
                 child_pageProfilers = v.pop('_pageProfilers', None)
@@ -875,7 +883,7 @@ class SiteRegister(BaseRemoteObject):
         if datachanges:
             envelope.setItem('dataChanges', datachanges)
         if _children_pages_info:
-            for k in _children_pages_info.keys():
+            for k in list(_children_pages_info.keys()):
                 datachanges = self.handle_ping_get_datachanges(k, user=user)
                 if datachanges:
                     envelope.setItem('childDataChanges.%s' %k, datachanges)
@@ -900,7 +908,7 @@ class SiteRegister(BaseRemoteObject):
         
     def set_serverstore_changes(self, page_id=None, datachanges=None):
         page_item_data = self.page_register.get_item_data(page_id)
-        for k, v in datachanges.items():
+        for k, v in list(datachanges.items()):
             page_item_data.setItem(k, self._parse_change_value(v))
 
 
@@ -911,7 +919,7 @@ class SiteRegister(BaseRemoteObject):
                 if isinstance(v, basestring):
                     v = v.decode('utf-8')
                 return v
-            except Exception, e:
+            except Exception as e:
                 raise e
         return change_value
 
@@ -950,7 +958,7 @@ class SiteRegister(BaseRemoteObject):
 
     def sendProcessCommand(self,command,pid=None):
         if pid is None:
-            pid = self.interproces_commands.keys()
+            pid = list(self.interproces_commands.keys())
         else:
             pid = [pid]
         now = datetime.now()
@@ -985,6 +993,8 @@ class SiteRegister(BaseRemoteObject):
 
     def __getattr__(self, fname):
         if fname=='_pyroId':
+            if not '_pyroId' in self.__dict__:
+                raise AttributeError
             return self._pyroId
         def decore(*args,**kwargs):
             register_name = kwargs.pop('register_name',None)
@@ -1036,7 +1046,7 @@ class SiteRegisterClient(object):
             while not self.checkSiteRegisterServerUri(daemonProxy):
                 if (time.time()-t_start)>DAEMON_TIMEOUT_START:
                     raise Exception('GnrDaemon timout')
-        print 'creating proxy',self.siteregister_uri,self.siteregisterserver_uri
+        print('creating proxy',self.siteregister_uri,self.siteregisterserver_uri)
         self.siteregister = Pyro4.Proxy(self.siteregister_uri)
         if not OLD_HMAC_MODE:
             self.siteregister._pyroHmacKey = self.hmac_key
@@ -1157,19 +1167,19 @@ class SiteRegisterClient(object):
 ############################## TO DO #######################################
 
     def _debug(self,mode,name,*args,**kwargs):
-        print 'external_%s' %mode,name,'ARGS',args,'KWARGS',kwargs
+        print('external_%s' %mode,name,'ARGS',args,'KWARGS',kwargs)
 
     def dump(self):
         """TODO"""
         self.siteregister.dump()
-        print 'DUMP REGISTER %s' %self.site.site_name
+        print('DUMP REGISTER %s' %self.site.site_name)
 
     def load(self):
         result = self.siteregister.load()
         if result:
-            print 'SITEREGISTER %s LOADED' %self.site.site_name
+            print('SITEREGISTER %s LOADED' %self.site.site_name)
         else:
-            print 'UNABLE TO LOAD REGISTER %s' %self.site.site_name
+            print('UNABLE TO LOAD REGISTER %s' %self.site.site_name)
 
     def __getattr__(self,name):
         h = getattr(self.siteregister,name)
@@ -1201,11 +1211,11 @@ class GnrSiteRegisterServer(object):
         self.daemon.requestLoop(self.running)
 
     def stop(self,saveStatus=False):
-        print 'stopping',saveStatus
+        print('stopping',saveStatus)
         if saveStatus:
-            print 'SAVING STATUS',self.storage_path
+            print('SAVING STATUS',self.storage_path)
             self.siteregister.dump()
-            print 'SAVED STATUS STATUS'
+            print('SAVED STATUS STATUS')
         self._running = False
 
     def start(self,port=None,host=None,socket=None,hmac_key=None,compression=None,multiplex=None,
@@ -1236,9 +1246,9 @@ class GnrSiteRegisterServer(object):
             storage_path=self.storage_path, batch_queue=self.batch_queue)
         autorestore = autorestore and os.path.exists(self.storage_path)
         self.main_uri = self.daemon.register(self,'SiteRegisterServer')
-        print 'autorestore',autorestore,os.path.exists(self.storage_path)
+        print('autorestore',autorestore,os.path.exists(self.storage_path))
         self.register_uri = self.daemon.register(self.siteregister,'SiteRegister')
-        print "uri=",self.main_uri
+        print("uri=",self.main_uri)
         if self.gnr_daemon_uri:
             with Pyro4.Proxy(self.gnr_daemon_uri) as proxy:
                 if not OLD_HMAC_MODE:
@@ -1259,7 +1269,7 @@ class ServerStore(object):
         self.max_retry = max_retry or LOCK_MAX_RETRY
         self.retry_delay = retry_delay or RETRY_DELAY
         self._register_item = '*'
-        self.thread_id = thread.get_ident()
+        self.thread_id = _thread.get_ident()
 
     def __enter__(self):
         k = 0
@@ -1268,8 +1278,8 @@ class ServerStore(object):
             time.sleep(self.retry_delay)
             k += 1
             if k>self.max_retry:
-                print >> sys.stderr, (
-                    "-- [%i-%i-%i %i:%i:%i] -- UNABLE TO LOCK STORE : %s  ITEM %s " % (time.localtime()[:6]+(self.register_name,self.register_item_id)))
+                print((
+                    "-- [%i-%i-%i %i:%i:%i] -- UNABLE TO LOCK STORE : %s  ITEM %s " % (time.localtime()[:6]+(self.register_name,self.register_item_id))), file=sys.stderr)
 
                 raise GnrDaemonLocked()
         self.success_locking_time = time.time()
@@ -1348,7 +1358,7 @@ class RegisterResolver(BagResolver):
     def list_users(self):
         usersDict = self.register.users(include_data=True)
         result = Bag()
-        for user, item_user in usersDict.items():
+        for user, item_user in list(usersDict.items()):
             item = Bag()
             data = item_user.pop('data', None)
             item_user.pop('datachanges', None)
@@ -1362,7 +1372,7 @@ class RegisterResolver(BagResolver):
     def list_connections(self, user):
         connectionsDict = self.register.connections(user=user,include_data=True)
         result = Bag()
-        for connection_id, connection in connectionsDict.items():
+        for connection_id, connection in list(connectionsDict.items()):
             delta = (datetime.now() - connection['start_ts']).seconds
             user = connection['user'] or 'Anonymous'
             connection_name = connection['connection_name']
@@ -1378,7 +1388,7 @@ class RegisterResolver(BagResolver):
     def list_pages(self, connection_id):
         pagesDict = self.register.pages(connection_id=connection_id,include_data=True)
         result = Bag()
-        for page_id, page in pagesDict.items():
+        for page_id, page in list(pagesDict.items()):
             delta = (datetime.now() - page['start_ts']).seconds
             pagename = page['pagename'].replace('.py', '')
             itemlabel = '%s (%i)' % (pagename, delta)

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # 
 
+from __future__ import print_function
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag,DirectoryResolver
 
@@ -108,7 +110,7 @@ class GnrCustomWebPage(object):
     def ftplist(self):
         with self.getService('ftp_genropy')() as sftp:
             with sftp.cd('vassals'):
-                print sftp.listdir()
+                print(sftp.listdir())
             return '<br/>'.join(sftp.listdir())
 
 

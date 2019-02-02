@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
 import os
 from gnr.app.gnrapp import GnrApp
 from gnr.core.gnrbag import Bag
@@ -142,14 +143,14 @@ def check_db(app):
     changes = app.db.model.check()
     dbname = app.db.currentEnv.get('storename')
     dbname = dbname or 'Main'
-    print 'DB %s:' % dbname
+    print('DB %s:' % dbname)
     if changes:
         if options.verbose:
-            print '*CHANGES:\n%s' % '\n'.join(app.db.model.modelChanges)
+            print('*CHANGES:\n%s' % '\n'.join(app.db.model.modelChanges))
         else:
-            print 'STUCTURE NEEDS CHANGES'
+            print('STUCTURE NEEDS CHANGES')
     else:
-        print 'STRUCTURE OK'
+        print('STRUCTURE OK')
     return changes
 
 def import_db(filepath):
@@ -169,9 +170,9 @@ def check_store(args):
     else:
         changes = check_db(app)
         if changes:
-            print 'APPLYING CHANGES TO DATABASE...'
+            print('APPLYING CHANGES TO DATABASE...')
             app.db.model.applyModelChanges()
-            print 'CHANGES APPLIED TO DATABASE'
+            print('CHANGES APPLIED TO DATABASE')
         app.db.model.checker.addExtesions()
     app.db.closeConnection()
 
@@ -182,7 +183,7 @@ if __name__ == '__main__':
     #app, storename = get_app()
     if storename == '*':
         app = GnrApp(instance_path)
-        stores = [None] + app.db.dbstores.keys()
+        stores = [None] + list(app.db.dbstores.keys())
     else:
         stores = [storename]
     options_dict = options.__dict__

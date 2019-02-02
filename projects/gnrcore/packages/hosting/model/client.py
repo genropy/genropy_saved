@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from builtins import object
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('client', rowcaption='$code',caption_field='code',name_long='!!Hosting client',name_plural='!!Hosting clients')

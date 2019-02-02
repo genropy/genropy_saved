@@ -22,7 +22,10 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import thread
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
+import _thread
 
 from time import time
 from gnr.core.gnrstring import boolean
@@ -61,7 +64,7 @@ class GnrSimplePage(GnrWebPage):
         self.sql_time = 0
         self.site = site
         if page_info:
-            for k,v in page_info.items():
+            for k,v in list(page_info.items()):
                 setattr(self,k,v)
             self.connection =  GnrWebConnection(self,connection_id=self.connection_id,user=self.user)
         self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
@@ -107,7 +110,7 @@ class GnrSimplePage(GnrWebPage):
 
     @property
     def privateData(self):
-        return self._privates[thread.get_ident()]
+        return self._privates[_thread.get_ident()]
         
     def _check_page_id(self, page_id=None, kwargs=None):
         page_item = self.site.register.page(page_id,include_data='lazy')

@@ -1,5 +1,10 @@
+from __future__ import print_function
 
 # -*- coding: utf-8 -*-
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.core import gnrstring
 from gnr.core.gnrlang import GnrDebugException
@@ -7,7 +12,11 @@ import inspect
 import os
 import sys
 from gnr.core.gnrsys import expandpath
-from urllib2 import urlparse
+import six
+if six.PY2:
+    from urllib2 import urlparse
+else:
+    from urllib.parse import urlparse
 from paste import fileapp
 from paste.httpheaders import ETAG
 import random
@@ -46,7 +55,7 @@ class StaticHandlerManager(object):
 
     @callers()
     def static_dispatcher(self, path_list, environ, start_response, download=False, **kwargs):
-        print 'Calling static_dispatcher %s ' % path_list 
+        print('Calling static_dispatcher %s ' % path_list) 
         handler = self.get(path_list[0][1:])
         if handler:
             result = handler.serve(path_list, environ, start_response, download=download, **kwargs)
@@ -149,7 +158,7 @@ class StaticHandler(object):
                 mtime = random.random() * 100000
             kwargs['mtime'] = '%0.0f' % (mtime)
 
-        url = '%s?%s' % (url, '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()]))
+        url = '%s?%s' % (url, '&'.join(['%s=%s' % (k, v) for k, v in list(kwargs.items())]))
         return url
 
 
@@ -216,7 +225,7 @@ class ExternalVolumesStaticHandler(VolumesStaticHandler):
         p = urlparse.urlparse(url)
         urlkwargs = dict(urlparse.parse_qsl(p.query))
         kwargs.update(urlkwargs)
-        print 'URL:',url, '\nRESULT:',p.path.split('/')[1:], '\nkwargs', kwargs
+        print('URL:',url, '\nRESULT:',p.path.split('/')[1:], '\nkwargs', kwargs)
         return super(VolumesStaticHandler, self).serve(p.path.split('/')[1:],environ,start_response,download=download,**kwargs)
 
 

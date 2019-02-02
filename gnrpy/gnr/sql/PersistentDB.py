@@ -95,12 +95,14 @@ Python >= 2.2, < 3.0.
 
 *Licensed under the Open Software License version 2.1.*
 """
+from __future__ import absolute_import
 
+from builtins import object
 __version__ = '1.0'
 __revision__ = "$Rev: 7680 $"
 __date__ = "$Date: 2008-11-29 07:55:36 -0700 (Sat, 29 Nov 2008) $"
 
-import ThreadingLocal
+from . import ThreadingLocal
 from gnr.sql.SteadyDB import connect
 
 
@@ -111,7 +113,7 @@ class NotSupportedError(PersistentDBError):
     """DB-API module not supported by PersistentDB."""
 
 
-class PersistentDB:
+class PersistentDB(object):
     """Generator for persistent DB-API 2 connections.
 
      After you have created the connection pool, you can use

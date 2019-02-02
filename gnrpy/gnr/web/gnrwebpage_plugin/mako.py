@@ -7,8 +7,9 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
 # --------------------------- GnrWebPage subclass ---------------------------
+from __future__ import absolute_import
 from gnr.web.gnrwebpage_plugin.gnrbaseplugin import GnrBasePlugin
-from mako.lookup import TemplateLookup
+from .mako.lookup import TemplateLookup
 import itertools
 import os
 from gnr.web.gnrwsgisite import WSGIHTTPException
@@ -37,7 +38,7 @@ class Plugin(GnrBasePlugin):
                                 output_encoding='utf-8', encoding_errors='replace')
         template = lookup.get_template(os.path.basename(mako_path))
         page.charset = 'utf-8'
-        _resources = page.site.resources.keys()
+        _resources = list(page.site.resources.keys())
         _resources.reverse()
 
         arg_dict = page.build_arg_dict()
@@ -45,7 +46,7 @@ class Plugin(GnrBasePlugin):
         arg_dict.update(kwargs)
         try:
             output = template.render(**arg_dict)
-        except WSGIHTTPException, exc:
+        except WSGIHTTPException as exc:
             return exc
         if not pdf:
             page.response.content_type = 'text/html'

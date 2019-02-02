@@ -23,6 +23,8 @@
 #Created by Giovanni Porcari on 2007-03-24.
 #Copyright (c) 2007 Softwell. All rights reserved.
 
+from builtins import str
+from builtins import object
 import os,sys
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrbag import Bag

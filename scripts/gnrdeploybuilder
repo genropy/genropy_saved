@@ -6,6 +6,7 @@ create a new deploy gunicorn nginx websocket environment for a site
 usage: gnrdeploybuilder site
 
 """
+from __future__ import print_function
 import os
 import sys
 import pwd
@@ -54,7 +55,7 @@ if __name__ == '__main__':
         deployer.local_supervisor_conf()
         deployer.main_supervisor_conf()
         if options.domain:
-            print 'Writing nginx conf in cwd please copy in /etc/nginx/sites-enabled'
+            print('Writing nginx conf in cwd please copy in /etc/nginx/sites-enabled')
             deployer.write_nginx_conf(options.domain)
     if options.make_gnrdaemon:
         gnrdaemonServiceBuilder()

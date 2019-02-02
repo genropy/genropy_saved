@@ -50,7 +50,7 @@ class Main(BaseResourceBatch):
     def step_dumpaux(self):
         """Dump aux db"""
         checkedDbstores = self.batch_parameters.get('checkedDbstores')
-        checkedDbstores = checkedDbstores.split(',') if checkedDbstores else self.db.stores_handler.dbstores.keys()
+        checkedDbstores = checkedDbstores.split(',') if checkedDbstores else list(self.db.stores_handler.dbstores.keys())
         dbstoreconf = Bag()
         dbstorefolder = os.path.join(self.db.application.instanceFolder, 'dbstores')
         options = self.batch_parameters['options']
@@ -68,7 +68,7 @@ class Main(BaseResourceBatch):
     def getExcluded(self):
         checked = self.batch_parameters['dumppackages'].split(',')
         result = []
-        for k in self.db.packages.keys():
+        for k in list(self.db.packages.keys()):
             if not k in checked:
                 result.append(k)
         return result
@@ -121,7 +121,7 @@ class Main(BaseResourceBatch):
         fb.textbox(value='^.name',lbl='!!Backup name')
         values = []
         defaultchecked = []
-        for k,v in self.db.packages.items():
+        for k,v in list(self.db.packages.items()):
             if not v.attributes.get('dump_exclude'):
                 defaultchecked.append(k)
             values.append('%s:%s,/' %(k,v.attributes.get('name_long',k)))

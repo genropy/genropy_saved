@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from builtins import object
 from dateutil import rrule
 from gnr.core.gnrdecorator import public_method
 

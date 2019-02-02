@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from builtins import range
+from builtins import object
 from gnr.core.gnrdecorator import websocket_method, public_method
 from gnr.core.gnrbag import Bag
 

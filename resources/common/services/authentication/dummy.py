@@ -7,6 +7,7 @@
 #    pip install python-ntlm
 #
 
+from __future__ import print_function
 from gnr.lib.services import GnrBaseService
 
 class Main(GnrBaseService):
@@ -33,8 +34,8 @@ class Main(GnrBaseService):
         elif self.case=='u':
             user = user.upper()
         user = self.template %user
-        print 'user', user
-        print 'url',self.url
-        print 'password',password
+        print('user', user)
+        print('url',self.url)
+        print('password',password)
         return password=='password'
 

@@ -5,6 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 "webRTC test"
+from builtins import object
 class GnrCustomWebPage(object):
 
     py_requires="gnrcomponents/testhandler:TestHandlerFull"

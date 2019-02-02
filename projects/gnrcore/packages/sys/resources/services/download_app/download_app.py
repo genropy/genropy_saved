@@ -5,8 +5,10 @@
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
 
+from future import standard_library
+standard_library.install_aliases()
 from gnr.lib.services import GnrBaseService                                                  
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import os
 from gnr.core.gnrbag import NetBag
 from gnr.core.gnrlang import GnrDebugException

@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 #
 
+from __future__ import print_function
+from builtins import object
 from gnr.web.gnrsoappagenew import GnrSoapPage as page_factory
 
 
@@ -14,7 +16,7 @@ class GnrCustomWebPage(object):
     
     @srpc(String,String,_returns=String, _no_ctx=False)
     def test(self, pippo, pluto):
-        print pippo
-        print x
-        print pluto
+        print(pippo)
+        print(x)
+        print(pluto)
         return pluto

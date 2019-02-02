@@ -7,6 +7,7 @@ Created by Saverio Porcari on 2012-06-21.
 Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 """
 
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 

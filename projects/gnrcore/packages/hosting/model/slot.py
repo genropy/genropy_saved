@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+from builtins import range
+from builtins import object
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('slot', pkey='id', name_long='!!Slot',

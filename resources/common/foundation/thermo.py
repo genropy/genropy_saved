@@ -21,6 +21,7 @@
 """
 Component for thermo:
 """
+from builtins import range
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag
 import time

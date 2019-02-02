@@ -1,6 +1,7 @@
 
 # # encoding: utf-8
 
+from builtins import object
 class Table(object):
     def config_db(self, pkg):
         """test table recursive"""

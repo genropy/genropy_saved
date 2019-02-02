@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2012-01-03.
 # Copyright (c) 2012 Softwell. All rights reserved.
 
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 "Test page description"

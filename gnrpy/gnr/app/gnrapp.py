@@ -20,6 +20,10 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import print_function
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import tempfile
 import atexit
 import logging
@@ -409,7 +413,7 @@ class GnrPackage(object):
         self.customFolder = os.path.join(self.application.instanceFolder, 'custom', pkg_id)
         try:
             self.main_module = gnrImport(os.path.join(self.packageFolder, 'main.py'),avoidDup=True)
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
             raise GnrImportException(
                     "Cannot import package %s from %s" % (pkg_id, os.path.join(self.packageFolder, 'main.py')))    
@@ -441,7 +445,7 @@ class GnrPackage(object):
         self.tableMixinDict = {}
         modelFolder = os.path.join(self.packageFolder, 'model')
         self.loadTableMixinDict(self.main_module, modelFolder)
-        for pkgid, apppkg in self.application.packages.items():
+        for pkgid, apppkg in list(self.application.packages.items()):
             externalPkgModelFolder = os.path.join(apppkg.packageFolder,'model','_packages',self.id)
             self.loadTableMixinDict(self.main_module, externalPkgModelFolder, fromPkg=pkgid)
         for plugin in self.getPlugins():
@@ -460,7 +464,7 @@ class GnrPackage(object):
     def pkgMenu(self):
         if self._pkgMenu is None:
             pkgMenu = MenuStruct(os.path.join(self.packageFolder, 'menu'),application=self.application,autoconvert=True)
-            for pluginname,plugin in self.plugins.items():
+            for pluginname,plugin in list(self.plugins.items()):
                 pkgMenu.update(plugin.menuBag)
             self._pkgMenu = pkgMenu
         return self._pkgMenu
@@ -478,7 +482,7 @@ class GnrPackage(object):
         
     def getPlugins(self):
         """TODO"""
-        return self.plugins.values()
+        return list(self.plugins.values())
     
     def loadTableMixinDict(self, module, modelfolder, model_prefix='', pluginId=None, fromPkg=None):
         """TODO
@@ -493,7 +497,7 @@ class GnrPackage(object):
         
         if os.path.isdir(modelfolder):
             tbldict.update(dict([(x[:-3], None) for x in os.listdir(modelfolder) if x.endswith('.py')]))
-        tblkeys = tbldict.keys()
+        tblkeys = list(tbldict.keys())
         tblkeys.sort()
         for tbl in tblkeys:
             cls = tbldict[tbl]
@@ -605,14 +609,14 @@ class GnrPackage(object):
     def _tableBroadcast(self,evt,autocommit=False,**kwargs):
         changed = False
         db = self.application.db
-        for tname,tblobj in db.packages[self.id].tables.items():
+        for tname,tblobj in list(db.packages[self.id].tables.items()):
             if evt.endswith('*'):
-                handlers = objectExtract(tblobj.dbtable,evt[:-1]).values()
+                handlers = list(objectExtract(tblobj.dbtable,evt[:-1]).values())
             else:
                 handlers = [getattr(tblobj.dbtable,evt,None)]
 
             handler = getattr(tblobj.dbtable,evt,None)
-            for handler in filter(None,handlers):
+            for handler in [_f for _f in handlers if _f]:
                 result = handler(**kwargs)
                 changed = changed or result
         if changed and autocommit:
@@ -784,10 +788,10 @@ class GnrApp(object):
             self.packagesIdByPath[os.path.realpath(apppkg.packageFolder)] = pkgid
             self.packages[pkgid] = apppkg
 
-        for pkgid, apppkg in self.packages.items():
+        for pkgid, apppkg in list(self.packages.items()):
             apppkg.initTableMixinDict()
             self.db.packageMixin('%s' % (pkgid), apppkg.pkgMixin)
-            for tblname, mixobj in apppkg.tableMixinDict.items():
+            for tblname, mixobj in list(apppkg.tableMixinDict.items()):
                 self.db.tableMixin('%s.%s' % (pkgid, tblname), mixobj)
         self.db.inTransactionDaemon = False
         self.pkgBroadcast('onDbStarting')
@@ -813,7 +817,7 @@ class GnrApp(object):
         if pkgMenus:
             pkgMenus = pkgMenus.split(',')
         menuBag = Bag()
-        for pkgid, apppkg in self.packages.items():
+        for pkgid, apppkg in list(self.packages.items()):
             pkgMenuBag = apppkg.pkgMenu
             if pkgMenuBag and (not pkgMenus or pkgid in pkgMenus):
                 #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
@@ -828,12 +832,12 @@ class GnrApp(object):
         if ':' in source_instance:
             source_instance,to_import = source_instance.split(':')
         source_instance = GnrApp(source_instance)
-        to_import = source_instance.db.packages.keys() if not to_import else to_import.split(',')
+        to_import = list(source_instance.db.packages.keys()) if not to_import else to_import.split(',')
         set_to_import = set()
         while to_import:
             k = to_import.pop(0)
             if k == '*':
-                to_import[:] = source_instance.db.packages.keys()+to_import
+                to_import[:] = list(source_instance.db.packages.keys())+to_import
             elif  '.' in k:
                 if not k.startswith('!'):
                     set_to_import.add(k)
@@ -841,9 +845,9 @@ class GnrApp(object):
                     set_to_import.remove(k[1:])
             else:
                 if not k.startswith('!'):
-                    set_to_import = set_to_import.union(set([t.fullname for t in source_instance.db.packages[k].tables.values()]))
+                    set_to_import = set_to_import.union(set([t.fullname for t in list(source_instance.db.packages[k].tables.values())]))
                 else:
-                    set_to_import = set_to_import.difference(set([t.fullname for t in source_instance.db.packages[k[1:]].tables.values()]))
+                    set_to_import = set_to_import.difference(set([t.fullname for t in list(source_instance.db.packages[k[1:]].tables.values())]))
         
         imported_tables = set([t for t in set_to_import if self.db.table(t).countRecords()>0])
         set_to_import = set_to_import.difference(imported_tables)
@@ -855,12 +859,12 @@ class GnrApp(object):
             dependencies=[('.'.join(n.value.split('.')[:-1]) , n.attr.get('deferred'))  for n in dest_tbl.relations_one if n.label in src_tbl.relations_one] 
             dependencies= set([t for t,d in dependencies if t!=dest_tbl.fullname and not( d and t in tables_to_import )])
             if dependencies.issubset(imported_tables):
-                print '\nIMPORTING',tbl
+                print('\nIMPORTING',tbl)
                 dest_tbl.dbtable.importFromAuxInstance(source_instance, empty_before=False,raw_insert=True)
-                print '\nSTILL TO IMPORT',tables_to_import
+                print('\nSTILL TO IMPORT',tables_to_import)
                 imported_tables.add(tbl)
             else:
-                print '\nCANT IMPORT',tbl,dependencies.difference(imported_tables)
+                print('\nCANT IMPORT',tbl,dependencies.difference(imported_tables))
                 tables_to_import.append(tbl)
         
 
@@ -887,7 +891,7 @@ class GnrApp(object):
             </GenRoBag>"""
         for table_name, records in bag.digest('#a.name,#v'):
             tbl = self.db.table(table_name)
-            for r in records.values():
+            for r in list(records.values()):
                 tbl.insert(r)
         self.db.commit()
 
@@ -963,12 +967,12 @@ class GnrApp(object):
     
     def _pkgBroadcast(self,method,*args,**kwargs):
         result = []
-        for pkgId,pkg in self.packages.items():
+        for pkgId,pkg in list(self.packages.items()):
             if method.endswith('*'):
-                handlers = objectExtract(self,method[:-1]).values()
+                handlers = list(objectExtract(self,method[:-1]).values())
             else:
                 handlers = [getattr(pkg,method,None)]
-            for handler in filter(None,handlers):
+            for handler in [_f for _f in handlers if _f]:
                 r = handler(*args,**kwargs)
                 if r is not None:
                     result.append((pkgId,r))
@@ -1146,7 +1150,7 @@ class GnrApp(object):
         try:
             tblobj = self.db.table(dbtable)
             rec = tblobj.record(**kwargs).output('bag')
-            result = dict([(str(k), rec[v]) for k, v in attrs.items()])
+            result = dict([(str(k), rec[v]) for k, v in list(attrs.items())])
             user_name = result.pop('user_name', user)
             user_id = result[tblobj.pkey]
             return self.makeAvatar(user=user, user_name=user_name, user_id=user_id,
@@ -1278,8 +1282,8 @@ class GnrApp(object):
         allowed = []
         prefdata = self.getPreference(checkpref_kwargs.get('path')) or Bag()
         for pref in preflist:
-            allowed.append(filter(lambda n: not n, [prefdata[pr] for pr in splitAndStrip(pref, ' AND ')]))
-        return len(filter(lambda n: not n,allowed))>0
+            allowed.append([n for n in [prefdata[pr] for pr in splitAndStrip(pref, ' AND ')] if not n])
+        return len([n for n in allowed if not n])>0
 
         
     def addResourceTags(self, resourceTags, newTags):
@@ -1331,7 +1335,7 @@ class GnrApp(object):
         :param subject: the email subject
         :param body: the email body. If you pass ``html=True`` attribute,
                      then you can pass html tags in the body"""
-        if isinstance(body, unicode):
+        if isinstance(body, str):
             body = body.encode('utf-8', 'ignore')
         msg = MIMEText(body, _charset='utf-8')
         if isinstance(to_address, basestring):
@@ -1384,12 +1388,12 @@ class GnrApp(object):
             externaldb.importModelFromDb()
             externaldb.model.build()
             setattr(self,'legacy_db_%s' %name,externaldb)
-            print 'got externaldb',name
+            print('got externaldb',name)
         return externaldb
 
     def importFromLegacyDb(self,packages=None,legacy_db=None,thermo_wrapper=None,thermo_wrapper_kwargs=None):
         if not packages:
-            packages = self.packages.keys()
+            packages = list(self.packages.keys())
         else:
             packages = packages.split(',')
         tables = self.db.tablesMasterIndex()['_index_'].digest('#a.tbl')
@@ -1410,7 +1414,7 @@ class GnrApp(object):
         if not legacy_db:
             return
         if destbl.query().count():
-            print 'do not import again',tbl
+            print('do not import again',tbl)
             return
         
    
@@ -1421,7 +1425,7 @@ class GnrApp(object):
             table_legacy_name = '%s.%s' %(tbl.split('.')[0],tbl.replace('.','_'))
         else:
             columns = []
-            for k,c in destbl.columns.items():
+            for k,c in list(destbl.columns.items()):
                 colummn_legacy_name = c.attributes.get('legacy_name')
                 if colummn_legacy_name:
                     columns.append(" $%s AS %s " %(colummn_legacy_name,k))
@@ -1431,7 +1435,7 @@ class GnrApp(object):
         try:
             oldtbl = sourcedb.table(table_legacy_name)
         except Exception:
-            print 'missing table in legacy',table_legacy_name
+            print('missing table in legacy',table_legacy_name)
         if not oldtbl:
             return
         q = oldtbl.query(columns=columns,addPkeyColumn=False,bagFields=True)
@@ -1447,7 +1451,7 @@ class GnrApp(object):
             rows.append(r)
         if rows:
             destbl.insertMany(rows)
-        print 'imported',tbl
+        print('imported',tbl)
 
     def getAuxInstance(self, name=None,check=False):
         """TODO

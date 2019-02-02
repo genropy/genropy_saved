@@ -25,7 +25,9 @@
 """
 this test module focus on SqlTable's methods
 """
+from __future__ import print_function
 
+from builtins import object
 import os
 import datetime
 
@@ -68,12 +70,12 @@ class BaseSql(object):
         assert self.db.model.src['packages.video.tables.people?pkey'] == 'id'
 
     def test_modelObj(self):
-        assert self.db.packages.keys() == ['video']
+        assert list(self.db.packages.keys()) == ['video']
         tbl = self.db.table('video.dvd')
 
     def test_noStructDiff(self):
         check = self.db.checkDb()
-        print self.db.model.modelChanges
+        print(self.db.model.modelChanges)
         assert not check
 
     def test_execute1(self):
@@ -125,7 +127,7 @@ class BaseSql(object):
 
     def test_recordKwargs(self):
         result = self.db.table('video.movie').record(title='Munich', mode='bag')
-        print result
+        print(result)
         assert result['genre'] == 'DRAMA'
 
     def test_record_modeDict(self):
@@ -166,5 +168,5 @@ class TestGnrSqlDb_postgres(BaseSql):
     init = classmethod(init)
 
 def teardown_module(module):
-    print 'teardown sql_test'
+    print('teardown sql_test')
     

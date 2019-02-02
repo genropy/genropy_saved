@@ -1,4 +1,8 @@
+from __future__ import division
 #import itertools
+from builtins import str
+from past.builtins import basestring
+from past.utils import old_div
 from gnr.core.gnrbag import Bag
 
 class AnalyzingBag(Bag):
@@ -36,7 +40,7 @@ class AnalyzingBag(Bag):
                     lbl = 'sum_%s' % fld
                     tt = attr[lbl] = attr.get(lbl, 0) + (row.get(fld, 0) or 0)
                     lbl = 'avg_%s' % fld
-                    attr[lbl] = float(tt / attr['count'])
+                    attr[lbl] = float(old_div(tt, attr['count']))
             if collect is not None:
                 for fld in collect:
                     lbl = 'collect_%s' % fld

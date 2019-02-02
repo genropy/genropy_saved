@@ -5,6 +5,7 @@
 
 
 """ index.py """
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):

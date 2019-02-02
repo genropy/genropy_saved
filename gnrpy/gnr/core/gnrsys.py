@@ -20,6 +20,7 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from __future__ import print_function
 import os
 import sys
 
@@ -34,7 +35,7 @@ def progress(count, total, status=''):
     sys.stdout.flush() 
 
 
-def mkdir(path, privileges=0777):
+def mkdir(path, privileges=0o777):
     """Create a directory named *path* with numeric mode *privileges*.
     
     :param path: the name of the directory
@@ -104,6 +105,6 @@ def resolvegenropypath(path):
                 
 if __name__ == '__main__':
     # test for resolvegenropypath
-    print resolvegenropypath('~/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
-    print resolvegenropypath('/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
-    print resolvegenropypath('genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')
+    print(resolvegenropypath('~/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt'))
+    print(resolvegenropypath('/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt'))
+    print(resolvegenropypath('genropy/genro/projects/devlang/packages/devlang/lib/developers.txt'))

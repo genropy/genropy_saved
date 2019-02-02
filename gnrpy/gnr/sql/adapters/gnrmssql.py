@@ -20,6 +20,7 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from builtins import range
 import re
 
 import _mssql
@@ -59,7 +60,7 @@ class DictCursorWrapper(Cursor):
             self._build_index()
         return res
 
-    def next(self):
+    def __next__(self):
         if self._query_executed:
             self._build_index()
         res = super(DictCursorWrapper, self).fetchone()
@@ -106,7 +107,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         #kwargs = dict(host=dbroot.host, database=dbroot.dbname, user=dbroot.user, password=dbroot.password,
         #              port=dbroot.port, as_dict=True)
         kwargs = dict(
-                [(k, v) for k, v in kwargs.items() if v != None]) # remove None parameters, psycopg can't handle them
+                [(k, v) for k, v in list(kwargs.items()) if v != None]) # remove None parameters, psycopg can't handle them
         #kwargs['charset']='utf8'
         #conn = pymssql.connect(**kwargs)
         kwargs['server']=kwargs.pop('host')
@@ -129,7 +130,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         dbroot = self.dbroot
         kwargs = dict(host=dbroot.host, database='master', user=dbroot.user,
                       password=dbroot.password, port=dbroot.port, as_dict=True)
-        kwargs = dict([(k, v) for k, v in kwargs.items() if v != None])
+        kwargs = dict([(k, v) for k, v in list(kwargs.items()) if v != None])
         #conn =  psycopg2.connect(**kwargs)
         conn = pymssql.connect(**kwargs)
         #conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
@@ -246,7 +247,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             else:
                 ref_dict[ref] = [ref, schema, tbl, [col], un_ref, un_schema, un_tbl, [un_col], upd_rule, del_rule,
                                  init_defer]
-        return ref_dict.values()
+        return list(ref_dict.values())
 
     def getPkey(self, table, schema):
         """
@@ -314,12 +315,12 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         :param colinfo: dict of column infos
         :param prefix: adapter specific prefix
         :returns: a new colinfo dict"""
-        d = dict([(k, v) for k, v in colinfo.items() if
+        d = dict([(k, v) for k, v in list(colinfo.items()) if
                   k in ('name', 'dflt', 'notnull', 'dtype', 'position', 'length')])
         default = d.pop('dflt',None)
         if default:
             d['default']=default
-        d.update(dict([(prefix + k, v) for k, v in colinfo.items() if
+        d.update(dict([(prefix + k, v) for k, v in list(colinfo.items()) if
                        k not in ('name', 'dflt', 'notnull', 'dtype', 'position', 'length')]))
         return d
 

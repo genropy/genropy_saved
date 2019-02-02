@@ -1,4 +1,6 @@
 # encoding: utf-8
+from builtins import str
+from builtins import object
 import os
 
 class Table(object):

@@ -21,6 +21,10 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 #import weakref
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from builtins import object
 import logging
 from datetime import datetime,timedelta
 from gnr.core.gnrstring import boolean
@@ -81,7 +85,7 @@ class DbModel(object):
             if hasattr(objmix, 'config_db'):
                 objmix.config_db(pkgsrc)
             if self.db.application:
-                for pkg_id in self.db.application.packages.keys():
+                for pkg_id in list(self.db.application.packages.keys()):
                     config_from_pkg = getattr(objmix,'config_db_%s'%pkg_id,None)
                     if config_from_pkg:
                         pkgsrc.subscribe('customize_%s' %pkg_id,insert=lambda node=None,**kwargs: _on_ins_column(node,pkg_id))
@@ -92,10 +96,10 @@ class DbModel(object):
                 objmix.config_db_custom(pkgsrc)
                 
         if 'tbl' in self.mixins:
-            for pkg in self.mixins['tbl'].keys():
+            for pkg in list(self.mixins['tbl'].keys()):
                 pkgsrc = self.src['packages.%s' % pkg]
                 tables=self.mixins['tbl.%s' % pkg]
-                tablenames=tables.keys()
+                tablenames=list(tables.keys())
                 tablenames.sort()
                 for tblname in tablenames:
                     tblmix=tables[tblname]
@@ -104,7 +108,7 @@ class DbModel(object):
                     _doObjMixinConfig(tblmix, pkgsrc)
         onBuildingCalls = [] 
         if 'pkg' in self.mixins:
-            for pkg, pkgmix in self.mixins['pkg'].items():
+            for pkg, pkgmix in list(self.mixins['pkg'].items()):
                 pkgsrc = self.src['packages.%s' % pkg]
                 pkgmix.db = self.db
                 _doObjMixinConfig(pkgmix, pkgsrc)
@@ -114,7 +118,7 @@ class DbModel(object):
         for cb in onBuildingCalls:
             cb()
         self.obj = DbModelObj.makeRoot(self, self.src, sqldict)
-        for many_relation_tuple, relation in self._columnsWithRelations.items():
+        for many_relation_tuple, relation in list(self._columnsWithRelations.items()):
             oneCol = relation.pop('related_column')
             self.addRelation(many_relation_tuple, oneCol, **relation)
         self._columnsWithRelations.clear()
@@ -214,10 +218,10 @@ class DbModel(object):
             #print 'The relation %s - %s was added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
             self.checkRelationIndex(many_pkg, many_table, many_field)
             self.checkRelationIndex(one_pkg, one_table, one_field)
-        except Exception,e:
+        except Exception as e:
             if self.debug:
                 raise
-            print e
+            print(e)
             logger.warning('The relation %s - %s cannot be added', str('.'.join(many_relation_tuple)), str(oneColumn))
             #print 'The relation %s - %s cannot be added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
             
@@ -737,7 +741,7 @@ class DbTableObj(DbModelObj):
         if not self.table_aliases:
             self.children['table_aliases'] = objclassdict['tblalias_list'](parent=self)
         indexesobj = self.indexes
-        for colname, indexargs in self._indexedColumn.items():
+        for colname, indexargs in list(self._indexedColumn.items()):
             indexname = "%s_%s_key" % (self.name, indexargs['columns'].replace(',', '_'))
             indexesobj.children[indexname] = objclassdict['index'](parent=self.indexes, attrs=indexargs)
             
@@ -944,7 +948,7 @@ class DbTableObj(DbModelObj):
     def getColPermissions(self,name,**checkPermissions):
         user_conf = self.dbtable.getUserConfiguration(**checkPermissions)
         colconf = user_conf.getAttr('cols_permission.%s' %name) or dict()        
-        return dict([('user_%s' %k,v) for k,v in colconf.items() if v is not None])
+        return dict([('user_%s' %k,v) for k,v in list(colconf.items()) if v is not None])
 
     def column(self, name):
         """Return a column object or None if it doesn't exists.
@@ -1022,7 +1026,7 @@ class DbTableObj(DbModelObj):
         """
         if name.startswith('$'):
             name = name[1:]
-        if not name.startswith('@') and not name in self['columns'].keys():
+        if not name.startswith('@') and not name in list(self['columns'].keys()):
             colalias = self['virtual_columns.%s' % name]
             if colalias != None:
                 if colalias.relation_path:
@@ -1191,7 +1195,7 @@ class DbTableObj(DbModelObj):
                 
     def manyRelationsList(self,cascadeOnly=False):
         result = list()
-        relations = self.relations.keys()
+        relations = list(self.relations.keys())
         for k in relations:
             n = self.relations.getNode(k)
             joiner =  n.attr.get('joiner')
@@ -1514,7 +1518,7 @@ class RelationTreeResolver(BagResolver):
         result.tbl_name = table
         result.pkg_name = pkg_name
         
-        cols = self.dbroot.package(pkg_name).table(table)['columns'].values()
+        cols = list(self.dbroot.package(pkg_name).table(table)['columns'].values())
         relations = self.dbroot.model.relations('%s.%s' % (pkg_name, table))
         onerels = []
         manyrels = []

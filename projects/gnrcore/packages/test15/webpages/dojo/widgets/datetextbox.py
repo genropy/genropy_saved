@@ -3,6 +3,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 """Datetextbox & datetime"""
+from builtins import object
 from datetime import datetime
 
 class GnrCustomWebPage(object):

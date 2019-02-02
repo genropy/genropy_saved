@@ -4,6 +4,7 @@
 # Created by Francesco Porcari on 2012-05-12.
 # Copyright (c) 2012 Softwell. All rights reserved.
 
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebstruct import struct_method
 

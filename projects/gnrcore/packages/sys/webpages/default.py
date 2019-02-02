@@ -4,6 +4,7 @@
 # Created by Giovanni Porcari on 2010-08-29.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
+from builtins import object
 from gnr.core.gnrbag import Bag,DirectoryResolver
 import re
 import os

@@ -21,6 +21,9 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 # 
 
+from builtins import str
+from builtins import range
+from builtins import object
 MSG_DEFAULT_EXPIRY = 10
 from datetime import datetime
 from gnr.core.gnrlist import sortByItem

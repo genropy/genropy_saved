@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from builtins import object
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('pkginfo', pkey='pkgid', name_long='!!Package info', name_plural='!!Package info',caption_field='pkgid')

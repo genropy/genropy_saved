@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
 import os
@@ -49,7 +50,7 @@ class Table(object):
         record['sourcebag'] = record['sourcebag'] or None
         if record['sourcebag']:
             record['sourcebag'] = Bag(record['sourcebag'])
-            for v in record['sourcebag'].values():
+            for v in list(record['sourcebag'].values()):
                 v['url'] = '/webpages/docu_examples/%s/%s.py' %(record['hierarchical_name'],v['version'])
 
     def trigger_onUpdated(self,record,old_record):
@@ -80,7 +81,7 @@ class Table(object):
             shutil.rmtree(tutorial_record_path)
         os.makedirs(tutorial_record_path)
         if record['sourcebag']:
-            for source_version in record['sourcebag'].values():
+            for source_version in list(record['sourcebag'].values()):
                 p = os.path.join(tutorial_record_path,source_version['version'])
                 #sys.modules.pop(p.replace('/','_'),None)
                 with open('%s.py' %p,'w') as f:
@@ -93,7 +94,7 @@ class Table(object):
         tutorial_record_path = self.tutorialRecordPath(record)
         if not os.path.exists(tutorial_record_path):
             os.makedirs(tutorial_record_path)
-        for source_version in record['sourcebag'].values():
+        for source_version in list(record['sourcebag'].values()):
             p = os.path.join(tutorial_record_path,'%s.py' %source_version['version'])
             if not os.path.exists(p):
                 with open(p,'w') as f:
@@ -102,7 +103,7 @@ class Table(object):
     def applyOnTreeNodeAttr(self,_record=None,**kwargs):
         docbag = Bag(_record.pop('docbag',None))
         result = dict(_record=_record)
-        for lang,content in docbag.items():
+        for lang,content in list(docbag.items()):
             result['title_%s' %lang] = content['title']
         return result
 
@@ -116,7 +117,7 @@ class Table(object):
             fdict.setdefault(page,[]).append(r)
        #if len(fdict)<2:
        #    return self.params_grid(title="Main Parameters",rows=rows)
-        pages = fdict.keys()
+        pages = list(fdict.keys())
         if 'Main' in pages:
             pages.remove('Main')
             pages = ['Main']+pages

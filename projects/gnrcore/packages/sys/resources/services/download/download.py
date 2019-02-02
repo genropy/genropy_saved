@@ -5,8 +5,14 @@
 #  Copyright (c) 2013 Softwell. All rights reserved.
 
 
+from __future__ import division
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import chr
+from past.utils import old_div
 from gnr.lib.services import GnrBaseService                                                  
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import os
 
 
@@ -15,7 +21,7 @@ class Main(GnrBaseService):
         self.parent = parent
 
     def __call__(self,url,destinationFolder=None,filename=None,filepath=None):
-        u = urllib2.urlopen(url)
+        u = urllib.request.urlopen(url)
         if filepath:
             destinationFolder,filename = os.path.split(filepath)
         else:
@@ -30,7 +36,7 @@ class Main(GnrBaseService):
         with open(os.path.join(filepath), 'wb') as f:
             meta = u.info()
             file_size = int(meta.getheaders("Content-Length")[0])
-            print "Downloading: %s Bytes: %s" % (filename, file_size)
+            print("Downloading: %s Bytes: %s" % (filename, file_size))
             file_size_dl = 0
             block_sz = 8192
             while True:
@@ -39,8 +45,8 @@ class Main(GnrBaseService):
                     break
                 file_size_dl += len(buffer)
                 f.write(buffer)
-                status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
+                status = r"%10d  [%3.2f%%]" % (file_size_dl, old_div(file_size_dl * 100., file_size))
                 status = status + chr(8)*(len(status)+1)
-                print status,
+                print(status, end=' ')
             f.close()
         return filepath

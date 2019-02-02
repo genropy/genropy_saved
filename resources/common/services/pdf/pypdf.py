@@ -10,7 +10,7 @@ try:
 
     warnings.filterwarnings(category=DeprecationWarning, module='pyPdf', action='ignore')
     from pyPdf import PdfFileWriter, PdfFileReader
-    from cStringIO import StringIO
+    from io import StringIO
 
     HAS_PYPDF = True
 except ImportError:

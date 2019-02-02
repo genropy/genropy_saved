@@ -25,11 +25,15 @@
 #Created by Giovanni Porcari on 2007-03-24.
 #Copyright (c) 2007 Softwell. All rights reserved.
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.builtins import basestring
 import os
 import sys
 import time
 import traceback
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import logging
 
@@ -93,12 +97,12 @@ class GnrBaseWebPage(GnrObject):
     def _get_clientContext(self):
         cookie = self.get_cookie('genroContext', 'simple')
         if cookie:
-            return Bag(urllib.unquote(cookie.value))
+            return Bag(urllib.parse.unquote(cookie.value))
         else:
             return Bag()
             
     def _set_clientContext(self, bag):
-        value = urllib.quote(bag.toXml())
+        value = urllib.parse.quote(bag.toXml())
         cookie = self.get_cookie('genroContext', 'simple', path=self.site.default_uri)
         cookie.value = value
         self.add_cookie(cookie)
@@ -503,7 +507,7 @@ class GnrBaseWebPage(GnrObject):
             onSavedKwargs = onSavingHandler(recordCluster, recordClusterAttr, resultAttr=resultAttr) or {}
         virtual_columns = self.pageStore().getItem('tables.%s.virtual_columns' % table)
         if virtual_columns:
-            for virtual_col in virtual_columns.keys():
+            for virtual_col in list(virtual_columns.keys()):
                 recordCluster.pop(virtual_col, None)
         record = tblobj.writeRecordCluster(recordCluster, recordClusterAttr)
         if gridsChanges:
@@ -512,8 +516,8 @@ class GnrBaseWebPage(GnrObject):
                 grid_changeset = gridchange.value
                 if recordClusterAttr.get('_newrecord'):
                     if grid_changeset['inserted']:
-                        for row in grid_changeset['inserted'].values():
-                            for k,v in row.items():
+                        for row in list(grid_changeset['inserted'].values()):
+                            for k,v in list(row.items()):
                                 if v == '*newrecord*':
                                     row[k] = fkey
                 self.app.saveEditedRows(table=gridchange.attr['table'],changeset=grid_changeset,commit=False)
@@ -536,7 +540,7 @@ class GnrBaseWebPage(GnrObject):
             resultAttr['caption'] = tblobj.recordCaption(record, rowcaption=rowcaption)
         pkey = record[tblobj.pkey]
         resultAttr['lastTS'] = str(record[tblobj.lastTS]) if tblobj.lastTS else None
-        for k,v in recordClusterAttr.items():
+        for k,v in list(recordClusterAttr.items()):
             if k.startswith('lastTS_'):
                 resultAttr[k] = v
         if _autoreload:
@@ -575,7 +579,7 @@ class GnrBaseWebPage(GnrObject):
             self.onDeleted(record)
             self.db.commit()
             return 'ok'
-        except GnrSqlDeleteException, e:
+        except GnrSqlDeleteException as e:
             return ('delete_error', {'msg': e.message})
     
     @public_method
@@ -597,7 +601,7 @@ class GnrBaseWebPage(GnrObject):
             self.onDeleted(record)
             self.db.commit()
             return pkey, deleteAttr
-        except GnrSqlDeleteException, e:
+        except GnrSqlDeleteException as e:
             return ('delete_error', {'msg': e.message})
             
     def setLoadingParameters(self, table, **kwargs):
@@ -720,7 +724,7 @@ class GnrBaseWebPage(GnrObject):
         accordion.accordionPane(title='traceback').div(border='1px solid gray', background_color='silver', padding='5px'
                                                        , margin_top='3em').pre(traceback.format_exc())
         errBag = TraceBackResolver()()
-        for k, tb in errBag.items():
+        for k, tb in list(errBag.items()):
             currpane = accordion.accordionPane(title=k)
             currpane.div(tb['line'], font_size='1.2em', margin='4px')
             tbl = currpane.table(_class='bagAttributesTable').tbody()
@@ -731,7 +735,7 @@ class GnrBaseWebPage(GnrObject):
                 try:
                     if not isinstance(v, basestring):
                         v = str(v)
-                    if not isinstance(v, unicode):
+                    if not isinstance(v, str):
                         v = v.decode('ascii', 'ignore')
                 except:
                     v = 'unicode error'
@@ -750,7 +754,7 @@ class GnrBaseWebPage(GnrObject):
         
         args = resolverPars['args'] or []
         kwargs = {}
-        for k, v in (resolverPars['kwargs'] or {}).items():
+        for k, v in list((resolverPars['kwargs'] or {}).items()):
             k = str(k)
             if k.startswith('_serialized_'):
                 pool, k = k.replace('_serialized_', '').split('_')
@@ -796,8 +800,8 @@ class GnrBaseWebPage(GnrObject):
     def tableStatus(self, **kwargs):
         """TODO"""
         strbag = self._checkDb(applychanges=False)
-        for pkgname, pkg in self.db.packages.items():
-            for tablename in pkg.tables.keys():
+        for pkgname, pkg in list(self.db.packages.items()):
+            for tablename in list(pkg.tables.keys()):
                 records = self.db.query('%s.%s' % (pkgname, tablename)).count()
                 strbag.setAttr('%s.%s' % (pkgname, tablename), recordsnum=records)
         return strbag

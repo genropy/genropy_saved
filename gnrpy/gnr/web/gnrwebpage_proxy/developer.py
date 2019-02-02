@@ -6,9 +6,13 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 import os
 import datetime
-import urlparse
+import urllib.parse
 
 from time import time
 from gnr.core.gnrbag import Bag,NetBag
@@ -41,7 +45,7 @@ class GnrWebDeveloper(GnrBaseProxy):
         return self.authenticatedUrl(url=url,user=user,password=password)
         
     def authenticatedUrl(self,url=None,user=None,password=None):
-        sp = urlparse.urlsplit(url)
+        sp = urllib.parse.urlsplit(url)
         return '%s://%s:%s@%s%s' %(sp.scheme,user,password,sp.netloc,sp.path)
     
 
@@ -113,27 +117,27 @@ class GnrWebDeveloper(GnrBaseProxy):
             tablesbag = indexbag['movers']
             _class = 'mover_imported' if imported else None
             for n in indexbag['records']:
-                tablesbag.getNode(n.label).attr.update(pkeys=dict([(pkey,True) for pkey in n.value.keys()],_customClasses=_class))
+                tablesbag.getNode(n.label).attr.update(pkeys=dict([(pkey,True) for pkey in list(n.value.keys())],_customClasses=_class))
             return tablesbag
                 
     @public_method
     def importMoverLines(self,table=None,objtype=None,pkeys=None):
         databag = Bag(self.page.site.getStaticPath('user:temp','mover','data','%s_%s.xml' %(table.replace('.','_'),objtype)))
         tblobj = self.db.table(table) if objtype=='record' else self.db.table('adm.userobject')
-        for pkey in pkeys.keys():
+        for pkey in list(pkeys.keys()):
             tblobj.insertOrUpdate(databag.getItem(pkey))
         self.db.commit()
         
     @public_method
     def getMoverTableRows(self,tablerow=None,movercode=None,**kwargs):
-        pkeys = tablerow['pkeys'].keys()
+        pkeys = list(tablerow['pkeys'].keys())
         table = tablerow['table']
         objtype = tablerow['objtype']
         tblobj = self.db.table(table)
         columns,mask = tblobj.rowcaptionDecode(tblobj.rowcaption)
         if columns:
             columns = ','.join(columns)
-        f = tblobj.query(where='$pkey IN :pkeys',pkeys=tablerow['pkeys'].keys(),columns=columns).fetch()
+        f = tblobj.query(where='$pkey IN :pkeys',pkeys=list(tablerow['pkeys'].keys()),columns=columns).fetch()
         result = Bag()
         for r in f:
             result.setItem(r['pkey'],None,_pkey=r['pkey'],db_caption=tblobj.recordCaption(record=r),_customClasses='mover_db')
@@ -155,8 +159,8 @@ class GnrWebDeveloper(GnrBaseProxy):
 
     def tarMover(self,movername='mover'):
         import tarfile
-        import StringIO
-        tf = StringIO.StringIO() 
+        import io
+        tf = io.StringIO() 
         f = tarfile.open(mode = 'w:gz',fileobj=tf)
         moverpath = self.page.site.getStaticPath('user:temp','mover')
         f.add(moverpath,arcname='mover')
@@ -178,7 +182,7 @@ class GnrWebDeveloper(GnrBaseProxy):
         if not os.path.isdir(moverpath):
             os.makedirs(moverpath)
         for movercode,table,pkeys,reftable,objtype in data.digest('#k,#a.table,#a.pkeys,#a.reftable,#a.objtype'):
-            pkeys = pkeys.keys()
+            pkeys = list(pkeys.keys())
             databag = self.db.table(table).toXml(pkeys=pkeys,rowcaption=True,
                                                     path=os.path.join(moverpath,'data','%s.xml' %movercode))
             indexbag.setItem('movers.%s' %movercode,None,table=table,count=len(pkeys),reftable=reftable,objtype=objtype)
@@ -212,7 +216,7 @@ class GnrSqlDebugger(object):
         kwargs.update(sqlargs)
         delta_time = int((delta_time or 0)*1000)
         if sqlargs and sql:
-            formatted_sqlargs = dict([(k,'<span style="background-color:yellow;cursor:pointer;" title="%s" >%%(%s)s</span>' %(v,k)) for k,v in sqlargs.items()])
+            formatted_sqlargs = dict([(k,'<span style="background-color:yellow;cursor:pointer;" title="%s" >%%(%s)s</span>' %(v,k)) for k,v in list(sqlargs.items())])
             value = sql %(formatted_sqlargs)
         if error:
             kwargs['sqlerror'] = str(error)

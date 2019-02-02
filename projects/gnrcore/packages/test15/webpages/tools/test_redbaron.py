@@ -6,6 +6,7 @@
 
 """RedBaron"""
 
+from builtins import object
 from gnr.core.gnrdecorator import public_method
 from time import sleep
 from random import randint

@@ -4,6 +4,7 @@
 """ index.py """
 
 # --------------------------- GnrWebPage subclass ---------------------------
+from builtins import object
 class GnrCustomWebPage(object):
     py_requires = 'frameindex'
     #index_url='indexcontent.html'

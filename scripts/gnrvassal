@@ -3,6 +3,8 @@
 
 
 
+from __future__ import print_function
+from builtins import object
 from gnr.core.gnrbag import Bag
 from optparse import OptionParser
 from gnr.app.gnrconfig import gnrConfigPath, getSiteHandler, getGnrConfig
@@ -86,7 +88,7 @@ logto = %(logto)s
 
     def init_options(self):
         options = self.options.__dict__
-        for option in wsgi_options.keys():
+        for option in list(wsgi_options.keys()):
             if options.get(option, None) is None: # not specified on the command-line
                 site_option = self.site_config['wsgi?%s' % option]
                 value = site_option or wsgi_options.get(option)
@@ -112,7 +114,7 @@ logto = %(logto)s
 
     def write_ini(self):
         if os.path.exists(self.vassal_ini_path):
-            print "site %s is already enabled, stop it using gnrvassal %s --stop"%(self.site_name, self.site_name)
+            print("site %s is already enabled, stop it using gnrvassal %s --stop"%(self.site_name, self.site_name))
         pars = dict()
         #sc = self.site_config
         opt = self.options
@@ -138,7 +140,7 @@ attach-daemon = gnrasync %s""" % (self.websocket_socket_path, self.site_name)
         else:
             pars['websockets'] = ''
         if self.gnr_vassal_options:
-            pars['gnr_vassal_options'] = '\n'.join(['%s=%s'%(k,v) for k,v in self.gnr_vassal_options.items()])
+            pars['gnr_vassal_options'] = '\n'.join(['%s=%s'%(k,v) for k,v in list(self.gnr_vassal_options.items())])
         else:
             pars['gnr_vassal_options'] = ''
         ini_content = self.vassal_template%pars

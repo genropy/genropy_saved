@@ -1,3 +1,4 @@
+from __future__ import print_function
 from gnr.core.gnrbag import Bag
 b=Bag('/Users/paolo/git_repository/genro/resources/common/css_icons/retina/blue/16')
 pars={}
@@ -32,4 +33,4 @@ for name in b['#0'].digest('#a.file_name'):
 }"""%pars)
 r.append("/* @end */\n\n")
 
-print '\n'.join(r)
+print('\n'.join(r))

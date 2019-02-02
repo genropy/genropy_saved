@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import print_function
 import optparse
 import os
 import re
@@ -52,7 +53,7 @@ class Table(object):
             colAttr['name_long'] = '!!%s' % colName.title()
             colAttr.pop('tag', None)
             atlst = []
-            for k, v in colAttr.items():
+            for k, v in list(colAttr.items()):
                 atlst.append("%s ='%s'" % (k, v))
             f.write("        tbl.column('%s', %s)" % (colName, ', '.join(atlst)))
             value=column.value
@@ -90,7 +91,7 @@ if __name__=='__main__':
                   main_schema=None)
     db.importModelFromDb()
     struct = db.model.src
-    packages = struct['packages'].keys()
+    packages = list(struct['packages'].keys())
     allowed_packages = [p.strip() for p in options.package.split(',')] if options.package else []
     for package in packages:
         if not struct['packages.%s.tables'%package]:
@@ -98,11 +99,11 @@ if __name__=='__main__':
         if allowed_packages and package not in allowed_packages:
             continue
         package_maker = PackageMaker(package, sqlprefix='', base_path = base_path)
-        print dir(package_maker)
-        print 'Creating package %s in %s'% (package,package_maker.package_path)
+        print(dir(package_maker))
+        print('Creating package %s in %s'% (package,package_maker.package_path))
         package_maker.do()
-        print 'Package %s done'% package
-        print 'Creating model files %s'% package_maker.model_path
+        print('Package %s done'% package)
+        print('Creating model files %s'% package_maker.model_path)
         structToPy(struct['packages.%s.tables'%package], package_maker.model_path)
-        print 'Model files for package %s done' %(package)
+        print('Model files for package %s done' %(package))
 
