@@ -87,14 +87,18 @@ def sortByItem(l, *args, **kwargs):
     for crit, rev, caseInsensitive in criteria:
         if caseInsensitive:
             if '.' in crit and hkeys:
-                l.sort(lambda a, b: safeCmp((hGetItem(a, crit) or '').lower(), (hGetItem(b, crit) or '').lower()))
+                #l.sort(lambda a, b: safeCmp((hGetItem(a, crit) or '').lower(), (hGetItem(b, crit) or '').lower()))
+                l.sort(key= lambda i: (hGetItem(i, crit) or '').lower())
             else:
-                l.sort(lambda a, b: safeCmp((a.get(crit, None) or '').lower(), (b.get(crit, None) or '').lower()))
+                #l.sort(lambda a, b: safeCmp((a.get(crit, None) or '').lower(), (b.get(crit, None) or '').lower()))
+                l.sort(key=lambda i: (i.get(crit, None) or '').lower())
         else:
             if '.' in crit and hkeys:
-                l.sort(lambda a, b: safeCmp(hGetItem(a, crit), hGetItem(b, crit)))
+                #l.sort(lambda a, b: safeCmp(hGetItem(a, crit), hGetItem(b, crit)))
+                l.sort(key=lambda i: hGetItem(i, crit))
             else:
-                l.sort(lambda a, b: safeCmp(a.get(crit, None), b.get(crit, None)))
+                #l.sort(lambda a, b: safeCmp(a.get(crit, None), b.get(crit, None)))
+                l.sort(key=lambda i: i.get(crit, None))
         if(rev):
             l.reverse()
     return l
@@ -118,9 +122,9 @@ def sortByAttr(l, *args):
         rev = None
         if ':' in crit: crit, rev = crit.split(':', 1)
         if '.' in crit:
-            l.sort(lambda a, b: cmp(hGetAttr(a, crit), hGetAttr(b, crit)))
+            l.sort(key=lambda i:hGetAttr(i, crit))
         else:
-            l.sort(lambda a, b: cmp(getattr(a, crit, None), getattr(b, crit, None)))
+            l.sort(key=lambda i:getattr(i, crit, None))
         if rev:
             l.reverse()
     return l

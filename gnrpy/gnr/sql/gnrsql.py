@@ -930,7 +930,7 @@ class GnrSqlDb(GnrObject):
         filename = '%s_pkeys.pik' % fpath
         if not os.path.exists(filename):
             return []
-        with open(filename) as f:
+        with open(filename, 'rb') as f:
             return cPickle.load(f)
 
     def unfreezeSelection(self, fpath):
@@ -940,7 +940,7 @@ class GnrSqlDb(GnrObject):
         filename = '%s.pik' % fpath
         if not os.path.exists(filename):
             return
-        with open('%s.pik' % fpath) as f:
+        with open('%s.pik' % fpath, 'rb') as f:
             selection = cPickle.load(f)
         selection.dbtable = self.table(selection.tablename)
         return selection

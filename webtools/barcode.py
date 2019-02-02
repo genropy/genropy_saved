@@ -16,6 +16,7 @@ from hubarcode.code128 import Code128Encoder
 from hubarcode.datamatrix import DataMatrixEncoder
 from hubarcode.qrcode import QRCodeEncoder
 from hubarcode.ean13 import EAN13Encoder
+from PIL import Image
 import tempfile
 import mimetypes
 
@@ -41,16 +42,17 @@ class Barcode(BaseWebtool):
              * height: height of the image in pixels 
         """
         encoder = encoders.get(mode)
-        if not encoder:
-            return
-        for k,v in options.items():
-            if k in ('height','label_border','bottom_border','ttf_fontsize'):
-                options[k] = int(v)
-        if not text:
-            return
-        barcode = encoder(text,options=options)
+        suffix = suffix or '.png'
         temp = tempfile.NamedTemporaryFile(suffix=suffix)
-        barcode.save(temp.name)
         self.content_type = mimetypes.guess_type(temp.name)[0]
+        if encoder and text:
+            for k,v in options.items():
+                if k in ('height','label_border','bottom_border','ttf_fontsize'):
+                    options[k] = int(v)
+            barcode = encoder(text,options=options)
+            barcode.save(temp.name)
+        else:
+            image = Image.new('RGB',(1,1))
+            image.save(temp, format=suffix[1:])
         return temp.read()
         

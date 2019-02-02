@@ -28,15 +28,15 @@ import marshal
 
 class BaseCookie(object):
     def __init__(self, value=None):
-        self.value = value
+        self._value = value
 
-    def __str__(self):
-        return self.value
+    def output(self):
+        return self.value.encode('ascii')
 
 class MarshalCookie(SecureCookie):
     serialization_method = marshal
 
-    def __str__(self):
+    def output(self):
         return self.serialize()
 
     
@@ -147,7 +147,7 @@ class GnrWebResponse(object):
             "commentURL", "discard", "port", "httponly" ):
             if hasattr(cookie, k):
                 cookie_params[k] = getattr(cookie, k)
-        res.set_cookie(cookie.name, str(cookie), **cookie_params)
+        res.set_cookie(cookie.name, cookie.output(), **cookie_params)
         #res.headers.add("Set-Cookie", str(cookie))
 
     def add_header(self, header, value):

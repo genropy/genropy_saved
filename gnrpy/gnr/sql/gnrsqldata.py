@@ -443,7 +443,7 @@ class SqlQueryCompiler(object):
         for k,v in self.sqlparams.items():
             if isinstance(v,basestring):
                 if v.startswith('@') or v.startswith('$'):
-                    sql = re.sub(':%s(\W|$)' % k, v, sql)
+                    sql = re.sub(r':%s(\W|$)' % k, v, sql)
         return sql
                     
     def compiledQuery(self, columns='', where='', order_by='',
@@ -923,8 +923,8 @@ class SqlQuery(object):
         self.aliasPrefix = aliasPrefix
         
         test = " ".join([v for v in (columns, where, order_by, group_by, having) if v])
-        rels = set(re.findall('\$(\w*)', test))
-        params = set(re.findall('\:(\w*)', test))
+        rels = set(re.findall(r'\$(\w*)', test))
+        params = set(re.findall(r'\:(\w*)', test))
         for r in rels:                             # for each $name in the query
             if r not in params:                    # if name is also present as :name skip
                 if r in self.sqlparams:            # if name is present in kwargs
@@ -1391,7 +1391,7 @@ class SqlSelection(object):
         self.dbtable, self._data, self._filtered_data = None, 'frozen', 'frozen' * bool(self._filtered_data) or None
         selection_path = '%s.pik' % self.freezepath
         dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection',suffix='.pik')
-        with os.fdopen(dumpfile_handle, "w") as f:
+        with os.fdopen(dumpfile_handle, "wb") as f:
             cPickle.dump(self, f)
         shutil.move(dumpfile_path, selection_path)
         self.dbtable, self._data, self._filtered_data = saved
@@ -1400,22 +1400,22 @@ class SqlSelection(object):
         pik_path = '%s_data.pik' % self.freezepath
         if readwrite == 'w':
             dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_data',suffix='.pik')
-            with os.fdopen(dumpfile_handle, "w") as f:
+            with os.fdopen(dumpfile_handle, "wb") as f:
                 cPickle.dump(self._data, f)
             shutil.move(dumpfile_path, pik_path)
         else:
-            with open(pik_path) as f:
+            with open(pik_path, 'rb') as f:
                 self._data = cPickle.load(f)
 
     def _freeze_pkeys(self, readwrite):
         pik_path = '%s_pkeys.pik' % self.freezepath
         if readwrite == 'w':
             dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_data',suffix='.pik')
-            with os.fdopen(dumpfile_handle, "w") as f:
+            with os.fdopen(dumpfile_handle, "wb") as f:
                 cPickle.dump(self.output('pkeylist'), f)
             shutil.move(dumpfile_path, pik_path)
         else:
-            with open(pik_path) as f:
+            with open(pik_path, 'rb') as f:
                 return cPickle.load(f)
         
     def _freeze_filtered(self, readwrite):
@@ -1430,7 +1430,7 @@ class SqlSelection(object):
                     cPickle.dump(self._filtered_data, f)
                 shutil.move(dumpfile_path, fpath)
             else:
-                with open(fpath) as f:
+                with open(fpath, 'rb') as f:
                     self._filtered_data = cPickle.load(f)
             
     def freeze(self, fpath, autocreate=False,freezePkeys=False):
