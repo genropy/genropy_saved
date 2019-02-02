@@ -2,7 +2,8 @@ from gnr.core.gnrbag import Bag,DirectoryResolver
 from weberror.evalexception import EvalException
 #from paste.exceptions.errormiddleware import ErrorMiddleware
 from weberror.errormiddleware import ErrorMiddleware
-from webob import Request, Response
+#from webob import Request, Response
+from werkzeug.wrappers import Request, Response
 from webob.exc import WSGIHTTPException, HTTPInternalServerError, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError, HTTPMovedPermanently,HTTPTemporaryRedirect
 from gnr.web.gnrwebapp import GnrWsgiWebApp
 from gnr.web.gnrwebpage import GnrUnsupportedBrowserException, GnrMaintenanceException
@@ -694,18 +695,18 @@ class GnrWsgiSite(object):
 
     home_uri = property(_get_home_uri)
 
-    def parse_request_params(self, params):
+    def parse_request_params(self, request):
         """TODO
 
         :param params: TODO"""
         out_dict = dict()
-        for name in params.iterkeys():
-            name = str(name)
+        for name,value in request.values.iterlists():
             try:
-                if name.endswith('[]'):
-                    out_dict[name[:-2]]=params.getall(name)
+                name = str(name)
+                if len(value)==1:
+                    out_dict[name]=value[0]
                 else:
-                    out_dict[name] = params.getone(name)
+                    out_dict[name] = value
             except UnicodeDecodeError:
                 pass
         return out_dict
@@ -732,8 +733,8 @@ class GnrWsgiSite(object):
     @property
     def isInMaintenance(self):
         request = self.currentRequest
-        request_kwargs = self.parse_kwargs(self.parse_request_params(request.params))
-        path_list = self.get_path_list(request.path_info)
+        request_kwargs = self.parse_kwargs(self.parse_request_params(request))
+        path_list = self.get_path_list(request.path)
         first_segment = path_list[0] if path_list else ''
         if request_kwargs.get('forcedlogin') or (first_segment.startswith('_') and first_segment!='_ping'):
             return False
@@ -745,7 +746,7 @@ class GnrWsgiSite(object):
         else:
             r = GnrWebRequest(request)
             c = r.get_cookie(self.site_name,'marshal', secret=self.config['secret'])
-            user = c.value.get('user') if c else None
+            user = c.get('user') if c else None
             return self.register.isInMaintenance(user)
 
     def dispatcher(self, environ, start_response):
@@ -778,8 +779,9 @@ class GnrWsgiSite(object):
     def maintenanceDispatcher(self,environ, start_response):
         request = self.currentRequest
         response = Response()
-        request_kwargs = self.parse_kwargs(self.parse_request_params(request.params))
-        path_list = self.get_path_list(request.path_info)
+        response.mimetype = 'text/html'
+        request_kwargs = self.parse_kwargs(self.parse_request_params(request))
+        path_list = self.get_path_list(request.path)
         if (path_list and path_list[0].startswith('_')) or ('method' in request_kwargs or 'rpc' in request_kwargs or '_plugin' in request_kwargs):
             response = self.setResultInResponse('maintenance', response, info_GnrSiteMaintenance=self.currentMaintenance)
             return response(environ, start_response)
@@ -806,8 +808,9 @@ class GnrWsgiSite(object):
         t = time()
         request = self.currentRequest
         response = Response()
+        response.mimetype = 'text/html'
         # Url parsing start
-        path_list = self.get_path_list(request.path_info)
+        path_list = self.get_path_list(request.path)
         expiredConnections = self.register.cleanup()
         if expiredConnections:
             self.connectionLog('close',expiredConnections)
@@ -815,8 +818,8 @@ class GnrWsgiSite(object):
             path_list = ['_site', 'favicon.ico']
             self.log_print('', code='FAVICON')
             # return response(environ, start_response)
-        request_kwargs = self.parse_kwargs(self.parse_request_params(request.params))
-        user_agent = request.user_agent or ''
+        request_kwargs = self.parse_kwargs(self.parse_request_params(request))
+        user_agent = request.user_agent.string or ''
         isMobile = len(IS_MOBILE.findall(user_agent))>0
         if isMobile:
             request_kwargs['_mobile'] = True
@@ -961,14 +964,15 @@ class GnrWsgiSite(object):
             if v is not None:
                 response.headers['X-%s' %k] = str(v)
         if isinstance(result, unicode):
-            response.content_type = kwargs.get('mimetype') or 'text/plain'
-            response.unicode_body = result # PendingDeprecationWarning: .unicode_body is deprecated in favour of Response.text
+            response.mimetype = kwargs.get('mimetype') or 'text/plain'
+            response.data=result # PendingDeprecationWarning: .unicode_body is deprecated in favour of Response.text
         elif isinstance(result, basestring):
-            response.body = result
+            response.data=result
         elif isinstance(result, Response):
             response = result
         elif callable(result):
             response = result
+        #print x
         return response
 
     def onServingPage(self, page):
@@ -1158,10 +1162,10 @@ class GnrWsgiSite(object):
                 restorefiles = [j for j in os.listdir(restorepath) if not j.startswith('.')]
             else:
                 restorefiles = [restorepath]
-            if restorefiles:
-                restorepath = os.path.join(restorepath,restorefiles[0])
-            else:
-                restorepath = None
+            #if restorefiles:
+            #    restorepath = os.path.join(restorepath,restorefiles[0])
+            #else:
+            #    restorepath = None
         if self.remote_db:
             instance_path = '%s@%s' %(instance_path,self.remote_db)
         app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath)

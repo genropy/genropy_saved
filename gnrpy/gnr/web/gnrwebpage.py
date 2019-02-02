@@ -135,7 +135,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.extraFeatures.update(dictExtract(request_kwargs,'_extrafeature_',pop=True))
         dbstore = request_kwargs.pop('temp_dbstore',None) or None
         self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
-        self.user_agent = request.user_agent or []
+        self.user_agent = request.user_agent.string or []
         self._environ = environ
         self._event_subscribers = {}
         self.forked = False # maybe redefine as _forked
@@ -146,7 +146,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.siteFolder = self.site.site_path
         self.folders = self._get_folders()
         self.called_url = request.url
-        self.path_url = request.path_url
+        self.path_url = request.url_root
         self.request = GnrWebRequest(request)
         self.user_ip = self.request.remote_addr or '0.0.0.0'
         self.response = GnrWebResponse(response)
@@ -866,6 +866,8 @@ class GnrWebPage(GnrBaseWebPage):
     def rootPage(self,*args, **kwargs):
         """TODO"""
         user_agent = self.request.headers.get('User-Agent', '')
+        user_agent = self.user_agent
+
         if 'MSIE' in user_agent and not 'chromeframe' in user_agent:
             raise GnrUnsupportedBrowserException
         self.charset = 'utf-8'

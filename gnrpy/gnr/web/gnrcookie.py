@@ -45,8 +45,16 @@ import re
 import hmac
 import marshal
 import base64
+import json
 
+from werkzeug.contrib.securecookie import SecureCookie
 # import apache
+
+class JSONCookie(SecureCookie):
+    serialization_method = json
+
+class MarshalCookie(SecureCookie):
+    serialization_method = marshal
 
 class CookieError(Exception):
     pass
@@ -55,7 +63,7 @@ class metaCookie(type):
     def __new__(cls, clsname, bases, clsdict):
         _valid_attr = (
         "version", "path", "domain", "secure",
-        "comment", "expires", "max_age",
+        "comment",  "max_age",
         # RFC 2965
         "commentURL", "discard", "port",
         # Microsoft Extension
