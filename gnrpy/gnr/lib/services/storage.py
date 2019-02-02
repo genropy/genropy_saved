@@ -399,7 +399,8 @@ class StorageService(GnrBaseService):
             return result
 
     def internal_url(self, *args, **kwargs):
-        outlist = [self.parent.external_host, '_storage', self.service_name]
+        external_host = self.parent.external_host.rstrip('/')
+        outlist = [external_host, '_storage', self.service_name]
         outlist.extend(args)
         url = '/'.join(outlist)
         if not kwargs:

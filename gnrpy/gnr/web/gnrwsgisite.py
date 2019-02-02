@@ -706,7 +706,7 @@ class GnrWsgiSite(object):
 
         :param params: TODO"""
         out_dict = dict()
-        for name,value in request.values.iterlists():
+        for name,value in request.values.lists():
             try:
                 name = str(name)
                 if len(value)==1:
