@@ -1369,7 +1369,7 @@ tr[_is_valid_item='true'].multiColumnSelectHover td {
     width: 14px;
     height: 14px;
 }
-.grayLight {
+.grayLight , .graySemaphore.semaphoreCheck {
     background: url(icons/base16/semaphore_gray.png) no-repeat center center;
     width: 14px;
     height: 14px;

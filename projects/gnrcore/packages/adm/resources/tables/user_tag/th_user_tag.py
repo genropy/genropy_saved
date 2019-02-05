@@ -31,16 +31,15 @@ class ViewFromGroup(BaseComponent):
 
 class ViewFromTag(BaseComponent):
     def th_hiddencolumns(self):
-        return '$user_id'
+        return '$user_id,$user,$group_code'
         
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('user',width='10em')
-        r.fieldcell('fullname',width='10em')
+        r.fieldcell('user_or_group',width='20em',name='User or group')
         r.fieldcell('email',width='10em')
         
     def th_order(self):
-        return 'user'
+        return 'user_or_group'
         
    #def th_query(self):
    #    return dict(column='user',op='contains', val='')
