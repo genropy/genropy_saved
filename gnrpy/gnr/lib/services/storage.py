@@ -476,7 +476,7 @@ class StorageService(GnrBaseService):
                 destNode=destNode)
         else:
             self.copyNodeContent(sourceNode=sourceNode, destNode=destNode)
-        sourceNode.delete()
+            sourceNode.delete()
         return destNode
 
     def serve(self, path, **kwargs):
