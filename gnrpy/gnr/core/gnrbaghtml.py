@@ -324,7 +324,7 @@ class BagToHtml(object):
     def onNewPage(self,page):
         watermark_class = self.getWatermarkClass()
         if watermark_class:
-            page.div(style='position:absolute; top:0; left:0; right:0; bottom:0; z-index:10000',_class=watermark_class)
+            page.div(style='position:relative; top:0; left:0; right:0; bottom:0; z-index:10000',_class=watermark_class)
 
     def pageCounter(self, mask=None):
         """Allow to automatically number the pages created in a :ref:`print`. You can choose
