@@ -1153,7 +1153,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     resultDict = resultDict || {};
                     if (resultDict.error){
                         //genro.dlg.alert(resultDict.error,'Error');
-                        that.publish('message',{message:'Error in save '+resultDict.error,sound:'$onsaved',messageType:'error'});
+                        if(resultDict.error!='gnrsilent'){
+                            that.publish('message',{message:'Error in save '+resultDict.error,sound:'$onsaved',messageType:'error'});
+                        }
                         that.setOpStatus();
                         return;
                     }

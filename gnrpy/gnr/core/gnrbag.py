@@ -2244,7 +2244,7 @@ class Bag(GnrObject):
         :param callback: the function which is called
         """
         result = None
-        for node in self.nodes:
+        for k,node in enumerate(self.nodes):
             result = callback(node, **kwargs)
             if result is None:
                 value = node.getValue(mode=_mode)
@@ -2252,6 +2252,8 @@ class Bag(GnrObject):
                     kw=dict(kwargs)
                     if '_pathlist' in kwargs:
                         kw['_pathlist'] = kw['_pathlist'] + [node.label]
+                    if '_indexlist' in kwargs:
+                        kw['_indexlist'] = kw['_indexlist'] + [k]
                     result = value.walk(callback, _mode=_mode, **kw)
             if result:
                 return result

@@ -352,6 +352,11 @@ class GnrException(Exception):
                     msgargs[k] = self.localize(msgargs[k])
         return msg % msgargs % msgargs # msgargs is use 2 times as we could have msgargs nested(max 1 level)
 
+class GnrSilentException(GnrException):
+    def __init__(self, topic=None,**kwargs):
+        self.topic = topic
+        self.parameters = kwargs
+
 class GnrDebugException(GnrException):
     pass
 class NotImplementedException(GnrException):

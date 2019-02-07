@@ -47,7 +47,7 @@ from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
 from gnr.web.gnrwebstruct import GnrGridStruct
-from gnr.core.gnrlang import getUuid,gnrImport, GnrException,tracebackBag
+from gnr.core.gnrlang import getUuid,gnrImport, GnrException, GnrSilentException,tracebackBag
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrdecorator import public_method,deprecated
 from gnr.core.gnrclasses import GnrMixinNotFound
@@ -506,6 +506,9 @@ class GnrWebPage(GnrBaseWebPage):
             auth = self._checkAuth(method=method, **parameters)
         try:
             result = self.rpc(method=method, _auth=auth, **parameters)
+        except GnrSilentException,e:
+            self.rpc.error = 'gnrsilent'
+            result = Bag(topic=e.topic,parameters=e.parameters)
         except GnrException,e:
             if self.site.debug and (self.isDeveloper() or self.site.force_debug):
                 raise
