@@ -299,6 +299,7 @@ class TableScriptToHtml(BagToHtml):
                     sqlcolumn = '$%s' %field_getter
             pars = dict(field=field,name=attr.get('name'),field_getter=field_getter,
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
+                        white_space=attr.get('white_space','nowrap'),
                         style=attr.get('style'),sqlcolumn=sqlcolumn,dtype=attr.get('dtype'))
             self.grid_columns.append(pars)
 
