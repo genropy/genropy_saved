@@ -965,7 +965,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     
     onBlurForm:function(){
         if(this.autoSave && this.changed){
-            this.lazySave();
+            this.doAutoSave();
         }
         genro.dom.removeClass(this.sourceNode,'form_activeForm');
     },
@@ -1067,10 +1067,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     clearClipboard:function(){
         this.getControllerData().setItem('clipboard',new gnr.GnrBag());
     },
+    
     checkPendingGridEditor:function(){
         var pendingEditor;
         for(var k in this.gridEditors){
-            if(this.gridEditors[k]._exitCellTimeout){
+            if(this.gridEditors[k].grid.gnrediting){
                 pendingEditor = this.gridEditors[k];
                 break;
             }
