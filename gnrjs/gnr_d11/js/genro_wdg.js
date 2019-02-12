@@ -1599,9 +1599,6 @@ dojo.declare("gnr.GridEditor", null, {
                     that.grid.updateRow(editingInfo.row);
                 }
             }
-            if(that._exitCellTimeout){
-                that._exitCellTimeout = null;
-            }
             if (delta) {
                 var rc = that.findNextEditableCell({row:editingInfo.row, col:editingInfo.col}, delta);
                 if (rc) {
