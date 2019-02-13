@@ -147,3 +147,11 @@ class Table(object):
                     result.append(ltemplate %(pname.ljust(24),dtype.ljust(6),docline.ljust(50)))
                 result.append(l0)
         return '\n'.join(result)
+
+    def tableOfContents(self, pkey=None, ref_date=None):
+        where='$publish_date IS NOT NULL AND $publish_date>=:curr_date'
+        if pkey:
+            where='%s AND $parent_id=:pkey'
+        children =self.query(where=where, curr_date=ref_date or self.db.workdate, pkey=pkey).fetch()
+        for c in children:
+            pass
