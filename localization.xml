@@ -468,7 +468,7 @@
 <en_zip_folder fr="dossier postal" de="Zip-Ordner" en="Zip folder" it="Cartella Zip" base="Zip folder"></en_zip_folder>
 <en_forked_process fr="Processus fourchue" de="Gegabelten Prozess" en="Forked process" it="Processo a forcella" base="Forked process"></en_forked_process>
 <en_general fr="Général" de="General" en="General" it="Generale" base="General"></en_general>
-<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel></print_utils>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
 <en_warning fr="Avertissement" de="Warnung" en="Warning" it="Avvertimento" base="Warning"></en_warning>
 <en_print_options fr="Les options d'impression" de="Druckoptionen" en="Print options" it="Opzioni di stampa" base="Print options"></en_print_options>
 <en_close fr="Près" de="Schließen" en="Close" it="Vicino" base="Close"></en_close>
@@ -480,7 +480,7 @@
 <en_printer fr="Imprimeur" de="Drucker" en="Printer" it="Stampante" base="Printer"></en_printer>
 <en_paper_ fr="Papier:" de="Papier:" en="Paper:" it="Carta:" base="Paper:"></en_paper_>
 <en_tray_ fr="Plateau:" de="Fach:" en="Tray:" it="Vassoio:" base="Tray:"></en_tray_>
-<en_zip_folder fr="dossier postal" de="Zip-Ordner" en="Zip folder" it="Cartella Zip" base="Zip folder"></en_zip_folder></print_utils_new>
+<en_zip_folder fr="dossier postal" de="Zip-Ordner" en="Zip folder" it="Cartella Zip" base="Zip folder"></en_zip_folder>
 <public path="resources/common/public.py" ext="py"><en_logout fr="Se Déconnecter" de="Logout" en="Logout" it="Uscire" base="Logout"></en_logout>
 <en_continue fr="Continuer" de="Fortsetzen" en="Continue" it="Continuare" base="Continue"></en_continue>
 <en_the_date_is_changed_since_you_logged_in_logout_to_use_the_right_workdate fr="La date est changée depuis que vous avez connecté. Se déconnecter d'utiliser le droit workdate" en="The date is changed since you logged in. Logout to use the right workdate" de="Das Datum wird geändert, nachdem Sie angemeldet. Logout, um die richtige workdate verwenden" it="La data è cambiata dall'ultimo login. Rieffettua login nel sistema per adottare la data di lavoro corretta." base="The date is changed since you logged in. Logout to use the right workdate"></en_the_date_is_changed_since_you_logged_in_logout_to_use_the_right_workdate>
