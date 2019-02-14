@@ -39,6 +39,15 @@ class TableHandlerView(BaseComponent):
             condition_kwargs.update(dictExtract(resourceConditionPars,'condition_'))      
         
         queryBySample = self._th_hook('queryBySample',mangler=frameCode)()
+
+        kwargs['grid_selfsubscribe_batchAssign'] = """
+            if(this.widget.gridEditor){
+                //inlinetablehandler
+                this.gridEditor.batchAssign();
+            }else{
+                FIRE .#parent.th_batch_run = {resource:'_common/assign_values',res_type:'action'};
+            }
+        """
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                                  virtualStore=virtualStore,bySample=queryBySample is not None,
                                  condition=condition,condition_kwargs=condition_kwargs,
@@ -49,6 +58,7 @@ class TableHandlerView(BaseComponent):
 
                                  selectedPage='^.viewPage',resourceOptions=options,
                                  **kwargs)
+        
         if virtualStore and queryBySample:
             self._th_handleQueryBySample(view,table=table,pars=queryBySample)
         for side in ('top','bottom','left','right'):
@@ -712,13 +722,6 @@ class TableHandlerView(BaseComponent):
         table = inattr['table']
         paletteCode = '%(thlist_root)s_template_manager' %inattr
         pane.paletteTemplateEditor(maintable=table,paletteCode=paletteCode,dockButton_iconClass='iconbox document')
-
-
-    @struct_method
-    def th_slotbar_batchAssign(self,pane,**kwargs):
-        pane.slotButton('!!Batch Assign',iconClass='iconbox paint',
-                        action="""FIRE .th_batch_run = {resource:'_common/assign_values',res_type:'action'};""")
-
 
     @struct_method
     def th_slotbar_pageHooksSelector(self,pane,**kwargs):

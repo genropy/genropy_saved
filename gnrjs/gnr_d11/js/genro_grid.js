@@ -3228,8 +3228,12 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
     
     mixin_setEditableColumns:function(){
         var cellmap = this.cellmap;
+        var batch_assign = false;
         for(var k in cellmap){
             if(cellmap[k].edit){
+                if(cellmap[k].edit!==true && cellmap[k].edit.batch_assign){
+                    batch_assign = true;
+                }
                 if(!this.gridEditor){
                     this.gridEditor = new gnr.GridEditor(this);
                 }
@@ -3238,6 +3242,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
                 this.gridEditor.delEditColumn(cellmap[k].field);
             }
         }
+        this.sourceNode.setRelativeData('.batchAssignEnabled',batch_assign);
     },
     
     

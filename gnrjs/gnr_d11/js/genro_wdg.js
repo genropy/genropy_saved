@@ -871,6 +871,31 @@ dojo.declare("gnr.GridEditor", null, {
         }
         this.widgetRootNode.attr.datapath = absStorepath;
     },
+    batchAssign:function(){
+        var fields = [];
+        var editable_cols = this.columns;
+        this.grid.getColumnInfo().keys().forEach(function(f){
+            var c = editable_cols[f];
+            if(!c){return;}
+            if(c.attr.batch_assign){
+                var wdgkw = objectUpdate({lbl:c.attr.original_name,value:'^.'+c.attr.field},c.attr);
+                objectExtract(wdgkw,'selectedSetter,selectedCb')
+                fields.push(wdgkw);
+            }
+        });
+        var grid = this.grid;
+
+        var promptkw = {widget:fields,
+            action:function(result){
+                grid.getSelectedRowidx().forEach(function(idx){
+                    result.forEach(function(node){
+                        grid.gridEditor.setCellValue(idx,node.label,node.getValue());
+                    });
+                });
+            }
+        };
+        genro.dlg.prompt(_T('Multi assigment'),promptkw);
+    },
 
     onFormatCell:function(cell, inRowIndex,renderedRow){
         if (this.invalidCell(cell, inRowIndex)) {
