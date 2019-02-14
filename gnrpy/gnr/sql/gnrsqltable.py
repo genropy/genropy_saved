@@ -79,6 +79,7 @@ class RecordUpdater(object):
                 if v and isinstance(v,Bag):
                     oldrecord[k] = v.deepcopy()
         self.oldrecord = oldrecord
+        self.pkey = oldrecord.get(self.tblobj.pkey) if oldrecord else self.pkey
         return self.record
         
         
@@ -100,7 +101,7 @@ class RecordUpdater(object):
                 elif self.insertMode:
                     self.tblobj.insert(self.record)
                 else:
-                    self.tblobj.update(self.record,self.oldrecord)
+                    self.tblobj.update(self.record,self.oldrecord,pkey=self.pkey)
         
 
 class GnrSqlSaveException(GnrSqlException):

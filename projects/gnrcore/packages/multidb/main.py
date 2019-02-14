@@ -540,7 +540,7 @@ class MultidbTable(object):
                     result[k] = (v,store_record[k])
         return result
 
-    def createSysRecords(self):
+    def createSysRecords(self,do_update=None):
         if not self.db.usingRootstore():
             return
         syscodes = []
