@@ -2371,15 +2371,16 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: TODO
         :param defaultContent: TODO"""
-        ext = os.path.splitext(path)[1]
         result = Bag()
-        if not os.path.exists(path):
+        snode = self.site.storageNode(path)
+        if not snode.exists:
             content = defaultContent
         else:
-            if ext=='.xml':
-                content = Bag(path)
-            elif os.path.exists(path):
-                with open(path) as f:
+            if snode.ext=='xml':
+                with snode.open('rb') as f:
+                    content = Bag(f)
+            elif snode.exists:
+                with snode.open('rb') as f:
                     content = f.read()
             else:
                 content = ''
@@ -2388,11 +2389,12 @@ class GnrWebPage(GnrBaseWebPage):
 
     @public_method
     def saveSiteDocument(self,path=None,data=None):
-        filename,ext =os.path.splitext(path)
-        if ext == '.xml':
-            data.toXml(filename=path)
+        snode = self.site.storageNode(path)
+        if snode.ext == 'xml':
+            with snode.open('wb') as f:
+                data.toXml(f)
         else:
-            with open(path,'w') as f:
+            with snode.open('wb') as f:
                 f.write(data['content'])
         return dict(path=path)
 
