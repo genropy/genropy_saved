@@ -1812,7 +1812,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         this._prepareSearchBoxMenu(searchOn, databag);
         databag.setItem('value', '');
         sourceNode.setRelativeData(null, databag);
-        var searchbox = sourceNode._('table', {nodeId:nodeId})._('tbody')._('tr');
+        var searchbox = sourceNode._('form',{autocomplete:'false'})._('table', {nodeId:nodeId})._('tbody')._('tr');
         var delay = objectPop(kw, 'delay') || objectPop(search_kw, 'delay') || 100;
         var search_kw = objectPop(kw,'search_kw') || {};
         sourceNode._('dataController', {'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field,this.evaluateOnNode(search_kw));',
@@ -1836,7 +1836,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
             }
         }})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,
                          parentForm:false,width:objectPop(kw,'width') || '6em',
-                        connect_focus:function(){this.domNode.select()}});
+                         tabindex:"-1",connect_focus:function(){this.domNode.select()}});
         sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
             menubag = this._prepareSearchBoxMenu(searchOn, sourceNode.getRelativeData());
         });
