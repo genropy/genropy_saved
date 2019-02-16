@@ -587,7 +587,7 @@ class GnrSqlDb(GnrObject):
         thread_connections = self._connections.get(thread.get_ident(), {})
         currentConnectionName = self.currentConnectionName
         currentStorename = self.currentStorename
-        if self.usingMainConnection and self.usingRootstore :
+        if self.usingMainConnection() and self.usingRootstore():
             for c,conn in thread_connections.items():
                 storename,connectionName = c
                 if connectionName == currentConnectionName:
