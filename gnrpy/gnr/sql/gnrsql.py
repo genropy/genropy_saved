@@ -587,14 +587,10 @@ class GnrSqlDb(GnrObject):
         thread_connections = self._connections.get(thread.get_ident(), {})
         currentConnectionName = self.currentConnectionName
         currentStorename = self.currentStorename
-        if self.usingMainConnection() and self.usingRootstore():
-            for c,conn in thread_connections.items():
-                storename,connectionName = c
-                if connectionName == currentConnectionName:
-                    conn.commit()
-        else:
-            conn = thread_connections.get((currentStorename,currentConnectionName))
-            if conn:
+        liveconn = thread_connections.items()
+        for c,conn in liveconn:
+            storename,connectionName = c
+            if connectionName == currentConnectionName:
                 conn.commit()
         self.onDbCommitted()
 
