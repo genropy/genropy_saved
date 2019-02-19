@@ -245,7 +245,10 @@ class FormHandler(BaseComponent):
         kwargs['subscribe_form_%s_goToRecord' %formId] = 'this.iframeFormManager.openrecord($1);'
         kwargs['subscribe_form_%s_load' %formId] = 'this.iframeFormManager.openrecord($1);'
         kwargs['subscribe_form_%s_dismiss' %formId] = 'this.iframeFormManager.closerecord($1);'
-        kwargs['_iframeAttr'] = dict(main_th_formResource=formResource,src=src,main=main,**main_kwargs)
+        if not self.db.usingRootstore():
+            main_kwargs['temp_dbstore'] = self.db.currentStorename()
+        kwargs['_iframeAttr'] = dict(main_th_formResource=formResource,
+                                    src=src,main=main,**main_kwargs)
         kwargs['_fakeFormId'] = formId
         kwargs['_table'] = table
         kwargs['_formStoreKwargs'] = store_kwargs
