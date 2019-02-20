@@ -37,8 +37,6 @@ class FrameGridTools(BaseComponent):
 
     @struct_method
     def fgr_slotbar_batchAssign(self,pane,**kwargs):
-        pane.dataFormula(".grid.batchAssignHidden",'!batchAssignEnabled',_onBuilt=1,batchAssignEnabled='^.grid.batchAssignEnabled')
-        pane.data('.grid.batchAssignHidden',True)
         pane.slotButton('!!Batch Assign',iconClass='iconbox paint',
                         publish='batchAssign',
                         hidden='^.grid.batchAssignHidden')
@@ -326,6 +324,9 @@ class FrameGrid(BaseComponent):
                 default_slots.append('addrow')
             if batchAssign:
                 default_slots.append('batchAssign')
+                frame.data('.grid.batchAssignHidden',True)
+                frame.dataFormula(".grid.batchAssignHidden",'!batchAssignEnabled',_onBuilt=100,
+                                        batchAssignEnabled='^.grid.batchAssignEnabled')
 
             slots = slots or ','.join(default_slots)
             if pbl_classes:
