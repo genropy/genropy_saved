@@ -17,10 +17,10 @@ class RstDocumentationHandler(BaseComponent):
     def rst_customizeTreeOnDrag(self,tree):
         tree.attributes.update(onDrag_linkPrepare="""
             var hname = treeItem.attr._record['hierarchical_name'];
-            var url = '/docu/index/rst/'+hname;
+            var url = '%s/'+hname;
             var txt = dragValues['text/plain'];
             dragValues['text/plain'] = '`'+txt+' <'+url+'>`_'
-            """ )
+            """ % self.db.package('docu').htmlProcessorName())
 
     def rst_snippetTab(self,pane,path=None):
         pane.data('#FORM.snippetEditor.data',Bag(path))

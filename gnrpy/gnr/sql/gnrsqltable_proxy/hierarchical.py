@@ -280,7 +280,8 @@ class HierarchicalHandler(object):
         condition_kwargs = condition_kwargs or dict()
         condition_kwargs.update(dictExtract(kwargs,'condition_'))
         related_kwargs = related_kwargs or {}
-        v = TableHandlerTreeResolver(_page=self,table=self.tblobj.fullname,caption_field=caption_field,condition=condition,dbstore=dbstore,columns=columns,related_kwargs=related_kwargs,
+        v = TableHandlerTreeResolver(_page=self.tblobj.db.currentPage,
+                                        table=self.tblobj.fullname,caption_field=caption_field,condition=condition,dbstore=dbstore,columns=columns,related_kwargs=related_kwargs,
                                                 condition_kwargs=condition_kwargs,root_id=root_id,parent_id=parent_id,alt_pkey_field=alt_pkey_field)
         b.setItem('root',v,caption=caption,child_count=1,pkey='',treeIdentifier='_root_',table=self.tblobj.fullname,
                     search_method=self.tblobj.hierarchicalSearch,search_related_table=related_kwargs.get('table'),

@@ -7,6 +7,9 @@ class Package(GnrDboPackage):
         return dict(comment='docu package',sqlschema='docu',sqlprefix=True,
                     name_short='Docu', name_long='Documentation', name_full='Docu')
                     
+    def htmlProcessorName(self):
+        return '/docu/index/rst'
+
     def config_db(self, pkg):
         pass
         
