@@ -505,6 +505,7 @@ class GnrWebPage(GnrBaseWebPage):
         if method not in ('doLogin', 'onClosePage'):
             auth = self._checkAuth(method=method, **parameters)
         try:
+            self.db #init db property with env
             result = self.rpc(method=method, _auth=auth, **parameters)
         except GnrSilentException,e:
             self.rpc.error = 'gnrsilent'

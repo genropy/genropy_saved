@@ -278,7 +278,8 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         } else if (domtag == '*') {
             domnode = null;
         } else {
-            destination = handler._attachTo ? dojo.byId(handler._attachTo) : destination;
+            var _attachTo = attributes._attachTo || handler._attachTo;
+            destination = _attachTo ? dojo.byId(_attachTo) : destination;
             domnode = this.makeDomNode(domtag, destination, ind);
 
         }
