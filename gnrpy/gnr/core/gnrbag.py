@@ -1051,7 +1051,7 @@ class Bag(GnrObject):
         if self.backref:
             self._onNodeDeleted(oldnodes, -1)
 
-    def update(self, otherbag, resolved=False):
+    def update(self, otherbag, resolved=False,ignoreNone=False):
         """Update the Bag with the ``key/value`` pairs from *otherbag*,
         overwriting all the existing keys. Return ``None``
         
@@ -1078,9 +1078,10 @@ class Bag(GnrObject):
                 if node_resolver is not None:
                     currNode.resolver = node_resolver
                 if isinstance(node_value, Bag) and  isinstance(currNode.value, Bag):
-                    currNode.value.update(node_value)
+                    currNode.value.update(node_value,resolved=resolved,ignoreNone=ignoreNone)
                 else:
-                    currNode.value = node_value
+                    if not ignoreNone or node_value is not None:
+                        currNode.value = node_value
             else:
                 self.setItem(n.label, node_value, n.attr)
 

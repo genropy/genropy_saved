@@ -777,7 +777,7 @@ class TableBase(object):
                 record[self.draftField] = self.protect_draft(record)
         logicalDeletionField =self.logicalDeletionField
         if logicalDeletionField and old_record and self.fieldsChanged(logicalDeletionField,record,old_record):
-            self.onArchivingRecord(record,record[logicalDeletionField])
+            self.onArchivingRecord(record,record.get(logicalDeletionField))
             if not record.get(logicalDeletionField) and record.get('__moved_related'):
                 self.restoreUnifiedRecord(record)
 
