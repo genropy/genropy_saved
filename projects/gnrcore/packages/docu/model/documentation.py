@@ -148,6 +148,10 @@ class Table(object):
                 result.append(l0)
         return '\n'.join(result)
 
+
+    def exportToSphinx(self, path):
+        pass
+
     def tableOfContents(self, pkey=None, ref_date=None):
         where='$publish_date IS NOT NULL AND $publish_date>=:curr_date'
         if pkey:

@@ -20,6 +20,7 @@ class View(BaseComponent):
 class Form(BaseComponent):
     py_requires='rst_documentation_handler:RstDocumentationHandler,gnrcomponents/dynamicform/dynamicform:DynamicForm'
     css_requires = 'docu'
+
     def th_form(self, form):
         bc = form.center.borderContainer(datapath='.record')
         bc.rstHelpDrawer()
@@ -46,8 +47,7 @@ class Form(BaseComponent):
 
         sc.contentPane(title='!!Parameters',datapath='#FORM').fieldsGrid() #ok
 
-
-
+    
     def browserSource(self,struct):
         r = struct.view().rows()
         r.cell('version', name='Template', width='100%')
