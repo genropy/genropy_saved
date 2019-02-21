@@ -120,7 +120,8 @@ class Table(object):
                             subject=subject,message_date=message_date,
                             body=body,cc_address=cc_address,
                             reply_to=reply_to,bcc_address=bcc_address,
-                            message_id=message_id,
+                            #message_id=message_id,  doesn't work.
+                            id=message_id,
                             extra_headers=extra_headers,
                             message_type=message_type,
                             html=html,**kwargs)
