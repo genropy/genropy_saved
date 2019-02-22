@@ -27,8 +27,6 @@ class TableHandlerView(BaseComponent):
                        virtualStore=None,condition=None,condition_kwargs=None,**kwargs):
         self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
         options = self._th_hook('options',mangler=frameCode)() or dict()
-        self._th_setDocumentation(table=table,resource = viewResource or 'View',doc=options.get('doc'),
-                                    custdoc=options.get('custdoc'))
         kwargs.update(dictExtract(options,'grid_'),slice_prefix=False)
         if options.get('addrow') and options.get('addrow') is not True:
             kwargs['top_addrow_defaults'] = kwargs.get('top_addrow_defaults') or options['addrow']
