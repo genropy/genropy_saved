@@ -21,23 +21,25 @@ class Main(BaseResourceBatch):
     batch_title =  'Export to sphinx'
     batch_cancellable = False
     batch_delay = 0.5
+    batch_steps = 'prepareRstDocs,buildHtmlDocs'
 
-
-    def do(self):
+    def pre_process(self):
         handbook_id = self.batch_parameters['extra_parameters']['handbook_id']
-        site=self.page.site
         self.handbook_record = self.tblobj.record(handbook_id).output('bag')
         self.doctable=self.db.table('docu.documentation')
-        doc_data = self.doctable.getHierarchicalData(root_id=self.handbook_record['docroot_id'], condition='$is_published IS TRUE')['root']
-        self.handbookNode= site.storageNode(self.handbook_record['sphinx_path']) #or default_path
+        self.doc_data = self.doctable.getHierarchicalData(root_id=self.handbook_record['docroot_id'], condition='$is_published IS TRUE')['root']
+        self.handbookNode= self.page.site.storageNode(self.handbook_record['sphinx_path']) #or default_path
         self.sphinxNode = self.handbookNode.child('sphinx')
         self.sourceDirNode = self.sphinxNode.child('source')
-        site.storageNode('rsrc:pkg_docu','sphinx_env','default_conf.py').copy(site.storageNode(self.sourceDirNode.child('conf.py')))
+        self.page.site.storageNode('rsrc:pkg_docu','sphinx_env','default_conf.py').copy(self.page.site.storageNode(self.sourceDirNode.child('conf.py')))
         self.imagesDict = dict()
         self.imagesPath='_static/images'
         self.imagesDirNode = self.sourceDirNode.child(self.imagesPath)
 
-        toc = self.prepare(doc_data,[])
+    def step_prepareRstDocs(self):
+        "Prepare Rst docs"
+
+        toc = self.prepare(self.doc_data,[])
         self.createFile(pathlist=[], name='index', title='Table of contents', rst='', toc=toc)
         for k,v in self.imagesDict.items():
             source_url = self.page.externalUrl(v) if v.startswith('/_vol') else v
@@ -45,16 +47,23 @@ class Main(BaseResourceBatch):
             with child.open('wb') as f:
                 f.write(urllib.urlopen(source_url).read())
 
+    def step_buildHtmlDocs(self):
+        "Build HTML docs"
+
         self.resultNode = self.sphinxNode.child('build')
-        site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path)
+        self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path)
 
 
     def post_process(self):
-        self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
-        self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
+        if self.batch_parameters['download_zip']:
+            self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
+            self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
         
     def result_handler(self):
-        return 'Handbook zip', dict(url=self.zipNode.url())
+        r=dict()
+        if self.batch_parameters['download_zip']:
+            r=dict(url=self.zipNode.url())
+        return 'Html Handbook created', r
         
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./]+)")
@@ -114,3 +123,9 @@ class Main(BaseResourceBatch):
         storageNode = self.page.site.storageNode('/'.join([self.sourceDirNode.internal_path]+pathlist))
         with storageNode.child('%s.rst' % name).open('wb') as f:
             f.write(content)
+
+
+    def table_script_parameters_pane(self,pane,**kwargs):   
+        fb = pane.formbuilder(cols=1, border_spacing='5px')
+        fb.checkbox(lbl='Download Zip', value='^.download_zip')
+

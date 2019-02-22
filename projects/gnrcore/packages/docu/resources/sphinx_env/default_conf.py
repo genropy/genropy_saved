@@ -46,8 +46,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'manuale_coge'
-copyright = u'2019, sav'
-author = u'sav'
+copyright = u'2019, Softwell'
+author = u'Softwell'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -102,7 +102,7 @@ html_theme_options = {
     # Toc options
     'collapse_navigation': True,
     'sticky_navigation': True,
-    'navigation_depth': 4,
+    'navigation_depth': -1,
     'includehidden': True,
     'titles_only': False
 }
@@ -116,7 +116,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'manuale_cogedoc'
+htmlhelp_basename = 'genropy_doc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -142,6 +142,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
+
 latex_documents = [
     (master_doc, 'manuale_coge.tex', u'manuale\\_coge Documentation',
      u'sav', 'manual'),
@@ -152,6 +153,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
+
 man_pages = [
     (master_doc, 'manuale_coge', u'manuale_coge Documentation',
      [author], 1)
