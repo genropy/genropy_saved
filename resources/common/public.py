@@ -487,7 +487,7 @@ class TableHandlerMain(BaseComponent):
                 if(targetRowData['_pkey']==dragRowData['_pkey']){
                     return false;
                 }
-                if(modifiers=='Shift,Meta'||modifiers=='Shift,Ctrl'){ 
+                if(modifiers=='Shift'){ 
                     return funcApply("%(allowUnifyCb)s",{targetRowData:targetRowData,dragRowData:dragRowData});
                 }else{
                     return funcApply("%(onSelfDragRows)s",{targetRowData:targetRowData,dragRowData:dragRowData});
