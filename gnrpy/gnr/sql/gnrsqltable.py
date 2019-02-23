@@ -585,7 +585,7 @@ class SqlTable(GnrObject):
                     if virtual_columns and result:
                         result = self.record(virtual_columns=','.join(virtual_columns_set),**{keyField:pkey}).output('dict')
                 cache.setItem(pkey,result,virtual_columns_set=virtual_columns_set)
-            return result,in_cache
+            return dict(result),in_cache
         virtual_columns_set = set(virtual_columns.split(',')) if virtual_columns else set()
         return self.tableCachedData('cachedRecord',recordFromCache,pkey=pkey,
                                 virtual_columns_set=virtual_columns_set)
