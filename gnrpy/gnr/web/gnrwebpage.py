@@ -559,7 +559,7 @@ class GnrWebPage(GnrBaseWebPage):
         if asDict:
             prefix='%s_%s_'% (mangler,method)
             return dict([(fname,getattr(self,fname)) for fname in dir(self) 
-                                     if fname.startswith(prefix) and fname != prefix])    
+                                     if fname.startswith(prefix) and fname != prefix and not fname.endswith('_')])    
 
         def emptyCb(*args,**kwargs):
             return dflt
