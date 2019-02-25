@@ -496,8 +496,8 @@ class MultidbTable(object):
             tblsub = self.db.table('multidb.subscription')
             fkeyname = tblsub.tableFkey(self)
             pkey = record[self.pkey]
-            subscribedStores = tblsub.query(where='$tablename=:tablename AND $%s=:pkey' %fkeyname,
-                                    columns='$dbstore',addPkeyColumn=False,
+            subscribedStores = tblsub.query(where='$tablename=:tablename AND $%s=:pkey AND $dbstore IN :allstores' %fkeyname,
+                                    columns='$dbstore',addPkeyColumn=False,allstores=self.db.dbstores.keys(),
                                     tablename=tablename,pkey=pkey,distinct=True).fetch()                
             return [s['dbstore'] for s in subscribedStores]
         else:
