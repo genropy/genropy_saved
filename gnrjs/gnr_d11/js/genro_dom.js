@@ -1741,7 +1741,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     
     detectPdfViewer:function(src,jsPdfViewer){
+        var folderUrl = genro.getData('gnr.homeFolder');
+        var parsedFolder = parseURL(folderUrl) || {};
         var parsedSrc = parseURL(src);
+        if(parsedFolder.host==parsedSrc.host && parsedSrc.protocol !=parsedFolder.protocol){
+            src = parsedFolder.protocol+'://'+parsedSrc.host+parsedSrc.relative;
+        }
         var jsPdfViewer = isNullOrBlank(jsPdfViewer)? genro.getData('gnr.app_preference.sys.jsPdfViewer'):jsPdfViewer;
         if(parsedSrc.file && stringEndsWith(parsedSrc.file,'.pdf') && (genro.isMobile || jsPdfViewer || window.electron) ){
             src = '/_rsrc/js_libs/pdfjs/web/viewer.html?file='+encodeURIComponent(src);
