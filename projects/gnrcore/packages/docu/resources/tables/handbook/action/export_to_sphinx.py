@@ -54,7 +54,7 @@ class Main(BaseResourceBatch):
             toc_elements = self.prepare(self.doc_data,[])
             tocstring = self.createToc(elements=toc_elements, includehidden=True, titlesonly=True)
 
-        self.createFile(pathlist=[], name='index', title='Indice generalone', rst='', tocstring=tocstring)
+        self.createFile(pathlist=[], name='index', title=self.handbook_record['title'], rst='', tocstring=tocstring)
         for k,v in self.imagesDict.items():
             source_url = self.page.externalUrl(v) if v.startswith('/_vol') else v
             child = self.sourceDirNode.child(k)
@@ -118,7 +118,11 @@ class Main(BaseResourceBatch):
             rst = LINKFINDER.sub(self.fixLinks, rst)
 
             
-
+            tocstring = self.createToc(elements=toc_elements,
+                            hidden=True,
+                            titlesonly=True,
+                            maxdepth=1)
+                            
             self.createFile(pathlist=self.curr_pathlist, name=name,
                             title=lbag['title'], 
                             rst=rst,
