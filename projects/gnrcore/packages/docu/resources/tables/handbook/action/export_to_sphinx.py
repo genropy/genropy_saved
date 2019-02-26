@@ -91,6 +91,7 @@ class Main(BaseResourceBatch):
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./]+)")
         LINKFINDER = re.compile(r" `([^`]*) <([\w./]+)>`_\b")
+        TOCFINDER = re.compile(r"_TOC?(\w*)")
 
         result=[]
         for n in data:
@@ -100,13 +101,12 @@ class Main(BaseResourceBatch):
             name=record['name']
             docbag = Bag(record['docbag'])
             toc_elements=[name]
-            
             if n.attr['child_count']>0:
                 result.append('%s/%s.rst' % (name,name))
                 toc_elements=self.prepare(v, pathlist+toc_elements)
                 self.curr_pathlist = pathlist+[name]
                 tocstring = self.createToc(elements=toc_elements,
-                            hidden=True,
+                            hidden=not record['sphinx_toc'],
                             titlesonly=True,
                             maxdepth=1)
             else:
@@ -118,11 +118,8 @@ class Main(BaseResourceBatch):
             rst = LINKFINDER.sub(self.fixLinks, rst)
 
             
-            tocstring = self.createToc(elements=toc_elements,
-                            hidden=True,
-                            titlesonly=True,
-                            maxdepth=1)
-                            
+            
+
             self.createFile(pathlist=self.curr_pathlist, name=name,
                             title=lbag['title'], 
                             rst=rst,
