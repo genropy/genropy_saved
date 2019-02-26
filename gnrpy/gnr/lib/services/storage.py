@@ -314,9 +314,6 @@ class StorageNode(object):
 
 class StorageService(GnrBaseService):
 
-    def _argstopath(self, *args, **kwargs):
-        return '/'.join(args)
-
     def _getNode(self, node=None):
         return node if isinstance(node, StorageNode) else self.parent.storageNode(node)
 
@@ -549,7 +546,6 @@ class BaseLocalService(StorageService):
 
     def local_path(self, *args, **kwargs): #TODO: vedere se fare così o con altro metodo
         mode = kwargs.get('mode', 'r')
-        #path = self._argstopath(*args)
         internalpath = self.internal_path(*args)
         return LocalPath(fullpath=internalpath)
 
@@ -623,7 +619,7 @@ class BaseLocalService(StorageService):
         directory = os.listdir(self.internal_path(*args))
         out = []
         for d in directory:
-            subpath = os.path.join(self._argstopath(*args),d)
+            subpath = os.path.join(os.path.join(*args),d)
             out.append(StorageNode(parent=self.parent, path=subpath, service=self))
         return out
 

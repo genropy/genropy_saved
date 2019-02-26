@@ -1248,7 +1248,7 @@ class AttachmentTable(GnrDboTable):
         return destStorageNode
         
     def addAttachment(self,maintable_id=None,origin_filepath=None,destFolder=None,
-                            description=None,mimetype=None,moveFile=False,copyFile=True):
+                            description=None,mimetype=None,moveFile=False,copyFile=True,**kwargs):
         site = self.db.application.site
         originStorageNode = site.storageNode(origin_filepath)
         mimetype = mimetype or mimetypes.guess_type(originStorageNode.path)[0]
@@ -1264,10 +1264,10 @@ class AttachmentTable(GnrDboTable):
                 originStorageNode.copy(destStorageNode)
         else:
             destStorageNode = originStorageNode
-        record = dict(maintable_id=maintable_id,
+        record = self.newrecord(maintable_id=maintable_id,
                         mimetype=mimetype,
                         description=destStorageNode.cleanbasename,
-                        filepath=destStorageNode.fullpath)
+                        filepath=destStorageNode.fullpath,**kwargs)
         self.insert(record)
         return record
     
