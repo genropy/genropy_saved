@@ -33,11 +33,16 @@ class Form(BaseComponent):
         fb.field('name',colspan=2)
         fb.field('title',colspan=2)
         fb.field('docroot_id', hasDownArrow=True, validate_notnull=True, tag='hdbselect', folderSelectable=True)
+        fb.checkBoxText(value='^.toc_roots',#values='MI:Milano,CO:Como,SO:Sondrio')
+                        table='docu.documentation', popup=True, cols=4,
+                        condition='$parent_id = :docroot_id', condition_docroot_id='^.docroot_id' )
+
+
         fb.field('language')
         fb.field('version')
+        fb.field('release')
+        fb.field('author')
         fb.field('sphinx_path',colspan=2)
-        fb.field('html_path',colspan=2)
-        
 
     def th_top_exportButton(self, top):
         bar = top.bar.replaceSlots('*','*,export_button')

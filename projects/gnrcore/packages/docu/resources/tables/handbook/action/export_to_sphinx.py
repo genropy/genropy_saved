@@ -27,7 +27,7 @@ class Main(BaseResourceBatch):
         handbook_id = self.batch_parameters['extra_parameters']['handbook_id']
         self.handbook_record = self.tblobj.record(handbook_id).output('bag')
         self.doctable=self.db.table('docu.documentation')
-        self.doc_data = self.doctable.getHierarchicalData(root_id=self.handbook_record['docroot_id'], condition='$is_published IS TRUE')['root']
+        self.doc_data = self.doctable.getHierarchicalData(root_id=self.handbook_record['docroot_id'], condition='$is_published IS TRUE')['root']['#0']
         self.handbookNode= self.page.site.storageNode(self.handbook_record['sphinx_path']) #or default_path
         self.sphinxNode = self.handbookNode.child('sphinx')
         self.sourceDirNode = self.sphinxNode.child('source')
@@ -39,8 +39,22 @@ class Main(BaseResourceBatch):
     def step_prepareRstDocs(self):
         "Prepare Rst docs"
 
-        toc = self.prepare(self.doc_data,[])
-        self.createFile(pathlist=[], name='index', title='Table of contents', rst='', toc=toc)
+        if self.handbook_record['toc_roots']:
+            toc_roots = self.handbook_record['toc_roots'].split(',')
+            toc_trees = []
+            for doc_id in toc_roots:
+                if doc_id in self.doc_data.keys():
+                    toc_elements = self.prepare(self.doc_data[doc_id],[])
+                    r = self.doctable.record(doc_id).output('dict')
+                    title = Bag(r['docbag'])['%s.title' % self.handbook_record['language']] 
+                    toctree = self.createToc(elements=toc_elements, includehidden=True, titlesonly=True, caption=title)
+                    toc_trees.append(toctree)
+            tocstring = '\n\n'.join(toc_trees)
+        else:
+            toc_elements = self.prepare(self.doc_data,[])
+            tocstring = self.createToc(elements=toc_elements, includehidden=True, titlesonly=True)
+
+        self.createFile(pathlist=[], name='index', title='Indice generalone', rst='', tocstring=tocstring)
         for k,v in self.imagesDict.items():
             source_url = self.page.externalUrl(v) if v.startswith('/_vol') else v
             child = self.sourceDirNode.child(k)
@@ -51,7 +65,16 @@ class Main(BaseResourceBatch):
         "Build HTML docs"
 
         self.resultNode = self.sphinxNode.child('build')
-        self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path)
+        build_args = dict(project=self.handbook_record['title'],
+                          version=self.handbook_record['version'],
+                          author=self.handbook_record['author'],
+                          release=self.handbook_record['release'],
+                          lang=self.handbook_record['language'])
+        args = []
+        for k,v in build_args.items():
+            if v:
+                args.extend(['-D', '%s=%s' % (k,v)])
+        self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
 
 
     def post_process(self):
@@ -76,23 +99,31 @@ class Main(BaseResourceBatch):
             record = self.doctable.record(n.label).output('dict')
             name=record['name']
             docbag = Bag(record['docbag'])
-            toc=[]
+            toc_elements=[name]
             
             if n.attr['child_count']>0:
                 result.append('%s/%s.rst' % (name,name))
-                toc=self.prepare(v, pathlist+[name])
+                toc_elements=self.prepare(v, pathlist+toc_elements)
                 self.curr_pathlist = pathlist+[name]
+                tocstring = self.createToc(elements=toc_elements,
+                            hidden=True,
+                            titlesonly=True,
+                            maxdepth=1)
             else:
                 result.append(name)
                 self.curr_pathlist=pathlist
+                tocstring=''
             lbag=docbag[self.handbook_record['language']]
             rst = IMAGEFINDER.sub(self.fixImages, lbag['rst'])
             rst = LINKFINDER.sub(self.fixLinks, rst)
+
+            
+
             self.createFile(pathlist=self.curr_pathlist, name=name,
                             title=lbag['title'], 
-                            rst=rst, toc=toc,
-                            hname=record['hierarchical_name'],
-                            tocdepth=1)
+                            rst=rst,
+                            tocstring=tocstring,
+                            hname=record['hierarchical_name'])
         return result
 
     def fixImages(self, m):
@@ -110,16 +141,26 @@ class Main(BaseResourceBatch):
         result = ' :ref:`%s<%s>` ' % (title, ref)
         return result
         
+    def createToc(self, elements=None, maxdepth=None, hidden=None, titlesonly=None, caption=None, includehidden=None):
+        toc_options=[]
+        if includehidden:
+            toc_options.append('   :includehidden:')
+        if maxdepth:
+            toc_options.append('   :maxdepth: %i' % maxdepth)
+        if hidden:
+            toc_options.append('   :hidden:')
+        if titlesonly:
+            toc_options.append('   :titlesonly:')
+        if caption:
+            toc_options.append('   :caption: %s' % caption)
+
+        return '\n%s\n%s\n\n\n   %s' % (".. toctree::", '\n'.join(toc_options),'\n   '.join(elements))
+
+
              
-    def createFile(self, pathlist=None, name=None, title=None, rst=None, toc=None, hname=None, tocdepth=None):
+    def createFile(self, pathlist=None, name=None, title=None, rst=None, hname=None, tocstring=None, footer=''):
         reference_label='.. _%s:\n' % hname if hname else ''
-        maxdepth_chunk= '   :maxdepth: %i' % tocdepth if tocdepth else ''
-        if toc:
-            tocstring='\n%s\n%s\n\n   %s' % (".. toctree::", maxdepth_chunk, '\n   '.join(toc))
-        else:
-            tocstring= ''
-        content = '\n'.join([reference_label, title, '='*len(title), tocstring, '\n\n', rst])
-        
+        content = '\n'.join([reference_label, title, '='*len(title), tocstring, '\n\n', rst, footer])
         storageNode = self.page.site.storageNode('/'.join([self.sourceDirNode.internal_path]+pathlist))
         with storageNode.child('%s.rst' % name).open('wb') as f:
             f.write(content)
