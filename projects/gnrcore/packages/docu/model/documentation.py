@@ -55,9 +55,10 @@ class Table(object):
                 v['url'] = '/webpages/docu_examples/%s/%s.py' %(record['hierarchical_name'],v['version'])
 
     def trigger_onUpdated(self,record,old_record):
+
         if record['hierarchical_name'] != old_record['hierarchical_name']:
-            old_link = '</sys/docserver/rst/%s/%s>' %(self.fullname.replace('.','/'),old_record['hierarchical_name'])
-            new_link = '</sys/docserver/rst/%s/%s>' %(self.fullname.replace('.','/'),record['hierarchical_name'])
+            old_link = '<%s/%s/%s>' %(self.htmlProcessorName(), self.fullname.replace('.','/'),old_record['hierarchical_name'])
+            new_link = '<%s/%s/%s>' %(self.htmlProcessorName(), self.fullname.replace('.','/'),record['hierarchical_name'])
             def cb(row):
                 row['docbag'] = row['docbag'].replace(old_link,new_link)
             self.batchUpdate(cb,
