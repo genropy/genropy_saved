@@ -31,6 +31,8 @@ class Package(GnrDboPackage):
 
     def onBuildingDbobj(self):
         for pkgNode in self.db.model.src['packages']:
+            if not pkgNode.value:
+                continue
             for tblNode in pkgNode.value['tables']:
                 legacy_code = tblNode.attr.get('legacy_code')
                 tbl = tblNode.value

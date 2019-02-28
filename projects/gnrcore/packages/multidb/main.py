@@ -70,6 +70,8 @@ class Package(GnrDboPackage):
 
     def onBuildingDbobj(self):
         for pkgNode in self.db.model.src['packages']:
+            if not pkgNode.value:
+                continue
             for tblNode in pkgNode.value['tables']:
                 multidb = tblNode.attr.get('multidb')
                 tbl = tblNode.value
