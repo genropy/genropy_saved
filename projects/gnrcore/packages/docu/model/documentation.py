@@ -59,8 +59,6 @@ class Table(object):
         if record['hierarchical_name'] != old_record['hierarchical_name']:
             old_link = '&lt;%s/%s&gt;' %(self.pkg.htmlProcessorName(),old_record['hierarchical_name'])
             new_link = '&lt;%s/%s&gt;' %(self.pkg.htmlProcessorName(),record['hierarchical_name'])
-            print 'old_link:',old_link
-            print 'new_link:',new_link
             def cb(row):
                 row['docbag'] = row['docbag'].replace(old_link,new_link)
             to_update =  self.query(where='$docbag ILIKE :old_link_query OR $docbag ILIKE :old_link_query',
