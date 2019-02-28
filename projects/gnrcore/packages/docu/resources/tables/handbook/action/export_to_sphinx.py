@@ -90,7 +90,7 @@ class Main(BaseResourceBatch):
         
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./]+)")
-        LINKFINDER = re.compile(r" `([^`]*) <([\w./]+)>`_\b")
+        LINKFINDER = re.compile(r"`([^`]*) <([\w./]+)>`_\b")
         TOCFINDER = re.compile(r"_TOC?(\w*)")
 
         result=[]
@@ -116,10 +116,6 @@ class Main(BaseResourceBatch):
             lbag=docbag[self.handbook_record['language']]
             rst = IMAGEFINDER.sub(self.fixImages, lbag['rst'])
             rst = LINKFINDER.sub(self.fixLinks, rst)
-
-            
-            
-
             self.createFile(pathlist=self.curr_pathlist, name=name,
                             title=lbag['title'], 
                             rst=rst,
@@ -138,10 +134,25 @@ class Main(BaseResourceBatch):
     def fixLinks(self, m):
         prefix = '%s/' % self.db.package('docu').htmlProcessorName()
         title= m.group(1)
+        path= m.group(2)
         ref = m.group(2).replace(prefix,'')
-        result = ' :ref:`%s<%s>` ' % (title, ref)
-        return result
-        
+        valid_link=self.doctable.query(where='$hierarchical_name=:ref', ref= ref).fetch()
+        if valid_link:
+            result = ' :ref:`%s<%s>` ' % (title, ref)
+            return result
+        splitted_ref=ref.split('/')
+        parent_name = '/'.join(splitted_ref[-2:])
+        parent_name='%' + parent_name
+        similar = self.doctable.query(where='$hierarchical_name LIKE :parent_name', parent_name=parent_name).fetch()
+        if similar:
+            result = ' :ref:`%s<%s>` ' % (title, similar[0]['hierarchical_name'])
+            return result
+        same_name=self.doctable.query(where='$name= :name', name=splitted_ref[-1] ).fetch()
+        if same_name and len(same_name)==0:
+            result = ' :ref:`%s<%s>` ' % (title, same_name[0]['hierarchical_name'])
+            return result
+        return '*MISSING LINK (%s)* %s' % (ref,title)
+
     def createToc(self, elements=None, maxdepth=None, hidden=None, titlesonly=None, caption=None, includehidden=None):
         toc_options=[]
         if includehidden:
