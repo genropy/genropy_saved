@@ -54,15 +54,22 @@ class Table(object):
             for v in record['sourcebag'].values():
                 v['url'] = '/webpages/docu_examples/%s/%s.py' %(record['hierarchical_name'],v['version'])
 
-    def trigger_onUpdated(self,record,old_record):
-        if record['hierarchical_name'] != old_record['hierarchical_name']:
-            old_link = '</sys/docserver/rst/%s/%s>' %(self.fullname.replace('.','/'),old_record['hierarchical_name'])
-            new_link = '</sys/docserver/rst/%s/%s>' %(self.fullname.replace('.','/'),record['hierarchical_name'])
-            def cb(row):
-                row['docbag'] = row['docbag'].replace(old_link,new_link)
-            self.batchUpdate(cb,
+
+    def updateLink(self, record, old_record):
+        old_link = '&lt;%s/%s&gt;' %(self.pkg.htmlProcessorName(),old_record['hierarchical_name'])
+        new_link = '&lt;%s/%s&gt;' %(self.pkg.htmlProcessorName(),record['hierarchical_name'])
+        
+        def cb(row):
+            row['docbag'] = row['docbag'].replace(old_link,new_link)
+        
+        self.batchUpdate(cb,
                             where='$docbag ILIKE :old_link_query OR $docbag ILIKE :old_link_query',
                             old_link_query='%%%s%%',_raw_update=True,bagFields=True)
+
+    def trigger_onUpdated(self,record,old_record):
+
+        if record['hierarchical_name'] != old_record['hierarchical_name']:
+            self.updateLink(record, old_record)
 
         old_tutorial_record_path = self.tutorialRecordPath(old_record) 
         tutorial_record_path = self.tutorialRecordPath(record) 
