@@ -306,7 +306,9 @@ class StorageNode(object):
         return self.service.local_path(self.path, mode=mode or self.mode, keep=keep)
 
     def child(self, path=None):
-        return self.service.parent.storageNode('%s/%s'%(self.fullpath,path))
+        if self.path and self.path[-1]!='/':
+            path = '/%s'%path
+        return self.service.parent.storageNode('%s%s'%(self.fullpath,path))
 
     @property
     def mimetype(self):
@@ -522,8 +524,7 @@ class BaseLocalService(StorageService):
         out_list.extend(args)
         outpath = os.path.join(*out_list)
         return outpath
-        
-        
+
     def delete_dir(self, *args):
         os.rmtree(self.internal_path(*args))
 
