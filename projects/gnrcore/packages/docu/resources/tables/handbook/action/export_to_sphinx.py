@@ -56,7 +56,7 @@ class Main(BaseResourceBatch):
 
         self.createFile(pathlist=[], name='index', title=self.handbook_record['title'], rst='', tocstring=tocstring)
         for k,v in self.imagesDict.items():
-            source_url = self.page.externalUrl(v) if v.startswith('/_vol') else v
+            source_url = self.page.externalUrl(v) if v.startswith('/') else v
             child = self.sourceDirNode.child(k)
             with child.open('wb') as f:
                 f.write(urllib.urlopen(source_url).read())
@@ -89,7 +89,7 @@ class Main(BaseResourceBatch):
         return 'Html Handbook created', r
         
     def prepare(self, data, pathlist):
-        IMAGEFINDER = re.compile(r"\.\. image:: ([\w./]+)")
+        IMAGEFINDER = re.compile(r"\.\. image:: ([\w./:-]+)")
         LINKFINDER = re.compile(r"`([^`]*) <([\w./]+)>`_\b")
         TOCFINDER = re.compile(r"_TOC?(\w*)")
 

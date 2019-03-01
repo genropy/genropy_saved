@@ -78,8 +78,7 @@ class RstDocumentationHandler(BaseComponent):
         bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')
 
     def rst_imageTab(self,pane):
-        th = pane.attachmentGrid(pbl_classes=True,screenshot=True,
-                                                                    design='headline')
+        th = pane.attachmentGrid(pbl_classes=True,screenshot=True,design='headline')
         template_image = """.. image:: $fileurl
     :width: 100px
     :align: center
@@ -92,17 +91,17 @@ class RstDocumentationHandler(BaseComponent):
 
     $description"""
         th.view.grid.attributes.update(onDrag_rstimage="""
-                                                          var rowset = dragValues.gridrow.rowset;
-                                                          var result = [];
-                                                          var tpl = dragInfo.sourceNode.attr[dragInfo.modifier=='Shift' ? '_tpl_figure':'_tpl_image'];
-                                                          rowset.forEach(function(row){
-                                                                if(row.fileurl){
-                                                                    result.push(dataTemplate(tpl,row));
-                                                                }
-                                                          });
-                                                          dragValues['text/plain'] = result.join(_lf+_lf)
-                                                        """ ,_tpl_image=template_image,
-                                                            _tpl_figure=template_figure)
+                                    var rowset = dragValues.gridrow.rowset;
+                                    var result = [];
+                                    var tpl = dragInfo.sourceNode.attr[dragInfo.modifier=='Shift' ? '_tpl_figure':'_tpl_image'];
+                                    rowset.forEach(function(row){
+                                        if(row.fileurl){
+                                            result.push(dataTemplate(tpl,row));
+                                        }
+                                    });
+                                    dragValues['text/plain'] = result.join(_lf+_lf)
+                                """ ,_tpl_image=template_image,
+                                    _tpl_figure=template_figure)
 
 
 

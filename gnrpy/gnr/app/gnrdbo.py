@@ -1170,7 +1170,11 @@ class AttachmentTable(GnrDboTable):
         tbl.column('maintable_id',size='22',group='*',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
                     mode='foreignkey', onDelete_sql='cascade',onDelete='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_',deferred=True)
-        tbl.formulaColumn('fileurl',"COALESCE($external_url,'/_vol/' || $filepath)",name_long='Fileurl')
+        tbl.formulaColumn('adapted_url',"""CASE WHEN position('\:' in $filepath)>0 THEN '/'||$filepath
+             ELSE '/_vol/' || $filepath
+            END""",group='_')
+                    
+        tbl.formulaColumn('fileurl',"COALESCE($external_url,$adapted_url)",name_long='Fileurl')
         if hasattr(self,'atc_types'):
             tbl.column('atc_type',values=self.atc_types())
         self.onTableConfig(tbl)
