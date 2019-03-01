@@ -684,7 +684,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             genro.src.getNode()._('div',quickRoot);
             node = genro.src.getNode(quickRoot).clearValue();
         }else{
-            rootNode._('div',quickRoot,{_attachTo:'mainWindow'});
+            rootNode._('div',quickRoot,{_attachTo:'mainWindow',parentForm:false});
             node = rootNode.getValue().getNode(quickRoot).clearValue();
         }
         node.freeze();
