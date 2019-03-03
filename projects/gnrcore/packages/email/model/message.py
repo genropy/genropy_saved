@@ -109,7 +109,7 @@ class Table(object):
                   subject=None, body=None, cc_address=None, 
                   reply_to=None, bcc_address=None, attachments=None,
                  message_id=None,message_date=None,message_type=None,
-                 html=False,doCommit=False,moveAttachment=False,**kwargs):
+                 html=False,doCommit=False,moveAttachment=False,copyAttachment=None,**kwargs):
         message_date=message_date or self.db.workdate
         extra_headers = Bag(dict(message_id=message_id,message_date=message_date))
         account_id = account_id or self.db.application.getPreference('mail', pkg='adm')['email_account_id']
@@ -135,10 +135,10 @@ class Table(object):
                     if isinstance(r,tuple):
                         origin_filepath,mimetype = r
                     message_atc.addAttachment(maintable_id=message_to_dispatch['id'],
-                                            origin_filepath=r,
+                                            origin_filepath=origin_filepath,
                                             mimetype=mimetype,
                                             destFolder=self.folderPath(message_to_dispatch),
-                                            moveFile=moveAttachment)
+                                            moveFile=moveAttachment, copyFile=copyAttachment)
         if doCommit:
             self.db.commit()
         return message_to_dispatch
