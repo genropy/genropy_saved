@@ -28,12 +28,12 @@ class Service(AdmMailService):
         if scheduler:
             if moveAttachment is None:
                 moveAttachment = True
-            db.table('email.message').newMessage(account_id=account_id,
+            return db.table('email.message').newMessage(account_id=account_id,
                                                         moveAttachment=moveAttachment,**kwargs)
         else:
             if account_id:
                 kwargs.update(self.get_account_params(account_id))
-            super(Service, self).sendmail(**kwargs)
+            return super(Service, self).sendmail(**kwargs)
 
 class ServiceParameters(BaseComponent):
     def service_parameters(self,pane,datapath=None,**kwargs):
