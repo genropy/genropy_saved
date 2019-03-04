@@ -178,7 +178,8 @@ class BagNode(object):
     @property
     def position(self):
         if self.parentbag is not None:
-            return self.parentbag.nodes.index(self)
+            #return self.parentbag.nodes.index(self)
+            return [id(n) for n in self.parentbag.nodes].index(id(self))
 
     @property
     def tag(self):
