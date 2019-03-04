@@ -346,7 +346,7 @@ class MailService(GnrBaseService):
         if ',' in to_address:
             to_address = to_address.split(',')
         message_date = message_date or datetime.datetime.now()
-        if isinstance(message_date,datetime.datetime):
+        if isinstance(message_date,datetime.datetime) or isinstance(message_date,datetime.date):
             message_date = formatdate(time.mktime(message_date.timetuple()))
         msg['Date'] = message_date
         if reply_to:
