@@ -38,7 +38,6 @@ class Table(object):
                                 mode='foreignkey', onDelete='raise')
         tbl.column('notes', name_long='!!Notes')
         tbl.column('message_date', dtype='D', name_long='!!Date')
-        tbl.column('reply_to',name_long='Reply to')
         tbl.column('sending_attempt','X', name_long='!!Sending attempt')
         tbl.column('email_bag',dtype='X',name_long='!!Email bag')
         tbl.column('extra_headers',dtype='X',name_long='!!Extra headers')
