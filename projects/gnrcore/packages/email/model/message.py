@@ -114,11 +114,12 @@ class Table(object):
                   subject=None, body=None, cc_address=None, 
                   reply_to=None, bcc_address=None, attachments=None,
                  message_id=None,message_date=None,message_type=None,
-                 html=False,doCommit=False,moveAttachment=False,copyAttachment=None,header_kwargs=None,**kwargs):
+                 html=False,doCommit=False,moveAttachment=False,copyAttachment=None,
+                 headers_kwargs=None,**kwargs):
         message_date=message_date or self.db.workdate
         extra_headers = Bag(dict(message_id=message_id,message_date=message_date))
-        if header_kwargs:
-            extra_headers.update(header_kwargs)
+        if headers_kwargs:
+            extra_headers.update(headers_kwargs)
         account_id = account_id or self.db.application.getPreference('mail', pkg='adm')['email_account_id']
         message_to_dispatch = self.newrecord(in_out='O',
                             account_id=account_id,
@@ -184,7 +185,7 @@ class Table(object):
                                 attachments=attachments, 
                                 smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
                                 ssl=mp['ssl'], tls=mp['tls'], html=message['html'], async=False,
-                                scheduler=False,header_kwargs=message['extra_headers'].asDict(ascii=True))
+                                scheduler=False,headers_kwargs=extra_headers.asDict(ascii=True))
                 message['send_date'] = datetime.now()
             except Exception as e:
                 sending_attempt = message['sending_attempt'] = message['sending_attempt'] or Bag()
