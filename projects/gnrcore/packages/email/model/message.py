@@ -188,6 +188,7 @@ class Table(object):
                                 ssl=mp['ssl'], tls=mp['tls'], html=message['html'], async=False,
                                 scheduler=False,headers_kwargs=extra_headers.asDict(ascii=True))
                 message['send_date'] = datetime.now()
+                message['bcc_address'] = bcc_address
             except SMTPException as e:
                 sending_attempt = message['sending_attempt'] = message['sending_attempt'] or Bag()
                 ts = datetime.now()
