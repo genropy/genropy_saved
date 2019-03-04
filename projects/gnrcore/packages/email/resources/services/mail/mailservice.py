@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdecorator import extract_kwargs
 from gnrpkg.adm.services.mail import AdmMailService
 from gnr.web.gnrbaseclasses import BaseComponent
 
@@ -20,7 +21,8 @@ class Service(AdmMailService):
     def set_smtp_account(self, email_account_id=None,**kwargs):
         self.smtp_account = dict(email_account_id=email_account_id)
     
-    def sendmail(self,scheduler=None,account_id=None,moveAttachment=None,**kwargs):
+    @extract_kwargs(headers=True)
+    def sendmail(self,scheduler=None,account_id=None,moveAttachment=None,headers_kwargs=None,**kwargs):
         db = self.parent.db
         if scheduler is None:
             account_id = account_id or self.getDefaultMailAccount()['account_id']
@@ -29,10 +31,11 @@ class Service(AdmMailService):
             if moveAttachment is None:
                 moveAttachment = True
             return db.table('email.message').newMessage(account_id=account_id,
-                                                        moveAttachment=moveAttachment,**kwargs)
+                                                        moveAttachment=moveAttachment,headers_kwargs=headers_kwargs,**kwargs)
         else:
             if account_id:
                 kwargs.update(self.get_account_params(account_id))
+            kwargs['headers_kwargs'] = headers_kwargs
             return super(Service, self).sendmail(**kwargs)
 
 class ServiceParameters(BaseComponent):
