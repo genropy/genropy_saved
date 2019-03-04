@@ -1,4 +1,5 @@
 # encoding: utf-8
+from smtplib import SMTPException
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace
@@ -187,11 +188,13 @@ class Table(object):
                                 ssl=mp['ssl'], tls=mp['tls'], html=message['html'], async=False,
                                 scheduler=False,headers_kwargs=extra_headers.asDict(ascii=True))
                 message['send_date'] = datetime.now()
-            except Exception as e:
+            except SMTPException as e:
                 sending_attempt = message['sending_attempt'] = message['sending_attempt'] or Bag()
                 ts = datetime.now()
                 sending_attempt.setItem('r_%i' %len(sending_attempt),None,ts=ts,error=str(e))
                 message['sending_attempt'] = sending_attempt
+            except Exception as e:
+                raise
         self.db.commit()
         
     
