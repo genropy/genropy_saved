@@ -177,7 +177,9 @@ class Table(object):
             attachments = self.db.table('email.message_atc').query(where='$maintable_id=:mid',mid=message['id']).fetch()
             attachments = [r['filepath'] for r in attachments]
             if mp['system_bcc']:
+                print 'system_bcc',mp['system_bcc']
                 bcc_address = '%s,%s' %(bcc_address,mp['system_bcc']) if mp else mp['system_bcc']
+                print 'bcc_address',bcc_address
             try:
                 mail_handler.sendmail(to_address=debug_address or message['to_address'],
                                 body=message['body'], subject=message['subject'],
