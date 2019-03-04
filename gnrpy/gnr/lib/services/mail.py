@@ -341,6 +341,7 @@ class MailService(GnrBaseService):
         headers_kwargs = headers_kwargs or {}
         message_id = message_id or headers_kwargs.pop('message_id',None)
         message_date = message_date or headers_kwargs.pop('message_date',None)
+        reply_to = reply_to or headers_kwargs.pop('reply_to',None)
         for k,v in headers_kwargs:
             msg.add_header(k,v)
         if ',' in to_address:

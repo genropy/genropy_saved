@@ -38,7 +38,7 @@ class Table(object):
                                 mode='foreignkey', onDelete='raise')
         tbl.column('notes', name_long='!!Notes')
         tbl.column('message_date', dtype='D', name_long='!!Date')
-
+        tbl.column('reply_to',name_long='Reply to')
         tbl.column('sending_attempt','X', name_long='!!Sending attempt')
         tbl.column('email_bag',dtype='X',name_long='!!Email bag')
         tbl.column('extra_headers',dtype='X',name_long='!!Extra headers')
@@ -118,7 +118,7 @@ class Table(object):
                  html=False,doCommit=False,moveAttachment=False,copyAttachment=None,
                  headers_kwargs=None,**kwargs):
         message_date=message_date or self.db.workdate
-        extra_headers = Bag(dict(message_id=message_id,message_date=message_date))
+        extra_headers = Bag(dict(message_id=message_id,message_date=message_date,reply_to=reply_to))
         if headers_kwargs:
             extra_headers.update(headers_kwargs)
         account_id = account_id or self.db.application.getPreference('mail', pkg='adm')['email_account_id']
@@ -128,7 +128,7 @@ class Table(object):
                             from_address=from_address,
                             subject=subject,message_date=message_date,
                             body=body,cc_address=cc_address,
-                            reply_to=reply_to,bcc_address=bcc_address,
+                            bcc_address=bcc_address,
                             extra_headers=extra_headers,
                             message_type=message_type,
                             html=html,**kwargs)
