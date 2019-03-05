@@ -188,13 +188,11 @@ class Table(object):
                                 scheduler=False,headers_kwargs=extra_headers.asDict(ascii=True))
                 message['send_date'] = datetime.now()
                 message['bcc_address'] = bcc_address
-            except SMTPException as e:
+            except Exception as e:
                 sending_attempt = message['sending_attempt'] = message['sending_attempt'] or Bag()
                 ts = datetime.now()
                 sending_attempt.setItem('r_%i' %len(sending_attempt),None,ts=ts,error=str(e))
                 message['sending_attempt'] = sending_attempt
-            except Exception as e:
-                raise
         self.db.commit()
         
     
