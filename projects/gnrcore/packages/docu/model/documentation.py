@@ -12,7 +12,7 @@ class Table(object):
                         name_plural='!!Documentation',caption_field='name',audit='lazy')
         self.sysFields(tbl,hierarchical='name',df=True,
                         counter=True,user_ins=True,user_upd=True)
-        tbl.column('name',name_long='!!Name')
+        tbl.column('name',name_long='!!Name', validate_notnull=True)
         tbl.column('topics',name_long='!!Topics')
         tbl.column('publish_date',dtype='D',name_long='!!Publish date')
         tbl.column('sourcebag',dtype='X',name_long='Python Source',_sendback=True)
