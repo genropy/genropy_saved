@@ -374,7 +374,7 @@ class StorageService(GnrBaseService):
                 doneCb(srcNode)
 
     def mimetype(self, *args,**kwargs):
-        return mimetypes.guess_type(self.internal_path(*args))[0]
+        return mimetypes.guess_type(self.internal_path(*args))[0] or 'application/octet-stream'
 
     def base64(self, *args, **kwargs):
         """Convert a file (specified by a path) into a data URI."""
