@@ -7,7 +7,7 @@ from gnr.core.gnrbag import Bag
 class Table(object):
 
     def config_db(self, pkg):
-        tbl =  pkg.table('task', rowcaption='$task_name',caption_field='$task_name', pkey='id',name_long='!!Task',name_plural='!!Tasks')
+        tbl =  pkg.table('task', rowcaption='$task_name',caption_field='task_name', pkey='id',name_long='!!Task',name_plural='!!Tasks')
         self.sysFields(tbl)
         tbl.column('table_name',name_long='!!Table')
         tbl.column('task_name',name_long='!!Task name',name_short='!!Name') # char(4)
@@ -19,40 +19,46 @@ class Table(object):
         tbl.column('minute',name_long='!!Minute',values=','.join([str(x) for x in range(60)]))
         tbl.column('frequency', dtype='L', name_long='!!Freq.(min)')
         tbl.column('parameters',dtype='X',name_long='!!Parameters') # date
+        tbl.column('last_scheduled_ts','DH',name_long='!!Last scheduled',indexed=True)
         tbl.column('last_execution_ts','DH',name_long='!!Last Execution')
         tbl.column('last_error_ts','DH',name_long='!!Last Error')
         tbl.column('last_error_info','X',name_long='!!Last Error Info')
         tbl.column('run_asap','B',name_long='!!Run ASAP')
-        tbl.column('concurrent','B',name_long='!!Concurrent') # Allows concurrent execution of the same task
+        tbl.column('max_workers','L',name_long='!!Max workers') # Allows concurrent execution of the same task
         tbl.column('log_result', 'B', name_long='!!Log Task')
         tbl.column('user_id',size='22',group='_',name_long='User id').relation('adm.user.id', mode='foreignkey', onDelete='raise')
         tbl.column('date_start','D',name_long='!!Start Date')
         tbl.column('date_end','D',name_long='!!End Date')
         tbl.column('stopped','B',name_long='!!Stopped')
+        
+        tbl.formulaColumn('active_workers',select=dict(table='sys.task_execution',
+            where="$task_id=#THIS.id AND $start_ts IS NOT NULL AND $end_ts IS NULL",
+            columns='COUNT(*)'
+        ),dtype='N',name_long='N.Active workers')
         tbl.formulaColumn('last_execution_ts',
             select=dict(table='sys.task_result',
             columns='MAX($start_time)', where='$task_id = #THIS.id'),
             name_long='!!Last Execution')
         
-    def trigger_onInserted(self, record):
-        self.resetTaskCache()
-
-    def trigger_onDeleted(self, record, **kwargs):
-        self.resetTaskCache()
-
-    def trigger_onUpdated(self, record, old_record=None, **kwargs):
-        self.resetTaskCache()
-
-    def resetTaskCache(self):
-        with self.db.application.site.register.globalStore() as gs:
-            gs.setItem('TASK_TS',datetime.now())
+    #def trigger_onInserted(self, record):
+    #    self.resetTaskCache()
+#
+    #def trigger_onDeleted(self, record, **kwargs):
+    #    self.resetTaskCache()
+#
+    #def trigger_onUpdated(self, record, old_record=None, **kwargs):
+    #    self.resetTaskCache()
+#
+    #def resetTaskCache(self):
+    #    with self.db.application.site.register.globalStore() as gs:
+    #        gs.setItem('TASK_TS',datetime.now())
 
     def isTaskScheduledNow(self,task,timestamp):
         if task['run_asap']:
             return True
         if task['frequency']:
-            last_execution_ts = task['last_execution_ts']
-            return last_execution_ts is None or (timestamp-last_execution_ts).seconds/60.>=task['frequency']
+            last_scheduled_ts = task['last_scheduled_ts']
+            return last_scheduled_ts is None or (timestamp-last_scheduled_ts).seconds/60.>=task['frequency']
         expandIntervals = self.expandIntervals
         month=expandIntervals(task['month'],limits=(1,12))
         if month and timestamp.month not in month:
@@ -219,7 +225,19 @@ class Table(object):
                 task_rec['run_asap'] = False
             with self.db.tempEnv(connectionName='system'):
                 self.db.commit()
-                
+
+    def writeTaskExecutions(self):
+        tblexecutions = self.db.table('sys.task_execution')
+        now = datetime.now()
+        task_to_schedule = self.findTasks()
+        def cb(row):
+            tblexecutions.insert(tblexecutions.newrecord(task_id=row['id']))
+            row['last_scheduled_ts'] = now
+            row['run_asap'] = False
+        self.batchUpdate(cb,_pkeys=[r['id'] for r in task_to_schedule])
+        self.db.commit()
+    
+    
     
 if __name__=='__main__':
     from gnr.app.gnrapp import GnrApp

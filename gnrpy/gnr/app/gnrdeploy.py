@@ -423,6 +423,41 @@ class PathResolver(object):
         
         :param site_name: TODO"""
         return self.entity_name_to_path(site_name, 'site')
+    
+    def get_instanceconfig(self,instance_name):
+        instanceFolder = self.instance_name_to_path(instance_name)
+        instanceName = os.path.basename(instanceFolder)
+
+        project_packages_path = os.path.normpath(os.path.join(instanceFolder, '..', '..', 'packages'))
+        if os.path.isdir(project_packages_path):
+            project_packages_path = project_packages_path
+        if os.path.exists(os.path.join(instanceFolder,'config','instanceconfig.xml')):
+            instanceFolder = os.path.join(instanceFolder,'config')
+        
+        if not instanceFolder:
+            return Bag()
+
+        def normalizePackages(config):
+            if config['packages']:
+                packages = Bag()
+                for n in config['packages']:
+                    packages.setItem(n.attr.get('pkgcode') or n.label, n.value, n.attr)
+                config['packages']  = packages
+            return config
+        instance_config_path = os.path.join(instanceFolder, 'instanceconfig.xml')
+        base_instance_config = normalizePackages(Bag(instance_config_path))
+        instance_config = normalizePackages(self.gnr_config['gnr.instanceconfig.default_xml']) or Bag()
+        template = base_instance_config['instance?template']
+        if template:
+            instance_config.update(normalizePackages(self.gnr_config['gnr.instanceconfig.%s_xml' % template]) or Bag())
+        if 'instances' in self.gnr_config['gnr.environment_xml']:
+            for path, instance_template in self.gnr_config.digest(
+                    'gnr.environment_xml.instances:#a.path,#a.instance_template') or []:
+                if path == os.path.dirname(instanceFolder):
+                    instance_config.update(normalizePackages(self.gnr_config['gnr.instanceconfig.%s_xml' % instance_template]) or Bag())
+        instance_config.update(base_instance_config)
+        return instance_config
+
 
     def get_siteconfig(self,site_name):
         site_config = self.gnr_config['gnr.siteconfig.default_xml']

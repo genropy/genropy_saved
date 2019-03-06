@@ -1,0 +1,23 @@
+#!/usr/bin/env python2.7
+# encoding: utf-8
+# 
+from gnr.web.gnrtask import GnrTaskWorker
+
+import argparse
+
+ 
+def getOptions():
+    usage = "\ngnrworker sitename"
+    parser = argparse.ArgumentParser(usage)
+    parser.add_argument('sitename')
+    parser.add_argument('-L', '--loglevel', type=int,
+                       help="Log level")
+    arguments= parser.parse_args()
+    return arguments.__dict__
+
+
+if __name__=="__main__":
+    options = getOptions()
+    sitename = options.pop('sitename')
+    w = GnrTaskWorker(sitename)
+    w.start()

@@ -45,25 +45,30 @@ class Form(BaseComponent):
         fb.field('task_name',width='12em')
         fb.field('table_name',colspan=2,width='20em')
         fb.field('command',colspan=3,width='40em')
-    
+        fb.field('max_workers',width='4em')
+        fb.field('run_asap')
+        fb.field('stopped')
+
+
+        fb.field('date_start',width='7em')
+        fb.field('date_end',width='7em')
+        fb.field('frequency',width='4em')
+
         center = bc.tabContainer(region='center',margin='2px')
 
         fb = center.contentPane(title='!!Config').div(margin_right='10px').formbuilder(cols=3,border_spacing='4px',margin_top='3px',
                                                     fld_html_label=True,datapath='.record')
-        fb.field('date_start',width='7em')
-        fb.field('date_end',width='7em')
-        fb.field('log_result')
-        fb.field('stopped')
-        fb.field('run_asap')
-        fb.field('frequency',width='4em')
+        
+
         rpane = fb.div(lbl='!!Rules',colspan=3,_class='pbl_roundedGroup',position='relative',padding='3px',padding_top='0')
         fb.dataController("""rpane.setHiderLayer(freq,{message:'Using frequency'});""",rpane=rpane,freq='^.frequency')
-        self.task_params(rpane)
+        
+        self.task_timeRules(rpane)
 
-        center.contentPane(title='!!Logs',hidden='^#FORM.record.log_result?=!#v').plainTableHandler(relation='@logs',pbl_classes=True,margin='2px')
-
+        #center.contentPane(title='!!Logs',hidden='^#FORM.record.log_result?=!#v').plainTableHandler(relation='@logs',pbl_classes=True,margin='2px')
+        center.contentPane(title='Executions').plainTableHandler(relation='@executions')
     
-    def task_params(self,pane):
+    def task_timeRules(self,pane):
         fb = pane.formbuilder(cols=1, border_spacing='3px',lblpos='T',lblalign='left',
                             fldalign='left',lbl_font_size='.9em',lbl_font_weight='bold')
 
