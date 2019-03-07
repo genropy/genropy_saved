@@ -1090,12 +1090,14 @@ class GunicornDeployBuilder(object):
         taskworkers = self.site_config.getAttr('taskworkers') or {'count':'1'}
         if taskworkers:
             tw_base = group.section('program','%s_taskworkers' %self.site_name)
+            tw_base.parameter('process_name',"%s_gnrtaskworker%%(process_num)s" %self.site_name)
             tw_base.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrworker'),self.site_name))
             reserved_workers = self.site_config['taskworkers']
             tw_base.parameter('numprocs',taskworkers.pop('count','1'))
             for key,val in taskworkers.items():
                 key = key.split('_')[1]
                 tw =  group.section('program','%s_taskworkers_%s' %(self.site_name,key))
+                tw.parameter('process_name',"%s_gnrtaskworker_%s_%%(process_num)s" %(self.site_name,key))
                 tw.parameter('command','%s %s --code %s' %(os.path.join(self.bin_folder,'gnrworker'),self.site_name,key))
                 tw.parameter('numprocs',val)
 
