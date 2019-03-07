@@ -281,19 +281,10 @@ class GnrDaemon(object):
         proc.daemon = True
         proc.start()
         return proc
-
-    def getBatchProcessPars(self, sitename=None):
-        siteconfig = PathResolver().get_siteconfig(sitename)
-        batch_pars = siteconfig.getAttr('batch_processes')
-        if not batch_pars or boolean(batch_pars.get('disabled')):
-            return None
-        return batch_pars
     
     def hasSysPackage(self,sitename):
         instanceconfig = PathResolver().get_instanceconfig(sitename)
         return instanceconfig and 'gnrcore:sys' in instanceconfig['packages']
-
-
 
     def addSiteRegister(self,sitename,storage_path=None,autorestore=False,heartbeat_options=None,port=None):
         if not sitename in self.siteregisters:
@@ -302,14 +293,9 @@ class GnrDaemon(object):
             siteregister_dict = dict()
             self.siteregisters[sitename] = siteregister_dict
             socket = os.path.join(self.sockets,'%s_daemon.sock' %sitename) if self.sockets else None
-            #batch_pars = self.getBatchProcessPars(sitename=sitename)
-            batch_queue = None
-           #if batch_pars:
-           #    batch_queue = self.startWorkerProcesses(sitename=sitename, batch_pars=batch_pars)
-           #    self.startCronProcess(sitename=sitename, batch_pars=batch_pars, batch_queue=batch_queue)
             process_kwargs = dict(sitename=sitename,daemon_uri=self.main_uri,host=self.host,socket=socket
                                    ,hmac_key=self.hmac_key, storage_path=storage_path,autorestore=autorestore,
-                                   port=port, batch_queue=batch_queue)
+                                   port=port)
             childprocess = Process(name='sr_%s' %sitename, target=createSiteRegister,kwargs=process_kwargs)
             siteregister_dict.update(sitename=sitename,server_uri=False,
                                         register_uri=False,start_ts=datetime.now(),
@@ -317,13 +303,7 @@ class GnrDaemon(object):
                                         autorestore=autorestore)
             childprocess.daemon = True
             childprocess.start()
-            hbprocess = None
-           #if heartbeat_options and not batch_pars:
-           #    heartbeat_options['loglevel'] = self.loglevel
-           #    hbprocess = Process(name='hb_%s' %sitename, target=createHeartBeat,kwargs=heartbeat_options)
-           #    hbprocess.daemon = True
-           #    hbprocess.start()
-            siteregister_processes_dict.update(register=childprocess, heartbeat=hbprocess)
+            siteregister_processes_dict['register'] = childprocess
             if self.hasSysPackage(sitename):
                 taskScheduler = Process(name='ts_%s' %sitename, target=createTaskScheduler,kwargs=dict(sitename=sitename))
                 taskScheduler.daemon = True

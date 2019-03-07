@@ -49,11 +49,19 @@ class GnrTaskScheduler(object):
     def writeTaskExecutions(self):
         now = datetime.now()
         task_to_schedule = self.tasktbl.findTasks()
-        def cb(row):
-            self.exectbl.insert(self.exectbl.newrecord(task_id=row['id']))
-            row['last_scheduled_ts'] = now
-            row['run_asap'] = False
-        self.tasktbl.batchUpdate(cb,_pkeys=[r['id'] for r in task_to_schedule])
+        existing_executions = self.exectbl.query(columns='$reasonkey,$status',
+                                                where='$reasonkey IN :reasonkeys',
+                                                reasonkeys=['%s_%s' %t for t in task_to_schedule if t[1]!='*']).fetchAsDict('reasonkey')
+        taskToUpdate = []
+        for t,reason in task_to_schedule:
+            reasonkey = None
+            if reason!='*':
+                reasonkey = '%s_%s' %(t,reason)
+            if reasonkey not in existing_executions:
+                self.exectbl.insert(self.exectbl.newrecord(task_id=t,exec_reason=reason,reasonkey=reasonkey))
+                taskToUpdate.append(t)
+
+        self.tasktbl.batchUpdate(dict(last_scheduled_ts=now,run_asap=None),_pkeys=taskToUpdate)
         self.checkAlive()
         self.db.commit()
     
@@ -63,17 +71,22 @@ class GnrTaskScheduler(object):
         self.exectbl.batchUpdate(dict(pid=None,start_ts=None),where='$pid IN :deadpid AND $end_ts IS NULL',deadpid=deadpid)
 
 class GnrTaskWorker(object):
-    def __init__(self,sitename,interval=None):
+    def __init__(self,sitename,interval=None,code=None):
         self.site = GnrWsgiSite(sitename)
         self.db = self.site.db
         self.tblobj = self.db.table('sys.task_execution')
         self.interval = interval or 60
+        self.code = code
         self.pid = os.getpid()
+        wherelist = ["$start_ts IS NULL","$task_stopped IS NOT TRUE","$task_active_workers<COALESCE($task_max_workers,1)"]
+        if self.code:
+            wherelist.append('$worker_code=:wcode')
+        self.where = ' AND '.join(['( %s )' %c for c in wherelist])
     
     def taskToExecute(self):
         f = True
         while f:
-            f = self.tblobj.query(where="""$start_ts IS NULL AND $task_stopped IS NOT TRUE AND $task_active_workers<COALESCE($task_max_workers,1)""",
+            f = self.tblobj.query(where=self.where,wcode=self.code,
                                     columns="""*,$task_max_workers,$task_active_workers""",
                                     limit=1,for_update=True,order_by='$__ins_ts').fetch()
             if f:

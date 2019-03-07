@@ -7,11 +7,14 @@ import argparse
 
  
 def getOptions():
-    usage = "\ngnrworker sitename"
+    usage = "\ngnrtaskworker sitename"
     parser = argparse.ArgumentParser(usage)
     parser.add_argument('sitename')
     parser.add_argument('-L', '--loglevel', type=int,
                        help="Log level")
+    parser.add_argument('-I', '--interval', type=int,
+                       help="Interval")
+    parser.add_argument('-C', '--code', help="Code")
     arguments= parser.parse_args()
     return arguments.__dict__
 
@@ -19,5 +22,8 @@ def getOptions():
 if __name__=="__main__":
     options = getOptions()
     sitename = options.pop('sitename')
-    w = GnrTaskWorker(sitename)
+    code = options.pop('code',None)
+    interval = options.pop('interval',None)
+
+    w = GnrTaskWorker(sitename,code=code,interval=interval)
     w.start()

@@ -14,6 +14,9 @@ class Table(object):
         tbl.column('start_ts',dtype='DH',name_long='!!Start Time',indexed=True) # date
         tbl.column('end_ts',dtype='DH',name_long='!!End Time',indexed=True) # date
         tbl.column('is_error','B',name_long='!!Is Error',indexed=True)
+        tbl.column('exec_reason', size=':20', name_long='!!Exec reason')
+        tbl.column('reasonkey',size=':60',indexed=True)
+
 
         tbl.aliasColumn('task_table','@task_id.table_name',name_long='!!Table')
         tbl.aliasColumn('task_name','@task_id.task_name',name_long='!!Task name',name_short='!!Name') # char(4)
@@ -26,7 +29,6 @@ class Table(object):
         tbl.aliasColumn('task_active_workers','@task_id.active_workers',dtype='L',name_long='!!Task Active workers')
 
         tbl.aliasColumn('task_command','@task_id.command',name_long='!!Task command',name_short='!!Command') # char(4)
-
         tbl.formulaColumn('status',"""
             (CASE WHEN $is_error IS TRUE THEN 'error'
                  WHEN $end_ts IS NOT NULL THEN 'completed'

@@ -1084,6 +1084,20 @@ class GunicornDeployBuilder(object):
         gnrasync = group.section('program','%s_gnrasync' %self.site_name)
         gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
         
+        if self.site_config['taskworkers?count']:
+            tw_base = group.section('program','%s_taskworkers' %self.site_name)
+            reserveds = 0
+            tw_base.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrworker'),self.site_name))
+            reserved_workers = self.site_config['taskworkers']
+            if reserved_workers:
+                for n in reserved_workers:
+                    tw =  group.section('program','%s_taskworkers_%s' %(self.site_name,n.label))
+                    tw.parameter('command','%s %s --pattern %s' %(os.path.join(self.bin_folder,'gnrworker'),self.site_name,n.attr['pattern']))
+                    count = int(n.attr.get('count',1))
+                    reserveds+=count
+                    tw.parameter('numprocs',str(count))
+            not_reserveds = int(self.site_config['taskworkers?count']) - reserveds
+            tw_base.parameter('numprocs',str(not_reserveds))
         root.toIniConf(os.path.join(self.config_folder,'supervisord.conf'))
 
     def main_supervisor_conf(self):

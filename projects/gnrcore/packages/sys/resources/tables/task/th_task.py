@@ -48,6 +48,7 @@ class Form(BaseComponent):
         fb.field('max_workers',width='4em')
         fb.field('run_asap')
         fb.field('stopped')
+        fb.field('worker_code',width='7em')
 
 
         fb.field('date_start',width='7em')
