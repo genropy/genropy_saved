@@ -1083,7 +1083,7 @@ class GunicornDeployBuilder(object):
 
         gnrasync = group.section('program','%s_gnrasync' %self.site_name)
         gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
-        taskworkers = self.site_config.getAttr('taskworkers')
+        taskworkers = self.site_config.getAttr('taskworkers') or {'count':'1'}
         if taskworkers:
             tw_base = group.section('program','%s_taskworkers' %self.site_name)
             tw_base.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrworker'),self.site_name))
