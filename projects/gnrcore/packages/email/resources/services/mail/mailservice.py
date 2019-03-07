@@ -24,8 +24,8 @@ class Service(AdmMailService):
     @extract_kwargs(headers=True)
     def sendmail(self,scheduler=None,account_id=None,moveAttachment=None,headers_kwargs=None,**kwargs):
         db = self.parent.db
+        account_id = account_id or self.getDefaultMailAccount()['account_id']
         if scheduler is None:
-            account_id = account_id or self.getDefaultMailAccount()['account_id']
             scheduler = db.table('email.account').readColumns(pkey=account_id,columns='$save_output_message')  
         if scheduler:
             if moveAttachment is None:
