@@ -230,6 +230,7 @@ class Table(object):
         tblexecutions = self.db.table('sys.task_execution')
         now = datetime.now()
         task_to_schedule = self.findTasks()
+        print 'find %i task' %len(task_to_schedule)
         def cb(row):
             tblexecutions.insert(tblexecutions.newrecord(task_id=row['id']))
             row['last_scheduled_ts'] = now

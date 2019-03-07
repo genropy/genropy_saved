@@ -66,7 +66,7 @@ class Form(BaseComponent):
         self.task_timeRules(rpane)
 
         #center.contentPane(title='!!Logs',hidden='^#FORM.record.log_result?=!#v').plainTableHandler(relation='@logs',pbl_classes=True,margin='2px')
-        center.contentPane(title='Executions').plainTableHandler(relation='@executions')
+        center.contentPane(title='Executions').plainTableHandler(relation='@executions',viewResource='ViewFromTask')
     
     def task_timeRules(self,pane):
         fb = pane.formbuilder(cols=1, border_spacing='3px',lblpos='T',lblalign='left',

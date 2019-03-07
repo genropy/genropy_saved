@@ -27,17 +27,18 @@ from gnr.core.gnrbag import Bag
 from gnr.web.gnrdummysite import GnrDummySite
 from datetime import datetime
 from time import sleep
+from random import randrange
 import os
 
 class GnrTaskScheduler(object):
     def __init__(self,instancename,interval=None):
         self.app = GnrApp(instancename)
         self.db = self.app.db
-        self.interval = interval or 300
+        self.interval = interval or 60
+        self.pid = os.getpid()
 
     def start(self):
         while True:
-            print 'writing task execution'
             self.db.table('sys.task').writeTaskExecutions()
             sleep(self.interval)
 
@@ -85,7 +86,7 @@ class GnrTaskWorker(object):
         try:
             taskparameters = task_execution['parameters']
             with self.db.tempEnv(connectionName='execution'):
-                tmp_result = taskObj(parameters=Bag(taskparameters))
+                tmp_result = taskObj(parameters=Bag(taskparameters),task_execution_record=task_execution)
             tmp_result = tmp_result or ''
             if isinstance(tmp_result, Bag):
                 result = tmp_result
@@ -107,4 +108,4 @@ class GnrTaskWorker(object):
                         task_execution['is_error'] = True
                     task_execution['end_ts'] = datetime.now()
                 self.db.commit()
-            sleep(60)
+            sleep(randrange(self.interval-10,self.interval+10))

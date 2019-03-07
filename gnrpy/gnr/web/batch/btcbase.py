@@ -47,10 +47,11 @@ class BaseResourceBatch(object):
         #self.mail_preference = self.page.site.getService('mail').getDefaultMailAccount()
 
 
-    def __call__(self, batch_note=None, **kwargs):
+    def __call__(self, batch_note=None, task_execution_record=None,**kwargs):
         parameters = kwargs.get('parameters',dict())
         self.batch_parameters = parameters.asDict(True) if isinstance(parameters, Bag) else parameters or {}
         self.batch_note = batch_note or self.batch_parameters.get('batch_note')
+        self.task_execution_record = task_execution_record
         if self.batch_dblog:
             self.batch_logrecord = self.batch_logtbl.newrecord(id=self.batch_log_id,
                                 batch_title=self.batch_title,tbl=self.tblobj.fullname,
@@ -81,6 +82,8 @@ class BaseResourceBatch(object):
                     self.batch_logrecord['end_ts'] = datetime.now()
                     self.batch_logtbl.insert(self.batch_logrecord)
                     self.db.commit()
+            if self.task_execution_record:
+                self.task_execution_record['logbag'] = self.batch_debug
 
     def batch_debug_write(self,caption,value=None,**kwargs):
         self.batch_debug.setItem('r_%04i' %len(self.batch_debug),value,caption=caption,ts=datetime.now(),**kwargs)
@@ -233,6 +236,7 @@ class BaseResourceBatch(object):
             selection_kwargs['columns'] = columns
 
         if self.batch_selection_savedQuery:
+            self.batch_debug_write('Uso la saved query',self.batch_selection_savedQuery)
             selection = self._selection_from_savedQuery(selection_kwargs)
 
         elif self.batch_selection_where:                
@@ -251,6 +255,7 @@ class BaseResourceBatch(object):
         return selection
 
     def _selection_from_savedQuery(self,selection_kwargs):
+        
         userobject_tbl = self.db.table('adm.userobject')
         where = userobject_tbl.loadUserObject(userObjectIdOrCode=self.batch_selection_savedQuery, 
                         objtype='query', tbl=self.tblobj.fullname)[0]
@@ -260,10 +265,9 @@ class BaseResourceBatch(object):
             where = where['where']
             self._selection_from_savedQuery_fill_parameters(where)
             where,selection_kwargs = self.tblobj.sqlWhereFromBag(where, selection_kwargs)
-            if customOrderBy:
-                selection_kwargs['order_by'] = customOrderBy
-                selection_kwargs['limit'] = limit
-            return self.tblobj.query(where=where,**selection_kwargs).selection()
+            selection_kwargs['customOrderBy'] = customOrderBy
+            selection_kwargs['limit'] = limit
+            return self.page.app.getSelection(where=where,table=self.tblobj.fullname,**selection_kwargs)
 
     def _selection_from_savedQuery_fill_parameters(self,wherebag):
         def fillpar(n):

@@ -8,19 +8,38 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
+        r.fieldcell('__ins_ts',width='10em')
+
         r.fieldcell('task_id')
-        r.fieldcell('result')
+        r.fieldcell('@task_id.table_name')
+        r.fieldcell('@task_id.command')
         r.fieldcell('pid')
         r.fieldcell('start_ts')
         r.fieldcell('end_ts')
         r.fieldcell('is_error')
+        r.fieldcell('status')
 
     def th_order(self):
-        return 'task_id'
+        return '__ins_ts'
 
     def th_query(self):
         return dict(column='task_id', op='contains', val='')
 
+class ViewFromTask(BaseComponent):
+
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('__ins_ts',width='10em')
+        r.fieldcell('pid')
+        r.fieldcell('start_ts',width='10em')
+        r.fieldcell('end_ts',width='10em')
+        r.fieldcell('result',width='8em')
+        r.fieldcell('is_error',width='5em',name='Error')
+        r.fieldcell('status')
+
+
+    def th_order(self):
+        return '__ins_ts'
 
 
 class Form(BaseComponent):
