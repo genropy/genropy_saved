@@ -29,9 +29,9 @@ PYRO_HMAC_KEY = 'supersecretkey'
 
 def createSiteRegister(sitename=None,daemon_uri=None,host=None, socket=None,
                          hmac_key=None,storage_path=None,debug=None,autorestore=False,
-                         port=None, batch_queue=None):
+                         port=None):
     server = GnrSiteRegisterServer(sitename=sitename,daemon_uri=daemon_uri,
-        storage_path=storage_path,debug=debug,batch_queue=batch_queue)
+        storage_path=storage_path,debug=debug)
     server.start(host=host,socket=socket,hmac_key=hmac_key,port=port or '*',autorestore=autorestore)
 
 def createHeartBeat(site_url=None,interval=None,**kwargs):
@@ -117,7 +117,6 @@ class GnrDaemon(object):
         self.siteregisters_process = dict()
         self.sshtunnel_index = dict()
         self.multiprocessing_manager =  Manager()
-        self.batch_queues = dict()
         self.batch_processes = dict()
         self.cron_processes = dict()
         self.task_locks = dict()
@@ -231,13 +230,13 @@ class GnrDaemon(object):
         daemonServiceHandler = siteregister_processes_dict['services']
         daemonServiceHandler.reloadServices(service_identifier=service_identifier)
 
-    def startWorkerProcesses(self, sitename=None, batch_pars=None):
-        siteregister_processes_dict = self.siteregisters_process[sitename]
-        batch_queue = self.multiprocessing_manager.Queue()
-        siteregister_processes_dict['gnrworker_pool'] = GnrWorkerPool(self,sitename=sitename, 
-            batch_pars=batch_pars, batch_queue=batch_queue)
-        siteregister_processes_dict['gnrworker_pool'].start()
-        return batch_queue
+   #def startWorkerProcesses(self, sitename=None, batch_pars=None):
+   #    siteregister_processes_dict = self.siteregisters_process[sitename]
+   #    batch_queue = self.multiprocessing_manager.Queue()
+   #    siteregister_processes_dict['gnrworker_pool'] = GnrWorkerPool(self,sitename=sitename, 
+   #        batch_pars=batch_pars, batch_queue=batch_queue)
+   #    siteregister_processes_dict['gnrworker_pool'].start()
+   #    return batch_queue
 
     def startCronProcess(self, sitename=None, batch_pars=None, batch_queue=None):
         siteregister_processes_dict = self.siteregisters_process[sitename]
