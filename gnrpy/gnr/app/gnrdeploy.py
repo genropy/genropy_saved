@@ -1083,6 +1083,10 @@ class GunicornDeployBuilder(object):
 
         gnrasync = group.section('program','%s_gnrasync' %self.site_name)
         gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
+        self.taskWorkersConf(group)
+        root.toIniConf(os.path.join(self.config_folder,'supervisord.conf'))
+    
+    def taskWorkersConf(self,group):
         taskworkers = self.site_config.getAttr('taskworkers') or {'count':'1'}
         if taskworkers:
             tw_base = group.section('program','%s_taskworkers' %self.site_name)
@@ -1094,7 +1098,7 @@ class GunicornDeployBuilder(object):
                 tw =  group.section('program','%s_taskworkers_%s' %(self.site_name,key))
                 tw.parameter('command','%s %s --code %s' %(os.path.join(self.bin_folder,'gnrworker'),self.site_name,key))
                 tw.parameter('numprocs',val)
-        root.toIniConf(os.path.join(self.config_folder,'supervisord.conf'))
+
 
     def main_supervisor_conf(self):
         if os.path.isfile(self.supervisor_conf_path_py):
@@ -1109,6 +1113,7 @@ class GunicornDeployBuilder(object):
         gunicorn.parameter('command','%s -c %s root' %(os.path.join(self.bin_folder,'gunicorn'),self.gunicorn_conf_path))
         gnrasync = group.section('program','%s_gnrasync' %self.site_name)
         gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
+        self.taskWorkersConf(group)
         root.toPython(self.supervisor_conf_path_py)
         root.toIniConf(self.supervisor_conf_path_ini)
 
