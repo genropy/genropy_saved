@@ -48,6 +48,8 @@ class Table(object):
             last_scheduled_ts = task['last_scheduled_ts']
             if last_scheduled_ts is None or (timestamp-last_scheduled_ts).seconds/60.>=task['frequency']:
                 return '*'
+            else:
+                return False
         months =  [int(x.strip()) for x in task['month'].split(',')] if task['month'] else range(1,13)
         days = [int(x.strip()) for x in task['day'].split(',')] if task['day'] else range(1,32)
         hours = [int(x.strip()) for x in task['hour'].split(',')] if task['hour'] else range(0,24)
