@@ -8,6 +8,8 @@ class Table(object):
                                                                         relation_name='executions',onDelete='cascade')
         tbl.column('result','X',name_long='!!result') # varchar(40)
         tbl.column('logbag','X',name_long='!!Logbag')
+        tbl.column('errorbag','X',name_long='!!Errors')
+
         tbl.column('pid', dtype='L', name_long='!!Process id', name_short='!!PID')
         tbl.column('start_ts',dtype='DH',name_long='!!Start Time',indexed=True) # date
         tbl.column('end_ts',dtype='DH',name_long='!!End Time',indexed=True) # date

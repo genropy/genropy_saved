@@ -8,6 +8,8 @@
 
 from gnr.core.gnrbag import Bag
 from datetime import datetime
+from gnr.core.gnrlang import tracebackBag
+
 
 class BaseResourceBatch(object):
     """Base resource class to create a :ref:`batch`"""
@@ -66,7 +68,10 @@ class BaseResourceBatch(object):
             self.btc.batch_aborted()
             self.batch_log_write('Batch Aborted')
         except Exception, e:
-            if self.page.isDeveloper():
+            if task_execution_record:
+                task_execution_record['is_error'] = True
+                task_execution_record['errorbag'] = tracebackBag()
+            elif self.page.isDeveloper():
                 raise
             else:
                 try:
@@ -265,9 +270,17 @@ class BaseResourceBatch(object):
             where = where['where']
             self._selection_from_savedQuery_fill_parameters(where)
             where,selection_kwargs = self.tblobj.sqlWhereFromBag(where, selection_kwargs)
-            selection_kwargs['customOrderBy'] = customOrderBy
-            selection_kwargs['limit'] = limit
-            return self.page.app.getSelection(where=where,table=self.tblobj.fullname,**selection_kwargs)
+            if customOrderBy:
+                order_by = []
+                for fieldpath,sorting in customOrderBy.digest('#v.fieldpath,#v.sorting'):
+                    fieldpath = '$%s' %fieldpath if not fieldpath.startswith('@') else fieldpath
+                    sorting = 'asc' if sorting else 'desc'
+                    order_by.append('%s %s' %(fieldpath,sorting))
+                selection_kwargs['order_by'] = ' , '.join(order_by)
+            if limit:
+                selection_kwargs['limit'] = limit
+            return self.tblobj.query(where=where,**selection_kwargs).selection()
+
 
     def _selection_from_savedQuery_fill_parameters(self,wherebag):
         def fillpar(n):

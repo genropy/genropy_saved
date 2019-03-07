@@ -22,9 +22,11 @@
 
 #Copyright (c) 2019 Softwell. All rights reserved.
 
+from psutil import pid_exists
 from gnr.app.gnrapp import GnrApp
 from gnr.core.gnrbag import Bag
-from gnr.web.gnrdummysite import GnrDummySite
+from gnr.web.gnrwsgisite import GnrWsgiSite
+
 from datetime import datetime
 from time import sleep
 from random import randrange
@@ -32,19 +34,37 @@ import os
 
 class GnrTaskScheduler(object):
     def __init__(self,instancename,interval=None):
-        self.app = GnrApp(instancename)
-        self.db = self.app.db
+        self.site = GnrWsgiSite(instancename)
+        self.db = self.site.db
         self.interval = interval or 60
         self.pid = os.getpid()
+        self.tasktbl = self.db.table('sys.task')
+        self.exectbl = self.db.table('sys.task_execution')
 
     def start(self):
         while True:
-            self.db.table('sys.task').writeTaskExecutions()
+            self.writeTaskExecutions()
             sleep(self.interval)
+    
+    def writeTaskExecutions(self):
+        now = datetime.now()
+        task_to_schedule = self.tasktbl.findTasks()
+        def cb(row):
+            self.exectbl.insert(self.exectbl.newrecord(task_id=row['id']))
+            row['last_scheduled_ts'] = now
+            row['run_asap'] = False
+        self.tasktbl.batchUpdate(cb,_pkeys=[r['id'] for r in task_to_schedule])
+        self.checkAlive()
+        self.db.commit()
+    
+    def checkAlive(self):
+        f = self.exectbl.query(columns='$pid',distinct=True,where='$start_ts IS NOT NULL AND $end_ts IS NULL').fetch()
+        deadpid = [r['pid'] for r in f if not pid_exists(r['pid'])]
+        self.exectbl.batchUpdate(dict(pid=None,start_ts=None),where='$pid IN :deadpid AND $end_ts IS NULL',deadpid=deadpid)
 
 class GnrTaskWorker(object):
     def __init__(self,sitename,interval=None):
-        self.site = GnrDummySite(sitename)
+        self.site = GnrWsgiSite(sitename)
         self.db = self.site.db
         self.tblobj = self.db.table('sys.task_execution')
         self.interval = interval or 60
@@ -53,22 +73,17 @@ class GnrTaskWorker(object):
     def taskToExecute(self):
         f = True
         while f:
-            f = self.tblobj.query(where="""$start_ts IS NULL AND $task_stopped IS NOT TRUE""",
+            f = self.tblobj.query(where="""$start_ts IS NULL AND $task_stopped IS NOT TRUE AND $task_active_workers<COALESCE($task_max_workers,1)""",
                                     columns="""*,$task_max_workers,$task_active_workers""",
                                     limit=1,for_update=True,order_by='$__ins_ts').fetch()
             if f:
                 rec = f[0]
-                task_max_workers = rec['task_max_workers'] or 1
-                if rec['task_active_workers']>=task_max_workers:
-                    self.tblobj.delete(rec)
-                    self.db.commit()
-                else:
-                    oldrec = dict(rec)
-                    rec['start_ts'] = datetime.now()
-                    rec['pid'] = self.pid
-                    self.tblobj.update(rec,oldrec)
-                    self.db.commit()
-                    yield rec['id']
+                oldrec = dict(rec)
+                rec['start_ts'] = datetime.now()
+                rec['pid'] = self.pid
+                self.tblobj.update(rec,oldrec)
+                self.db.commit()
+                yield rec['id']
 
     def runTask(self, task_execution):
         page = self.site.dummyPage
@@ -78,34 +93,18 @@ class GnrTaskWorker(object):
         start_time = datetime.now()
         log_record['start_time'] = start_time
         log_record['task_id'] =task_execution['id']
-        print 'table',task_execution['task_table'],'command',task_execution['task_command']
         taskObj = self.db.table('sys.task').loadTask(table=task_execution['task_table'], command=task_execution['task_command'], page=page)
         if not taskObj:
-            print 'manca task'
             return Bag()
-        try:
-            taskparameters = task_execution['parameters']
-            with self.db.tempEnv(connectionName='execution'):
-                tmp_result = taskObj(parameters=Bag(taskparameters),task_execution_record=task_execution)
-            tmp_result = tmp_result or ''
-            if isinstance(tmp_result, Bag):
-                result = tmp_result
-            elif isinstance(tmp_result, dict):
-                result=Bag(tmp_result)
-            else:
-                result=Bag(dict(result=tmp_result))
-        except Exception, e:
-            self.db.table('sys.error').writeException(description='Error in task %s %s :%s' %(task_execution['table_name'],task_execution['task_command'],str(e)))
-            result = Bag(dict(error=unicode(e)))
-        return result
+        taskparameters = task_execution['parameters']
+        with self.db.tempEnv(connectionName='execution'):
+            taskObj(parameters=Bag(taskparameters),task_execution_record=task_execution)
     
     def start(self):
         while True:
             for te_pkey in self.taskToExecute():
                 with self.tblobj.recordToUpdate(te_pkey,virtual_columns='$task_table,$task_name.$task_parameters,$task_command') as task_execution:
-                    result = self.runTask(task_execution)
-                    if result['error']:
-                        task_execution['is_error'] = True
+                    self.runTask(task_execution)
                     task_execution['end_ts'] = datetime.now()
                 self.db.commit()
             sleep(randrange(self.interval-10,self.interval+10))

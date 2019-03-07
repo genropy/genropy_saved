@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,metadata
 
 class View(BaseComponent):
 
@@ -20,12 +20,17 @@ class View(BaseComponent):
         r.fieldcell('status')
 
     def th_order(self):
-        return '__ins_ts'
+        return '__ins_ts:d'
+
+
 
     def th_query(self):
         return dict(column='task_id', op='contains', val='')
 
 class ViewFromTask(BaseComponent):
+
+    def th_order(self):
+        return '__ins_ts:d'
 
     def th_struct(self,struct):
         r = struct.view().rows()
@@ -37,9 +42,16 @@ class ViewFromTask(BaseComponent):
         r.fieldcell('is_error',width='5em',name='Error')
         r.fieldcell('status')
 
-
-    def th_order(self):
-        return '__ins_ts'
+    def th_top_custom(self,top):
+        top.bar.replaceSlots('vtitle','sections@secstat')
+    
+    @metadata(multiButton=True)
+    def th_sections_secstat(self):
+        return [
+            dict(code='active',condition="$status IN :st",condition_st=['running','waiting'],caption='Active'),
+            dict(code='completed',condition="$status=:st",condition_st='completed',caption='Completed'),
+            dict(code='error',condition="$status=:st",condition_st='error',caption='Error')
+        ]
 
 
 class Form(BaseComponent):

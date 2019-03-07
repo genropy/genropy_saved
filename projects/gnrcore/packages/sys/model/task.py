@@ -226,18 +226,6 @@ class Table(object):
             with self.db.tempEnv(connectionName='system'):
                 self.db.commit()
 
-    def writeTaskExecutions(self):
-        tblexecutions = self.db.table('sys.task_execution')
-        now = datetime.now()
-        task_to_schedule = self.findTasks()
-        print 'find %i task' %len(task_to_schedule)
-        def cb(row):
-            tblexecutions.insert(tblexecutions.newrecord(task_id=row['id']))
-            row['last_scheduled_ts'] = now
-            row['run_asap'] = False
-        self.batchUpdate(cb,_pkeys=[r['id'] for r in task_to_schedule])
-        self.db.commit()
-    
     
     
 if __name__=='__main__':
