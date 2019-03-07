@@ -1083,21 +1083,17 @@ class GunicornDeployBuilder(object):
 
         gnrasync = group.section('program','%s_gnrasync' %self.site_name)
         gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
-        
-        if self.site_config['taskworkers?count']:
+        taskworkers = self.site_config.getAttr('taskworkers')
+        if taskworkers:
             tw_base = group.section('program','%s_taskworkers' %self.site_name)
-            reserveds = 0
             tw_base.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrworker'),self.site_name))
             reserved_workers = self.site_config['taskworkers']
-            if reserved_workers:
-                for n in reserved_workers:
-                    tw =  group.section('program','%s_taskworkers_%s' %(self.site_name,n.label))
-                    tw.parameter('command','%s %s --pattern %s' %(os.path.join(self.bin_folder,'gnrworker'),self.site_name,n.attr['pattern']))
-                    count = int(n.attr.get('count',1))
-                    reserveds+=count
-                    tw.parameter('numprocs',str(count))
-            not_reserveds = int(self.site_config['taskworkers?count']) - reserveds
-            tw_base.parameter('numprocs',str(not_reserveds))
+            tw_base.parameter('numprocs',taskworkers.pop('count','1'))
+            for key,val in taskworkers.items():
+                key = key.split('_')[1]
+                tw =  group.section('program','%s_taskworkers_%s' %(self.site_name,key))
+                tw.parameter('command','%s %s --code %s' %(os.path.join(self.bin_folder,'gnrworker'),self.site_name,key))
+                tw.parameter('numprocs',val)
         root.toIniConf(os.path.join(self.config_folder,'supervisord.conf'))
 
     def main_supervisor_conf(self):
