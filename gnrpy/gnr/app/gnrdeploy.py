@@ -1137,7 +1137,7 @@ class GunicornDeployBuilder(object):
         mp = self.supervisord_monitor_parameters
         if mp.get('port'):
             sec = root.section(u"inet_http_server",label='xmlrpcmonitor')
-            sec.parameter("port",value='127.0.0.1:%(port)s' %mp)
+            sec.parameter("port",value='*:%(port)s' %mp)
             sec.parameter('username',value=mp['username'])
             sec.parameter('password',value=mp['password'])
         else:
