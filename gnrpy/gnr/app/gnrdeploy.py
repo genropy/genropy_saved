@@ -1131,21 +1131,27 @@ class GunicornDeployBuilder(object):
         root.toIniConf(self.supervisor_conf_path_ini)
 
     def xmlRpcServerConf(self,root):
-        sec = root.section(u"unix_http_server")
-        sec.parameter("file",value=self.supervisord_socket_path)
-        sec.parameter('chmod',value=self.supervisord_monitor_parameters.get('chmod','0777'))
-        sec.parameter('chown',value=self.supervisord_monitor_parameters.get('chown','nobody:nogroup'))
-        sec.parameter('username',value=self.supervisord_monitor_parameters['username'])
-        sec.parameter('password',value=self.supervisord_monitor_parameters['password'])
-
+        mp = self.supervisord_monitor_parameters
+        if mp.get('port'):
+            sec = root.section(u"inet_http_server")
+            sec.parameter("port",value='127.0.0.1:%(port)s' %mp)
+            sec.parameter('username',value=mp['username'])
+            sec.parameter('password',value=mp['password'])
+        else:
+            sec = root.section(u"unix_http_server")
+            sec.parameter("file",value=self.supervisord_socket_path)
+            sec.parameter('chmod',value=mp.get('chmod','0777'))
+            sec.parameter('chown',value=mp.get('chown','nobody:nogroup'))
+            sec.parameter('username',value=mp['username'])
+            sec.parameter('password',value=mp['password'])
         sec = root.section("rpcinterface:supervisor")
         sec.parameter('supervisor.rpcinterface_factory',value='supervisor.rpcinterface:make_main_rpcinterface')
 
-
-
     def supervisord_monitor_location(self):
-        if not self.supervisord_monitor_parameters:
+        mp = self.supervisord_monitor_parameters
+        if not mp or mp.get('port'):
             return ''
+        
         return """
         location /supervisord {
             proxy_http_version 1.1;
