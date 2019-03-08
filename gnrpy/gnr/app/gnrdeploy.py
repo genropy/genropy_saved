@@ -1136,18 +1136,18 @@ class GunicornDeployBuilder(object):
     def xmlRpcServerConf(self,root):
         mp = self.supervisord_monitor_parameters
         if mp.get('port'):
-            sec = root.section(u"inet_http_server",childname='xmlrpcmonitor')
+            sec = root.section(u"inet_http_server",name='xmlrpcmonitor')
             sec.parameter("port",value='127.0.0.1:%(port)s' %mp)
             sec.parameter('username',value=mp['username'])
             sec.parameter('password',value=mp['password'])
         else:
-            sec = root.section(u"unix_http_server",childname='xmlrpcmonitor')
+            sec = root.section(u"unix_http_server",name='xmlrpcmonitor')
             sec.parameter("file",value=self.supervisord_socket_path)
             sec.parameter('chmod',value=mp.get('chmod','0777'))
             sec.parameter('chown',value=mp.get('chown','nobody:nogroup'))
             sec.parameter('username',value=mp['username'])
             sec.parameter('password',value=mp['password'])
-        sec = root.section("rpcinterface",name='supervisor',childname='rpcinterface_supervisor')
+        sec = root.section("rpcinterface",name='supervisor')
         sec.parameter('supervisor.rpcinterface_factory',value='supervisor.rpcinterface:make_main_rpcinterface')
 
     def supervisord_monitor_location(self):
