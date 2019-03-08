@@ -80,14 +80,13 @@ class GnrTaskWorker(object):
         self.pid = os.getpid()
         wherelist = ["$start_ts IS NULL","$task_stopped IS NOT TRUE","$task_active_workers<COALESCE($task_max_workers,1)"]
         if self.code:
-            wherelist.append('$worker_code=:wcode')
+            wherelist.append('$task_worker_code=:wcode')
         self.where = ' AND '.join(['( %s )' %c for c in wherelist])
     
     def taskToExecute(self):
         f = True
         while f:
             f = self.tblobj.query(where=self.where,wcode=self.code,
-                                    columns="""*,$task_max_workers,$task_active_workers""",
                                     limit=1,for_update=True,order_by='$__ins_ts').fetch()
             if f:
                 rec = f[0]

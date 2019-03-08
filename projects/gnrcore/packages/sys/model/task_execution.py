@@ -25,6 +25,8 @@ class Table(object):
         tbl.aliasColumn('task_stopped','@task_id.stopped',dtype='B',name_long='!!Stopped')
         tbl.aliasColumn('task_parameters','@task_id.parameters',dtype='B',name_long='!!Parameters')
 
+        tbl.aliasColumn('task_worker_code','@task_id.worker_code',dtype='L',name_long='!!Task worker code')
+
         tbl.aliasColumn('task_max_workers','@task_id.max_workers',dtype='L',name_long='!!Task Max workers')
         tbl.aliasColumn('task_active_workers','@task_id.active_workers',dtype='L',name_long='!!Task Active workers')
 
