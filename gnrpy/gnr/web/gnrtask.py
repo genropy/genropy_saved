@@ -100,8 +100,8 @@ class GnrTaskWorker(object):
 
     def runTask(self, task_execution):
         page = self.site.dummyPage
-        page._db=self.db
-        page._db.clearCurrentEnv()
+        self.site.currentPage = page
+        page.db
         log_record = Bag()
         start_time = datetime.now()
         log_record['start_time'] = start_time
