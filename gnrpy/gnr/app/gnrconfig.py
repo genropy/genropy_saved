@@ -121,7 +121,7 @@ def config(root,application=None):"""
 class IniConfStruct(ConfigStruct):
 
     def section(self,section=None,name=None):
-        return self.child('section',name=name,section=section,childname=name)
+        return self.child('section',name=name,section=section,childname='%s:%s' %(section,name) if name else None)
 
     def parameter(self,parameter=None,value=None):
         return self.child('parameter',parameter=parameter,value=value,childname=parameter.replace('.','_'))
