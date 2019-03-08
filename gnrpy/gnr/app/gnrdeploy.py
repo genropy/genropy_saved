@@ -1118,16 +1118,16 @@ class GunicornDeployBuilder(object):
             root = IniConfStruct()
             supervisord = root.section(u"supervisord")
             supervisord.parameter("loglevel",value="error")
-        root.pop(self.site_name)            
+        root.pop(self.site_name)     
+        root.pop('xmlrpcmonitor')
+        root.pop('rpcinterface')       
         group = root.section('group',self.site_name)
         gunicorn = group.section('program','%s_gunicorn' %self.site_name)
         gunicorn.parameter('command','%s -c %s root' %(os.path.join(self.bin_folder,'gunicorn'),self.gunicorn_conf_path))
         gnrasync = group.section('program','%s_gnrasync' %self.site_name)
         gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
         self.taskWorkersConf(group)
-        root.pop('inet_http_server')
-        root.pop('unix_http_server')
-        root.pop('rpcinterface:supervisor')
+
         if self.supervisord_monitor_parameters:
             self.xmlRpcServerConf(root)
         root.toPython(self.supervisor_conf_path_py)
@@ -1136,18 +1136,18 @@ class GunicornDeployBuilder(object):
     def xmlRpcServerConf(self,root):
         mp = self.supervisord_monitor_parameters
         if mp.get('port'):
-            sec = root.section(u"inet_http_server")
+            sec = root.section(u"inet_http_server",name='xmlrpcmonitor')
             sec.parameter("port",value='127.0.0.1:%(port)s' %mp)
             sec.parameter('username',value=mp['username'])
             sec.parameter('password',value=mp['password'])
         else:
-            sec = root.section(u"unix_http_server")
+            sec = root.section(u"unix_http_server",name='xmlrpcmonitor')
             sec.parameter("file",value=self.supervisord_socket_path)
             sec.parameter('chmod',value=mp.get('chmod','0777'))
             sec.parameter('chown',value=mp.get('chown','nobody:nogroup'))
             sec.parameter('username',value=mp['username'])
             sec.parameter('password',value=mp['password'])
-        sec = root.section("rpcinterface:supervisor")
+        sec = root.section("rpcinterface:supervisor",name='rpcinterface')
         sec.parameter('supervisor.rpcinterface_factory',value='supervisor.rpcinterface:make_main_rpcinterface')
 
     def supervisord_monitor_location(self):
