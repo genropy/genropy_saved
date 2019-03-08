@@ -1125,7 +1125,10 @@ class GunicornDeployBuilder(object):
         gnrasync = group.section('program','%s_gnrasync' %self.site_name)
         gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
         self.taskWorkersConf(group)
-        if self.supervisord_monitor_parameters:
+        root.pop('inet_http_server')
+        root.pop('unix_http_server')
+        root.pop('rpcinterface:supervisor')
+        if self.supervisord_monitor_parameters and not root.get(''):
             self.xmlRpcServerConf(root)
         root.toPython(self.supervisor_conf_path_py)
         root.toIniConf(self.supervisor_conf_path_ini)
