@@ -44,6 +44,7 @@ class GnrTaskScheduler(object):
     def start(self):
         while True:
             self.writeTaskExecutions()
+            self.db.closeConnection()
             sleep(self.interval)
     
     def writeTaskExecutions(self):
@@ -119,4 +120,5 @@ class GnrTaskWorker(object):
                     self.runTask(task_execution)
                     task_execution['end_ts'] = datetime.now()
                 self.db.commit()
+            self.db.closeConnection()
             sleep(randrange(self.interval-10,self.interval+10))
