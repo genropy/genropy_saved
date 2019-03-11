@@ -88,15 +88,14 @@ class GnrTaskWorker(object):
         f = True
         while f:
             f = self.tblobj.query(where=self.where,wcode=self.code,
-                                    limit=1,for_update=True,order_by='$__ins_ts').fetch()
+                                    limit=1,order_by='$__ins_ts').fetch()
             if f:
-                rec = f[0]
-                oldrec = dict(rec)
-                rec['start_ts'] = datetime.now()
-                rec['pid'] = self.pid
-                self.tblobj.update(rec,oldrec)
+                pkey = f[0]['id']
+                with self.tblobj.recordToUpdate(pkey,for_update=True) as rec:
+                    rec['start_ts'] = datetime.now()
+                    rec['pid'] = self.pid
                 self.db.commit()
-                yield rec['id']
+                yield pkey
 
     def runTask(self, task_execution):
         page = self.site.dummyPage
