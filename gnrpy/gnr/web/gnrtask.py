@@ -89,7 +89,6 @@ class GnrTaskWorker(object):
         while f:
             f = self.tblobj.query(where=self.where,wcode=self.code,for_update='SKIP LOCKED',
                                     limit=1,order_by='$__ins_ts').fetch()
-            print 'f',f
             if f:
                 rec = f[0]
                 oldrec = dict(rec)
@@ -97,7 +96,6 @@ class GnrTaskWorker(object):
                 rec['pid'] = self.pid
                 self.tblobj.update(rec,oldrec)
                 self.db.commit()
-                print 'returning task to execute',rec['id']
                 yield rec['id']
 
     def runTask(self, task_execution):
