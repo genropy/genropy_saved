@@ -165,9 +165,10 @@ class Table(object):
     def sendMessage(self,pkey=None):
         site = self.db.application.site
         mail_handler = site.getService('mail')
-        with self.recordToUpdate(pkey) as message:
+        with self.recordToUpdate(pkey,for_update='SKIP LOCKED') as message:
             if message['send_date']:
                 return
+            print 'sending message',pkey
             message['extra_headers'] = Bag(message['extra_headers'])
             extra_headers = message['extra_headers']
             extra_headers['message_id'] = extra_headers['message_id'] or 'GNR_%(id)s' %message
@@ -180,6 +181,7 @@ class Table(object):
             if mp['system_bcc']:
                 bcc_address = '%s,%s' %(bcc_address,mp['system_bcc']) if bcc_address else mp['system_bcc']
             try:
+                print 'try sending message',pkey
                 mail_handler.sendmail(to_address=debug_address or message['to_address'],
                                 body=message['body'], subject=message['subject'],
                                 cc_address=message['cc_address'], bcc_address=bcc_address,
@@ -191,6 +193,7 @@ class Table(object):
                 message['send_date'] = datetime.now()
                 message['bcc_address'] = bcc_address
             except Exception as e:
+                print 'error in sending message',str(e)
                 sending_attempt = message['sending_attempt'] = message['sending_attempt'] or Bag()
                 ts = datetime.now()
                 sending_attempt.setItem('r_%i' %len(sending_attempt),None,ts=ts,error=str(e))
