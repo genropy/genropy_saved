@@ -273,6 +273,7 @@ class GnrWsgiSite(object):
         self.cleanup_interval = int(cleanup.get('interval') or 120)
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
+        self.db.closeConnection()
 
 
     @property
@@ -1224,7 +1225,7 @@ class GnrWsgiSite(object):
         :param dflt: TODO"""
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
-            return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
+            result = self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
 
     def getUserPreference(self, path, pkg=None, dflt=None, username=None):
         """TODO
