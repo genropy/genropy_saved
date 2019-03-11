@@ -11,6 +11,6 @@ class GnrCustomWebPage(object):
 
     def main(self,root,**kwargs):
         root = root.rootContentPane(title='!!Legacy converter editor',datapath='main',**kwargs)
-        root.inlineTableHandler(table='lgcy.converter',viewResource='ConverterEditor',
-                                autoSave=True,semaphore=True,
-                                configurable=False,view_store__onStart=True)
+        root.dialogTableHandler(table='lgcy.converter',viewResource='ConverterEditorView',
+                                formResource='ConverterEditorForm',
+                                view_store__onStart=True)
