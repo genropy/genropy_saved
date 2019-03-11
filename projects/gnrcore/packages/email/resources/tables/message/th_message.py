@@ -145,6 +145,8 @@ class Form(BaseComponent):
         fb.field('account_id')
 
         fb.field('__is_draft', lbl='Draft')
+        fb.button('Send message',hidden='^.send_date',fire='#FORM.send_message')
+        fb.dataRpc(None,self.db.table('email.message').sendMessage,_fired='^#FORM.send_message',pkey='=#FORM.record.id')
 
         
 
