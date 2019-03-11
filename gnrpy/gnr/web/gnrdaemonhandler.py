@@ -315,7 +315,7 @@ class GnrDaemon(object):
             siteregister_processes_dict.update(register=childprocess, heartbeat=hbprocess)
             sitedict = siteregister_processes_dict
             self.startServiceProcesses(sitename,sitedict=sitedict)
-            self.startGnrDaemonServiceManager(sitename)
+            #self.startGnrDaemonServiceManager(sitename)
             #self.siteregisters_process[sitename] = sitedict
 
 
