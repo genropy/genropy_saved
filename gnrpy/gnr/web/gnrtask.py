@@ -96,6 +96,7 @@ class GnrTaskWorker(object):
                 rec['pid'] = self.pid
                 self.tblobj.update(rec,oldrec)
                 self.db.commit()
+                print 'returning task to execute',rec['id']
                 yield rec['id']
 
     def runTask(self, task_execution):
@@ -116,6 +117,7 @@ class GnrTaskWorker(object):
     def start(self):
         while True:
             for te_pkey in self.taskToExecute():
+                print 'got task exec',te_pkey
                 with self.tblobj.recordToUpdate(te_pkey,for_update='SKIP LOCKED',
                                                 virtual_columns='$task_table,$task_name.$task_parameters,$task_command') as task_execution:
                     print 'running task exec',te_pkey
