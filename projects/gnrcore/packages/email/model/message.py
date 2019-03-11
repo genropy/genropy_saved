@@ -174,6 +174,7 @@ class Table(object):
             extra_headers['message_id'] = extra_headers['message_id'] or 'GNR_%(id)s' %message
             account_id = message['account_id']
             mp = self.db.table('email.account').getSmtpAccountPref(account_id)
+            print 'mail pars',mp
             debug_address = mp.pop('system_debug_address')
             bcc_address = message['bcc_address'] 
             attachments = self.db.table('email.message_atc').query(where='$maintable_id=:mid',mid=message['id']).fetch()
