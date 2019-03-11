@@ -15,12 +15,12 @@ class View(BaseComponent):
         return 'code'
 
 
-class ConverterEditor(BaseComponent):
+class ConverterEditorView(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()    
         convertertbl = self.db.table('lgcy.converter')    
         for field in convertertbl.convertedFields():
-            r.fieldcell(field,width='30em',edit=True,
+            r.fieldcell(field,width='30em',
                         hidden='^main.lgcy_converter.view.sections.convertedtables.current?=#v!="conv_%s"' %field)
         r.fieldcell('code',edit=True,width='20em')
 
@@ -76,6 +76,24 @@ class ConverterEditor(BaseComponent):
                                 condition="$%s IS NOT NULL" %field))
         return result
     
+
+
+class ConverterEditorForm(BaseComponent):
+
+    def th_form(self, form):
+        pane = form.record
+        fb = pane.div(margin_top='20px',margin_right='20px').formbuilder(cols=1, border_spacing='4px',width='100%')
+        convertertbl = self.db.table('lgcy.converter')    
+        for field in convertertbl.convertedFields():
+            fb.field(field,width='100%',
+                    validate_notnull='^main.lgcy_converter.view.sections.convertedtables.current?=#v=="conv_%s"' %field,
+                    hidden='^main.lgcy_converter.view.sections.convertedtables.current?=#v!="conv_%s"' %field)
+        fb.field('code',validate_notnull=True)
+
+
+
+    def th_options(self):
+        return dict(dialog_height='160px', dialog_width='400px')
 
 
 class Form(BaseComponent):
