@@ -91,7 +91,7 @@ class GnrTaskWorker(object):
                                     limit=1,order_by='$__ins_ts').fetch()
             if f:
                 pkey = f[0]['id']
-                with self.tblobj.recordToUpdate(pkey,for_update=True) as rec:
+                with self.tblobj.recordToUpdate(pkey) as rec:
                     rec['start_ts'] = datetime.now()
                     rec['pid'] = self.pid
                 self.db.commit()
