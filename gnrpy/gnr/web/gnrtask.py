@@ -87,15 +87,16 @@ class GnrTaskWorker(object):
     def taskToExecute(self):
         f = True
         while f:
-            f = self.tblobj.query(where=self.where,wcode=self.code,
+            f = self.tblobj.query(where=self.where,wcode=self.code,for_update='SKIP LOCKED',
                                     limit=1,order_by='$__ins_ts').fetch()
             if f:
-                pkey = f[0]['id']
-                with self.tblobj.recordToUpdate(pkey) as rec:
-                    rec['start_ts'] = datetime.now()
-                    rec['pid'] = self.pid
+                rec = f[0]
+                oldrec = dict(rec)
+                rec['start_ts'] = datetime.now()
+                rec['pid'] = self.pid
+                self.tblobj.update(rec,oldrec)
                 self.db.commit()
-                yield pkey
+                yield rec['id']
 
     def runTask(self, task_execution):
         page = self.site.dummyPage
@@ -115,7 +116,9 @@ class GnrTaskWorker(object):
     def start(self):
         while True:
             for te_pkey in self.taskToExecute():
-                with self.tblobj.recordToUpdate(te_pkey,virtual_columns='$task_table,$task_name.$task_parameters,$task_command') as task_execution:
+                with self.tblobj.recordToUpdate(te_pkey,for_update='SKIP LOCKED',
+                                                virtual_columns='$task_table,$task_name.$task_parameters,$task_command') as task_execution:
+                    print 'running task exec',te_pkey
                     self.runTask(task_execution)
                     task_execution['end_ts'] = datetime.now()
                 self.db.commit()
