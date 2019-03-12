@@ -273,6 +273,7 @@ class GnrWsgiSite(object):
         self.cleanup_interval = int(cleanup.get('interval') or 120)
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
+        self.db.closeConnection()
 
 
     @property
@@ -390,6 +391,7 @@ class GnrWsgiSite(object):
         if not ':' in path:
             path = '_raw_:%s'%path
         service_name, storage_path = path.split(':',1)
+        storage_path = storage_path.lstrip('/')
         if service_name == 'vol':
             #for legacy path
             service_name, storage_path = storage_path.replace(':','/').split('/', 1) 
