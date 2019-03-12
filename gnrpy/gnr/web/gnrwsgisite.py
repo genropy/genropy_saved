@@ -1159,11 +1159,14 @@ class GnrWsgiSite(object):
             else:
                 restorefiles = [restorepath]
             if restorefiles:
+                print restorepath
+                print restorefiles
                 restorepath = os.path.join(restorepath,restorefiles[0])
             else:
                 restorepath = None
         if self.remote_db:
             instance_path = '%s@%s' %(instance_path,self.remote_db)
+        print restorepath
         app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath)
         self.config.setItem('instances.app', app, path=instance_path)
         for f in restorefiles:
