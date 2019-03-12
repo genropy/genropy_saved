@@ -391,6 +391,7 @@ class GnrWsgiSite(object):
         if not ':' in path:
             path = '_raw_:%s'%path
         service_name, storage_path = path.split(':',1)
+        storage_path = storage_path.lstrip('/')
         if service_name == 'vol':
             #for legacy path
             service_name, storage_path = storage_path.replace(':','/').split('/', 1) 
