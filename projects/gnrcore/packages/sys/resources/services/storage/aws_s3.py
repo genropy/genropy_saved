@@ -277,6 +277,7 @@ class Service(StorageService):
 
     def open(self, *args, **kwargs):
         from smart_open import smart_open
+        smart_open.DEFAULT_BUFFER_SIZE = 1024 * 1024
         return smart_open("s3://%s/%s"%(self.bucket,self.internal_path(*args)),
             s3_session=self._session, **kwargs)
 
