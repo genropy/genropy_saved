@@ -212,15 +212,11 @@ class GnrDaemon(object):
         self.stop(saveStatus=True)
 
     def restartServiceDaemon(self,sitename=None,service_name=None):
-        print 'restartServiceDaemon',sitename,service_name
         sitedict = self.siteregisters_process[sitename]
-        print 'sitedict',sitedict
         if service_name in sitedict:
-            print('restarting daemon %s' %service_name)
             proc = sitedict[service_name]
             proc.terminate()
             sitedict[service_name] = self.startServiceDaemon(sitename, service_name=service_name)
-            print('restarted daemon %s' %service_name)
 
     def on_reloader_restart(self, sitename=None):
         pass
@@ -264,7 +260,6 @@ class GnrDaemon(object):
             if serv.attr.get('daemon'):
                 service_process = self.startServiceDaemon(sitename,serv.label)
                 siteregister_processes_dict[serv.label] = service_process
-                print('sitedict',siteregister_processes_dict)
 
     def startServiceDaemon(self,sitename, service_name=None):
         p = PathResolver()

@@ -241,7 +241,6 @@ class BaseResourceBatch(object):
             selection_kwargs['columns'] = columns
 
         if self.batch_selection_savedQuery:
-            self.batch_debug_write('Uso la saved query',self.batch_selection_savedQuery)
             selection = self._selection_from_savedQuery(selection_kwargs)
 
         elif self.batch_selection_where:                
