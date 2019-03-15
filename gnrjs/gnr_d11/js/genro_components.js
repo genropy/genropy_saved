@@ -5957,17 +5957,27 @@ dojo.declare("gnr.stores._Collection",null,{
             return null;
         }
         var filtered=[];
-        var excludeList = null;
+        var filteringList = null;
+
         if (grid.excludeListCb) {
-            excludeList = grid.excludeListCb.call(this.storeNode);
+            filteringList = grid.excludeListCb.call(this.storeNode);
         }
+        var filteringMode = grid.filteringMode || 'exclude';
         var that = this;
         dojo.forEach(this.getItems(), 
                     function(n,index,array){
                         var rowdata = that.rowFromItem(n);
                         var result = cb? cb(rowdata,index,array):true; 
+                        var include;
                         if(result){
-                            if ((!excludeList)||(dojo.indexOf(excludeList, rowdata[grid.excludeCol]) == -1)) {
+                            if(filteringMode=='exclude'){
+                                include =  ((!filteringList)||(dojo.indexOf(filteringList, rowdata[grid.excludeCol]) == -1));
+                            }else if(filteringMode=='disabled'){
+                                include = true;
+                            }else{
+                                include =filteringList && (dojo.indexOf(filteringList, rowdata[grid.excludeCol]) >= 0);
+                            }
+                            if(include){
                                 filtered.push(index);
                             }
                         }
