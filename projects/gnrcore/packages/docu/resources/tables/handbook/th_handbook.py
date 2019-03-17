@@ -34,7 +34,7 @@ class Form(BaseComponent):
         fb.field('title',colspan=2)
         fb.field('docroot_id', hasDownArrow=True, validate_notnull=True, tag='hdbselect', folderSelectable=True)
         fb.checkBoxText(value='^.toc_roots',#values='MI:Milano,CO:Como,SO:Sondrio')
-                        table='docu.documentation', popup=True, cols=4,
+                        table='docu.documentation', popup=True, cols=4,lbl='TOC roots',
                         condition='$parent_id = :docroot_id', condition_docroot_id='^.docroot_id' )
 
 

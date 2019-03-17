@@ -798,6 +798,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             });
         }
         if (widget.sourceNode.attr.filteringGrid){
+            widget.filteringMode = widget.sourceNode.currentFromDatasource(sourceNode.attr.filteringMode) || 'exclude';
             var filteringColumn = sourceNode.attr.filteringColumn.replace(/\./g, '_').replace(/@/g, '_');            
             var filteredColumn = filteringColumn;
             if(filteringColumn.indexOf(':')>=0){
@@ -808,12 +809,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var connectFilteringGrid=function(){
                 var filteringGrid = widget.sourceNode.currentFromDatasource(widget.sourceNode.attr.filteringGrid);
                 filteringGrid = filteringGrid.widget;
-                dojo.connect(filteringGrid,'updateRowCount',function(){
+                dojo.connect(filteringGrid,'newDataStore',function(){
                     widget.filterToRebuild(true);
                     widget.updateRowCount('*');
                 });
                 widget.excludeListCb=function(){
-                    widget.sourceNode.currentFromDatasource(widget.sourceNode.attr.filteringGrid);
+                    //widget.sourceNode.currentFromDatasource(widget.sourceNode.attr.filteringGrid);
                     return filteringGrid.getColumnValues(filteredColumn);
                 };
                 widget.excludeCol=filteringColumn;
@@ -934,8 +935,15 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     mixin_setAutoInsert:function(autoInsert){
         this.autoInsert = autoInsert;
     },
+
     mixin_setAutoDelete:function(autoDelete){
         this.autoDelete = autoDelete;
+    },
+
+    mixin_setFilteringMode:function(filteringMode){
+        this.filteringMode = filteringMode || 'exclude' ;
+        this.filterToRebuild(true);
+        this.updateRowCount();
     },
 
     mixin_changedFocus:function(focus){
