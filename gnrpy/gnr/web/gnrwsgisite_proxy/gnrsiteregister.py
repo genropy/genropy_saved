@@ -640,14 +640,6 @@ class SiteRegister(BaseRemoteObject):
     def on_site_stop(self):
         print 'site stopped'
 
-
-    def reload_services(self, service_identifier=None):
-        if self.server.gnr_daemon_uri:
-            with Pyro4.Proxy(self.server.gnr_daemon_uri) as proxy:
-                if not OLD_HMAC_MODE:
-                    proxy._pyroHmacKey = self.server.hmac_key
-                proxy.reload_services(sitename=self.sitename, service_identifier=service_identifier)
-
     def checkCachedTables(self,table):
         for register in (self.page_register,self.connection_register,self.user_register):
             if table in register.cached_tables:

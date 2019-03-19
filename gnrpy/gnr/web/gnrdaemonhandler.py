@@ -221,19 +221,6 @@ class GnrDaemon(object):
     def on_reloader_restart(self, sitename=None):
         pass
 
-    def reload_services(self, sitename=None, service_identifier=None):
-        siteregister_processes_dict = self.siteregisters_process[sitename]
-        daemonServiceHandler = siteregister_processes_dict['services']
-        daemonServiceHandler.reloadServices(service_identifier=service_identifier)
-
-   #def startWorkerProcesses(self, sitename=None, batch_pars=None):
-   #    siteregister_processes_dict = self.siteregisters_process[sitename]
-   #    batch_queue = self.multiprocessing_manager.Queue()
-   #    siteregister_processes_dict['gnrworker_pool'] = GnrWorkerPool(self,sitename=sitename, 
-   #        batch_pars=batch_pars, batch_queue=batch_queue)
-   #    siteregister_processes_dict['gnrworker_pool'].start()
-   #    return batch_queue
-
     def startCronProcess(self, sitename=None, batch_pars=None, batch_queue=None):
         siteregister_processes_dict = self.siteregisters_process[sitename]
         cron_handler = GnrCronHandler(self, sitename=sitename, batch_queue=batch_queue,
