@@ -1563,14 +1563,3 @@ class GnrWsgiSite(object):
         if _link:
             return '<a href="%s" target="_blank">%s</a>' %(path,_link if _link is not True else '')
         return path
-
-class GnrDaemonSite(GnrWsgiSite):
-
-
-    def build_wsgiapp(self, options=None):
-        def callme(*args,**kwargs):
-            pass
-        return callme
-    
-    def getService(self, service_type=None,service_name=None, **kwargs):
-        return self.services_handler.getService(service_type=service_type,service_name=service_name or service_type, **kwargs)

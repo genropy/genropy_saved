@@ -423,6 +423,41 @@ class PathResolver(object):
         
         :param site_name: TODO"""
         return self.entity_name_to_path(site_name, 'site')
+    
+    def get_instanceconfig(self,instance_name):
+        instanceFolder = self.instance_name_to_path(instance_name)
+        instanceName = os.path.basename(instanceFolder)
+
+        project_packages_path = os.path.normpath(os.path.join(instanceFolder, '..', '..', 'packages'))
+        if os.path.isdir(project_packages_path):
+            project_packages_path = project_packages_path
+        if os.path.exists(os.path.join(instanceFolder,'config','instanceconfig.xml')):
+            instanceFolder = os.path.join(instanceFolder,'config')
+        
+        if not instanceFolder:
+            return Bag()
+
+        def normalizePackages(config):
+            if config['packages']:
+                packages = Bag()
+                for n in config['packages']:
+                    packages.setItem(n.attr.get('pkgcode') or n.label, n.value, n.attr)
+                config['packages']  = packages
+            return config
+        instance_config_path = os.path.join(instanceFolder, 'instanceconfig.xml')
+        base_instance_config = normalizePackages(Bag(instance_config_path))
+        instance_config = normalizePackages(self.gnr_config['gnr.instanceconfig.default_xml']) or Bag()
+        template = base_instance_config['instance?template']
+        if template:
+            instance_config.update(normalizePackages(self.gnr_config['gnr.instanceconfig.%s_xml' % template]) or Bag())
+        if 'instances' in self.gnr_config['gnr.environment_xml']:
+            for path, instance_template in self.gnr_config.digest(
+                    'gnr.environment_xml.instances:#a.path,#a.instance_template') or []:
+                if path == os.path.dirname(instanceFolder):
+                    instance_config.update(normalizePackages(self.gnr_config['gnr.instanceconfig.%s_xml' % instance_template]) or Bag())
+        instance_config.update(base_instance_config)
+        return instance_config
+
 
     def get_siteconfig(self,site_name):
         site_config = self.gnr_config['gnr.siteconfig.default_xml']
@@ -964,6 +999,7 @@ server {
             proxy_set_header X-Forwarded-Proto $real_scheme;
             proxy_pass http://unix:%(gnrasync_socket_path)s;
         }
+        %(supervisord_location)s
         location / {
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $real_scheme;
@@ -998,6 +1034,8 @@ class GunicornDeployBuilder(object):
         self.supervisor_conf_path_py = os.path.join(self.gnr_path,'supervisord.py') 
         self.supervisor_conf_path_ini = os.path.join(self.gnr_path,'supervisord.conf')
         self.supervisor_log_path = os.path.join(self.gnr_path,'supervisord.log')
+        self.supervisord_socket_path = os.path.join(self.gnr_path,'supervisord.sock')
+        self.supervisord_monitor_parameters = self.path_resolver.gnr_config.getAttr('gnr.environment_xml.supervisord')
         self.bin_folder = os.path.join(os.environ.get('VIRTUAL_ENV'),'bin') if os.environ.has_key('VIRTUAL_ENV') else ''
         self.socket_path = os.path.join(self.site_path, 'sockets')
         self.logs_path = os.path.join(self.site_path, 'logs')
@@ -1005,6 +1043,8 @@ class GunicornDeployBuilder(object):
         self.gunicorn_conf_path = os.path.join(self.config_folder,'gunicorn.py')
         self.gnrasync_socket_path = os.path.join(self.socket_path, "async.tornado" )
         self.gunicorn_socket_path = os.path.join(self.socket_path,'gunicorn.sock')
+        
+
         self.create_dirs()
         import multiprocessing
         self.default_workers = multiprocessing.cpu_count()* 2 + 1
@@ -1048,8 +1088,28 @@ class GunicornDeployBuilder(object):
 
         gnrasync = group.section('program','%s_gnrasync' %self.site_name)
         gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
-        
+        self.taskWorkersConf(group)
         root.toIniConf(os.path.join(self.config_folder,'supervisord.conf'))
+    
+    def taskWorkersConf(self,group):
+        taskworkers = self.site_config.getAttr('taskworkers') or {'count':'1'}
+        if taskworkers:
+            tw_base = group.section('program','%s_taskworkers' %self.site_name)
+            nice = taskworkers.pop('nice',None)
+            nicecommand = 'nice' if nice is None else 'nice -%s' %nice
+            tw_base.parameter('process_name',"%s_gnrtaskworker%%(process_num)s" %self.site_name)
+            tw_base.parameter('command','%s %s %s' %(nicecommand,os.path.join(self.bin_folder,'gnrtaskworker'),self.site_name))
+            reserved_workers = self.site_config['taskworkers']
+            tw_base.parameter('numprocs',taskworkers.pop('count','1'))
+            for key,val in taskworkers.items():
+                key = key.split('_')[1]
+                subnice = taskworkers.pop('nice_%s' %key,nice)
+                subnicecommand = 'nice' if subnice is None else nicecommand
+                tw =  group.section('program','%s_taskworkers_%s' %(self.site_name,key))
+                tw.parameter('process_name',"%s_gnrtaskworker_%s_%%(process_num)s" %(self.site_name,key))
+                tw.parameter('command','%s %s %s --code %s' %(subnicecommand,os.path.join(self.bin_folder,'gnrtaskworker'),self.site_name,key))
+                tw.parameter('numprocs',val)
+
 
     def main_supervisor_conf(self):
         if os.path.isfile(self.supervisor_conf_path_py):
@@ -1058,14 +1118,54 @@ class GunicornDeployBuilder(object):
             root = IniConfStruct()
             supervisord = root.section(u"supervisord")
             supervisord.parameter("loglevel",value="error")
-        root.pop(self.site_name)            
+        root.pop(self.site_name)    
+        root.pop('xmlrpcmonitor')
+        root.pop('rpcinterface_supervisor')       
         group = root.section('group',self.site_name)
         gunicorn = group.section('program','%s_gunicorn' %self.site_name)
         gunicorn.parameter('command','%s -c %s root' %(os.path.join(self.bin_folder,'gunicorn'),self.gunicorn_conf_path))
         gnrasync = group.section('program','%s_gnrasync' %self.site_name)
         gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
+        self.taskWorkersConf(group)
+
+        if self.supervisord_monitor_parameters:
+            self.xmlRpcServerConf(root)
         root.toPython(self.supervisor_conf_path_py)
         root.toIniConf(self.supervisor_conf_path_ini)
+
+    def xmlRpcServerConf(self,root):
+        mp = self.supervisord_monitor_parameters
+        if mp.get('port'):
+            sec = root.section(u"inet_http_server",label='xmlrpcmonitor')
+            sec.parameter("port",value='*:%(port)s' %mp)
+            sec.parameter('username',value=mp['username'])
+            sec.parameter('password',value=mp['password'])
+        else:
+            sec = root.section(u"unix_http_server",label='xmlrpcmonitor')
+            sec.parameter("file",value=self.supervisord_socket_path)
+            sec.parameter('chmod',value=mp.get('chmod','0777'))
+            sec.parameter('chown',value=mp.get('chown','nobody:nogroup'))
+            sec.parameter('username',value=mp['username'])
+            sec.parameter('password',value=mp['password'])
+        sec = root.section("rpcinterface",name='supervisor',label='rpcinterface_supervisor')
+        sec.parameter('supervisor.rpcinterface_factory',value='supervisor.rpcinterface:make_main_rpcinterface')
+
+    def supervisord_monitor_location(self):
+        mp = self.supervisord_monitor_parameters
+        if not mp or mp.get('port'):
+            return ''
+        
+        return """
+        location /supervisord {
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Forwarded-Proto $real_scheme;
+            proxy_pass http://unix:%(supervisord_socket_path)s;
+        }""" %{'supervisord_socket_path':self.supervisord_socket_path }
+
 
     def write_nginx_conf(self,domain=None):
         pars = {}
@@ -1074,6 +1174,7 @@ class GunicornDeployBuilder(object):
         pars['logs_path'] = self.logs_path
         pars['gnrasync_socket_path'] = self.gnrasync_socket_path
         pars['gunicorn_socket_path'] = self.gunicorn_socket_path
+        pars['supervisord_location'] = self.supervisord_monitor_location()
         conf_content = NGINX_TEMPLATE %pars
         with open('%s.conf' %self.site_name,'w') as conf_file:
             conf_file.write(conf_content)

@@ -189,11 +189,6 @@ class TableScriptHandler(BaseComponent):
             hasParameters=hasParameters,hasOptions=hasOptions)
 
     @public_method
-    def table_script_daemon_run(self, **kwargs):
-        self.site.register.table_script_put(page_id=self.page_id, batch_kwargs=kwargs)
-        
-
-    @public_method
     def table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectedPkeys=None,selectionFilterCb=None,
                              sortBy=None,
                              selectedRowidx=None,

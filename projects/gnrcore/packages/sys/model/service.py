@@ -60,7 +60,6 @@ class Table(object):
             with site.register.globalStore() as gs:
                 gs.setItem('globalServices_lastTS.%(service_identifier)s' %record,datetime.now())
 
-
     def trigger_onUpdated(self,record,old_record=None):
         self.serviceExpiredTs(record)
 
