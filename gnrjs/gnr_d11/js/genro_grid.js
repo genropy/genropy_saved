@@ -4229,7 +4229,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
 
     mixin_serverAction:function(kw){
         var options = objectPop(kw,'opt');
-        var allRows = objectPop(kw,'allRows');
+        var allRows = objectPop(options,'allRows');
         var method = objectPop(options,"method") || "app.includedViewAction";
         var kwargs = objectUpdate({},options);
         var useRawData = options['rawData']===true;
