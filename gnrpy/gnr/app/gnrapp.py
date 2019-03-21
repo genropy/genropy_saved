@@ -469,6 +469,9 @@ class GnrPackage(object):
     def db(self):
         return self.application.db
     
+    def required_packages(self):
+        return []
+    
     def loadPlugins(self):
         """TODO"""
         plugin_folders=glob.glob(os.path.join(self.application.pluginFolder,self.id,'*'))
@@ -770,19 +773,9 @@ class GnrApp(object):
         
         
 
-        for pkgid, attrs,pkgcontent in self.config['packages'].digest('#k,#a,#v'):
-            if ':' in pkgid:
-                project,pkgid=pkgid.split(':')
-            else:
-                project=None
-            if not attrs.get('path'):
-                attrs['path'] = self.pkg_name_to_path(pkgid,project)
-            if not os.path.isabs(attrs['path']):
-                attrs['path'] = self.realPath(attrs['path'])
-            apppkg = GnrPackage(pkgid, self, **attrs)
-            apppkg.content = pkgcontent or Bag()
-            self.packagesIdByPath[os.path.realpath(apppkg.packageFolder)] = pkgid
-            self.packages[pkgid] = apppkg
+        for pkgid,pkgattrs,pkgcontent in self.config['packages'].digest('#k,#a,#v'):
+            self.addPackage(pkgid,pkgattrs=pkgattrs,pkgcontent=pkgcontent)
+
 
         for pkgid, apppkg in self.packages.items():
             apppkg.initTableMixinDict()
@@ -804,10 +797,28 @@ class GnrApp(object):
                 
             if isinstance(forTesting, Bag):
                 self.loadTestingData(forTesting)
-
-        
         self.onInited()
 
+    def addPackage(self,pkgid,pkgattrs=None,pkgcontent=None):
+        if ':' in pkgid:
+            project,pkgid=pkgid.split(':')
+        else:
+            project=None
+        if pkgid in self.packages:
+            return 
+        attrs = pkgattrs or {}
+        if not attrs.get('path'):
+            attrs['path'] = self.pkg_name_to_path(pkgid,project)
+        if not os.path.isabs(attrs['path']):
+            attrs['path'] = self.realPath(attrs['path'])
+        apppkg = GnrPackage(pkgid, self, **attrs)
+        apppkg.content = pkgcontent or Bag()
+        for reqpkgid in apppkg.required_packages():
+            self.addPackage(reqpkgid)
+        self.packagesIdByPath[os.path.realpath(apppkg.packageFolder)] = pkgid
+        self.packages[pkgid] = apppkg
+    
+        
     def applicationMenuBag(self):
         pkgMenus = self.config['menu?package']
         if pkgMenus:

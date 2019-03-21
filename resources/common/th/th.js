@@ -503,7 +503,11 @@ dojo.declare("gnr.IframeFormManager", null, {
             iframeAttr['onStarted'] = function(){that.onIframeStarted(this,kw)};
             iframeAttr['main_th_formId'] = this.fakeFormId;
             objectUpdate(iframeAttr,{height:'100%',width:'100%',border:0});
+            var dbstore = genro.getData('gnr.dbstore');
             iframeAttr.src = iframeAttr.src || '/sys/thpage/'+this.table.replace('.','/');
+            if(dbstore){
+                iframeAttr.src = '/'+dbstore+iframeAttr.src;
+            }
             if(this.formStoreKwargs.parentStore){
                 iframeAttr['main_th_navigation'] = true;
                 iframeAttr['main_store_storeType'] = 'Collection';

@@ -50,3 +50,15 @@ class GnrCustomWebPage(object):
         p3.button('Open dialog', action='dlg.show()',dlg=dlg.js_widget)
         p3.button('Underdialog', action='alert("underdialog")',_shortcut='f2')
         dlg.button('Inside dialog', action='alert("Inside dialog")',_shortcut='f2')
+
+
+    def test_6_ask(self, pane):
+        """Ask button"""
+        fb = pane.formbuilder(_anchor=True)
+        fb.textbox(value='^.last_answer',lbl='Default answer')
+        fb.button('Question', action='alert(answer);',
+                    ask=dict(title='Do you want to rule?',
+                            fields=[dict(name='answer',tag='filteringSelect',values='NO,YES',
+                                        validate_onAccept="""SET #ANCHOR.last_answer=value""")]),
+                            answer='=.last_answer')
+        

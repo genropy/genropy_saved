@@ -103,25 +103,6 @@ class TableHandlerCommon(BaseComponent):
                 self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=refpkg,mangling_th=rootCode, pkgOnly=True,safeMode=True)
         self.mixinComponent('tables','_packages',pkg,tablename,resourcePath,pkg=self.package.name,mangling_th=rootCode, pkgOnly=True,safeMode=True)
         return
-
-    def _th_setDocumentation(self,table=None,key=None,resource=None,doc=False,custdoc=False):
-        page = self.pageSource()
-        tbllist = table.split('.')
-        pkg = self.package.name
-        tblpkg = tbllist[0]
-        caption = self.db.table(table).name_plural
-        if resource:
-            key = '%s_%s' %(table.replace('.','_'),resource.replace(':','_'))
-            caption = resource
-            if ':' in resource:
-                caption = resource.split(':')[1]
-        if doc:
-            filepath = os.path.join('pkg:%s' %tblpkg,'doc',self.language,'html','tables',tbllist[1],'%s.%s' %(key,'html'))
-            page.addToDocumentation(key=key,filepath=filepath,title=caption)
-
-        if pkg!=tblpkg and custdoc: #possibilta custom
-            filepath=os.path.join(os.path.sep,'tables','_packages',tbllist[0],tbllist[1],'%s.%s' %(key,'html'))
-            page.addToDocumentation(key='%s_%s' %(key,pkg),title=caption,filepath=filepath)
     
     def _th_getResClass(self,table=None,resourceName=None,defaultClass=None):
         pkg,tablename = table.split('.')

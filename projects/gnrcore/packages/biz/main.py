@@ -10,5 +10,8 @@ class Package(GnrDboPackage):
     def config_db(self, pkg):
         pass
         
+    def required_packages(self):
+        return ['gnrcore:adm']
+
 class Table(GnrDboTable):
     pass

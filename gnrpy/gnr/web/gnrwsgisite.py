@@ -273,6 +273,7 @@ class GnrWsgiSite(object):
         self.cleanup_interval = int(cleanup.get('interval') or 120)
         self.page_max_age = int(cleanup.get('page_max_age') or 120)
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
+        self.db.closeConnection()
 
 
     @property
@@ -390,6 +391,7 @@ class GnrWsgiSite(object):
         if not ':' in path:
             path = '_raw_:%s'%path
         service_name, storage_path = path.split(':',1)
+        storage_path = storage_path.lstrip('/')
         if service_name == 'vol':
             #for legacy path
             service_name, storage_path = storage_path.replace(':','/').split('/', 1) 
@@ -1152,23 +1154,23 @@ class GnrWsgiSite(object):
         #restorepath = self.option_restore
         restorepath = options.restore if options else None
         restorefiles=[]
-        if restorepath:
-            if restorepath == 'auto':
-                restorepath = self.getStaticPath('site:maintenance','restore',autocreate=True)
-                restorefiles = [j for j in os.listdir(restorepath) if not j.startswith('.')]
-            else:
-                restorefiles = [restorepath]
-            if restorefiles:
-                restorepath = os.path.join(restorepath,restorefiles[0])
-            else:
-                restorepath = None
+ #      if restorepath:
+ #           if restorepath == 'auto':
+ #               restorepath = self.getStaticPath('site:maintenance','restore',autocreate=True)
+ #               restorefiles = [j for j in os.listdir(restorepath) if not j.startswith('.')]
+ #           else:
+ #               restorefiles = [restorepath]
+ #           if restorefiles:
+ #               restorepath = os.path.join(restorepath,restorefiles[0])
+ #           else:
+ #               restorepath = None
         if self.remote_db:
             instance_path = '%s@%s' %(instance_path,self.remote_db)
         app = GnrWsgiWebApp(instance_path, site=self,restorepath=restorepath)
         self.config.setItem('instances.app', app, path=instance_path)
-        for f in restorefiles:
-            if os.path.isfile(restorepath):
-                os.rename(restorepath,self.getStaticPath('site:maintenance','restored',f,autocreate=-1))
+ #       for f in restorefiles:
+ #           if os.path.isfile(restorepath):
+ #               os.rename(restorepath,self.getStaticPath('site:maintenance','restored',f,autocreate=-1))
         return app
 
     def onAuthenticated(self, avatar):

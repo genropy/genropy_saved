@@ -72,24 +72,24 @@ class Table(object):
         return True
 
     def expandIntervals(self, string_interval,limits=None):
-            inlist=string_interval and string_interval.strip().split(',') or []
-            inlist = inlist or []
-            outlist=[]
-            for single in inlist:
-                if '-' in single:
-                    start,stop = single.split('-')
-                    start = int(start)
-                    stop = int(stop)
-                    if limits:
-                        start = max(start,limits[0])
-                        stop = min(stop,limits[1])
-                    for single_in_interval in range(start,stop+1):
-                        outlist.append(single_in_interval)
-                else:
-                    single = int(single)
-                    if limits and single>=limits[0] and single<=limits[1]:
-                        outlist.append(single)
-            return outlist
+        inlist=string_interval and string_interval.strip().split(',') or []
+        inlist = inlist or []
+        outlist=[]
+        for single in inlist:
+            if '-' in single:
+                start,stop = single.split('-')
+                start = int(start)
+                stop = int(stop)
+                if limits:
+                    start = max(start,limits[0])
+                    stop = min(stop,limits[1])
+                for single_in_interval in range(start,stop+1):
+                    outlist.append(single_in_interval)
+            else:
+                single = int(single)
+                if limits and single>=limits[0] and single<=limits[1]:
+                    outlist.append(single)
+        return outlist
 
     def expandTaskPeriods(self, task):
         return dict(

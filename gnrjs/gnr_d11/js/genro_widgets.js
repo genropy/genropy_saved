@@ -2863,7 +2863,7 @@ dojo.declare("gnr.widgets._ButtonLogic",null, {
                     funcApply(action, objectUpdate(action_attributes, {}), sourceNode,argnames,argvalues);
                 }
 
-                genro.dlg.prompt(objectPop(promptkw,'title','Parameters'),promptkw);
+                genro.dlg.prompt(objectPop(promptkw,'title','Parameters'),promptkw,sourceNode);
             }else{
                 funcApply(action, objectUpdate(action_attributes, {}), sourceNode,argnames,argvalues);
             }

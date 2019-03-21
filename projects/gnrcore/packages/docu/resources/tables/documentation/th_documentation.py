@@ -20,6 +20,7 @@ class View(BaseComponent):
 class Form(BaseComponent):
     py_requires='rst_documentation_handler:RstDocumentationHandler,gnrcomponents/dynamicform/dynamicform:DynamicForm'
     css_requires = 'docu'
+
     def th_form(self, form):
         bc = form.center.borderContainer(datapath='.record')
         bc.rstHelpDrawer()
@@ -32,7 +33,7 @@ class Form(BaseComponent):
         form.dataController("tree.widget.updateLabels()",_fired='^gnr.language',_delay=1,
                             tree=form.htree)
 
-        self.tutorial_head(bc.contentPane(region='top'))
+        self.tutorial_head(bc.contentPane(region='top', height='70px', splitter=True))
         frame = bc.framePane(region='center')
         frame.top.slotToolbar('*,stackButtons,*')
         sc = frame.center.stackContainer(region='center',margin='2px')
@@ -46,8 +47,7 @@ class Form(BaseComponent):
 
         sc.contentPane(title='!!Parameters',datapath='#FORM').fieldsGrid() #ok
 
-
-
+    
     def browserSource(self,struct):
         r = struct.view().rows()
         r.cell('version', name='Template', width='100%')
@@ -158,14 +158,15 @@ class Form(BaseComponent):
 
     def tutorial_head(self,pane):
         fb = pane.formbuilder(cols=4, border_spacing='4px')
-        fb.field('name',width='12em')
+        fb.field('name',width='20em', colspan=2)
         fb.field('topics',width='12em',tag='checkBoxText',table='docu.topic',popup=True)
         fb.field('publish_date',width='7em')
-        fb.field('base_language',width='7em')
+
+        fb.field('base_language',width='4em')
         fb.field('doctype',disabled='^.doctype',width='20em')
         fb.field('ext_ref',width='10em')
-        fb.field('revision')
-
+        fb.field('revision', width='7em')
+        fb.field('sphinx_toc')
         #fb.div('Old html',hidden='^.old_html?=!#v').tooltipPane().div(height='150px',width='200px',overflow='auto',_class='selectable').div('^.old_html')
 
     def th_options(self):

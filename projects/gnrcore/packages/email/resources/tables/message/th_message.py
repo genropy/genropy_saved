@@ -54,7 +54,7 @@ class View(BaseComponent):
 class ViewOutOnly(View):
         
     def th_top_upperbar(self,top):
-        top.slotToolbar('5,sections@sendingstatus',
+        top.slotToolbar('5,sections@sendingstatus,*,sections@msg_type',
                         childname='upper',_position='<bar')
 
     @metadata(isMain=True)
@@ -66,6 +66,13 @@ class ViewOutOnly(View):
                 dict(code='all',caption='All',includeDraft=True)]
 
 
+    @metadata(isMain=True)
+    def th_sections_msg_type(self):
+        msg_types=self.db.table('email.message_type').query().fetch()
+        result = [dict(code='all',caption='All',includeDraft=True)]
+        for mt in msg_types:
+            result.append(dict(code=mt['code'], caption=mt['description'], condition='$message_type=:m', condition_m=mt['code']))
+        return result
 
     def th_options(self):
         return dict()

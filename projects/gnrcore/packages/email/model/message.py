@@ -1,4 +1,5 @@
 # encoding: utf-8
+from smtplib import SMTPException
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace
@@ -37,14 +38,21 @@ class Table(object):
                                 mode='foreignkey', onDelete='raise')
         tbl.column('notes', name_long='!!Notes')
         tbl.column('message_date', dtype='D', name_long='!!Date')
-
         tbl.column('sending_attempt','X', name_long='!!Sending attempt')
         tbl.column('email_bag',dtype='X',name_long='!!Email bag')
         tbl.column('extra_headers',dtype='X',name_long='!!Extra headers')
+        tbl.column('reply_message_id',size='22', group='_', name_long='!!Reply message id'
+                    ).relation('email.message.id', relation_name='replies', mode='foreignkey', onDelete='setnull')
 
     def trigger_onInserting(self, record_data):
         self.explodeAddressRelations(record_data)
-
+        if record_data['in_out']=='I':
+            email_bag = Bag(record_data['email_bag'])
+            rif_id = email_bag.get('In-Reply-To')
+            if rif_id:
+                rif_id = rif_id.strip('<>')
+                if rif_id and rif_id.startswith('GNR_'):
+                    record_data['reply_message_id'] = rif_id[4:26]
     
     def trigger_onUpdating(self, record_data, old_record):
         self.deleteAddressRelations(record_data)
@@ -98,9 +106,6 @@ class Table(object):
         #check_imap(page=page, account=account, remote_mailbox=remote_mailbox, local_mailbox=local_mailbox)
 
 
-
-
-
     def spamChecker(self,msgrec):
         return
     
@@ -109,9 +114,12 @@ class Table(object):
                   subject=None, body=None, cc_address=None, 
                   reply_to=None, bcc_address=None, attachments=None,
                  message_id=None,message_date=None,message_type=None,
-                 html=False,doCommit=False,moveAttachment=False,**kwargs):
+                 html=False,doCommit=False,moveAttachment=False,copyAttachment=None,
+                 headers_kwargs=None,**kwargs):
         message_date=message_date or self.db.workdate
-        extra_headers = Bag(dict(message_id=message_id,message_date=message_date))
+        extra_headers = Bag(dict(message_id=message_id,message_date=message_date,reply_to=reply_to))
+        if headers_kwargs:
+            extra_headers.update(headers_kwargs)
         account_id = account_id or self.db.application.getPreference('mail', pkg='adm')['email_account_id']
         message_to_dispatch = self.newrecord(in_out='O',
                             account_id=account_id,
@@ -119,8 +127,7 @@ class Table(object):
                             from_address=from_address,
                             subject=subject,message_date=message_date,
                             body=body,cc_address=cc_address,
-                            reply_to=reply_to,bcc_address=bcc_address,
-                            message_id=message_id,
+                            bcc_address=bcc_address,
                             extra_headers=extra_headers,
                             message_type=message_type,
                             html=html,**kwargs)
@@ -134,10 +141,10 @@ class Table(object):
                     if isinstance(r,tuple):
                         origin_filepath,mimetype = r
                     message_atc.addAttachment(maintable_id=message_to_dispatch['id'],
-                                            origin_filepath=r,
+                                            origin_filepath=origin_filepath,
                                             mimetype=mimetype,
                                             destFolder=self.folderPath(message_to_dispatch),
-                                            moveFile=moveAttachment)
+                                            moveFile=moveAttachment, copyFile=copyAttachment)
         if doCommit:
             self.db.commit()
         return message_to_dispatch
@@ -159,15 +166,19 @@ class Table(object):
         site = self.db.application.site
         mail_handler = site.getService('mail')
         with self.recordToUpdate(pkey) as message:
-            extra_headers = Bag(message['extra_headers'])
+            if message['send_date']:
+                return
+            message['extra_headers'] = Bag(message['extra_headers'])
+            extra_headers = message['extra_headers']
+            extra_headers['message_id'] = extra_headers['message_id'] or 'GNR_%(id)s' %message
             account_id = message['account_id']
             mp = self.db.table('email.account').getSmtpAccountPref(account_id)
             debug_address = mp.pop('system_debug_address')
-            bcc_address = message['bcc_address']
+            bcc_address = message['bcc_address'] 
             attachments = self.db.table('email.message_atc').query(where='$maintable_id=:mid',mid=message['id']).fetch()
-            attachments = [site.getStaticPath('vol:%s' %r['filepath']) for r in attachments]
+            attachments = [r['filepath'] for r in attachments]
             if mp['system_bcc']:
-                bcc_address = '%s,%s' %(bcc_address,mp['system_bcc']) if mp else mp['system_bcc']
+                bcc_address = '%s,%s' %(bcc_address,mp['system_bcc']) if bcc_address else mp['system_bcc']
             try:
                 mail_handler.sendmail(to_address=debug_address or message['to_address'],
                                 body=message['body'], subject=message['subject'],
@@ -176,8 +187,9 @@ class Table(object):
                                 attachments=attachments, 
                                 smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
                                 ssl=mp['ssl'], tls=mp['tls'], html=message['html'], async=False,
-                                scheduler=False)
+                                scheduler=False,headers_kwargs=extra_headers.asDict(ascii=True))
                 message['send_date'] = datetime.now()
+                message['bcc_address'] = bcc_address
             except Exception as e:
                 sending_attempt = message['sending_attempt'] = message['sending_attempt'] or Bag()
                 ts = datetime.now()

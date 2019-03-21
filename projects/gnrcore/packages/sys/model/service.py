@@ -59,7 +59,6 @@ class Table(object):
         if site:
             with site.register.globalStore() as gs:
                 gs.setItem('globalServices_lastTS.%(service_identifier)s' %record,datetime.now())
-            site.register.reload_services()
 
 
     def trigger_onUpdated(self,record,old_record=None):

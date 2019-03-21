@@ -28,7 +28,7 @@ class Main(BaseResourceAction):
         else:
             path = self.page.site.getStaticPath('page:archive_to_import','last_archive.pik')
         archive = Bag(path)
-        self.db.application.importArchive(archive,thermo_wrapper=self.btc.thermo_wrapper)
+        self.db.importArchive(archive,thermo_wrapper=self.btc.thermo_wrapper)
         self.db.commit()
         
         
