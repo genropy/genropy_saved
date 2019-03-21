@@ -755,6 +755,19 @@ class TableBase(object):
         :param record: the record
         :param fldname: the field name"""
         pass
+
+    def inheritedFields(self):      
+        return [field for field,colobj in self.columns.items() if colobj.attributes.get('inherited')]
+
+    def getInheritedValues(self,record_source):      
+        result = {}        
+        for field,colobj in self.columns.items():
+            doCopy = colobj.attributes.get('inherited')
+            if doCopy:
+                field_source = field if doCopy is True else doCopy
+                if field_source in record_source:
+                    result[field] = record_source[field_source]
+        return result
         
     def hasRecordTags(self):
         """TODO"""
