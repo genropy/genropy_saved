@@ -61,6 +61,7 @@ class GnrCustomWebPage(object):
                                                 storepath='#FORM.record.record_types',
                                                 grid_autoSelect=True,
                                                 grid_multiSelect=False,
+                                                grid_selfDragRows=True,
                                                 grid_selected_code='#FORM.selectedRecordType')
         bar = left.top.bar.replaceSlots('addrow','new_rec_type')
         bar.new_rec_type.slotButton('New type',
@@ -69,7 +70,7 @@ class GnrCustomWebPage(object):
                                             rtypes = new gnr.GnrBag();
                                             SET #FORM.record.record_type = rtypes;
                                         }
-                                        rtypes.setItem(code,new gnr.GnrBag({code:code,description:description}));
+                                        rtypes.setItem(code.replace('.','/'),new gnr.GnrBag({code:code,description:description}));
                                     """,
                                     rtypes='=#FORM.record.record_types',
                                     ask=dict(title='New',
@@ -78,7 +79,7 @@ class GnrCustomWebPage(object):
                                             )
                                     )
         bc.dataController("""
-            SET #FORM.correntFieldTypesStore = code?this.absDatapath('#FORM.record.field_types.type_'+code):'temp';
+            SET #FORM.correntFieldTypesStore = code?this.absDatapath('#FORM.record.field_types.'+code.replace('.','/')):'temp';
         """,code='^#FORM.selectedRecordType')
         bc.contentPane(region='center').bagGrid(datapath='.field_types_grid',
                                                 struct=self.field_types_struct,
@@ -87,16 +88,17 @@ class GnrCustomWebPage(object):
     def record_types_struct(self,struct):
         r=struct.view().rows()
         r.cell('code',name='Code',width='5em')
-        r.cell('description',name='Description',edit=True,width='5em')
+        r.cell('description',name='Description',edit=True,width='15em')
 
 
     def field_types_struct(self,struct):
         r=struct.view().rows()
         r.cell('position_start',name='S.Pos.',dtype='L',edit=True,width='5em')
         r.cell('position_end',name='E.Pos',dtype='L',edit=True,width='5em')
+        r.cell('name',name='Name',edit=True,width='20em')
+        r.cell('iskey',name='Key',dtype='B',edit=True,width='5em')
         r.cell('mandatory',name='Mand.',dtype='B',edit=True,width='5em')
         r.cell('datatype',name='Datatype',edit=dict(values='L:Int,N:Decimal,T:Text,D:Date'),width='10em')
-        r.cell('name',name='Name',edit=True,width='20em')
         r.cell('validation',name='Validation',edit=dict(values='V,F,N,CONST'),width='10em')
         r.cell('constant_value',edit=True,width='10em',name='Const.')
         r.cell('description',name='Description',width='100%',edit=True)
