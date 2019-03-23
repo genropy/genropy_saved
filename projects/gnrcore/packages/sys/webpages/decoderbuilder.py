@@ -1,7 +1,6 @@
 #!/usr/bin/env pythonw
 # -*- coding: utf-8 -*-
 #
-#  untitled
 #
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
@@ -49,13 +48,66 @@ class GnrCustomWebPage(object):
 
     def formDecoderType(self,form):
 
-        bc = form.center.borderContainer()
+        tc = form.center.tabContainer(margin='2px')
+        self.typeDescriptor(tc.borderContainer(title='Descriptor'))
+        self.typeTester(tc.borderContainer(title='Tester'))
+    
+    def typeTester(self,bc):
+        top = bc.contentPane(region='top')
+        fb = top.formbuilder()
+        fb.dropUploader(label='Tester',uploadPath='page:decoder_tester',
+                        onUploadingMethod=self.fileTestUploaded,
+                        rpc_decoderpath= '=#FORM.pkey',
+                        rpc_type_position='=#FORM.record.type_position',
+                        onResult='genro.bp(true);')
+
+        left = bc.contentPane(region='left',width='300px')
+        left.tree(storepath='main.form.testerData')
+        center = bc.contentPane(region='center')
+
+    @public_method
+    def fileTestUploaded(self,kwargs):
+        filename = kwargs.get('filename')
+        r = kwargs['file_handle'].file.read()
+        type_position = kwargs['type_position'].split(',')
+        type_position = [int(z) for z in type_position]
+        with self.site.storageNode(kwargs['decoderpath']).open('rb') as f:
+            decoder = Bag(f)
+        parent_typecode = None
+        result = Bag()
+        field_types = decoder['field_types']
+        dec = Bag()
+        rowbag = Bag()
+        i = 0
+        for l in r.split('\r\n'):
+            typecode = l[type_position[0]-1:type_position[1]]
+            if typecode in field_types:
+                parent_typecode = typecode
+                dec = field_types[typecode]
+                rowbag = Bag()
+                result['r_%i' %i] = rowbag
+                i+=1
+            elif parent_typecode:
+                dec = field_types['%s/%s' %(parent_typecode,typecode)]
+            dec = dec or  Bag()
+            for v in dec.values():
+                if not v['name']:
+                    continue
+                rowbag['%s_%s' %(typecode,v['name'])] = l[v['position_start']-1:v['position_end']]
+            #rowbag['type_%s' %typecode] = lb
+        self.setInClientData('main.form.testerData',result)
+
+
+
+    def typeDescriptor(self,bc):
         fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2)
         fb.textbox(value='^.name',lbl='!!Name')
+        fb.textbox(value='^.type_position',lbl='!!Type position',width='4em')
         fb.button('Save',action='this.form.save();')
+        center = bc.borderContainer(region='center')
 
 
-        left = bc.contentPane(region='left',width='300px').bagGrid(datapath='.record_types_grid',
+        left = center.contentPane(region='top',height='300px',splitter=True).bagGrid(datapath='.record_types_grid',
                                                 struct=self.record_types_struct,
                                                 pbl_classes=True,title='Record Types',
                                                 storepath='#FORM.record.record_types',
@@ -70,9 +122,15 @@ class GnrCustomWebPage(object):
                                             rtypes = new gnr.GnrBag();
                                             SET #FORM.record.record_type = rtypes;
                                         }
-                                        rtypes.setItem(code.replace('.','/'),new gnr.GnrBag({code:code,description:description}));
+                                        var currval = this.getRelativeData(correntFieldTypesStore) || new gnr.GnrBag();
+                                        rtypes.setItem(code.replace('.','/'),
+                                                        new gnr.GnrBag({code:code,description:description}));
+                                        this.setRelativeData(this.absDatapath('#FORM.record.field_types.'+code.replace('.','/')),
+                                                                                currval.deepCopy());
+                                    
                                     """,
                                     rtypes='=#FORM.record.record_types',
+                                    correntFieldTypesStore='=#FORM.correntFieldTypesStore',
                                     ask=dict(title='New',
                                                 fields=[dict(name='code',lbl='Code',validate_notnull=True),
                                                         dict(name='description',lbl='Description')]
@@ -81,7 +139,7 @@ class GnrCustomWebPage(object):
         bc.dataController("""
             SET #FORM.correntFieldTypesStore = code?this.absDatapath('#FORM.record.field_types.'+code.replace('.','/')):'temp';
         """,code='^#FORM.selectedRecordType')
-        bc.contentPane(region='center').bagGrid(datapath='.field_types_grid',
+        center.contentPane(region='center').bagGrid(datapath='.field_types_grid',
                                                 struct=self.field_types_struct,
                                                 storepath='^#FORM.correntFieldTypesStore')
 
@@ -89,6 +147,7 @@ class GnrCustomWebPage(object):
         r=struct.view().rows()
         r.cell('code',name='Code',width='5em')
         r.cell('description',name='Description',edit=True,width='15em')
+        r.cell('notes',name='Notes',edit=True,width='100%')
 
 
     def field_types_struct(self,struct):
