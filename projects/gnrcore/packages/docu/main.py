@@ -10,9 +10,6 @@ class Package(GnrDboPackage):
     def htmlProcessorName(self):
         return '/docu/index/rst'
 
-    def examplesDirectory(self):
-        return 'https://genropy.org/webpages/docu_examples'
-
     def config_db(self, pkg):
         pass
         

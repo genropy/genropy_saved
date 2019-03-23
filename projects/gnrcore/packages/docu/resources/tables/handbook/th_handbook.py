@@ -27,10 +27,12 @@ class Form(BaseComponent):
     def th_form(self, form):
         bc = form.center.borderContainer()
         top = bc.contentPane(region='top',datapath='.record')
-        fb = top.div(margin_right='20px').formbuilder(cols=2,border_spacing='3px',
+        fb = top.div(margin='10px',margin_right='20px').formbuilder(cols=2,border_spacing='6px',
                                                     fld_width='100%',
+                                                    max_width='700px',
                                                     width='100%',colswidth='auto')
-        fb.field('name',colspan=2)
+        fb.field('name')
+        fb.br()
         fb.field('title',colspan=2)
         fb.field('docroot_id', hasDownArrow=True, validate_notnull=True, tag='hdbselect', folderSelectable=True)
         fb.checkBoxText(value='^.toc_roots',#values='MI:Milano,CO:Como,SO:Sondrio')
@@ -42,7 +44,19 @@ class Form(BaseComponent):
         fb.field('version')
         fb.field('release')
         fb.field('author')
-        fb.field('sphinx_path',colspan=2)
+        fb.field('sphinx_path')
+        fb.field('examples_site')
+        fb.field('examples_directory')
+        example_pars_fb = top.div(margin='10px',margin_right='20px').formbuilder(cols=2,border_spacing='6px',
+                                                    fld_width='100%',
+                                                    max_width='700px',
+                                                    width='100%',colswidth='auto',
+                                                    datapath='.examples_pars',hidden='^#FORM.record.examples_site?=!#v')
+    
+        example_pars_fb.numberTextBox('^.default_height',width='4em',lbl='Default height')
+        example_pars_fb.numberTextBox('^.default_width',width='4em',lbl='Default width')
+        example_pars_fb.filteringSelect('^.source_region',width='6em',lbl='Source position',values='top,left,bottom,right')
+        example_pars_fb.textbox('^.source_theme',width='6em',lbl='Source theme')
 
     def th_top_exportButton(self, top):
         bar = top.bar.replaceSlots('*','*,export_button')

@@ -34,6 +34,11 @@ class Main(BaseResourceBatch):
         self.page.site.storageNode('rsrc:pkg_docu','sphinx_env','default_conf.py').copy(self.page.site.storageNode(self.sourceDirNode.child('conf.py')))
         self.imagesDict = dict()
         self.imagesPath='_static/images'
+        self.examples_root = None 
+        self.examples_pars = Bag(self.handbook_record['examples_pars'])
+        self.examples_mode = self.examples_pars['mode'] or 'iframe'
+        if self.handbook_record['examples_site']:
+            self.examples_root = '%(examples_site)s/webpages/%(examples_directory)s' %self.handbook_record
         self.imagesDirNode = self.sourceDirNode.child(self.imagesPath)
 
     def step_prepareRstDocs(self):
@@ -100,6 +105,7 @@ class Main(BaseResourceBatch):
             record = self.doctable.record(n.label).output('dict')
             name=record['name']
             docbag = Bag(record['docbag'])
+            self.curr_sourcebag = Bag(record['sourcebag'])
             toc_elements=[name]
             self.hierarchical_name = record['hierarchical_name']
             if n.attr['child_count']>0:
@@ -117,7 +123,8 @@ class Main(BaseResourceBatch):
             lbag=docbag[self.handbook_record['language']]
             rst = IMAGEFINDER.sub(self.fixImages, lbag['rst'])
             rst = LINKFINDER.sub(self.fixLinks, rst)
-            rst = EXAMPLE_FINDER.sub(self.fixExamples, rst)
+            if self.examples_root and self.curr_sourcebag:
+                rst = EXAMPLE_FINDER.sub(self.fixExamples, rst)
             self.createFile(pathlist=self.curr_pathlist, name=name,
                             title=lbag['title'], 
                             rst=rst,
@@ -128,8 +135,24 @@ class Main(BaseResourceBatch):
     def fixExamples(self, m):
         example_label = m.group(1)
         example_name = m.group(2)
-        example_url = '%s/%s/%s.py?_source_viewer=left' % (self.db.package('docu').examplesDirectory(), self.hierarchical_name,example_name)
-        return '.. raw:: html\n\n <iframe src=%s  width="100%%" style="border:0px"></iframe>' % example_url
+        
+        example_url = '%s/%s/%s.py' % (self.examples_root, self.hierarchical_name,example_name)
+        sourcedata = self.curr_sourcebag[example_name] or Bag()
+        
+        return '.. raw:: html\n\n %s' %self.exampleHTMLChunk(example_url,sourcedata)
+        
+    def exampleHTMLChunk(self,example_url,sourcedata):
+        height = sourcedata['iframe_height'] or self.examples_pars['default_height'] or  '100px'
+        width = sourcedata['iframe_width'] or self.examples_pars['default_width'] or '100%'
+        source_theme = self.examples_pars['source_theme']
+        source_region = sourcedata['source_region'] or self.examples_pars['source_region']
+        if source_region:
+            example_url = '%s?_source_viewer=%s&_source_toolbar=f' %(example_url,source_region)
+            if source_theme:
+                example_url = '%s&cm_theme=%s' %(example_url,source_theme)
+        iframekw = dict(example_url=example_url,height=height,width=width)
+        return """<div style="border:1px solid silver;"><iframe src="%(example_url)s" width="%(width)s" height="%(height)s" style="border:0px"></iframe></div>
+        """  %iframekw
 
 
     def fixImages(self, m):

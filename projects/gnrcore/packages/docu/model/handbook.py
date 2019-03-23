@@ -24,3 +24,6 @@ class Table(object):
         tbl.column('release', name_long='Release')
         tbl.column('author', name_long='Author')
         tbl.column('last_exp_ts', dtype='DH', name_long='Last export ts')
+        tbl.column('examples_site', name_long='!!Examples site')
+        tbl.column('examples_directory', name_long='!!Examples directory')
+        tbl.column('examples_pars',dtype='X')

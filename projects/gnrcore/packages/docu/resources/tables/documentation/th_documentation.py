@@ -54,7 +54,7 @@ class Form(BaseComponent):
         r.cell('url',hidden=True)
         
     def sourceEditor(self,frame):
-        bar = frame.top.slotToolbar('5,mbuttons,2,titleAsk,*,delgridrow,addrow_dlg')
+        bar = frame.top.slotToolbar('5,mbuttons,2,titleAsk,2,fbmeta,*,delgridrow,addrow_dlg')
         bar.mbuttons.multiButton(value='^#FORM.sourceViewMode',values='rstonly:Source Only,mixed: Mixed view,preview:Preview')
         bar.titleAsk.slotButton('!!Change version name',iconClass='iconbox tag',
                                 action="""
@@ -72,7 +72,11 @@ class Form(BaseComponent):
                                 selectedLabel='=.grid.selectedLabel',
                                 ask=dict(title='Change name',fields=[dict(name='newname',lbl='New version name',validate_case='l')]))
 
-
+        bar.dataFormula('#FORM.sourceMetaCurrentDatapath',"selectedLabel?this.absDatapath('#FORM.record.sourcebag.'+selectedLabel):'nosourcelabel';",
+                        selectedLabel='^.grid.selectedLabel')
+        fb = bar.fbmeta.formbuilder(cols=4,border_spacing='0',datapath='^#FORM.sourceMetaCurrentDatapath')
+        fb.numberTextBox(value='^.iframe_height',width='5em',lbl='Height(px)')
+        fb.numberTextBox(value='^.iframe_width',width='5em',lbl='Width(px)')
         bc = frame.center.borderContainer(design='sidebar')
         fg = bc.frameGrid(region='left',width='120px',splitter=True,margin='5px',
                             storepath='#FORM.record.sourcebag',datamode='bag',
