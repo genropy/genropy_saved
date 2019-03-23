@@ -92,15 +92,16 @@ class Main(BaseResourceBatch):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./:-]+)")
         LINKFINDER = re.compile(r"`([^`]*) <([\w./]+)>`_\b")
         TOCFINDER = re.compile(r"_TOC?(\w*)")
+        EXAMPLE_FINDER = re.compile(r"`([^`]*)<javascript:localIframe\('version:([\w_]+)'\)>`_")
 
         result=[]
         for n in data:
-            
             v = n.value
             record = self.doctable.record(n.label).output('dict')
             name=record['name']
             docbag = Bag(record['docbag'])
             toc_elements=[name]
+            self.hierarchical_name = record['hierarchical_name']
             if n.attr['child_count']>0:
                 result.append('%s/%s.rst' % (name,name))
                 toc_elements=self.prepare(v, pathlist+toc_elements)
@@ -116,12 +117,20 @@ class Main(BaseResourceBatch):
             lbag=docbag[self.handbook_record['language']]
             rst = IMAGEFINDER.sub(self.fixImages, lbag['rst'])
             rst = LINKFINDER.sub(self.fixLinks, rst)
+            rst = EXAMPLE_FINDER.sub(self.fixExamples, rst)
             self.createFile(pathlist=self.curr_pathlist, name=name,
                             title=lbag['title'], 
                             rst=rst,
                             tocstring=tocstring,
                             hname=record['hierarchical_name'])
         return result
+
+    def fixExamples(self, m):
+        example_label = m.group(1)
+        example_name = m.group(2)
+        example_url = '%s/%s/%s.py?_source_viewer=left' % (self.db.package('docu').examplesDirectory(), self.hierarchical_name,example_name)
+        return '.. raw:: html\n\n <iframe src=%s  width="100%%" style="border:0px"></iframe>' % example_url
+
 
     def fixImages(self, m):
         old_filepath = m.group(1)
