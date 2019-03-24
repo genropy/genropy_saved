@@ -838,7 +838,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.store.duplicateRecord(null, kw.howmany);
             return;
         }
-        var kw = kw || {};
+        kw = kw || {};
         var sync = kw.sync;
         this.setControllerData('loading',true);
         var pkey= ('destPkey' in kw)? kw.destPkey : this.store.getStartPkey();

@@ -73,7 +73,11 @@ class Form(BaseComponent):
                                 ask=dict(title='Change name',fields=[dict(name='newname',lbl='New version name',validate_case='l')]))
 
         bar.dataFormula('#FORM.sourceMetaCurrentDatapath',"selectedLabel?this.absDatapath('#FORM.record.sourcebag.'+selectedLabel):'nosourcelabel';",
-                        selectedLabel='^.grid.selectedLabel')
+                        selectedLabel='^.grid.selectedLabel',sbag='=#FORM.record.sourcebag')
+        bar.dataFormula(".grid.selectedLabel","null",_fired='^#FORM.controller.loading')
+        bar.dataFormula(".grid.selectedLabel","sbag && sbag.len()?sbag.getNode('#0').label:null",_fired='^#FORM.controller.loaded',
+                    sbag='=#FORM.record.sourcebag')
+
         fb = bar.fbmeta.formbuilder(cols=4,border_spacing='0',datapath='^#FORM.sourceMetaCurrentDatapath')
         fb.numberTextBox(value='^.iframe_height',width='5em',lbl='Height(px)')
         fb.numberTextBox(value='^.iframe_width',width='5em',lbl='Width(px)')
