@@ -27,3 +27,4 @@ class Table(object):
         tbl.column('examples_site', name_long='!!Examples site')
         tbl.column('examples_directory', name_long='!!Examples directory')
         tbl.column('examples_pars',dtype='X')
+        tbl.column('custom_styles',name_long='Custom styles')

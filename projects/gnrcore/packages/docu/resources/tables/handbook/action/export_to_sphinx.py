@@ -34,6 +34,8 @@ class Main(BaseResourceBatch):
         self.page.site.storageNode('rsrc:pkg_docu','sphinx_env','default_conf.py').copy(self.page.site.storageNode(self.sourceDirNode.child('conf.py')))
         self.imagesDict = dict()
         self.imagesPath='_static/images'
+        self.customCssPath='_static/custom.css'
+        self.customJSPath='_static/custom.js'
         self.examples_root = None 
         self.examples_pars = Bag(self.handbook_record['examples_pars'])
         self.examples_mode = self.examples_pars['mode'] or 'iframe'
@@ -79,6 +81,12 @@ class Main(BaseResourceBatch):
         for k,v in build_args.items():
             if v:
                 args.extend(['-D', '%s=%s' % (k,v)])
+        customStyles = self.handbook_record['custom_styles'] or ''
+        customStyles = '%s\n%s' %(customStyles,self.defaultCssCustomization())
+        with self.sourceDirNode.child(self.customCssPath).open('wb') as cssfile:
+            cssfile.write(customStyles)
+        with self.sourceDirNode.child(self.customJSPath).open('wb') as jsfile:
+            jsfile.write(self.defaultJSCustomization())
         self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
 
 
@@ -103,6 +111,7 @@ class Main(BaseResourceBatch):
         for n in data:
             v = n.value
             record = self.doctable.record(n.label).output('dict')
+            
             name=record['name']
             docbag = Bag(record['docbag'])
             self.curr_sourcebag = Bag(record['sourcebag'])
@@ -121,15 +130,20 @@ class Main(BaseResourceBatch):
                 self.curr_pathlist=pathlist
                 tocstring=''
             lbag=docbag[self.handbook_record['language']]
-            rst = IMAGEFINDER.sub(self.fixImages, lbag['rst'])
-            rst = LINKFINDER.sub(self.fixLinks, rst)
-            if self.examples_root and self.curr_sourcebag:
-                rst = EXAMPLE_FINDER.sub(self.fixExamples, rst)
-            self.createFile(pathlist=self.curr_pathlist, name=name,
-                            title=lbag['title'], 
-                            rst=rst,
-                            tocstring=tocstring,
-                            hname=record['hierarchical_name'])
+            rst = lbag['rst'] or ''
+            rsttable = self.doctable.dfAsRstTable(record['id'])
+            if rsttable:
+                rst = '%s\n\n**Parameters:**\n\n%s' %(rst,rsttable) 
+            if rst:
+                rst = IMAGEFINDER.sub(self.fixImages,rst)
+                rst = LINKFINDER.sub(self.fixLinks, rst)
+                if self.examples_root and self.curr_sourcebag:
+                    rst = EXAMPLE_FINDER.sub(self.fixExamples, rst)
+                self.createFile(pathlist=self.curr_pathlist, name=name,
+                                title=lbag['title'], 
+                                rst=rst,
+                                tocstring=tocstring,
+                                hname=record['hierarchical_name'])
         return result
 
     def fixExamples(self, m):
@@ -139,9 +153,9 @@ class Main(BaseResourceBatch):
         example_url = '%s/%s/%s.py' % (self.examples_root, self.hierarchical_name,example_name)
         sourcedata = self.curr_sourcebag[example_name] or Bag()
         
-        return '.. raw:: html\n\n %s' %self.exampleHTMLChunk(example_url,sourcedata)
+        return '.. raw:: html\n\n %s' %self.exampleHTMLChunk(example_url,sourcedata,example_label=example_label,example_name=example_name)
         
-    def exampleHTMLChunk(self,example_url,sourcedata):
+    def exampleHTMLChunk(self,example_url,sourcedata,example_label=None,example_name=None):
         height = sourcedata['iframe_height'] or self.examples_pars['default_height'] or  '100px'
         width = sourcedata['iframe_width'] or self.examples_pars['default_width'] or '100%'
         source_theme = self.examples_pars['source_theme']
@@ -150,8 +164,13 @@ class Main(BaseResourceBatch):
             example_url = '%s?_source_viewer=%s&_source_toolbar=f' %(example_url,source_region)
             if source_theme:
                 example_url = '%s&cm_theme=%s' %(example_url,source_theme)
-        iframekw = dict(example_url=example_url,height=height,width=width)
-        return """<div style="border:1px solid silver;"><iframe src="%(example_url)s" width="%(width)s" height="%(height)s" style="border:0px"></iframe></div>
+        iframekw = dict(example_url=example_url,height=height,width=width,example_label=example_label or example_name,example_name=example_name)
+        return """<div class="gnrexamplebox">
+            <a class="gnrexamplebox_title" onclick="gnrExampleIframe(this.nextElementSibling,'%(example_url)s','%(height)s','%(width)s');">
+                %(example_label)s
+            </a>
+            <div></div>
+        </div>
         """  %iframekw
 
 
@@ -204,6 +223,7 @@ class Main(BaseResourceBatch):
              
     def createFile(self, pathlist=None, name=None, title=None, rst=None, hname=None, tocstring=None, footer=''):
         reference_label='.. _%s:\n' % hname if hname else ''
+        title = title or name
         content = '\n'.join([reference_label, title, '='*len(title), tocstring, '\n\n', rst, footer])
         storageNode = self.page.site.storageNode('/'.join([self.sourceDirNode.internal_path]+pathlist))
         with storageNode.child('%s.rst' % name).open('wb') as f:
@@ -214,3 +234,42 @@ class Main(BaseResourceBatch):
         fb = pane.formbuilder(cols=1, border_spacing='5px')
         fb.checkbox(lbl='Download Zip', value='^.download_zip')
 
+
+
+    def defaultCssCustomization(self):
+        return """/* override table width restrictions */
+@media screen and (min-width: 767px) {
+
+   .wy-table-responsive table td {
+      /* !important prevents the common CSS stylesheets from overriding
+         this as on RTD they are loaded after this stylesheet */
+      white-space: normal !important;
+   }
+
+   .wy-table-responsive {
+      overflow: visible !important;
+   }
+}
+
+.gnrexamplebox{
+
+}
+.gnrexamplebox_title{
+    color:#2980B9;
+    cursor:pointer;
+}
+.gnrexamplebox_iframecont{
+    border:1px solid silver;
+    margin:5px;
+}
+"""
+
+    def defaultJSCustomization(self):
+        return """
+          var gnrExampleIframe = function(box,src,height,width){
+
+            height = height || '200px';
+            width = width || '100%'
+            box.innerHTML = '<div class="gnrexamplebox_iframecont"><iframe src="'+src+'" frameborder="0" height="'+height+'" width="'+width+'"></iframe></div>';
+        }
+    """

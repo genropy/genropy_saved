@@ -47,6 +47,8 @@ class Form(BaseComponent):
         fb.field('sphinx_path')
         fb.field('examples_site')
         fb.field('examples_directory')
+        fb.br()
+        fb.field('custom_styles',tag='simpleTextArea',colspan=2,height='300px')
         example_pars_fb = top.div(margin='10px',margin_right='20px').formbuilder(cols=2,border_spacing='6px',
                                                     fld_width='100%',
                                                     max_width='700px',
@@ -55,7 +57,7 @@ class Form(BaseComponent):
     
         example_pars_fb.numberTextBox('^.default_height',width='4em',lbl='Default height')
         example_pars_fb.numberTextBox('^.default_width',width='4em',lbl='Default width')
-        example_pars_fb.filteringSelect('^.source_region',width='6em',lbl='Source position',values='top,left,bottom,right')
+        example_pars_fb.filteringSelect('^.source_region',width='6em',lbl='Source position',values='top,left,bottom,right,stack')
         example_pars_fb.textbox('^.source_theme',width='6em',lbl='Source theme')
 
     def th_top_exportButton(self, top):
