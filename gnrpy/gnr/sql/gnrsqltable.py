@@ -50,7 +50,7 @@ class RecordUpdater(object):
             # do something
             pass"""
     
-    def __init__(self, tblobj,pkey=None,mode=None,raw=False,insertMissing=False,ignoreMissing=None,**kwargs):
+    def __init__(self, tblobj,pkey=None,mode=None,raw=False,insertMissing=False,ignoreMissing=None,for_update=None,**kwargs):
         self.tblobj = tblobj
         self.pkey = pkey
         self.mode = mode or 'record'
@@ -58,10 +58,11 @@ class RecordUpdater(object):
         self.raw = raw
         self.insertMissing = insertMissing
         self.ignoreMissing = ignoreMissing
+        self.for_update = for_update or True
         self.insertMode = False
 
     def __enter__(self):
-        self.record = self.tblobj.record(pkey=self.pkey,for_update=True,ignoreMissing=self.insertMissing or self.ignoreMissing,
+        self.record = self.tblobj.record(pkey=self.pkey,for_update=self.for_update,ignoreMissing=self.insertMissing or self.ignoreMissing,
                                                     **self.kwargs).output(self.mode)
         if self.record.get(self.tblobj.pkey) is None:
             oldrecord = None
@@ -79,6 +80,7 @@ class RecordUpdater(object):
                 if v and isinstance(v,Bag):
                     oldrecord[k] = v.deepcopy()
         self.oldrecord = oldrecord
+        self.pkey = oldrecord.get(self.tblobj.pkey) if oldrecord else self.pkey
         return self.record
         
         
@@ -100,7 +102,7 @@ class RecordUpdater(object):
                 elif self.insertMode:
                     self.tblobj.insert(self.record)
                 else:
-                    self.tblobj.update(self.record,self.oldrecord)
+                    self.tblobj.update(self.record,self.oldrecord,pkey=self.pkey)
         
 
 class GnrSqlSaveException(GnrSqlException):
@@ -584,7 +586,7 @@ class SqlTable(GnrObject):
                     if virtual_columns and result:
                         result = self.record(virtual_columns=','.join(virtual_columns_set),**{keyField:pkey}).output('dict')
                 cache.setItem(pkey,result,virtual_columns_set=virtual_columns_set)
-            return result,in_cache
+            return dict(result),in_cache
         virtual_columns_set = set(virtual_columns.split(',')) if virtual_columns else set()
         return self.tableCachedData('cachedRecord',recordFromCache,pkey=pkey,
                                 virtual_columns_set=virtual_columns_set)
@@ -948,7 +950,8 @@ class SqlTable(GnrObject):
         return RecordUpdater(self, pkey=pkey,**kwargs)
             
     def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, 
-                    autocommit=False,_pkeys=None,pkey=None,_raw_update=None,_onUpdatedCb=None,**kwargs):
+                    autocommit=False,_pkeys=None,pkey=None,_raw_update=None,
+                    _onUpdatedCb=None,updater_kwargs=None,for_update=None,**kwargs):
         """A :ref:`batch` used to update a database. For more information, check the :ref:`batchupdate` section
         
         :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
@@ -971,22 +974,31 @@ class SqlTable(GnrObject):
         elif pkey:
             kwargs['pkey'] = pkey
 
-        fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
+        fetch = self.query(addPkeyColumn=False, for_update=for_update or True, **kwargs).fetch()
         if _wrapper:
             _wrapperKwargs = _wrapperKwargs or dict()
             fetch = _wrapper(fetch, **(_wrapperKwargs or dict()))
         pkeycol = self.pkey
         updatedKeys = []
+        updatercb,updaterdict = None,None
+        if callable(updater):
+            if updater_kwargs:
+                def updatercb(row):
+                    return updater(row,**updater_kwargs)
+            else:
+                updatercb = updater
+        elif isinstance(updater,dict):
+            updaterdict = updater
         for row in fetch:
             new_row = dict(row)
             if not _raw_update:
                 self.expandBagFields(row)
                 self.expandBagFields(new_row)
-            if callable(updater):
-                doUpdate = updater(new_row)
+            if updatercb:
+                doUpdate = updatercb(new_row)
                 if doUpdate is False:
                     continue
-            elif isinstance(updater, dict):
+            elif updaterdict:
                 new_row.update(updater)
             record_pkey = row[pkeycol]
             updatedKeys.append(record_pkey)

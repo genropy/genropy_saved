@@ -194,6 +194,15 @@ dojo.declare("gnr.GnrDevHandler", null, {
         }
     },
     handleRpcError:function(error, envNode) {
+        if(error=='gnrsilent'){
+            var v = envNode.getValue();
+            if (v instanceof gnr.GnrBag){
+                if(v.getItem('topic')){
+                    genro.publish(v.getItem('topic'),v.getItem('parameters').asDict());
+                }
+            }
+            return;
+        }
         if (error=='gnrexception'){
             genro.dlg.alert('<h2 align="center">'+envNode.getValue()+'</h2> <br/>','Warning');
             return;

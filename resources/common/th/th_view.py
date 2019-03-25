@@ -21,14 +21,12 @@ class TableHandlerView(BaseComponent):
                      js_plugins/chartjs/chartjs:ChartManager
                      """
                          
-    @extract_kwargs(condition=True,store=True)
+    @extract_kwargs(condition=True,store=True,sections=True)
     @struct_method
     def th_tableViewer(self,pane,frameCode=None,table=None,th_pkey=None,viewResource=None,
-                       virtualStore=None,condition=None,condition_kwargs=None,**kwargs):
+                       virtualStore=None,condition=None,condition_kwargs=None,sections_kwargs=None,**kwargs):
         self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
         options = self._th_hook('options',mangler=frameCode)() or dict()
-        self._th_setDocumentation(table=table,resource = viewResource or 'View',doc=options.get('doc'),
-                                    custdoc=options.get('custdoc'))
         kwargs.update(dictExtract(options,'grid_'),slice_prefix=False)
         if options.get('addrow') and options.get('addrow') is not True:
             kwargs['top_addrow_defaults'] = kwargs.get('top_addrow_defaults') or options['addrow']
@@ -39,16 +37,27 @@ class TableHandlerView(BaseComponent):
             condition_kwargs.update(dictExtract(resourceConditionPars,'condition_'))      
         
         queryBySample = self._th_hook('queryBySample',mangler=frameCode)()
+
+        kwargs['grid_selfsubscribe_batchAssign'] = """
+            if(this.widget.gridEditor){
+                //inlinetablehandler
+                this.gridEditor.batchAssign();
+            }else{
+                FIRE .#parent.th_batch_run = {resource:'_common/assign_values',res_type:'action'};
+            }
+        """
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                                  virtualStore=virtualStore,bySample=queryBySample is not None,
                                  condition=condition,condition_kwargs=condition_kwargs,
                                  _dashboardRoot=True,
+                                 _sections_dict=sections_kwargs,
                                  selfsubscribe_saveDashboard="th_dash_tableviewer.saveAsDashboard(this,$1);",
                                  selfsubscribe_loadDashboard="th_dash_tableviewer.loadDashboard(this,$1)",
                                  selfsubscribe_deleteCurrentDashboard="th_dash_tableviewer.deleteCurrentDashboard(this,$1)",
 
                                  selectedPage='^.viewPage',resourceOptions=options,
                                  **kwargs)
+        
         if virtualStore and queryBySample:
             self._th_handleQueryBySample(view,table=table,pars=queryBySample)
         for side in ('top','bottom','left','right'):
@@ -418,8 +427,15 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_sections(self,parent,sections=None,condition=None,condition_kwargs=None,
                             all_begin=None,all_end=None,multivalue=None,include_inherited=False,multiButton=None,
                             lbl=None,lbl_kwargs=None,**kwargs):
-        inattr = parent.getInheritedAttributes()    
+        inattr = parent.getInheritedAttributes()
+        sections_dict=inattr['_sections_dict']
+        extra_section_kwargs = dictExtract(sections_dict,'ALL_')
+        extra_section_kwargs.update(dictExtract(sections_dict,'%s_' %sections))
+        extra_section_kwargs.update(kwargs)
+
         th_root = inattr['th_root']
+        channel = extra_section_kwargs.pop('channel',None) or th_root
+
         pane = parent.div(datapath='.sections.%s' %sections)
         tblobj = self.db.table(inattr['table'])
         m = self._th_hook('sections_%s' %sections,mangler=th_root,defaultCb=False)
@@ -469,7 +485,7 @@ class TableHandlerView(BaseComponent):
         multiButton = multiButton is True or multiButton is None or multiButton and len(sectionsBag)<=multiButton
         if multiButton:
             mb = pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,
-                                disabled='^.#parent.#parent.grid.loadingData',**kwargs)
+                                disabled='^.#parent.#parent.grid.loadingData',**extra_section_kwargs)
     
         else:
             mb = pane.formbuilder(cols=1,border_spacing='0',**lbl_kwargs)
@@ -478,13 +494,13 @@ class TableHandlerView(BaseComponent):
                 mb.checkBoxText(values='^.data',value='^.current',lbl=lbl,
                                 labelAttribute='caption',parentForm=False,
                                 disabled='^.#parent.#parent.grid.loadingData',
-                                        popup=True,cols=1)
+                                        popup=True,cols=1,**extra_section_kwargs)
             else:
                 mb.filteringSelect(storepath='.data',value='^.current',lbl=lbl,
                                 disabled='^.#parent.#parent.grid.loadingData',
                                 storeid='#k',parentForm=False,
                                 validate_notnull=mandatory,
-                                popup=True,cols=1)
+                                popup=True,cols=1,**extra_section_kwargs)
         if exclude_fields:
             pane.dataController("""
             var cb = function(n,value){
@@ -513,6 +529,12 @@ class TableHandlerView(BaseComponent):
                                 ss=sections,datapath='.sections',
                                 depending_condition=depending_condition,_onBuilt=True,
                                         **depending_condition_kwargs)
+        pane.dataController("genro.publish(channel+'_changed_section',{section:sectionname,value:current})",
+                            channel=channel,current='^.current',sectionname=sections)
+        pane.dataController("""if(section==mysection){
+            SET .current = value;
+        }""",mysection=sections,**{'subscribe_%s_changed_section' %channel:True})
+        
         pane.dataController("""
             genro.dom.toggleVisible(__mb,enabled && !excluded);
         """,__mb=mb,enabled='^.enabled',excluded='^.excluded',
@@ -712,13 +734,6 @@ class TableHandlerView(BaseComponent):
         table = inattr['table']
         paletteCode = '%(thlist_root)s_template_manager' %inattr
         pane.paletteTemplateEditor(maintable=table,paletteCode=paletteCode,dockButton_iconClass='iconbox document')
-
-
-    @struct_method
-    def th_slotbar_batchAssign(self,pane,**kwargs):
-        pane.slotButton('!!Batch Assign',iconClass='iconbox paint',
-                        action="""FIRE .th_batch_run = {resource:'_common/assign_values',res_type:'action'};""")
-
 
     @struct_method
     def th_slotbar_pageHooksSelector(self,pane,**kwargs):

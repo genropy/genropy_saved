@@ -494,7 +494,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var promptvalue_path = prompt_datapath+'.promptvalue';
         genro.setData(promptvalue_path,dflt || null);
         dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:prompt_datapath,background:'white',autoSize:true},dlg_kw);
-        var dlg = genro.dlg.quickDialog(title,dlg_kw);
+        var dlg = genro.dlg.quickDialog(title,dlg_kw,sourceNode);
         var mandatory = objectPop(kw,'mandatory');
         var actionCb = function(command){
                         var error_message;
@@ -676,11 +676,17 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         return tp;
     },
 
-    quickDialog: function(title,kw) {
+    quickDialog: function(title,kw,rootNode) {
         kw = objectUpdate({},kw);
         var quickRoot = '_dlg_quick_'+genro.getCounter();
-        genro.src.getNode()._('div',quickRoot);
-        var node = genro.src.getNode(quickRoot).clearValue();
+        var node;
+        if(!rootNode){
+            genro.src.getNode()._('div',quickRoot);
+            node = genro.src.getNode(quickRoot).clearValue();
+        }else{
+            rootNode._('div',quickRoot,{_attachTo:'mainWindow',parentForm:false});
+            node = rootNode.getValue().getNode(quickRoot).clearValue();
+        }
         node.freeze();
         var kwdimension = objectExtract(kw,'height,width,background,padding');
         if(kw.closable){

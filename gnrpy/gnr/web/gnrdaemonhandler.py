@@ -16,6 +16,7 @@ import os
 import time
 import Pyro4
 from gnr.web.gnrdaemonprocesses import GnrCronHandler, GnrWorkerPool, GnrDaemonServiceManager
+from gnr.web.gnrtask import GnrTaskScheduler,GnrTaskWorker
 
 if hasattr(Pyro4.config, 'METADATA'):
     Pyro4.config.METADATA = False
@@ -28,15 +29,19 @@ PYRO_HMAC_KEY = 'supersecretkey'
 
 def createSiteRegister(sitename=None,daemon_uri=None,host=None, socket=None,
                          hmac_key=None,storage_path=None,debug=None,autorestore=False,
-                         port=None, batch_queue=None):
+                         port=None):
     server = GnrSiteRegisterServer(sitename=sitename,daemon_uri=daemon_uri,
-        storage_path=storage_path,debug=debug,batch_queue=batch_queue)
+        storage_path=storage_path,debug=debug)
     server.start(host=host,socket=socket,hmac_key=hmac_key,port=port or '*',autorestore=autorestore)
 
 def createHeartBeat(site_url=None,interval=None,**kwargs):
     server = GnrHeartBeat(site_url=site_url,interval=interval,**kwargs)
     time.sleep(interval)
     server.start()
+
+def createTaskScheduler(sitename,interval=None):
+    scheduler = GnrTaskScheduler(sitename,interval=interval)
+    scheduler.start()
 
 def getFullOptions(options=None):
     gnr_path = gnrConfigPath()
@@ -112,7 +117,6 @@ class GnrDaemon(object):
         self.siteregisters_process = dict()
         self.sshtunnel_index = dict()
         self.multiprocessing_manager =  Manager()
-        self.batch_queues = dict()
         self.batch_processes = dict()
         self.cron_processes = dict()
         self.task_locks = dict()
@@ -208,31 +212,14 @@ class GnrDaemon(object):
         self.stop(saveStatus=True)
 
     def restartServiceDaemon(self,sitename=None,service_name=None):
-        print 'restartServiceDaemon',sitename,service_name
         sitedict = self.siteregisters_process[sitename]
-        print 'sitedict',sitedict
         if service_name in sitedict:
-            print('restarting daemon %s' %service_name)
             proc = sitedict[service_name]
             proc.terminate()
             sitedict[service_name] = self.startServiceDaemon(sitename, service_name=service_name)
-            print('restarted daemon %s' %service_name)
 
     def on_reloader_restart(self, sitename=None):
         pass
-
-    def reload_services(self, sitename=None, service_identifier=None):
-        siteregister_processes_dict = self.siteregisters_process[sitename]
-        daemonServiceHandler = siteregister_processes_dict['services']
-        daemonServiceHandler.reloadServices(service_identifier=service_identifier)
-
-    def startWorkerProcesses(self, sitename=None, batch_pars=None):
-        siteregister_processes_dict = self.siteregisters_process[sitename]
-        batch_queue = self.multiprocessing_manager.Queue()
-        siteregister_processes_dict['gnrworker_pool'] = GnrWorkerPool(self,sitename=sitename, 
-            batch_pars=batch_pars, batch_queue=batch_queue)
-        siteregister_processes_dict['gnrworker_pool'].start()
-        return batch_queue
 
     def startCronProcess(self, sitename=None, batch_pars=None, batch_queue=None):
         siteregister_processes_dict = self.siteregisters_process[sitename]
@@ -260,7 +247,6 @@ class GnrDaemon(object):
             if serv.attr.get('daemon'):
                 service_process = self.startServiceDaemon(sitename,serv.label)
                 siteregister_processes_dict[serv.label] = service_process
-                print('sitedict',siteregister_processes_dict)
 
     def startServiceDaemon(self,sitename, service_name=None):
         p = PathResolver()
@@ -276,13 +262,10 @@ class GnrDaemon(object):
         proc.daemon = True
         proc.start()
         return proc
-
-    def getBatchProcessPars(self, sitename=None):
-        siteconfig = PathResolver().get_siteconfig(sitename)
-        batch_pars = siteconfig.getAttr('batch_processes')
-        if not batch_pars or boolean(batch_pars.get('disabled')):
-            return None
-        return batch_pars
+    
+    def hasSysPackage(self,sitename):
+        instanceconfig = PathResolver().get_instanceconfig(sitename)
+        return instanceconfig and 'gnrcore:sys' in instanceconfig['packages']
 
     def addSiteRegister(self,sitename,storage_path=None,autorestore=False,heartbeat_options=None,port=None):
         if not sitename in self.siteregisters:
@@ -291,14 +274,9 @@ class GnrDaemon(object):
             siteregister_dict = dict()
             self.siteregisters[sitename] = siteregister_dict
             socket = os.path.join(self.sockets,'%s_daemon.sock' %sitename) if self.sockets else None
-            batch_pars = self.getBatchProcessPars(sitename=sitename)
-            batch_queue = None
-            if batch_pars:
-                batch_queue = self.startWorkerProcesses(sitename=sitename, batch_pars=batch_pars)
-                self.startCronProcess(sitename=sitename, batch_pars=batch_pars, batch_queue=batch_queue)
             process_kwargs = dict(sitename=sitename,daemon_uri=self.main_uri,host=self.host,socket=socket
                                    ,hmac_key=self.hmac_key, storage_path=storage_path,autorestore=autorestore,
-                                   port=port, batch_queue=batch_queue)
+                                   port=port)
             childprocess = Process(name='sr_%s' %sitename, target=createSiteRegister,kwargs=process_kwargs)
             siteregister_dict.update(sitename=sitename,server_uri=False,
                                         register_uri=False,start_ts=datetime.now(),
@@ -306,16 +284,15 @@ class GnrDaemon(object):
                                         autorestore=autorestore)
             childprocess.daemon = True
             childprocess.start()
-            hbprocess = None
-            if heartbeat_options and not batch_pars:
-                heartbeat_options['loglevel'] = self.loglevel
-                hbprocess = Process(name='hb_%s' %sitename, target=createHeartBeat,kwargs=heartbeat_options)
-                hbprocess.daemon = True
-                hbprocess.start()
-            siteregister_processes_dict.update(register=childprocess, heartbeat=hbprocess)
+            siteregister_processes_dict['register'] = childprocess
+            if self.hasSysPackage(sitename):
+                taskScheduler = Process(name='ts_%s' %sitename, target=createTaskScheduler,kwargs=dict(sitename=sitename))
+                taskScheduler.daemon = True
+                taskScheduler.start()
+                siteregister_processes_dict['task_scheduler'] = taskScheduler 
             sitedict = siteregister_processes_dict
             self.startServiceProcesses(sitename,sitedict=sitedict)
-            self.startGnrDaemonServiceManager(sitename)
+            #self.startGnrDaemonServiceManager(sitename)
             #self.siteregisters_process[sitename] = sitedict
 
 

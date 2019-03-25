@@ -1,5 +1,5 @@
 python-dateutil
-paste 
+paste
 mako
 webob
 weberror
@@ -25,4 +25,5 @@ gevent
 supervisor
 futures
 lxml
+psutil
 werkzeug

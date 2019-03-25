@@ -9,6 +9,9 @@ class Package(GnrDboPackage):
                 
     def config_db(self, pkg):
         pass
+    
+    def required_packages(self):
+        return ['gnrcore:adm']
         
     def loginUrl(self):
         return 'email/login'

@@ -306,16 +306,15 @@ class StorageNode(object):
         return self.service.local_path(self.path, mode=mode or self.mode, keep=keep)
 
     def child(self, path=None):
-        return self.service.parent.storageNode('%s/%s'%(self.fullpath,path))
+        if self.path and self.path[-1]!='/':
+            path = '/%s'%path
+        return self.service.parent.storageNode('%s%s'%(self.fullpath,path))
 
     @property
     def mimetype(self):
         return self.service.mimetype(self.path)
 
 class StorageService(GnrBaseService):
-
-    def _argstopath(self, *args, **kwargs):
-        return '/'.join(args)
 
     def _getNode(self, node=None):
         return node if isinstance(node, StorageNode) else self.parent.storageNode(node)
@@ -375,7 +374,7 @@ class StorageService(GnrBaseService):
                 doneCb(srcNode)
 
     def mimetype(self, *args,**kwargs):
-        return mimetypes.guess_type(self.internal_path(*args))[0]
+        return mimetypes.guess_type(self.internal_path(*args))[0] or 'application/octet-stream'
 
     def base64(self, *args, **kwargs):
         """Convert a file (specified by a path) into a data URI."""
@@ -477,7 +476,7 @@ class StorageService(GnrBaseService):
                 destNode=destNode)
         else:
             self.copyNodeContent(sourceNode=sourceNode, destNode=destNode)
-        sourceNode.delete()
+            sourceNode.delete()
         return destNode
 
     def serve(self, path, **kwargs):
@@ -526,8 +525,7 @@ class BaseLocalService(StorageService):
         out_list.extend(args)
         outpath = os.path.join(*out_list)
         return outpath
-        
-        
+
     def delete_dir(self, *args):
         os.rmtree(self.internal_path(*args))
 
@@ -550,7 +548,6 @@ class BaseLocalService(StorageService):
 
     def local_path(self, *args, **kwargs): #TODO: vedere se fare così o con altro metodo
         mode = kwargs.get('mode', 'r')
-        #path = self._argstopath(*args)
         internalpath = self.internal_path(*args)
         return LocalPath(fullpath=internalpath)
 
@@ -624,7 +621,7 @@ class BaseLocalService(StorageService):
         directory = os.listdir(self.internal_path(*args))
         out = []
         for d in directory:
-            subpath = os.path.join(self._argstopath(*args),d)
+            subpath = os.path.join(os.path.join(*args),d)
             out.append(StorageNode(parent=self.parent, path=subpath, service=self))
         return out
 

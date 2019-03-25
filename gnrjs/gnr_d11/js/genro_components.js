@@ -1812,7 +1812,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         this._prepareSearchBoxMenu(searchOn, databag);
         databag.setItem('value', '');
         sourceNode.setRelativeData(null, databag);
-        var searchbox = sourceNode._('table', {nodeId:nodeId})._('tbody')._('tr');
+        var searchbox = sourceNode._('form',{autocomplete:'false',action:'javascript:void(0);'})._('table', {nodeId:nodeId})._('tbody')._('tr');
         var delay = objectPop(kw, 'delay') || objectPop(search_kw, 'delay') || 100;
         var search_kw = objectPop(kw,'search_kw') || {};
         sourceNode._('dataController', {'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field,this.evaluateOnNode(search_kw));',
@@ -1836,7 +1836,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
             }
         }})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,
                          parentForm:false,width:objectPop(kw,'width') || '6em',
-                        connect_focus:function(){this.domNode.select()}});
+                         tabindex:"-1",connect_focus:function(){this.domNode.select()}});
         sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
             menubag = this._prepareSearchBoxMenu(searchOn, sourceNode.getRelativeData());
         });
@@ -5957,17 +5957,27 @@ dojo.declare("gnr.stores._Collection",null,{
             return null;
         }
         var filtered=[];
-        var excludeList = null;
+        var filteringList = null;
+
         if (grid.excludeListCb) {
-            excludeList = grid.excludeListCb.call(this.storeNode);
+            filteringList = grid.excludeListCb.call(this.storeNode);
         }
+        var filteringMode = grid.filteringMode || 'exclude';
         var that = this;
         dojo.forEach(this.getItems(), 
                     function(n,index,array){
                         var rowdata = that.rowFromItem(n);
                         var result = cb? cb(rowdata,index,array):true; 
+                        var include;
                         if(result){
-                            if ((!excludeList)||(dojo.indexOf(excludeList, rowdata[grid.excludeCol]) == -1)) {
+                            if(filteringMode=='exclude'){
+                                include =  ((!filteringList)||(dojo.indexOf(filteringList, rowdata[grid.excludeCol]) == -1));
+                            }else if(filteringMode=='disabled'){
+                                include = true;
+                            }else{
+                                include =filteringList && (dojo.indexOf(filteringList, rowdata[grid.excludeCol]) >= 0);
+                            }
+                            if(include){
                                 filtered.push(index);
                             }
                         }

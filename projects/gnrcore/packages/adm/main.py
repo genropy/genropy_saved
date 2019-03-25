@@ -14,7 +14,10 @@ class Package(GnrDboPackage):
 
     def config_db(self, pkg):
         pass
-    
+
+    def required_packages(self):
+        return ['gnrcore:sys']
+
     def authenticate(self, username,**kwargs):
         tblobj = self.db.table('adm.user')
         def cb(cache=None,identifier=None,**kwargs):
