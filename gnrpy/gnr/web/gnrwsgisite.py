@@ -1352,15 +1352,6 @@ class GnrWsgiSite(object):
 
     currentRequest = property(_get_currentRequest, _set_currentRequest)
 
-    @property
-    def heartbeat_options(self):
-        heartbeat = boolean(self.config['wsgi?heartbeat'])
-        if heartbeat:
-            site_url = self.config['wsgi?heartbeat_host'] or self.config['wsgi?external_host'] or (self.currentRequest and self.currentRequest.host_url)
-            if site_url:
-                return dict(interval=60,site_url=site_url)
-
-
     def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None, **kwargs):
         """Call a script from a table's resources (e.g: ``_resources/tables/<table>/<respath>``).
 

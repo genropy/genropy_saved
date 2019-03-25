@@ -54,7 +54,21 @@ class Form(BaseComponent):
         r.cell('url',hidden=True)
         
     def sourceEditor(self,frame):
-        bar = frame.top.slotToolbar('5,mbuttons,2,titleAsk,2,fbmeta,*,delgridrow,addrow_dlg')
+        bar = frame.top.slotToolbar('5,mbuttons,2,titleAsk,2,fbmeta,*,5,empty,5,fillcm,5,runcm,20,fbsleep,delgridrow,addrow_dlg')
+        
+        bar.empty.slotButton('!!Empty',action="""SET #FORM.versionsFrame.lastSelected = selectedUrl;
+                                                 SET #FORM.versionsFrame.selectedUrl = null;
+                                                 var lastSource = this.getRelativeData(editorDatapath+'.source');
+                                                 SET #FORM.versionsFrame.lastSource = lastSource;
+                                                 this.setRelativeData(editorDatapath+'.source',null);
+                                                 """,
+                            selectedUrl='=#FORM.versionsFrame.selectedUrl',
+                            editorDatapath='=#FORM.versionsFrame._editorDatapath')
+        bar.fillcm.slotButton('!!Movie',fire='#FORM.sourceMovie')
+        bar.runcm.slotButton('!!Run',action="""SET #FORM.versionsFrame.selectedUrl = lastSelected;""",
+                                lastSelected='=#FORM.versionsFrame.lastSelected')
+        bar.fbsleep.formbuilder(border_spacing='0').numberTextBox(value='^#FORM.sleepTime',width='4em',default=80,lbl='Freq.')
+
         bar.mbuttons.multiButton(value='^#FORM.sourceViewMode',values='rstonly:Source Only,mixed: Mixed view,preview:Preview')
         bar.titleAsk.slotButton('!!Change version name',iconClass='iconbox tag',
                                 action="""
@@ -154,14 +168,33 @@ class Form(BaseComponent):
         fg.grid.dataFormula("#FORM.versionsFrame._editorDatapath", "'#FORM.record.sourcebag.'+selectedLabel;",
         selectedLabel="^.selectedLabel",_if='selectedLabel',_else='"#FORM.versionsFrame.dummypath"')
         center_center = center.contentPane(region='center',datapath='^#FORM.versionsFrame._editorDatapath',margin_left='6px',margin='3px')
-        center_center.codemirror(value='^.source',parentForm=True,
+        cm = center_center.codemirror(value='^.source',parentForm=True,config_theme='twilight',
                           config_mode='python',config_lineNumbers=True,
                           config_indentUnit=4,config_keyMap='softTab',
                           height='100%')
+        center_center.dataController("""
+        var that = this;
+        source = source || currSource;
+        source = source.split('');
+        sleepTime = sleepTime || 80;
+        var currtext = [];
+        this.watch('writing',function(){
+            if(source.length==0){
+                return true;
+            }
+            currtext.push(source.shift());
+            cm.externalWidget.setValue(currtext.join(''));
+        },function(){
+            that.setRelativeData('#FORM.versionsFrame.selectedUrl',lastSelected);
+            return;
+        },sleepTime);
+        """,source='=#FORM.versionsFrame.lastSource',_fired='^#FORM.sourceMovie',
+        cm=cm,sleepTime='=#FORM.sleepTime',currSource='=.source',
+        lastSelected='=#FORM.versionsFrame.lastSelected')
         
     def sourcePreviewIframe(self,pane):
         pane.iframe(src='^#FORM.versionsFrame.selectedUrl',src__avoid_module_cache=True,height='100%',
-                    width='100%',border=0)
+                    width='100%',border=0,margin='3px')
         pane.dataController("PUT #FORM.versionsFrame.selectedUrl = null;",_fired='^#FORM.controller.saving')
 
     def tutorial_head(self,pane):
