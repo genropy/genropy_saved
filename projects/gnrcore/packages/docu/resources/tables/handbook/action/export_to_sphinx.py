@@ -161,7 +161,9 @@ class Main(BaseResourceBatch):
         source_theme = self.examples_pars['source_theme']
         source_region = sourcedata['source_region'] or self.examples_pars['source_region']
         if source_region:
-            example_url = '%s?_source_viewer=%s&_source_toolbar=f' %(example_url,source_region)
+            source_region_inspector = sourcedata['source_inspector']
+            source_region_inspector = 'f' if not source_region_inspector else 't'
+            example_url = '%s?_source_viewer=%s&_source_toolbar=%s' %(example_url,source_region,source_region_inspector)
             if source_theme:
                 example_url = '%s&cm_theme=%s' %(example_url,source_theme)
         iframekw = dict(example_url=example_url,height=height,width=width,example_label=example_label or example_name,example_name=example_name)

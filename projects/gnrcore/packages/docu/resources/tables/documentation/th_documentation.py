@@ -93,8 +93,12 @@ class Form(BaseComponent):
                     sbag='=#FORM.record.sourcebag')
 
         fb = bar.fbmeta.formbuilder(cols=4,border_spacing='0',datapath='^#FORM.sourceMetaCurrentDatapath')
-        fb.numberTextBox(value='^.iframe_height',width='5em',lbl='Height(px)')
-        fb.numberTextBox(value='^.iframe_width',width='5em',lbl='Width(px)')
+        fb.numberTextBox(value='^.iframe_height',width='3em',lbl='Height(px)')
+        fb.numberTextBox(value='^.iframe_width',width='3em',lbl='Width(px)')
+        fb.filteringSelect(value='^.source_region',width='5em',lbl='Source',
+                            values='stack,top,left,bottom,right')
+        fb.checkbox(value='^.source_inspector',label='inspector')
+
         bc = frame.center.borderContainer(design='sidebar')
         fg = bc.frameGrid(region='left',width='120px',splitter=True,margin='5px',
                             storepath='#FORM.record.sourcebag',datamode='bag',
