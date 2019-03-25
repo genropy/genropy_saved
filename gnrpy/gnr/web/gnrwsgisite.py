@@ -983,7 +983,6 @@ class GnrWsgiSite(object):
             response = result
         elif callable(result):
             response = result
-        #print x
         return response
 
     def onServingPage(self, page):
