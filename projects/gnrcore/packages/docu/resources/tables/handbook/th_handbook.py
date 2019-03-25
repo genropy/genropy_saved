@@ -57,7 +57,8 @@ class Form(BaseComponent):
     
         example_pars_fb.numberTextBox('^.default_height',width='4em',lbl='Default height')
         example_pars_fb.numberTextBox('^.default_width',width='4em',lbl='Default width')
-        example_pars_fb.filteringSelect('^.source_region',width='6em',lbl='Source position',values='top,left,bottom,right,stack')
+        example_pars_fb.filteringSelect('^.source_region',width='6em',lbl='Source position',
+                    values='stack:Stack Demo/Source,stack_f:Stack Source/Demo,top:Top,left:Left,bottom:Bottom,right:Right')
         example_pars_fb.textbox('^.source_theme',width='6em',lbl='Source theme')
 
     def th_top_exportButton(self, top):

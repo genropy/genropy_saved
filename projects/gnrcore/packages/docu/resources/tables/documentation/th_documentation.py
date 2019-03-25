@@ -54,7 +54,7 @@ class Form(BaseComponent):
         r.cell('url',hidden=True)
         
     def sourceEditor(self,frame):
-        bar = frame.top.slotToolbar('5,mbuttons,2,titleAsk,2,fbmeta,*,5,empty,5,fillcm,5,runcm,20,fbsleep,delgridrow,addrow_dlg')
+        bar = frame.top.slotToolbar('5,mbuttons,2,titleAsk,2,fbmeta,*,2,empty,2,fillcm,2,runcm,205,fbsleep,delgridrow,addrow_dlg')
         
         bar.empty.slotButton('!!Empty',action="""SET #FORM.versionsFrame.lastSelected = selectedUrl;
                                                  SET #FORM.versionsFrame.selectedUrl = null;
@@ -67,7 +67,7 @@ class Form(BaseComponent):
         bar.fillcm.slotButton('!!Movie',fire='#FORM.sourceMovie')
         bar.runcm.slotButton('!!Run',action="""SET #FORM.versionsFrame.selectedUrl = lastSelected;""",
                                 lastSelected='=#FORM.versionsFrame.lastSelected')
-        bar.fbsleep.formbuilder(border_spacing='0').numberTextBox(value='^#FORM.sleepTime',width='4em',default=80,lbl='Freq.')
+        bar.fbsleep.formbuilder(border_spacing='0').numberTextBox(value='^#FORM.sleepTime',width='3em',default=80,lbl='Freq.')
 
         bar.mbuttons.multiButton(value='^#FORM.sourceViewMode',values='rstonly:Source Only,mixed: Mixed view,preview:Preview')
         bar.titleAsk.slotButton('!!Change version name',iconClass='iconbox tag',
@@ -95,8 +95,8 @@ class Form(BaseComponent):
         fb = bar.fbmeta.formbuilder(cols=4,border_spacing='0',datapath='^#FORM.sourceMetaCurrentDatapath')
         fb.numberTextBox(value='^.iframe_height',width='3em',lbl='Height(px)')
         fb.numberTextBox(value='^.iframe_width',width='3em',lbl='Width(px)')
-        fb.filteringSelect(value='^.source_region',width='5em',lbl='Source',
-                            values='stack,top,left,bottom,right')
+        fb.filteringSelect(value='^.source_region',width='10em',lbl='Source',
+                            values='stack:Stack Demo/Source,stack_f:Stack Source/Demo,top:Top,left:Left,bottom:Bottom,right:Right')
         fb.checkbox(value='^.source_inspector',label='inspector')
 
         bc = frame.center.borderContainer(design='sidebar')

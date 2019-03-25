@@ -156,17 +156,20 @@ class Main(BaseResourceBatch):
         return '.. raw:: html\n\n %s' %self.exampleHTMLChunk(example_url,sourcedata,example_label=example_label,example_name=example_name)
         
     def exampleHTMLChunk(self,example_url,sourcedata,example_label=None,example_name=None):
-        height = sourcedata['iframe_height'] or self.examples_pars['default_height'] or  '100px'
-        width = sourcedata['iframe_width'] or self.examples_pars['default_width'] or '100%'
+        height = sourcedata['iframe_height'] or self.examples_pars['default_height'] or  100
+        width = sourcedata['iframe_width'] or self.examples_pars['default_width']
         source_theme = self.examples_pars['source_theme']
         source_region = sourcedata['source_region'] or self.examples_pars['source_region']
         if source_region:
             source_region_inspector = sourcedata['source_inspector']
+            if source_region_inspector and not sourcedata['iframe_height']:
+                height = max(300,height)
             source_region_inspector = 'f' if not source_region_inspector else 't'
             example_url = '%s?_source_viewer=%s&_source_toolbar=%s' %(example_url,source_region,source_region_inspector)
             if source_theme:
                 example_url = '%s&cm_theme=%s' %(example_url,source_theme)
-        iframekw = dict(example_url=example_url,height=height,width=width,example_label=example_label or example_name,example_name=example_name)
+        iframekw = dict(example_url=example_url,height=height,width=width or '100%',
+                        example_label=example_label or example_name,example_name=example_name)
         return """<div class="gnrexamplebox">
             <a class="gnrexamplebox_title" onclick="gnrExampleIframe(this.nextElementSibling,'%(example_url)s','%(height)s','%(width)s');">
                 %(example_label)s
