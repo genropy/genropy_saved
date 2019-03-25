@@ -13,7 +13,7 @@ class Table(object):
                         name_plural='!!Documentation',caption_field='name',audit='lazy')
         self.sysFields(tbl,hierarchical='name',df=True,
                         counter=True,user_ins=True,user_upd=True)
-        tbl.column('name',name_long='!!Name')
+        tbl.column('name',name_long='!!Name', validate_notnull=True)
         tbl.column('topics',name_long='!!Topics')
         tbl.column('publish_date',dtype='D',name_long='!!Publish date')
         tbl.column('sourcebag',dtype='X',name_long='Python Source',_sendback=True)
@@ -23,6 +23,8 @@ class Table(object):
         tbl.column('revision',size=':3', name_long='!!Revision',values='001:Draft,050:Work in progress,080:Pre-release,100:Final')
         tbl.column('base_language',size='2',name_long='Base language').relation('docu.language.code',mode='foreignkey')
         tbl.column('old_html')
+        tbl.column('sphinx_toc', dtype='B', name_long='Sphinx toc')
+
         tbl.formulaColumn('example_url',"'/webpages/docu_examples/'||$hierarchical_name")
 
 
@@ -53,15 +55,22 @@ class Table(object):
             for v in list(record['sourcebag'].values()):
                 v['url'] = '/webpages/docu_examples/%s/%s.py' %(record['hierarchical_name'],v['version'])
 
-    def trigger_onUpdated(self,record,old_record):
-        if record['hierarchical_name'] != old_record['hierarchical_name']:
-            old_link = '</sys/docserver/rst/%s/%s>' %(self.fullname.replace('.','/'),old_record['hierarchical_name'])
-            new_link = '</sys/docserver/rst/%s/%s>' %(self.fullname.replace('.','/'),record['hierarchical_name'])
-            def cb(row):
-                row['docbag'] = row['docbag'].replace(old_link,new_link)
-            self.batchUpdate(cb,
+
+    def updateLink(self, record, old_record):
+        old_link = '&lt;%s/%s&gt;' %(self.pkg.htmlProcessorName(),old_record['hierarchical_name'])
+        new_link = '&lt;%s/%s&gt;' %(self.pkg.htmlProcessorName(),record['hierarchical_name'])
+        
+        def cb(row):
+            row['docbag'] = row['docbag'].replace(old_link,new_link)
+        
+        self.batchUpdate(cb,
                             where='$docbag ILIKE :old_link_query OR $docbag ILIKE :old_link_query',
                             old_link_query='%%%s%%',_raw_update=True,bagFields=True)
+
+    def trigger_onUpdated(self,record,old_record):
+
+        if record['hierarchical_name'] != old_record['hierarchical_name']:
+            self.updateLink(record, old_record)
 
         old_tutorial_record_path = self.tutorialRecordPath(old_record) 
         tutorial_record_path = self.tutorialRecordPath(record) 
@@ -148,3 +157,15 @@ class Table(object):
                     result.append(ltemplate %(pname.ljust(24),dtype.ljust(6),docline.ljust(50)))
                 result.append(l0)
         return '\n'.join(result)
+
+
+    def exportToSphinx(self, path):
+        pass
+
+    def tableOfContents(self, pkey=None, ref_date=None):
+        where='$publish_date IS NOT NULL AND $publish_date>=:curr_date'
+        if pkey:
+            where='%s AND $parent_id=:pkey'
+        children =self.query(where=where, curr_date=ref_date or self.db.workdate, pkey=pkey).fetch()
+        for c in children:
+            pass

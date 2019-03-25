@@ -120,7 +120,7 @@ class AppLocalizer(object):
             def translatecb(m):
                 m = m.groupdict()
                 lockey = m.get('key') or m.get('key_emb')
-                loctext = m.get('value') or m.get('value_emb')
+                loctext = m.get('value') or m.get('value_emb') or ''
                 loclang = m.get('lang') or m.get('lang_emb') or 'en'
                 if not lockey:
                     lockey = flatten(loctext)

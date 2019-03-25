@@ -317,11 +317,12 @@ class SqlDbAdapter(object):
         _smartappend(result, 'LIMIT', limit)
         _smartappend(result, 'OFFSET', offset)
         if for_update:
-            result.append(self._selectForUpdate(maintable_as=maintable_as))
+            result.append(self._selectForUpdate(maintable_as=maintable_as,mode=for_update))
         return '\n'.join(result)
 
-    def _selectForUpdate(self,maintable_as=None):
-        return 'FOR UPDATE OF %s' %maintable_as
+    def _selectForUpdate(self,maintable_as=None,mode=None):
+        mode = '' if mode is True else mode
+        return 'FOR UPDATE OF %s %s' %(maintable_as,mode)
 
     def prepareRecordData(self, record_data, tblobj=None,blackListAttributes=None, **kwargs):
         """Normalize a *record_data* object before actually execute an sql write command.

@@ -96,11 +96,19 @@ class HTableTree(BaseComponent):
                         nodeId='%s_hdata' %table.replace('.','_'),
                         **kwargs)
             d.addCallback("""
-                var selectedNode = treeNode.widget.currentSelectedNode;
-                var selectedIdentifier = selectedNode? selectedNode.item.attr.treeIdentifier:''; 
-                treeNode.widget.saveExpanded();
+                var selectedIdentifier;
+
+                if(treeNode.attr.tag.toLocaleLowerCase()=='tree'){ //avoid paletteTree
+                    //tree 
+                    var selectedNode = treeNode.widget.currentSelectedNode;
+                    selectedIdentifier = selectedNode? selectedNode.item.attr.treeIdentifier:''; 
+                    treeNode.widget.saveExpanded();
+                }
                 result = result || new gnr.GnrBag();
                 this.setRelativeData(storepath,result);
+                if(!selectedIdentifier){
+                    return;
+                }
                 setTimeout(function(){
                     treeNode.widget.restoreExpanded();
                     if(selectedIdentifier){

@@ -198,13 +198,14 @@ class BaseServiceType(object):
     def __call__(self, service_name=None, **kwargs):
         service_name = service_name or self.default_service_name
         service = self.service_instances.get(service_name)
-        with self.site.register.globalStore() as gs:
-            cache_key = 'globalServices_lastTS.%s_%s' %(self.service_type,service_name)
-            lastTS = gs.getItem(cache_key)
-            if service is None or (lastTS and service._service_creation_ts<lastTS):
-                service = self.addService(service_name, **kwargs)
-                if service:
-                    service._service_creation_ts = datetime.now()
+        gs = self.site.register.globalStore()
+        cache_key = 'globalServices_lastTS.%s_%s' %(self.service_type,service_name)
+        lastTS = gs.getItem(cache_key)
+        if service is None or (lastTS and service._service_creation_ts<lastTS):
+            service = self.addService(service_name, **kwargs)
+            if service:
+                service._service_creation_ts = datetime.now()
+                with self.site.register.globalStore() as gs:
                     gs.setItem(cache_key,service._service_creation_ts)
         return service
 

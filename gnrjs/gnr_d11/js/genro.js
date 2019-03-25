@@ -962,9 +962,12 @@ dojo.declare('gnr.GenroClient', null, {
     
     setCurrentFocused:function(wdg){
         var sourceNode = wdg.sourceNode;
-        var destform = sourceNode.form;
+        if(sourceNode.grid){
+            return;
+        }
+        var destform = sourceNode.form; 
         var changedForm = destform!=genro.activeForm;
-         if(changedForm){
+        if(changedForm){
             if(genro.activeForm){
                 genro.activeForm.onBlurForm();
             }

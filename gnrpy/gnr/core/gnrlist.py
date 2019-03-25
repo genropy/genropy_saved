@@ -562,7 +562,7 @@ def getReader(file_path,filetype=None,**kwargs):
         reader = XmlReader(file_path,**kwargs)
     else:
         dialect = None
-        if filetype=='tab':
+        if filetype=='tab' or ext=='.tab':
             dialect = 'excel-tab'
         reader = CsvReader(file_path,dialect=dialect,**kwargs)
         reader.index = {slugify(k):v for k,v in list(reader.index.items())}

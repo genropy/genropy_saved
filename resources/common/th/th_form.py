@@ -45,8 +45,6 @@ class TableHandlerForm(BaseComponent):
                                  remotePars=remotePars,
                                  #context_dbstore=context_dbstore,
                                  **options) 
-        self._th_setDocumentation(table=table,resource = formResource or 'Form',doc=options.get('doc'),
-                                    custdoc=options.get('custdoc'))
         if formInIframe:
             return form
         elif remoteForm:
@@ -97,6 +95,7 @@ class TableHandlerForm(BaseComponent):
                 if handler:
                     kwargs = handler(f)
             if kwargs is False:
+                print 'avoid plugtoform'
                 continue
             fbname = kwargs.pop('fbname',None)
             if fbname:
@@ -139,8 +138,6 @@ class TableHandlerForm(BaseComponent):
                              store_startKey=startKey,context_dbstore=dbstore,
                              datapath='.form',store=store,store_kwargs=store_kwargs,
                              **kwargs)
-        self._th_setDocumentation(table=table,resource = formResource or 'Form',doc=resource_options.get('doc'),
-                                    custdoc=resource_options.get('custdoc'))
         form.store.handler('load',default_kwargs=default_kwargs)
         self.th_finalizeForm(form,table=table,options=resource_options,frameCode=formId,formCb=formCb)
         return form

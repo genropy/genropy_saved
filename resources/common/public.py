@@ -352,7 +352,6 @@ class TableHandlerMain(BaseComponent):
         return self._th_main(root,th_options=th_options,**kwargs)
         
     def _th_main(self,root,th_options=None,**kwargs): 
-        self._th_setDocumentation(key='thmain',table=self.maintable,doc=True)
         th_public = th_options.get('public',True)
         publicCollapse = th_public=='collapse'
         insidePublic = False
@@ -487,7 +486,7 @@ class TableHandlerMain(BaseComponent):
                 if(targetRowData['_pkey']==dragRowData['_pkey']){
                     return false;
                 }
-                if(modifiers=='Shift,Meta'||modifiers=='Shift,Ctrl'){ 
+                if(modifiers=='Shift'){ 
                     return funcApply("%(allowUnifyCb)s",{targetRowData:targetRowData,dragRowData:dragRowData});
                 }else{
                     return funcApply("%(onSelfDragRows)s",{targetRowData:targetRowData,dragRowData:dragRowData});

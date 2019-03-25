@@ -118,13 +118,13 @@ class Service(BaseLocalService):
         return expandpath(os.path.join(self.parent.site_static_dir,vpath, *args))
 
     def internal_path(self, *args, **kwargs):
-        path = self._argstopath(*args)
+        path = os.path.join(*args)
         path_getter = getattr(self, 'path_%s'%self.service_name, None)
         if path_getter:
             return path_getter(*(self.split_path(path)), **kwargs)
 
     def url(self, *args, **kwargs):
-        path = self._argstopath(*args)
+        path = '/'.join(args)
         url_getter = getattr(self, 'url_%s'%self.service_name, None)
         if url_getter:
             url = url_getter(*(self.split_path(path)), **kwargs)

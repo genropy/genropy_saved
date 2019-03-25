@@ -204,9 +204,11 @@ def customizable(func):
             search: foo_oncalling_xyz
                      foo_oncalled_xyz"""
     def customize(page,name,*args,**kwargs):
-        cust_list = [k for k in dir(page) if k.startswith(name) and not k.endswith('_')]
-        for k in sorted(cust_list):
-            getattr(page,k)(*args,**kwargs)
+        cust_list = [(k,getattr(page,k)) for k in dir(page) if k.startswith(name) and not k.endswith('_')]
+        for k,handler in sorted(cust_list,key=lambda t: t[1].__order):
+            result = handler(*args,**kwargs)
+            if result is False:
+                return result
 
     def newFunc(page,*args,**kwargs):
         oncalling_result = customize(page,'%s_oncalling_' %func.__name__,*args,**kwargs)

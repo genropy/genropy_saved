@@ -657,22 +657,23 @@ class GnrWebAppHandler(GnrBaseProxy):
                                 columns=None,hierarchical=False,applymethod=None,**kwargs):
         files = Bag()
         resultAttributes = dict()
+        from gnr.lib.services.storage import StorageResolver
+
         def setFileAttributes(node,**kwargs):
             attr = node.attr
             if not node.value and node.attr:
                 abs_path = attr['abs_path']
                 attr['_pkey'] = abs_path
-                attr['created_ts'] = datetime.fromtimestamp(os.path.getctime(abs_path))
-                attr['changed_ts'] = datetime.fromtimestamp(os.path.getmtime(abs_path))
-                attr['size'] = os.path.getsize(abs_path)
+                attr['created_ts'] = datetime.fromtimestamp(attr['mtime'])
+                attr['changed_ts'] = datetime.fromtimestamp(attr['mtime'])
                 if columns and attr['file_ext'].lower() == 'xml':
-                    b = Bag(abs_path)
+                    with self.page.site.storageNode(abs_path).open('rb') as f:
+                        b = Bag(f)
                     for c in columns.split(','):
                         c = c.replace('$','')
                         attr[c] = b[c]
         for f in folders.split(','):
-            f = self.page.site.getStaticPath(f)
-            files[f] = DirectoryResolver(path=f,include=include,exclude=exclude,ext=ext,**kwargs)
+            files[f] = StorageResolver(self.page.site.storageNode(f),include=include,exclude=exclude,ext=ext,_page=self.page)()
         files.walk(setFileAttributes,_mode='')
         if hierarchical:
             return files

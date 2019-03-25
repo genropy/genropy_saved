@@ -1,4 +1,4 @@
-#-*- coding: UTF-8 -*-
+#-*- coding: utf-8 -*-
 #--------------------------------------------------------------------------
 # package           : GenroPy web - see LICENSE for details
 # module gnrwebcore : core module for genropy web framework
@@ -53,7 +53,7 @@ from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
 from gnr.web.gnrwebstruct import GnrGridStruct
-from gnr.core.gnrlang import getUuid,gnrImport, GnrException,tracebackBag
+from gnr.core.gnrlang import getUuid,gnrImport, GnrException, GnrSilentException,tracebackBag
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrdecorator import public_method,deprecated
 from gnr.core.gnrclasses import GnrMixinNotFound
@@ -511,8 +511,12 @@ class GnrWebPage(GnrBaseWebPage):
         if method not in ('doLogin', 'onClosePage'):
             auth = self._checkAuth(method=method, **parameters)
         try:
+            self.db #init db property with env
             result = self.rpc(method=method, _auth=auth, **parameters)
-        except GnrException as e:
+        except GnrSilentException,e:
+            self.rpc.error = 'gnrsilent'
+            result = Bag(topic=e.topic,parameters=e.parameters)
+        except GnrException,e:
             if self.site.debug and (self.isDeveloper() or self.site.force_debug):
                 raise
             self.rpc.error = 'gnrexception'
@@ -561,7 +565,7 @@ class GnrWebPage(GnrBaseWebPage):
         if asDict:
             prefix='%s_%s_'% (mangler,method)
             return dict([(fname,getattr(self,fname)) for fname in dir(self) 
-                                     if fname.startswith(prefix) and fname != prefix])    
+                                     if fname.startswith(prefix) and fname != prefix and not fname.endswith('_')])    
 
         def emptyCb(*args,**kwargs):
             return dflt
@@ -2376,15 +2380,16 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: TODO
         :param defaultContent: TODO"""
-        ext = os.path.splitext(path)[1]
         result = Bag()
-        if not os.path.exists(path):
+        snode = self.site.storageNode(path)
+        if not snode.exists:
             content = defaultContent
         else:
-            if ext=='.xml':
-                content = Bag(path)
-            elif os.path.exists(path):
-                with open(path) as f:
+            if snode.ext=='xml':
+                with snode.open('rb') as f:
+                    content = Bag(f)
+            elif snode.exists:
+                with snode.open('rb') as f:
                     content = f.read()
             else:
                 content = ''
@@ -2393,11 +2398,12 @@ class GnrWebPage(GnrBaseWebPage):
 
     @public_method
     def saveSiteDocument(self,path=None,data=None):
-        filename,ext =os.path.splitext(path)
-        if ext == '.xml':
-            data.toXml(filename=path)
+        snode = self.site.storageNode(path)
+        if snode.ext == 'xml':
+            with snode.open('wb') as f:
+                data.toXml(f)
         else:
-            with open(path,'w') as f:
+            with snode.open('wb') as f:
                 f.write(data['content'])
         return dict(path=path)
 

@@ -17,7 +17,7 @@ import re
 class CsvWriter(object):
     """docstring for CsVWriter"""
 
-    def __init__(self, columns=None, coltypes=None, headers=None, filepath=None,locale=None):
+    def __init__(self, columns=None, coltypes=None, headers=None, filepath=None,locale=None, **kwargs):
         self.headers = headers or []
         self.columns = columns
         self.coltypes = coltypes
@@ -41,13 +41,14 @@ class CsvWriter(object):
         self.result.append(separator.join([self.cleanCol(toText(row.get(col),locale=self.locale), self.coltypes[col]) for col in self.columns]))
 
     def workbookSave(self):
-        if self.isinstance(self.filepath, StorageNode):
+        if isinstance(self.filepath, StorageNode):
             csv_open = self.filepath.open
         else:
             csv_open = lambda **kw: open(self.filepath,**kw)
         with csv_open(mode='w') as f:
             result = '\n'.join(self.result)
             f.write(result.encode('utf-8'))
+            
 class BaseResourceExport(BaseResourceBatch):
     batch_immediate = True
     export_zip = False

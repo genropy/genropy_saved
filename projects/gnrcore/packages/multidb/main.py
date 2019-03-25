@@ -73,6 +73,8 @@ class Package(GnrDboPackage):
 
     def onBuildingDbobj(self):
         for pkgNode in self.db.model.src['packages']:
+            if not pkgNode.value:
+                continue
             for tblNode in pkgNode.value['tables']:
                 multidb = tblNode.attr.get('multidb')
                 tbl = tblNode.value
@@ -499,8 +501,8 @@ class MultidbTable(object):
             tblsub = self.db.table('multidb.subscription')
             fkeyname = tblsub.tableFkey(self)
             pkey = record[self.pkey]
-            subscribedStores = tblsub.query(where='$tablename=:tablename AND $%s=:pkey' %fkeyname,
-                                    columns='$dbstore',addPkeyColumn=False,
+            subscribedStores = tblsub.query(where='$tablename=:tablename AND $%s=:pkey AND $dbstore IN :allstores' %fkeyname,
+                                    columns='$dbstore',addPkeyColumn=False,allstores=self.db.dbstores.keys(),
                                     tablename=tablename,pkey=pkey,distinct=True).fetch()                
             return [s['dbstore'] for s in subscribedStores]
         else:
@@ -543,7 +545,7 @@ class MultidbTable(object):
                     result[k] = (v,store_record[k])
         return result
 
-    def createSysRecords(self):
+    def createSysRecords(self,do_update=None):
         if not self.db.usingRootstore():
             return
         syscodes = []

@@ -364,6 +364,11 @@ class GnrException(Exception):
                     msgargs[k] = self.localize(msgargs[k])
         return msg % msgargs % msgargs # msgargs is use 2 times as we could have msgargs nested(max 1 level)
 
+class GnrSilentException(GnrException):
+    def __init__(self, topic=None,**kwargs):
+        self.topic = topic
+        self.parameters = kwargs
+
 class GnrDebugException(GnrException):
     pass
 class NotImplementedException(GnrException):
@@ -850,12 +855,10 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
             new.__mixin_path = __mixin_path
         if getattr(new,'mixin_as',None):            
             if '#' in new.mixin_as:
-                id_new = id(new)
-                if not hasattr(target_class, '__mixin_dict__'):
-                    target_class.__mixin_dict__ = dict()
-                if id_new not in target_class.__mixin_dict__:
-                    target_class.__mixin_dict__[id_new] = True
-                    mixin_as = new.mixin_as.replace('#',getmixincount())
+                id_new = str(id(new))
+                mixin_as = new.mixin_as.replace('#',id_new)
+                if not hasattr(target_class,mixin_as):
+                    new.__order = getmixincount()
                     setattr(target_class, mixin_as, new)
             else:
                 setattr(target_class, mixin_as, new)

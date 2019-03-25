@@ -33,6 +33,7 @@ from email.mime.application import MIMEApplication
 from email.utils import formatdate
 import re, html.entities
 import mimetypes
+from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrbag import Bag
 from gnr.lib.services import GnrBaseService
 from gnr.core.gnrlang import GnrException
@@ -300,6 +301,7 @@ class MailService(GnrBaseService):
                       from_address=from_address, smtp_host=smtp_host, port=port, user=user, password=password,
                       ssl=ssl, tls=tls, html=html, charset=charset, async_=async_, **kwargs)
 
+    @extract_kwargs(headers=True)
     def sendmail(self, to_address=None, subject=None, body=None, cc_address=None, reply_to=None, bcc_address=None, attachments=None,
                  account=None,timeout=None,
                  from_address=None, smtp_host=None, port=None, user=None, password=None,message_id=None,message_date=None,
@@ -341,10 +343,16 @@ class MailService(GnrBaseService):
         msg = self.build_base_message(subject, body, attachments=attachments, html=html, charset=charset)
         msg['From'] = from_address
         msg['To'] = to_address
+        headers_kwargs = headers_kwargs or {}
+        message_id = message_id or headers_kwargs.pop('message_id',None)
+        message_date = message_date or headers_kwargs.pop('message_date',None)
+        reply_to = reply_to or headers_kwargs.pop('reply_to',None)
+        for k,v in headers_kwargs:
+            msg.add_header(k,v)
         if ',' in to_address:
             to_address = to_address.split(',')
         message_date = message_date or datetime.datetime.now()
-        if isinstance(message_date,datetime.datetime):
+        if isinstance(message_date,datetime.datetime) or isinstance(message_date,datetime.date):
             message_date = formatdate(time.mktime(message_date.timetuple()))
         msg['Date'] = message_date
         if reply_to:

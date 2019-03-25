@@ -278,7 +278,8 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         } else if (domtag == '*') {
             domnode = null;
         } else {
-            destination = handler._attachTo ? dojo.byId(handler._attachTo) : destination;
+            var _attachTo = attributes._attachTo || handler._attachTo;
+            destination = _attachTo ? dojo.byId(_attachTo) : destination;
             domnode = this.makeDomNode(domtag, destination, ind);
 
         }
@@ -870,6 +871,31 @@ dojo.declare("gnr.GridEditor", null, {
             this.storeInForm = sourceNode.attr.storeInForm || absStorepath.indexOf(sourceNode.form.sourceNode.absDatapath(sourceNode.form.formDatapath))==0
         }
         this.widgetRootNode.attr.datapath = absStorepath;
+    },
+    batchAssign:function(){
+        var fields = [];
+        var editable_cols = this.columns;
+        this.grid.getColumnInfo().keys().forEach(function(f){
+            var c = editable_cols[f];
+            if(!c){return;}
+            if(c.attr.batch_assign){
+                var wdgkw = objectUpdate({lbl:c.attr.original_name,value:'^.'+c.attr.field},c.attr);
+                objectExtract(wdgkw,'selectedSetter,selectedCb')
+                fields.push(wdgkw);
+            }
+        });
+        var grid = this.grid;
+
+        var promptkw = {widget:fields,
+            action:function(result){
+                grid.getSelectedRowidx().forEach(function(idx){
+                    result.forEach(function(node){
+                        grid.gridEditor.setCellValue(idx,node.label,node.getValue());
+                    });
+                });
+            }
+        };
+        genro.dlg.prompt(_T('Multi assigment'),promptkw);
     },
 
     onFormatCell:function(cell, inRowIndex,renderedRow){
@@ -1598,9 +1624,6 @@ dojo.declare("gnr.GridEditor", null, {
                     that.grid.currRenderedRowIndex = null;
                     that.grid.updateRow(editingInfo.row);
                 }
-            }
-            if(that._exitCellTimeout){
-                that._exitCellTimeout = null;
             }
             if (delta) {
                 var rc = that.findNextEditableCell({row:editingInfo.row, col:editingInfo.col}, delta);

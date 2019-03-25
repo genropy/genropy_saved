@@ -798,6 +798,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             });
         }
         if (widget.sourceNode.attr.filteringGrid){
+            widget.filteringMode = widget.sourceNode.currentFromDatasource(sourceNode.attr.filteringMode) || 'exclude';
             var filteringColumn = sourceNode.attr.filteringColumn.replace(/\./g, '_').replace(/@/g, '_');            
             var filteredColumn = filteringColumn;
             if(filteringColumn.indexOf(':')>=0){
@@ -808,12 +809,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var connectFilteringGrid=function(){
                 var filteringGrid = widget.sourceNode.currentFromDatasource(widget.sourceNode.attr.filteringGrid);
                 filteringGrid = filteringGrid.widget;
-                dojo.connect(filteringGrid,'updateRowCount',function(){
+                dojo.connect(filteringGrid,'newDataStore',function(){
                     widget.filterToRebuild(true);
                     widget.updateRowCount('*');
                 });
                 widget.excludeListCb=function(){
-                    widget.sourceNode.currentFromDatasource(widget.sourceNode.attr.filteringGrid);
+                    //widget.sourceNode.currentFromDatasource(widget.sourceNode.attr.filteringGrid);
                     return filteringGrid.getColumnValues(filteredColumn);
                 };
                 widget.excludeCol=filteringColumn;
@@ -934,8 +935,15 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     mixin_setAutoInsert:function(autoInsert){
         this.autoInsert = autoInsert;
     },
+
     mixin_setAutoDelete:function(autoDelete){
         this.autoDelete = autoDelete;
+    },
+
+    mixin_setFilteringMode:function(filteringMode){
+        this.filteringMode = filteringMode || 'exclude' ;
+        this.filterToRebuild(true);
+        this.updateRowCount();
     },
 
     mixin_changedFocus:function(focus){
@@ -3228,8 +3236,12 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
     
     mixin_setEditableColumns:function(){
         var cellmap = this.cellmap;
+        var batch_assign = false;
         for(var k in cellmap){
             if(cellmap[k].edit){
+                if(cellmap[k].edit!==true && cellmap[k].edit.batch_assign){
+                    batch_assign = true;
+                }
                 if(!this.gridEditor){
                     this.gridEditor = new gnr.GridEditor(this);
                 }
@@ -3238,6 +3250,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
                 this.gridEditor.delEditColumn(cellmap[k].field);
             }
         }
+        this.sourceNode.setRelativeData('.batchAssignEnabled',batch_assign);
     },
     
     
@@ -4216,7 +4229,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
 
     mixin_serverAction:function(kw){
         var options = objectPop(kw,'opt');
-        var allRows = objectPop(kw,'allRows');
+        var allRows = objectPop(options,'allRows');
         var method = objectPop(options,"method") || "app.includedViewAction";
         var kwargs = objectUpdate({},options);
         var useRawData = options['rawData']===true;

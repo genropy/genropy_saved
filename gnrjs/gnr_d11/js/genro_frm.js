@@ -965,10 +965,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     
     onBlurForm:function(){
         if(this.autoSave && this.changed){
-            this.lazySave();
+            this.doAutoSave();
         }
         genro.dom.removeClass(this.sourceNode,'form_activeForm');
     },
+    
     
     isRegisteredWidget:function(wdg){
         return (wdg.sourceNode._id in this._register);
@@ -1067,10 +1068,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     clearClipboard:function(){
         this.getControllerData().setItem('clipboard',new gnr.GnrBag());
     },
+    
     checkPendingGridEditor:function(){
         var pendingEditor;
         for(var k in this.gridEditors){
-            if(this.gridEditors[k]._exitCellTimeout){
+            if(this.gridEditors[k].grid.gnrediting){
                 pendingEditor = this.gridEditors[k];
                 break;
             }
@@ -1153,7 +1155,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     resultDict = resultDict || {};
                     if (resultDict.error){
                         //genro.dlg.alert(resultDict.error,'Error');
-                        that.publish('message',{message:'Error in save '+resultDict.error,sound:'$onsaved',messageType:'error'});
+                        if(resultDict.error!='gnrsilent'){
+                            that.publish('message',{message:'Error in save '+resultDict.error,sound:'$onsaved',messageType:'error'});
+                        }
                         that.setOpStatus();
                         return;
                     }
@@ -2484,6 +2488,12 @@ dojo.declare("gnr.formstores.Base", null, {
         virtual_columns = virtual_columns.concat(form_virtual_columns);
         kw['_sourceNode'] = form.sourceNode;
         kw.ignoreReadOnly = ignoreReadOnly;
+        var dbstoreField = this.parentStore?this.parentStore.storeNode.attr.dbstoreField:null;
+        if(dbstoreField){
+            var ps = this.parentStore;
+            var row = ps.rowFromItem(ps.rowBagNodeByIdentifier(currPkey));
+            this.form.sourceNode.attr.context_dbstore = row[dbstoreField];
+        }
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':arrayUniquify(virtual_columns).join(','),
                                                   'table':this.table, timeout:0},kw),null,'POST',null,maincb);

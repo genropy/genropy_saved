@@ -121,11 +121,11 @@ def config(root,application=None):"""
 
 class IniConfStruct(ConfigStruct):
 
-    def section(self,section=None,name=None):
-        return self.child('section',name=name,section=section,childname=name)
+    def section(self,section=None,name=None,label=None):
+        return self.child('section',name=name,section=section,childname=label or name,label=label)
 
     def parameter(self,parameter=None,value=None):
-        return self.child('parameter',parameter=parameter,value=value,childname=parameter)
+        return self.child('parameter',parameter=parameter,value=value,childname=parameter.replace('.','_'))
 
     def toIniConf(self,filepath):
         with open(filepath,'w') as f:
@@ -152,6 +152,7 @@ class IniConfStruct(ConfigStruct):
                     
             elif tag=='parameter':
                 parameter_value = kw.pop('value')
+                parameter = kw.pop('parameter',key)
                 if n.value:
                     parameter_value = list(n.value.keys())
                 filehandle.write('%s=%s' %(key,parameter_value))

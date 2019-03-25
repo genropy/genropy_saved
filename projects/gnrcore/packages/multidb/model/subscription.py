@@ -112,11 +112,14 @@ class Table(object):
                 if f:
                     old_record = f[0]
                     if event=='U':
+                        updater = data_record
                         if mergeUpdate:
-                            for k,v in list(data_record.items()): 
+                            updater = {}
+                            for k,v in data_record.items(): 
                                 if (v!=old_record[k]) and (old_record[k] != master_old_record[k]):
-                                    data_record.pop(k)
-                        tblobj.update(data_record,old_record=old_record)
+                                    continue
+                                updater[k] = v
+                        tblobj.update(updater,old_record=old_record)
                     else:
                         tblobj.delete(data_record)
                 elif event=='U':

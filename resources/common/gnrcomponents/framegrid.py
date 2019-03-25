@@ -35,7 +35,16 @@ class FrameGridTools(BaseComponent):
                                                 dict(name='opt_allRows',label='All rows',wdg='checkbox'),
                                                 dict(name='opt_localized_data',wdg='checkbox',label='Localized data')]),
                                 **kwargs) 
-       
+
+
+    @struct_method
+    def fgr_slotbar_batchAssign(self,pane,**kwargs):
+        pane.slotButton('!!Batch Assign',iconClass='iconbox paint',
+                        publish='batchAssign',
+                        hidden='^.grid.batchAssignHidden')
+
+
+                                          
     @struct_method
     def fgr_slotbar_addrow(self,pane,_class='iconbox add_row',disabled='^.disabledButton',enable=None,delay=300,
                                     defaults=None,**kwargs):
@@ -242,6 +251,8 @@ class FrameGrid(BaseComponent):
         grid_kwargs.setdefault('_newGrid',_newGrid)
         grid_kwargs.setdefault('structpath',structpath)
         grid_kwargs.setdefault('sortedBy','^.sorted')
+        grid_kwargs.setdefault('selfsubscribe_batchAssign', "if(this.widget.gridEditor){this.widget.gridEditor.batchAssign();}")
+
         grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow','this.widget.addRows((($1.opt && $1.opt.default_kw)? [$1.opt.default_kw]: $1._counter),$1.evt);')
         grid_kwargs['selfsubscribe_duprow'] = grid_kwargs.get('selfsubscribe_duprow','this.widget.addRows($1._counter,$1.evt,true);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
@@ -272,7 +283,7 @@ class FrameGrid(BaseComponent):
     def fgr_bagGrid(self,pane,storepath=None,dynamicStorepath=None,
                     title=None,default_kwargs=None,
                     pbl_classes=None,gridEditor=True,
-                    addrow=True,delrow=True,export=None,slots=None,
+                    addrow=True,delrow=True,batchAssign=True,export=None,slots=None,
                     autoToolbar=True,semaphore=None,
                     datamode=None,
                     store_kwargs=True,parentForm=None,
@@ -313,6 +324,12 @@ class FrameGrid(BaseComponent):
                 default_slots.append('delrow')
             if addrow:
                 default_slots.append('addrow')
+            if batchAssign:
+                default_slots.append('batchAssign')
+                frame.data('.grid.batchAssignHidden',True)
+                frame.dataFormula(".grid.batchAssignHidden",'!batchAssignEnabled',_onBuilt=100,
+                                        batchAssignEnabled='^.grid.batchAssignEnabled')
+
             slots = slots or ','.join(default_slots)
             if pbl_classes:
                 bar = frame.top.slotBar(slots,_class='pbl_roundedGroupLabel')

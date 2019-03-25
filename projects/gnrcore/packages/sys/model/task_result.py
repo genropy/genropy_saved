@@ -11,8 +11,6 @@ class Table(object):
         tbl.column('result_time',dtype='DH',name_long='!!Result Time') # date
         tbl.column('start_time',dtype='DH',name_long='!!Start Time') # date
         tbl.column('end_time',dtype='DH',name_long='!!Start Time') # date
-
-
         tbl.column('is_error','B',name_long='!!Is Error')
 
         

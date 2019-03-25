@@ -113,7 +113,8 @@ class GnrCustomWebPage(object):
                             _onCalling="""if(docheck){
                                 genro.lockScreen(true,'checkstore');
                             }""",
-                            _if='currentstore',_else='null')
+                            _if='currentstore',_else='null'
+                            )
         rpc.addCallback("""
             genro.lockScreen(false,'checkstore')
             SET .currpackages = result.keys().join(',');

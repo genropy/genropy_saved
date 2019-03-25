@@ -759,6 +759,19 @@ class TableBase(object):
         :param record: the record
         :param fldname: the field name"""
         pass
+
+    def inheritedFields(self):      
+        return [field for field,colobj in self.columns.items() if colobj.attributes.get('inherited')]
+
+    def getInheritedValues(self,record_source):      
+        result = {}        
+        for field,colobj in self.columns.items():
+            doCopy = colobj.attributes.get('inherited')
+            if doCopy:
+                field_source = field if doCopy is True else doCopy
+                if field_source in record_source:
+                    result[field] = record_source[field_source]
+        return result
         
     def hasRecordTags(self):
         """TODO"""
@@ -781,7 +794,7 @@ class TableBase(object):
                 record[self.draftField] = self.protect_draft(record)
         logicalDeletionField =self.logicalDeletionField
         if logicalDeletionField and old_record and self.fieldsChanged(logicalDeletionField,record,old_record):
-            self.onArchivingRecord(record,record[logicalDeletionField])
+            self.onArchivingRecord(record,record.get(logicalDeletionField))
             if not record.get(logicalDeletionField) and record.get('__moved_related'):
                 self.restoreUnifiedRecord(record)
 
@@ -1174,7 +1187,11 @@ class AttachmentTable(GnrDboTable):
         tbl.column('maintable_id',size='22',group='*',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
                     mode='foreignkey', onDelete_sql='cascade',onDelete='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_',deferred=True)
-        tbl.formulaColumn('fileurl',"COALESCE($external_url,'/_vol/' || $filepath)",name_long='Fileurl')
+        tbl.formulaColumn('adapted_url',"""CASE WHEN position('\:' in $filepath)>0 THEN '/'||$filepath
+             ELSE '/_vol/' || $filepath
+            END""",group='_')
+                    
+        tbl.formulaColumn('fileurl',"COALESCE($external_url,$adapted_url)",name_long='Fileurl')
         if hasattr(self,'atc_types'):
             tbl.column('atc_type',values=self.atc_types())
         self.onTableConfig(tbl)
@@ -1252,7 +1269,7 @@ class AttachmentTable(GnrDboTable):
         return destStorageNode
         
     def addAttachment(self,maintable_id=None,origin_filepath=None,destFolder=None,
-                            description=None,mimetype=None,moveFile=False,copyFile=True):
+                            description=None,mimetype=None,moveFile=False,copyFile=True,**kwargs):
         site = self.db.application.site
         originStorageNode = site.storageNode(origin_filepath)
         mimetype = mimetype or mimetypes.guess_type(originStorageNode.path)[0]
@@ -1268,10 +1285,10 @@ class AttachmentTable(GnrDboTable):
                 originStorageNode.copy(destStorageNode)
         else:
             destStorageNode = originStorageNode
-        record = dict(maintable_id=maintable_id,
+        record = self.newrecord(maintable_id=maintable_id,
                         mimetype=mimetype,
                         description=destStorageNode.cleanbasename,
-                        filepath=destStorageNode.fullpath)
+                        filepath=destStorageNode.fullpath,**kwargs)
         self.insert(record)
         return record
     

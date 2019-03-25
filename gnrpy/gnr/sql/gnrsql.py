@@ -593,14 +593,10 @@ class GnrSqlDb(GnrObject):
         thread_connections = self._connections.get(_thread.get_ident(), {})
         currentConnectionName = self.currentConnectionName
         currentStorename = self.currentStorename
-        if self.usingMainConnection and self.usingRootstore :
-            for c,conn in list(thread_connections.items()):
-                storename,connectionName = c
-                if connectionName == currentConnectionName:
-                    conn.commit()
-        else:
-            conn = thread_connections.get((currentStorename,currentConnectionName))
-            if conn:
+        liveconn = thread_connections.items()
+        for c,conn in liveconn:
+            storename,connectionName = c
+            if connectionName == currentConnectionName:
                 conn.commit()
         self.onDbCommitted()
 
@@ -1046,7 +1042,7 @@ class DbStoresHandler(object):
              
     def create_stores(self, check=False):
         """TODO"""
-        if not os.path.exists(self.config_folder):
+        if not (self.config_folder and os.path.exists(self.config_folder)):
             return
         for filename in os.listdir(self.config_folder):
             name,ext = os.path.splitext(filename)
