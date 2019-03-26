@@ -411,7 +411,11 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             attributes['readonly'] = 'readonly';
         }
         for (var oneattr in attributes) {
-            domnode.setAttribute(oneattr, attributes[oneattr]);
+            var vattr = attributes[oneattr];
+            if((vattr===null || vattr===undefined) && oneattr=='value'){
+                vattr = '';
+            }
+            domnode.setAttribute(oneattr, vattr);
         }
         if (innerHTML!=undefined) {
             domnode.innerHTML = innerHTML;

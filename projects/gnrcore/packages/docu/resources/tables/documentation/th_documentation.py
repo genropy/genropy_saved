@@ -126,9 +126,11 @@ class Form(BaseComponent):
                             subscribe_setInLocalIframe=True,grid=fg.grid.js_widget,
                             data='=#FORM.record.sourcebag')
 
-        center = bc.borderContainer(region='center')
-        center_right = center.contentPane(region='right',overflow='hidden',splitter=True,border_left='1px solid silver',background='white')
-        self.sourcePreviewIframe(center_right)
+        center = bc.borderContainer(region='center',_class='hideSplitter',border='1px solid silver',margin='4px')
+        center_right = center.borderContainer(region='right',splitter=True,border_left='1px solid silver',background='white')
+        center_right.contentPane(region='top',background='rgba(62, 78, 98, 1.00)',height='18px').div('Result',color='rgba(241, 205, 82, 1.00)',
+                                                                                    text_align='center',margin_top='3px',font_size='.8em',font_weight='bold')
+        self.sourcePreviewIframe(center_right.contentPane(region='center',overflow='hidden'))
         bc.dataController("""var width = 0;
                             status = status || 'rstonly';
                              if(status=='mixed'){
@@ -171,8 +173,10 @@ class Form(BaseComponent):
                           grid=fg.grid.js_widget)
         fg.grid.dataFormula("#FORM.versionsFrame._editorDatapath", "'#FORM.record.sourcebag.'+selectedLabel;",
         selectedLabel="^.selectedLabel",_if='selectedLabel',_else='"#FORM.versionsFrame.dummypath"')
-        center_center = center.contentPane(region='center',datapath='^#FORM.versionsFrame._editorDatapath',margin_left='6px',margin='3px')
-        cm = center_center.codemirror(value='^.source',parentForm=True,config_theme='twilight',
+        center_center = center.borderContainer(region='center',datapath='^#FORM.versionsFrame._editorDatapath',margin_left='6px')
+        center_center.contentPane(region='top',background='rgba(62, 78, 98, 1.00)',height='18px').div('Python source',color='rgba(241, 205, 82, 1.00)',
+                                text_align='center',margin_top='3px',font_size='.8em',font_weight='bold')
+        cm = center_center.contentPane(region='center').codemirror(value='^.source',parentForm=True,config_theme='twilight',
                           config_mode='python',config_lineNumbers=True,
                           config_indentUnit=4,config_keyMap='softTab',
                           height='100%')
