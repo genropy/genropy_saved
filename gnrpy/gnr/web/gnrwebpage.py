@@ -513,10 +513,10 @@ class GnrWebPage(GnrBaseWebPage):
         try:
             self.db #init db property with env
             result = self.rpc(method=method, _auth=auth, **parameters)
-        except GnrSilentException,e:
+        except GnrSilentException as e:
             self.rpc.error = 'gnrsilent'
             result = Bag(topic=e.topic,parameters=e.parameters)
-        except GnrException,e:
+        except GnrException as e:
             if self.site.debug and (self.isDeveloper() or self.site.force_debug):
                 raise
             self.rpc.error = 'gnrexception'

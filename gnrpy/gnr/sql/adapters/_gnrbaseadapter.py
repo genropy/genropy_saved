@@ -229,7 +229,7 @@ class SqlDbAdapter(object):
         Example: for a search condition using regex, sqlite wants 'REGEXP', while postgres wants '~*'
         
         :param sql: the sql string to execute.
-        :param \*\*kwargs: the params dict
+        :param  **kwargs: the params dict
         :returns: tuple (sql, kwargs)"""
         sql = self.adaptTupleListSet(sql,kwargs)
         return sql, kwargs
@@ -239,7 +239,7 @@ class SqlDbAdapter(object):
             sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])
             sqlargs.pop(k)
             sqlargs.update(dict([('%s%i' % (k, i), ov) for i, ov in enumerate(v)]))
-            sql = re.sub(':%s(\W|$)' % k, sqllist+'\\1', sql)
+            sql = re.sub(r':%s(\W|$)' % k, sqllist+'\\1', sql)
             
 
         return sql
@@ -842,7 +842,7 @@ class GnrWhereTranslator(object):
 
     def op_wordstart(self, column, value, dtype, sqlArgs,tblobj):
         "!!Word start"
-        value = value.replace('(', '\(').replace(')', '\)').replace('[', '\[').replace(']', '\]')
+        value = value.replace('(', r'\(').replace(')', r'\)').replace('[', r'\[').replace(']', r'\]')
         return self.unaccentTpl(tblobj,column,'~*',mask="'(^|\\W)'||:%s")  % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_contains(self, column, value, dtype, sqlArgs,tblobj):
