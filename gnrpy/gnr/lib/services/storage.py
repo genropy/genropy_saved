@@ -526,7 +526,7 @@ class BaseLocalService(StorageService):
         return outpath
 
     def delete_dir(self, *args):
-        os.rmtree(self.internal_path(*args))
+        shutil.rmtree(self.internal_path(*args))
 
     def delete_file(self, *args):
         return os.unlink(self.internal_path(*args))
