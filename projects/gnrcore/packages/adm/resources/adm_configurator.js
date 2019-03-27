@@ -17,7 +17,7 @@ var ConfTreeEditor = {
             }
             destBag = destNode.getParentBag();
             dragNode = b.popNode(data);
-            destBag.setItem('n_'+timeStamp(),dragNode,null,{_position:'<'+destNode.label});
+            destBag.setItem('#id',dragNode,null,{_position:'<'+destNode.label});
         }else{
             destBag = destNode.getValue();
             if(!destBag){
@@ -25,7 +25,7 @@ var ConfTreeEditor = {
                 destNode.setValue(destBag);
             }
             dragNode = b.popNode(data);
-            destBag.setItem('n_'+timeStamp(),dragNode);
+            destBag.setItem('#id',dragNode);
         }
     }
 };

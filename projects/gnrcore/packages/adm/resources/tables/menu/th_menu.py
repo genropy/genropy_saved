@@ -18,12 +18,14 @@ class View(BaseComponent):
     def th_query(self):
         return dict(column='hierarchical_label', op='contains', val='')
 
+    def th_options(self):
+        return dict(partitioned=True)
 
 
     def th_bottom_custom(self,bottom):
         bar = bottom.slotToolbar('importbtn,5,pagesonly,*,exportMenu,10')
         menutable = self.db.table('adm.menu')
-        bar.importbtn.button('Import from menuxml',fire='.import_all')
+        bar.importbtn.button('Import from default menu',fire='.import_all')
         bar.dataRpc('dummy',menutable.createRootHierarchy,_fired='^.import_all')
         bar.pagesonly.button('Update pages',fire='.pages_only')
         bar.dataRpc('dummy',menutable.createRootHierarchy,pagesOnly=True,_fired='^.pages_only')

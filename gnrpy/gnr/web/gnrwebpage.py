@@ -1357,6 +1357,11 @@ class GnrWebPage(GnrBaseWebPage):
     def userTags(self):
         """TODO"""
         return self.avatar.user_tags if self.avatar else ''
+    
+    @property
+    def userMenu(self):
+        if self.avatar.menubag:
+            return self.avatar.menubag['root']
         
     def _get_user(self):
         if not getattr(self,'_user',None):
