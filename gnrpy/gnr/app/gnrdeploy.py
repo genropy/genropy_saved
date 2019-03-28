@@ -705,13 +705,10 @@ class InstanceMaker(object):
     def do_site(self):
         """TODO"""
         self.site_path = os.path.join(self.instance_path, 'site')
-        pages_path = os.path.join(self.site_path, 'pages')
         root_py_path = os.path.join(self.instance_path, 'root.py')
         siteconfig_xml_path = os.path.join(self.config_path, 'siteconfig.xml')
         if not os.path.isdir(self.site_path):
             os.mkdir(self.site_path)
-        if not os.path.isdir(pages_path):
-            os.mkdir(pages_path)
         if not os.path.isfile(root_py_path):
             root_py = open(root_py_path, 'w')
             root_py.write("""#!/usr/bin/env python2.6

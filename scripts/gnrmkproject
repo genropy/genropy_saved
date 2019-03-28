@@ -39,7 +39,11 @@ if __name__ == '__main__':
     main_package = getattr(options, 'main_package', None)
     add_packages = getattr(options, 'add_packages', None)
     helloworld = getattr(options, 'helloworld', None)
-
+    if helloworld:
+        if not main_package:
+            main_package = 'hello'
+            if not create_instance:
+                create_instance = 'baseinstance'
     if not args:
         print 'You should specify a project name'
     else:
@@ -48,11 +52,6 @@ if __name__ == '__main__':
             path_resolver = PathResolver()
             repo_name, project_name = args[0].split('.')
             base_path = base_path or path_resolver.project_repository_name_to_path(repo_name)
-        if helloworld:
-            if not main_package:
-                main_package = 'hello'
-                if not create_instance:
-                    create_instance = project_name
         print 'Creating project %s in %s...' % (project_name, base_path or 'current directory')
         project_maker = ProjectMaker(project_name, base_path=base_path)
         print 'Project %s created' % project_name
