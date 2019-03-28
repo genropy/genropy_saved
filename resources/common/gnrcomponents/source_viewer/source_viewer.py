@@ -42,7 +42,7 @@ class SourceViewer(BaseComponent):
             return
         frame = sourceViewer.framePane('sourceViewerFrame',_class='source_viewer',datapath='gnr.source_viewer')
         if self._call_kwargs.get('_source_toolbar','t')=='t' \
-            and not self._call_kwargs.get('_source_viewer').startswith('stack'):
+            and not self._call_kwargs.get('_source_viewer','').startswith('stack'):
             bar = frame.top.slotToolbar('2,sb,*,readOnlyEditor,dataInspector,2',height='20px')
             if getattr(self,'source_viewer_addButton',True):
                 sb = bar.sb.stackButtons(stackNodeId='source_viewer_stack')
