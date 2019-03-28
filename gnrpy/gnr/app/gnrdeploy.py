@@ -12,8 +12,6 @@ from collections import defaultdict
 from gnr.app.gnrconfig import MenuStruct,IniConfStruct
 from gnr.app.gnrconfig import getGnrConfig,gnrConfigPath, setEnvironment
 
-
-
 class GnrConfigException(Exception):
     pass
 
@@ -414,7 +412,13 @@ class PathResolver(object):
                 elif entity_type=='site':
                     folders = glob.glob(os.path.join(project_path, '*','instances',entity_name))
                     if folders:
-                        return expandpath(os.path.join(folders[0],'site'))
+                        sitepath = expandpath(os.path.join(folders[0],'site'))
+                        root_py_path = expandpath(os.path.join(folders[0],'root.py'))
+                        if os.path.exists(root_py_path):
+                            if not os.path.exists(sitepath):
+                                os.makedirs(sitepath)
+                            return sitepath
+
                         
         raise EntityNotFoundException('Error: %s %s not found' % (entity_type, entity_name))
         

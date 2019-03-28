@@ -68,6 +68,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         """Return a new connection object: provides cursors accessible by col number or col name
         @return: a new connection object"""
         dbpath = self.dbroot.dbname
+        if not os.path.exists(dbpath):
+            dbdir = os.path.dirname(dbpath)
+            if not os.path.isdir(dbdir):
+                os.makedirs(dbdir)
         conn = pysqlite.connect(dbpath, detect_types=pysqlite.PARSE_DECLTYPES | pysqlite.PARSE_COLNAMES, timeout=20.0)
         conn.create_function("regexp", 2, self.regexp)
         #conn.row_factory = pysqlite.Row
