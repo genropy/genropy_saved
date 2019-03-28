@@ -180,7 +180,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         #if autocommit:
         #self.dbroot.commit()
 
-    def _selectForUpdate(self,maintable_as=None):
+    def _selectForUpdate(self,maintable_as=None,**kwargs):
         return 'FOR UPDATE'
 
     def listElements(self, elType, **kwargs):

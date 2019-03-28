@@ -116,7 +116,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def adaptSqlName(self,name):
         return '"%s"' %name
 
-    def _selectForUpdate(self,maintable_as=None):
+    def _selectForUpdate(self,maintable_as=None,**kwargs):
         return ''
 
     def listElements(self, elType, **kwargs):
