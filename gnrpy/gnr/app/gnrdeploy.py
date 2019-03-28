@@ -812,7 +812,7 @@ class GnrCustomWebPage(object):
                 helloworld.write("""# -*- coding: utf-8 -*-
             
 class GnrCustomWebPage(object):
-    def main(self,root,**kwargs):
+    def main_root(self,root,**kwargs):
         root.h1('Hello world',text_align='center')
     """)
             
