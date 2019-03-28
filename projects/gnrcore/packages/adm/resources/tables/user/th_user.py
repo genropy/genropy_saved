@@ -5,6 +5,8 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrdecorator import public_method
+
 
 class View(BaseComponent):
     def th_struct(self,struct):
@@ -43,4 +45,30 @@ class Form(BaseComponent):
                  validate_notnull=True, validate_notnull_error='!!Required')
         fb.field('group_code')
         fb.field('email', lbl='!!Email')
+
+
+class ExtUserForm(BaseComponent):
+    def th_form(self, form):
+        fb = form.record.div(margin='5px',margin_right='15px').formbuilder(width='100%',
+                            fld_width='100%',colswidth='auto')
+        fb.field('username',lbl='!!Username',validate_nodup=True,validate_notnull_error='!!Existing')
+        fb.textBox(value='^.md5pwd', lbl='Password', 
+                    type='password',validate_notnull=True, 
+                    validate_notnull_error='!!Required')
+        fb.field('group_code',hasDownArrow=True)
+        fb.field('email', lbl='!!Email')
+
+    def th_options(self):
+        return dict(modal=True,height='150px',width='380px')
+
+class ExtUserView(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('username',name='!!Username',width='10em')
+        r.fieldcell('group_code',name='!!Group',width='10em')
+        r.fieldcell('email',name='!!Email',width='20em')
+        #r.fieldcell('all_tags',name='!!Tags',width='15em')
+        
+    def th_order(self):
+        return 'username'
 
