@@ -130,6 +130,8 @@ class Main(BaseResourceBatch):
                 self.curr_pathlist=pathlist
                 tocstring=''
             lbag=docbag[self.handbook_record['language']]
+            if not lbag:
+                continue
             rst = lbag['rst'] or ''
             rsttable = self.doctable.dfAsRstTable(record['id'])
             if rsttable:
