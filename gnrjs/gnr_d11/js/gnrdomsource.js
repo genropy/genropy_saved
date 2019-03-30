@@ -1783,7 +1783,7 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
         tag = tag.toLowerCase();
         if (tag) {
             var tagHandler = genro.wdg.getHandler(tag);
-            if(!tagHandler){
+            if(!tagHandler && this.getParentNode()){
                 var parentTag = this.getParentNode().attr.tag;
                 var parentTagHandler = genro.wdg.getHandler(parentTag);
                 if(parentTagHandler && parentTagHandler.subtags && tag.toLowerCase() in parentTagHandler.subtags){
