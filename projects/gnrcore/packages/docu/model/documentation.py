@@ -66,7 +66,8 @@ class Table(object):
     def trigger_onUpdated(self,record,old_record):
         if record['hierarchical_name'] != old_record['hierarchical_name']:
             self.updateLink(record, old_record)
-            self.tutorialRecordNode(old_record).move(self.tutorialRecordNode(record))
+            if record['sourcebag'] and record['sourcebag']==old_record['sourcebag']:
+                self.tutorialRecordNode(old_record).move(self.tutorialRecordNode(record))
         if record['sourcebag'] != old_record['sourcebag']:
             self.writeModulesFromSourceBag(record)
 

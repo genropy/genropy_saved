@@ -74,7 +74,6 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
                 command:'find',
                 js:['addon/search/search.js','addon/search/searchcursor.js','addon/dialog/dialog.js'],
                 css:['addon/dialog/dialog.css'],
-                command:'lint',
             },lint:{
                 command:'lint',
                 js:['//ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js','addon/lint/lint.js','addon/lint/javascript-lint.js'],
