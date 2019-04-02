@@ -2488,17 +2488,27 @@ dojo.declare("gnr.formstores.Base", null, {
         virtual_columns = virtual_columns.concat(form_virtual_columns);
         kw['_sourceNode'] = form.sourceNode;
         kw.ignoreReadOnly = ignoreReadOnly;
-        var dbstoreField = this.parentStore?this.parentStore.storeNode.attr.dbstoreField:null;
-        if(dbstoreField){
-            var ps = this.parentStore;
-            var row = ps.rowFromItem(ps.rowBagNodeByIdentifier(currPkey));
-            this.form.sourceNode.attr.context_dbstore = row[dbstoreField];
-        }
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':arrayUniquify(virtual_columns).join(','),
                                                   'table':this.table, timeout:0},kw),null,'POST',null,maincb);
+        if(this.form.dbstoreField){
+            var row;
+            if(this.parentStore){
+                let rowNode = this.parentStore.rowBagNodeByIdentifier(currPkey);
+                if(rowNode){
+                    row = this.parentStore.rowFromItem(rowNode);
+                }
+            }
+            if(row){
+                this.form.sourceNode.attr.context_dbstore = row[this.form.dbstoreField];
+            }else{
+                deferred.addCallback(function(result){
+                    that.form.sourceNode.attr.context_dbstore = result.getValue().getItem(that.form.dbstoreField);
+                    return result;
+                });
+            }
+        }
         deferred.addCallback(cb);
-        
         if(loader.callbacks){
             this.handle_deferredCallBacks(deferred,loader.callbacks,kw);
         }
