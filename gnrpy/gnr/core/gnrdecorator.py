@@ -22,6 +22,7 @@
 
 import warnings
 from gnr.core.gnrdict import dictExtract
+
 from time import time
 
 
@@ -35,6 +36,28 @@ def metadata(**kwargs):
         
     return decore
     
+    
+def autocast(**cast_kwargs):
+    """TODO"""
+    def decore(func):
+        from gnr.core.gnrclasses import GnrClassCatalog
+
+        setattr(func,'_autocast', cast_kwargs)
+        
+        def wrapper(*args, **kwargs):
+            converter = GnrClassCatalog.convert()
+            for k,v in kwargs.items():
+                dtype=cast_kwargs.get(k)
+                if dtype:
+                    kwargs[k]=converter.fromText(v,dtype)
+            res = func(*args, **kwargs)
+            return res
+        wrapper.__name__ = func.__name__
+        if hasattr(func,'is_rpc'):
+            wrapper.is_rpc=func.is_rpc
+        return wrapper
+    return decore
+
 def public_method(*args,**metadata):
     """A decorator. It can be used to mark methods/functions as :ref:`datarpc`\s
     
