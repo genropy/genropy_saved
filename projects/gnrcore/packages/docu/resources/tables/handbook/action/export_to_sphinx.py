@@ -141,6 +141,7 @@ class Main(BaseResourceBatch):
                 rst = LINKFINDER.sub(self.fixLinks, rst)
                 if self.examples_root and self.curr_sourcebag:
                     rst = EXAMPLE_FINDER.sub(self.fixExamples, rst)
+                rst=rst.replace('[tr-off]','').replace('[tr-on]','')
                 self.createFile(pathlist=self.curr_pathlist, name=name,
                                 title=lbag['title'], 
                                 rst=rst,
