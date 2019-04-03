@@ -593,6 +593,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             kw.default_kw = kw.default_kw || {};
             genro.dlg.prompt( _T(defaultPrompt.title || 'Fill parameters'),{
                 widget:defaultPrompt.fields,
+                dflt:new gnr.GnrBag(kw.default_kw),
+                cols:defaultPrompt.cols,
                 action:function(result){
                     objectUpdate(kw.default_kw,result.asDict());
                     if(defaultPrompt.doSave && that.store.table){

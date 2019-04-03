@@ -42,6 +42,7 @@ class Table(object):
                     if multidb_pref is True:
                         preference[pkgid] = pkgstorepref
                     else:
+                        preference[pkgid] = preference[pkgid] or Bag()
                         preference[pkgid].update(pkgstorepref,ignoreNone=True)
                 
             self.db.application.cache.setItem(pref_cache_key,preference)
