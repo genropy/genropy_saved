@@ -47,7 +47,7 @@ from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
 from gnr.web.gnrwebstruct import GnrGridStruct
-from gnr.core.gnrlang import getUuid,gnrImport, GnrException, GnrSilentException,tracebackBag
+from gnr.core.gnrlang import getUuid,gnrImport, GnrException, GnrSilentException, MandatoryException,tracebackBag
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrdecorator import public_method,deprecated
 from gnr.core.gnrclasses import GnrMixinNotFound
@@ -1715,13 +1715,13 @@ class GnrWebPage(GnrBaseWebPage):
         :param pkg: the :ref:`package <packages>` object"""
         self.site.setPreference(path, data, pkg=pkg)
         
-    def getPreference(self, path, pkg=None, dflt=None):
+    def getPreference(self, path, pkg=None, dflt=None, mandatoryMsg=None):
         """TODO
         
         :param path: TODO
         :param pkg: the :ref:`package <packages>` object
         :param dflt: TODO"""
-        return self.site.getPreference(path, pkg=pkg, dflt=dflt)
+        return self.site.getPreference(path, pkg=pkg, dflt=dflt, mandatoryMsg=mandatoryMsg)
        
     @public_method 
     def getUserPreference(self, path='*', pkg=None, dflt=None, username=None,**kwargs):

@@ -309,8 +309,15 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
 
     alert:function(msg, title, buttons, resultPath, kw) {
+        var root = genro.src.getNode();
+        if(!root){
+            //
+            genro.bp(true);
+            alert(msg);
+            return;
+        }
         var alertCode = '_dlg_alert_'+this.alert_count;
-        genro.src.getNode()._('div', alertCode);
+        root._('div', alertCode);
         title = title || '';
         buttons = buttons || {confirm:'OK'};
         //var kw = objectUpdate({'width':'20em'}, kw);
