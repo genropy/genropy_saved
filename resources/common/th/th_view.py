@@ -717,7 +717,11 @@ class TableHandlerView(BaseComponent):
             if resources:
                 result.update(resources)
         flags = flags or 'is_%s' %res_type
-        templates = self.db.table('adm.userobject').userObjectMenu(table=table,objtype='template,pdfform',flags=flags)
+        if self.getPreference('print.enable_pdfform',pkg='sys') and self.site.getService('pdfform'):
+            objtype = 'template,pdfform'
+        else:
+            objtype = 'template'
+        templates = self.db.table('adm.userobject').userObjectMenu(table=table,objtype=objtype,flags=flags)
         if templates and len(templates)>0:
             result.update(templates)
         result.walk(self._th_addTpl,res_type=res_type)
@@ -733,7 +737,7 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
         htmlPaletteCode = '%(thlist_root)s_template_manager' %inattr
-        if self.site.getService('pdfform'):
+        if self.getPreference('print.enable_pdfform',pkg='sys') and self.site.getService('pdfform'):
             self.mixinComponent("services/pdfform/pdftk/component:PalettePdfFormEditor")
             pdfPaletteCode = '%(thlist_root)s_pdf_template_manager' %inattr
             templatemenu = pane.menudiv(iconClass='iconbox document',tip='!!Template menu')
