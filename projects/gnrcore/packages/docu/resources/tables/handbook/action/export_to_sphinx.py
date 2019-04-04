@@ -29,7 +29,9 @@ class Main(BaseResourceBatch):
         self.doctable=self.db.table('docu.documentation')
         self.doc_data = self.doctable.getHierarchicalData(root_id=self.handbook_record['docroot_id'], condition='$is_published IS TRUE')['root']['#0']
         self.handbookNode= self.page.site.storageNode(self.handbook_record['sphinx_path']) #or default_path
+        
         self.sphinxNode = self.handbookNode.child('sphinx')
+        self.sphinxNode.delete()
         self.sourceDirNode = self.sphinxNode.child('source')
         self.page.site.storageNode('rsrc:pkg_docu','sphinx_env','default_conf.py').copy(self.page.site.storageNode(self.sourceDirNode.child('conf.py')))
         self.imagesDict = dict()
@@ -70,7 +72,6 @@ class Main(BaseResourceBatch):
 
     def step_buildHtmlDocs(self):
         "Build HTML docs"
-
         self.resultNode = self.sphinxNode.child('build')
         build_args = dict(project=self.handbook_record['title'],
                           version=self.handbook_record['version'],
@@ -104,6 +105,7 @@ class Main(BaseResourceBatch):
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./:-]+)")
         LINKFINDER = re.compile(r"`([^`]*) <([\w./]+)>`_\b")
+        #LINKFINDER = re.compile(r"`([^`]*) <([\w./-]+)(?:/(#[\w-]+))?>`_\b") version with group 3 after /#
         TOCFINDER = re.compile(r"_TOC?(\w*)")
         EXAMPLE_FINDER = re.compile(r"`([^`]*)<javascript:localIframe\('version:([\w_]+)'\)>`_")
 
@@ -129,24 +131,22 @@ class Main(BaseResourceBatch):
                 result.append(name)
                 self.curr_pathlist=pathlist
                 tocstring=''
-            lbag=docbag[self.handbook_record['language']]
-            if not lbag:
-                continue
+            lbag=docbag[self.handbook_record['language']] or Bag()
             rst = lbag['rst'] or ''
             rsttable = self.doctable.dfAsRstTable(record['id'])
             if rsttable:
                 rst = '%s\n\n**Parameters:**\n\n%s' %(rst,rsttable) 
-            if rst:
-                rst = IMAGEFINDER.sub(self.fixImages,rst)
-                rst = LINKFINDER.sub(self.fixLinks, rst)
-                if self.examples_root and self.curr_sourcebag:
-                    rst = EXAMPLE_FINDER.sub(self.fixExamples, rst)
-                rst=rst.replace('[tr-off]','').replace('[tr-on]','')
-                self.createFile(pathlist=self.curr_pathlist, name=name,
-                                title=lbag['title'], 
-                                rst=rst,
-                                tocstring=tocstring,
-                                hname=record['hierarchical_name'])
+
+            rst = IMAGEFINDER.sub(self.fixImages,rst)
+            rst = LINKFINDER.sub(self.fixLinks, rst)
+            if self.examples_root and self.curr_sourcebag:
+                rst = EXAMPLE_FINDER.sub(self.fixExamples, rst)
+            rst=rst.replace('[tr-off]','').replace('[tr-on]','')
+            self.createFile(pathlist=self.curr_pathlist, name=name,
+                            title=lbag['title'], 
+                            rst=rst,
+                            tocstring=tocstring,
+                            hname=record['hierarchical_name'])
         return result
 
     def fixExamples(self, m):
