@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,extract_kwargs
 
 class View(BaseComponent):
 
@@ -53,38 +53,29 @@ class Form(BaseComponent):
         r.cell('version', name='Template', width='100%')
         r.cell('url',hidden=True)
         
-    def sourceEditor(self,frame):
-        bar = frame.top.slotToolbar('5,mbuttons,2,titleAsk,2,fbmeta,*,2,empty,2,fillcm,2,runcm,205,fbsleep,delgridrow,addrow_dlg')
-        
-        bar.empty.slotButton('!!Empty',action="""SET #FORM.versionsFrame.lastSelected = selectedUrl;
-                                                 SET #FORM.versionsFrame.selectedUrl = null;
-                                                 var lastSource = this.getRelativeData(editorDatapath+'.source');
-                                                 SET #FORM.versionsFrame.lastSource = lastSource;
-                                                 this.setRelativeData(editorDatapath+'.source',null);
-                                                 """,
-                            selectedUrl='=#FORM.versionsFrame.selectedUrl',
-                            editorDatapath='=#FORM.versionsFrame._editorDatapath')
-        bar.fillcm.slotButton('!!Movie',fire='#FORM.sourceMovie')
-        bar.runcm.slotButton('!!Run',action="""SET #FORM.versionsFrame.selectedUrl = lastSelected;""",
-                                lastSelected='=#FORM.versionsFrame.lastSelected')
-        bar.fbsleep.formbuilder(border_spacing='0').numberTextBox(value='^#FORM.sleepTime',width='3em',default=80,lbl='Freq.')
-
+    @extract_kwargs(source=True,preview=True)
+    def sourceEditor(self,frame,theme=None,source_kwargs=None,preview_kwargs=None):
+        bar = frame.top.slotToolbar('5,mbuttons,2,titleAsk,2,fbmeta,*,delgridrow,addrow_dlg')
         bar.mbuttons.multiButton(value='^#FORM.sourceViewMode',values='rstonly:Source Only,mixed: Mixed view,preview:Preview')
         bar.titleAsk.slotButton('!!Change version name',iconClass='iconbox tag',
                                 action="""
-                                if(!newname){
-                                    return;
-                                }
+ 
                                 n = data.getNode(selectedLabel);
                                 if(!n){
                                     return;
                                 }
-                                n.label = newname;
-                                n.getValue().setItem('version',newname);
+                                if(newname){
+                                    n.label = newname;
+                                    n.getValue().setItem('version',newname);;
+                                }
+                                if(newdesc){
+                                    n.getValue().setItem('description',newdesc);
+                                }
                                 """,
                                 data = '=#FORM.record.sourcebag',
                                 selectedLabel='=.grid.selectedLabel',
-                                ask=dict(title='Change name',fields=[dict(name='newname',lbl='New version name',validate_case='l')]))
+                                ask=dict(title='Change name',fields=[dict(name='newname',lbl='New version name',validate_case='l'),
+                                                                        dict(name='newdesc',lbl='New version description')]))
 
         bar.dataFormula('#FORM.sourceMetaCurrentDatapath',"selectedLabel?this.absDatapath('#FORM.record.sourcebag.'+selectedLabel):'nosourcelabel';",
                         selectedLabel='^.grid.selectedLabel',sbag='=#FORM.record.sourcebag')
@@ -127,10 +118,6 @@ class Form(BaseComponent):
                             data='=#FORM.record.sourcebag')
 
         center = bc.borderContainer(region='center',_class='hideSplitter',border='1px solid silver',margin='4px')
-        center_right = center.borderContainer(region='right',splitter=True,border_left='1px solid silver',background='white')
-        center_right.contentPane(region='top',background='rgba(62, 78, 98, 1.00)',height='18px').div('Result',color='rgba(241, 205, 82, 1.00)',
-                                                                                    text_align='center',margin_top='3px',font_size='.8em',font_weight='bold')
-        self.sourcePreviewIframe(center_right.contentPane(region='center',overflow='hidden'))
         bc.dataController("""var width = 0;
                             status = status || 'rstonly';
                              if(status=='mixed'){
@@ -143,9 +130,7 @@ class Form(BaseComponent):
                              """,
                          bc=center.js_widget,
                          status='^#FORM.sourceViewMode',
-                         right=center_right.js_domNode,_onStart=True)
-
-
+                         right=self.sourcePreviewIframe(center).js_domNode,_onStart=True)
 
         bar.addrow_dlg.slotButton('!!Add version',iconClass='iconbox add_row',
                                     version='==(!_currVersions || _currVersions.len()===0)?"_base_":"untitled"',
@@ -173,37 +158,21 @@ class Form(BaseComponent):
                           grid=fg.grid.js_widget)
         fg.grid.dataFormula("#FORM.versionsFrame._editorDatapath", "'#FORM.record.sourcebag.'+selectedLabel;",
         selectedLabel="^.selectedLabel",_if='selectedLabel',_else='"#FORM.versionsFrame.dummypath"')
-        center_center = center.borderContainer(region='center',datapath='^#FORM.versionsFrame._editorDatapath',margin_left='6px')
-        center_center.contentPane(region='top',background='rgba(62, 78, 98, 1.00)',height='18px').div('Python source',color='rgba(241, 205, 82, 1.00)',
-                                text_align='center',margin_top='3px',font_size='.8em',font_weight='bold')
-        cm = center_center.contentPane(region='center').codemirror(value='^.source',parentForm=True,config_theme='twilight',
+        cm = self.sourceViewerCM(center)    
+    def sourceViewerCM(self,parent):
+        bc = parent.borderContainer(region='center',datapath='^#FORM.versionsFrame._editorDatapath',margin_left='6px')
+        cm = bc.contentPane(region='center').codemirror(value='^.source',parentForm=True,config_theme='twilight',
                           config_mode='python',config_lineNumbers=True,
                           config_indentUnit=4,config_keyMap='softTab',
                           height='100%')
-        center_center.dataController("""
-        var that = this;
-        source = source || currSource;
-        source = source.split('');
-        sleepTime = sleepTime || 80;
-        var currtext = [];
-        this.watch('writing',function(){
-            if(source.length==0){
-                return true;
-            }
-            currtext.push(source.shift());
-            cm.externalWidget.setValue(currtext.join(''));
-        },function(){
-            that.setRelativeData('#FORM.versionsFrame.selectedUrl',lastSelected);
-            return;
-        },sleepTime);
-        """,source='=#FORM.versionsFrame.lastSource',_fired='^#FORM.sourceMovie',
-        cm=cm,sleepTime='=#FORM.sleepTime',currSource='=.source',
-        lastSelected='=#FORM.versionsFrame.lastSelected')
+        return cm
         
-    def sourcePreviewIframe(self,pane):
-        pane.iframe(src='^#FORM.versionsFrame.selectedUrl',src__avoid_module_cache=True,height='100%',
+    def sourcePreviewIframe(self,parent):
+        bc = parent.borderContainer(region='right',splitter=True,border_left='1px solid silver',background='white')
+        bc.contentPane(region='center',overflow='hidden').iframe(src='^#FORM.versionsFrame.selectedUrl',src__avoid_module_cache=True,height='100%',
                     width='100%',border=0,margin='3px')
-        pane.dataController("PUT #FORM.versionsFrame.selectedUrl = null;",_fired='^#FORM.controller.saving')
+        bc.dataController("PUT #FORM.versionsFrame.selectedUrl = null;",_fired='^#FORM.controller.saving')
+        return bc
 
     def tutorial_head(self,pane):
         fb = pane.formbuilder(cols=4, border_spacing='4px')
@@ -240,6 +209,73 @@ class GnrCustomWebPage(object):
                 record['doctype'] = parentrecord['doctype']
         else:
             self.db.table('docu.documentation').checkSourceBagModules(record)
+
+
+class GifMaker(Form):
+    def sourceViewerCM(self,parent):
+        pattr = parent.attributes
+        pattr['border'] = None
+        top = parent.contentPane(region='top',datapath='^#FORM.versionsFrame._editorDatapath',height='55px')
+        fb = top.formbuilder(cols=4)
+        fb.slotButton('!!Empty',action="""SET #FORM.versionsFrame.lastSelected = selectedUrl;
+                                                 SET #FORM.versionsFrame.selectedUrl = null;
+                                                 var lastSource = this.getRelativeData(editorDatapath+'.source');
+                                                 SET #FORM.versionsFrame.lastSource = lastSource;
+                                                 this.setRelativeData(editorDatapath+'.source',null);
+                                                 """,
+                            selectedUrl='=#FORM.versionsFrame.selectedUrl',
+                            editorDatapath='=#FORM.versionsFrame._editorDatapath')
+        fb.slotButton('!!Movie',fire='#FORM.sourceMovie')
+        fb.slotButton('!!Run',action="""SET #FORM.versionsFrame.selectedUrl = lastSelected;""",
+                                lastSelected='=#FORM.versionsFrame.lastSelected')
+        fb.numberTextBox(value='^#FORM.sleepTime',width='3em',default=10,lbl='Freq.')
+
+        
+        bc = parent.borderContainer(region='center',datapath='^#FORM.versionsFrame._editorDatapath',margin_left='6px')
+        cm = bc.contentPane(region='center',margin='5px',
+                        ).codemirror(value='^.source',parentForm=True,config_theme='night',
+                          config_mode='python',config_lineNumbers=True,
+                          config_indentUnit=4,config_keyMap='softTab',
+                          font_size='1.2em',
+                          height='100%')
+        bc.dataController("""
+        var that = this;
+        source = source || currSource;
+        source = source.split('');
+        sleepTime = sleepTime || 80;
+        var currtext = [];
+        this.watch('writing',function(){
+            if(source.length==0){
+                return true;
+            }
+            currtext.push(source.shift());
+            cm.externalWidget.setValue(currtext.join(''));
+        },function(){
+            that.setRelativeData('#FORM.versionsFrame.selectedUrl',lastSelected);
+            return;
+        },sleepTime);
+        """,source='=#FORM.versionsFrame.lastSource',_fired='^#FORM.sourceMovie',
+        cm=cm,sleepTime='=#FORM.sleepTime',currSource='=.source',
+        lastSelected='=#FORM.versionsFrame.lastSelected')
+
+        return cm
+
+    def sourcePreviewIframe(self,parent):
+        bc = parent.borderContainer(region='right',width='50%')
+        bc.contentPane(region='center',overflow='hidden',margin='5px',background='white').iframe(src='^#FORM.versionsFrame.selectedUrl',src__avoid_module_cache=True,height='100%',
+                    width='100%',border=0,margin='3px')
+        bc.dataController("PUT #FORM.versionsFrame.selectedUrl = null;",_fired='^#FORM.controller.saving')
+        return bc
+
+    def th_form(self,form):
+        bc = form.center.borderContainer()
+        bc.contentPane(region='center',background='RGBA(30, 48, 85, 1.00)')
+        self.sourceEditor(bc.contentPane(region='bottom',height='440px',
+                                        splitter=True).framePane(margin_top='5px'))
+
+
+    def th_options(self):
+        return dict(hierarchical=False)
 
 class FormPalette(Form):
     def th_form(self, form):
