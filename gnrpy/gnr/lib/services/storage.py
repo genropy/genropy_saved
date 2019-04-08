@@ -345,29 +345,38 @@ class StorageService(GnrBaseService):
         pass
 
     def md5hash(self,*args):
+        """Returns the md5 hash of a given path"""
         pass
 
     def fullpath(self, path):
+        """Returns the fullpath (comprending self.service_name) of a path"""
         return "%s:%s"%(self.service_name, path)
 
     def local_path(self, *args, **kwargs):
+        """Is a context manager that copies locally a remote file in a temporary
+        file and, if modified, at the __exit__ copies back on remote.
+        If on localfile works directly with the original file"""
         pass
     
     def expandpath(self,path):
         return path
 
     def basename(self, path=None):
+        """Returns the basename of a path"""
         return self.split_path(path)[-1]
     
     def extension(self, path=None):
+        """Returns the extension without the leading dots"""
         basename = self.basename(path)
         return os.path.splitext(basename)[-1].strip('.')
 
     def split_path(self, path):
+        """Splits the path to a list"""
         return path.replace('/','\t').replace(os.path.sep,'/').replace('\t','/').split('/')
 
     def sync_to_service(self, dest_service, subpath='', skip_existing=True, skip_same_size=False,
         thermo=None, done_list=None, doneCb=None):
+        """Copies the service content to another service"""
         assert not (skip_existing and skip_same_size), 'use either skip_existing or skip_same_size'
         done_list = done_list or []
         storage_resolver = StorageResolver(self.parent.storageNode('%s:%s'%(self.service_name,subpath)))
@@ -396,6 +405,7 @@ class StorageService(GnrBaseService):
                 doneCb(srcNode)
 
     def mimetype(self, *args,**kwargs):
+        """Returns the mimetype of file at the given path"""
         return mimetypes.guess_type(self.internal_path(*args))[0] or 'application/octet-stream'
 
     def base64(self, *args, **kwargs):
@@ -437,21 +447,26 @@ class StorageService(GnrBaseService):
         pass
 
     def open(self,*args,**kwargs):
+        """Is a context manager that returns the open file at given path"""
         pass
 
     def url(self,*args, **kwargs):
+        """Returns the external url of path"""
         pass
 
     def symbolic_url(self,*args, **kwargs):
         pass
 
-    def mtime(self, path):
+    def mtime(self, *args):
+        """Return the last modification time of file at a path"""
         pass
 
-    def size(self, path):
+    def size(self, *args):
+        """Return the size of a file at a path"""
         pass
 
     def delete(self, *args):
+        """Deletes the file or the directory"""
         if self.isdir(*args):
             self.delete_dir(*args)
         else:
@@ -459,6 +474,7 @@ class StorageService(GnrBaseService):
 
 
     def autocreate(self, *args, **kwargs):
+        """Autocreates all intermediate directories of a path"""
 
         autocreate=kwargs.pop('autocreate', None)
         if not autocreate:
@@ -475,11 +491,15 @@ class StorageService(GnrBaseService):
             self.makedirs(dest_dir.path)
 
     def copyNodeContent(self, sourceNode=None, destNode=None):
+        """Copies the content of a node to another node, its used only
+        if copying between different service types"""
         with sourceNode.open(mode='rb') as sourceFile:
             with destNode.open(mode='wb') as destFile:
                 destFile.write(sourceFile.read())
 
     def copy(self, source=None, dest=None):
+        """Copies the content of a node to another node, 
+        will use the best option available (native vs content-copy)"""
         sourceNode = self._getNode(source)
         destNode = self._getNode(dest)
         if destNode.service.location_identifier == sourceNode.service.location_identifier:
@@ -490,6 +510,8 @@ class StorageService(GnrBaseService):
         return destNode
 
     def move(self, source=None, dest=None):
+        """Moves the content of a node to another node, 
+        will use the best option available (native vs content-copy)"""
         sourceNode = self._getNode(source)
         destNode = self._getNode(dest)
         if destNode.service == sourceNode.service:
@@ -501,6 +523,7 @@ class StorageService(GnrBaseService):
         return destNode
 
     def serve(self, path, **kwargs):
+        """Serves a file content"""
         pass
 
     def _call(self, call_args=None, call_kwargs=None, cb=None, cb_args=None, cb_kwargs=None, return_output=False):
@@ -517,9 +540,15 @@ class StorageService(GnrBaseService):
             return result
 
     def call(self, args, **kwargs):
+        """A context manager that calls an external process on a list of files
+        will work on local copies if the node is on cloud.
+        if run_async==True will immediately return and the process will be managed
+        by another thread,
+        an optional callback (cb) can be passed to the thread an will be called 
+        when the process will end, cb_args and cb_kwargs will be passed to cb"""
         cb = kwargs.pop('cb', None)
-        cb_args = kwargs.pop('cb', None)
-        cb_kwargs = kwargs.pop('cb', None)
+        cb_args = kwargs.pop('cb_args', None)
+        cb_kwargs = kwargs.pop('cb_kwargs', None)
         run_async = kwargs.pop('run_async', None)
         return_output = kwargs.pop('return_output', None)
         call_params = dict(call_args=args,call_kwargs=kwargs, cb=cb, cb_args=cb_args, cb_kwargs=cb_kwargs, return_output=return_output)
@@ -530,7 +559,12 @@ class StorageService(GnrBaseService):
             return self._call(**call_params)
 
     def listdir(self, *args, **kwargs):
+        """Returns a list of paths contained in a path"""
         return [sn.fullpath for sn in self.children(*args, **kwargs)]
+
+    def children(self, *args, **kwargs):
+        """Return a list of storageNodes contained in a path"""
+        pass
 
 class BaseLocalService(StorageService):
     def __init__(self, parent=None, base_path=None,**kwargs):
@@ -568,7 +602,6 @@ class BaseLocalService(StorageService):
         return stats.st_mtime
 
     def local_path(self, *args, **kwargs): #TODO: vedere se fare così o con altro metodo
-        mode = kwargs.get('mode', 'r')
         internalpath = self.internal_path(*args)
         return LocalPath(fullpath=internalpath)
 
