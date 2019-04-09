@@ -467,6 +467,8 @@ class StorageService(GnrBaseService):
 
     def delete(self, *args):
         """Deletes the file or the directory"""
+        if not self.exists(*args):
+            return
         if self.isdir(*args):
             self.delete_dir(*args)
         else:
