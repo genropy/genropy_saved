@@ -1,4 +1,3 @@
-#!/usr/bin/env pythonw
 # -*- coding: utf-8 -*-
 #
 #  Migration
@@ -40,14 +39,13 @@ class GnrCustomWebPage(object):
             instances_path = os.path.join(path,'instances')
             packages_path = os.path.join(path,'packages')
             if os.path.exists(instances_path):
-                instances = [l for l in os.listdir(instances_path) if os.path.isfile(os.path.join(instances_path,l,'instanceconfig.xml'))]
+                instances = [l for l in os.listdir(instances_path) if os.path.isdir(os.path.join(instances_path,l))]
             else:
                 instances = []
             packages = [l for l in os.listdir(packages_path) if os.path.isdir(os.path.join(packages_path,l))]
             data['instances'] = ','.join(instances) if instances else None
             data['packages'] =','.join(packages) if packages else None
             data['instance_name'] = instances[0] if instances else None
-
             return Bag(dict(errorcode=None,data=data))
         except Exception:
             return Bag(dict(errorcode='Not existing project',data=data))
