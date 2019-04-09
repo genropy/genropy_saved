@@ -62,7 +62,10 @@ class Table(object):
         if m not in months or d not in days:
             return False
         curr_hm = h*60+minutes
-        key_hm = max([g for g in hm if g<=curr_hm])
+        hmlist = [g for g in hm if g<=curr_hm]
+        if not hmlist:
+            return False
+        key_hm = max(hmlist)
         result = '-'.join([str(y),str(m),str(d),str(key_hm/60),str(key_hm%60)])
         return result
 
