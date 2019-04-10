@@ -69,7 +69,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @return: a new connection object"""
         dbpath = self.dbroot.dbname
         if not os.path.exists(dbpath):
-            dbdir = os.path.dirname(dbpath)
+            dbdir = os.path.dirname(dbpath) or os.path.join('..','data')
             if not os.path.isdir(dbdir):
                 os.makedirs(dbdir)
         conn = pysqlite.connect(dbpath, detect_types=pysqlite.PARSE_DECLTYPES | pysqlite.PARSE_COLNAMES, timeout=20.0)
