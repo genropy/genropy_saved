@@ -5,6 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
+from json import dumps
 import re
 import urllib
 import os
@@ -41,11 +42,18 @@ class Main(BaseResourceBatch):
         self.examples_root = None 
         self.examples_pars = Bag(self.handbook_record['examples_pars'])
         self.examples_mode = self.examples_pars['mode'] or 'iframe'
+        self.examples_root_local = ''
         if self.handbook_record['examples_site']:
             self.examples_root = '%(examples_site)s/webpages/%(examples_directory)s' %self.handbook_record
+        if self.handbook_record['examples_local_site']:
+            self.examples_root_local = '%(examples_local_site)s/webpages/%(examples_directory)s' %self.handbook_record
+
         self.imagesDirNode = self.sourceDirNode.child(self.imagesPath)
 
     def step_prepareRstDocs(self):
+        self.prepareRstDocs()
+
+    def prepareRstDocs(self):
         "Prepare Rst docs"
 
         if self.handbook_record['toc_roots']:
@@ -71,6 +79,9 @@ class Main(BaseResourceBatch):
                 f.write(urllib.urlopen(source_url).read())
 
     def step_buildHtmlDocs(self):
+        self.buildHtmlDocs()
+
+    def step_buildHtmlDocs(self):
         "Build HTML docs"
         self.resultNode = self.sphinxNode.child('build')
         build_args = dict(project=self.handbook_record['title'],
@@ -82,6 +93,7 @@ class Main(BaseResourceBatch):
         for k,v in build_args.items():
             if v:
                 args.extend(['-D', '%s=%s' % (k,v)])
+        print args
         customStyles = self.handbook_record['custom_styles'] or ''
         customStyles = '%s\n%s' %(customStyles,self.defaultCssCustomization())
         with self.sourceDirNode.child(self.customCssPath).open('wb') as cssfile:
@@ -91,16 +103,16 @@ class Main(BaseResourceBatch):
         self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
 
 
-    def post_process(self):
-        if self.batch_parameters['download_zip']:
-            self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
-            self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
-        
-    def result_handler(self):
-        r=dict()
-        if self.batch_parameters['download_zip']:
-            r=dict(url=self.zipNode.url())
-        return 'Html Handbook created', r
+    #def post_process(self):
+    #    if self.batch_parameters['download_zip']:
+    #        self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
+    #        self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
+    #    
+    #def result_handler(self):
+    #    r=dict()
+    #    if self.batch_parameters['download_zip']:
+    #        r=dict(url=self.zipNode.url())
+    #    return 'Html Handbook created', r
         
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./:-]+)")
@@ -153,33 +165,35 @@ class Main(BaseResourceBatch):
         example_label = m.group(1)
         example_name = m.group(2)
         
-        example_url = '%s/%s/%s.py' % (self.examples_root, self.hierarchical_name,example_name)
         sourcedata = self.curr_sourcebag[example_name] or Bag()
         
-        return '.. raw:: html\n\n %s' %self.exampleHTMLChunk(example_url,sourcedata,example_label=example_label,example_name=example_name)
+        return '.. raw:: html\n\n %s' %self.exampleHTMLChunk(sourcedata,example_label=example_label,example_name=example_name)
         
-    def exampleHTMLChunk(self,example_url,sourcedata,example_label=None,example_name=None):
+    def exampleHTMLChunk(self,sourcedata,example_label=None,example_name=None):
         height = sourcedata['iframe_height'] or self.examples_pars['default_height'] or  100
         width = sourcedata['iframe_width'] or self.examples_pars['default_width']
         source_theme = self.examples_pars['source_theme']
         source_region = sourcedata['source_region'] or self.examples_pars['source_region']
+        parsstring = ''
         if source_region:
             source_region_inspector = sourcedata['source_inspector']
             if source_region_inspector and not sourcedata['iframe_height']:
                 height = max(300,height)
             source_region_inspector = 'f' if not source_region_inspector else 't'
-            example_url = '%s?_source_viewer=%s&_source_toolbar=%s' %(example_url,source_region,source_region_inspector)
+            parsstring = '?_source_viewer=%s&_source_toolbar=%s' %(source_region,source_region_inspector)
             if source_theme:
-                example_url = '%s&cm_theme=%s' %(example_url,source_theme)
-        iframekw = dict(example_url=example_url,height=height,width=width or '100%',
+                parsstring = '%s&cm_theme=%s' %(parsstring,source_theme)
+        iframekw = dict(height=height,width=width or '100%',examples_root = self.examples_root,
+                        examples_root_local = self.examples_root_local,
+                        example_folder = self.hierarchical_name,parsstring=parsstring,
                         example_label=example_label or example_name,example_name=example_name)
         return """<div class="gnrexamplebox">
-            <a class="gnrexamplebox_title" onclick="gnrExampleIframe(this.nextElementSibling,'%(example_url)s','%(height)s','%(width)s');">
-                %(example_label)s
+            <a class="gnrexamplebox_title" onclick='gnrExampleIframe(this.nextElementSibling,%s );'>
+                %s
             </a>
             <div></div>
-        </div>
-        """  %iframekw
+        </div> 
+        """  %(dumps(iframekw),iframekw['example_label'])
 
 
     def fixImages(self, m):
@@ -238,9 +252,9 @@ class Main(BaseResourceBatch):
             f.write(content)
 
 
-    def table_script_parameters_pane(self,pane,**kwargs):   
-        fb = pane.formbuilder(cols=1, border_spacing='5px')
-        fb.checkbox(lbl='Download Zip', value='^.download_zip')
+    #def table_script_parameters_pane(self,pane,**kwargs):   
+    #    fb = pane.formbuilder(cols=1, border_spacing='5px')
+    #    fb.checkbox(lbl='Download Zip', value='^.download_zip')
 
 
 
@@ -274,10 +288,12 @@ class Main(BaseResourceBatch):
 
     def defaultJSCustomization(self):
         return """
-          var gnrExampleIframe = function(box,src,height,width){
-
-            height = height || '200px';
-            width = width || '100%'
+          var gnrExampleIframe = function(box,kw){
+              var src_root = (!window.location.host)?kw.examples_root_local:kw.examples_root;
+              var src = [src_root,kw.example_folder,kw.example_name].join('/');
+              src+=kw.parsstring;
+            var height = kw.height || '200px';
+            var width = kw.width || '100%'
             box.innerHTML = '<div class="gnrexamplebox_iframecont"><iframe src="'+src+'" frameborder="0" height="'+height+'" width="'+width+'"></iframe></div>';
         }
     """
