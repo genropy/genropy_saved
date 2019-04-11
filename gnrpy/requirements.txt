@@ -1,8 +1,6 @@
 python-dateutil
 paste
 mako
-webob
-weberror
 vobject
 pytz
 babel
@@ -27,3 +25,4 @@ futures
 lxml
 psutil
 werkzeug
+watchdog

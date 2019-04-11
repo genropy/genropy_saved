@@ -15,15 +15,12 @@ import logging
 from gnr.core.gnrsys import expandpath
 from gnr.core.gnrlog import enable_colored_logging
 from gnr.app.gnrconfig import getGnrConfig, gnrConfigPath
-logger = logging.getLogger('werkzeug')
-logger.setLevel(logging.DEBUG)
 import re
 CONN_STRING_RE=r"(?P<ssh_user>\w*)\:?(?P<ssh_password>\w*)\@(?P<ssh_host>(\w|\.)*)\:?(?P<ssh_port>\w*)(\/?(?P<db_user>\w*)\:?(?P<db_password>\w*)\@(?P<db_host>(\w|\.)*)\:?(?P<db_port>\w*))?"
 CONN_STRING = re.compile(CONN_STRING_RE)
 
-import logging
 log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+log.setLevel(logging.INFO)
 
 wsgi_options = dict(
         port=8080,
@@ -360,5 +357,6 @@ class Server(object):
         atexit.register(gnrServer.on_site_stop)
         if self.debug:
             gnrServer = GnrDebuggedApplication(gnrServer, evalex=True, pin_security=False)
-        run_simple(self.options.host, int(self.options.port), gnrServer, use_reloader=self.reloader)
+        port = int(self.options.port)
+        run_simple(self.options.host, port, gnrServer, use_reloader=self.reloader)
         

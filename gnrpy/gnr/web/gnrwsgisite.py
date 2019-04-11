@@ -5,10 +5,6 @@ from builtins import str
 from past.builtins import basestring
 from builtins import object
 from gnr.core.gnrbag import Bag,DirectoryResolver
-#from weberror.evalexception import EvalException
-#from paste.exceptions.errormiddleware import ErrorMiddleware
-#from weberror.errormiddleware import ErrorMiddleware
-#from webob import Request, Response
 from werkzeug.wrappers import Request, Response
 from webob.exc import WSGIHTTPException, HTTPInternalServerError, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError, HTTPMovedPermanently,HTTPTemporaryRedirect
 from gnr.web.gnrwebapp import GnrWsgiWebApp
@@ -51,11 +47,7 @@ from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WsgiWebSocketHandler
 import pdb
 
 import warnings
-try:
-    import uwsgi
-    UWSGIMODE = True
-except:
-    UWSGIMODE = False
+
 mimetypes.init()
 
 OP_TO_LOG = {'x': 'y'}
@@ -1153,9 +1145,6 @@ class GnrWsgiSite(object):
                 self.error_smtp_kwargs['error_email_from'] = self.error_smtp_kwargs.pop('from_address')
                 err_kwargs.update(error_smtp_kwargs)
                 #wsgiapp = ErrorMiddleware(wsgiapp, **err_kwargs)
-        if gzip:
-            from paste.gzipper import middleware as gzipper_middleware
-            wsgiapp = gzipper_middleware(wsgiapp)
         return wsgiapp
 
     def build_gnrapp(self, options=None):

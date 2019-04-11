@@ -528,7 +528,6 @@ class GnrWebPage(GnrBaseWebPage):
                 exception_record = self.site.writeException(exception=e, traceback=tracebackBag())
                 if self.site.error_smtp_kwargs:
                     import sys
-                    #from paste.exceptions.errormiddleware import handle_exception
                     from weberror.errormiddleware import handle_exception
                     error_handler_kwargs = self.site.error_smtp_kwargs
                     error_handler_kwargs['debug_mode'] = True
