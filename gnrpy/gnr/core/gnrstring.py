@@ -932,7 +932,7 @@ def slugify(value,sep='-'):
     :param value: TODO"""
     import unicodedata
     value = str(value)
-    value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
+    value = unicodedata.normalize('NFKD', value)#.encode('ascii', 'ignore')
     value = str(re.sub('[^\w\s-]', '', value).strip().lower())
     return re.sub('[-\s]+', sep, value)
     

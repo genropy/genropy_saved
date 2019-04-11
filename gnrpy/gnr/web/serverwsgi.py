@@ -15,6 +15,7 @@ import logging
 from gnr.core.gnrsys import expandpath
 from gnr.core.gnrlog import enable_colored_logging
 from gnr.app.gnrconfig import getGnrConfig, gnrConfigPath
+from gnr.app.gnrdeploy import PathResolver
 import re
 CONN_STRING_RE=r"(?P<ssh_user>\w*)\:?(?P<ssh_password>\w*)\@(?P<ssh_host>(\w|\.)*)\:?(?P<ssh_port>\w*)(\/?(?P<db_user>\w*)\:?(?P<db_password>\w*)\@(?P<db_host>(\w|\.)*)\:?(?P<db_port>\w*))?"
 CONN_STRING = re.compile(CONN_STRING_RE)
@@ -246,6 +247,8 @@ class Server(object):
         self.gnr_config = getGnrConfig(config_path=self.config_path, set_environment=True)
         
         self.site_name = self.options.site_name or (self.args and self.args[0]) or os.getenv('GNR_CURRENT_SITE')
+        if not self.site_name:
+            self.site_name = os.path.basename(os.path.dirname(site_script))
         self.remote_db = ''
         if self.site_name:
             if ':' in self.site_name:
@@ -253,37 +256,21 @@ class Server(object):
             if not self.gnr_config:
                 raise ServerException(
                         'Error: no ~/.gnr/ or /etc/gnr/ found')
-            self.site_path, self.site_template = self.site_name_to_path(self.site_name)
+            self.site_path = self.site_name_to_path(self.site_name)
             self.site_script = os.path.join(self.site_path, 'root.py')
             if not os.path.isfile(self.site_script):
-                raise ServerException(
+                self.site_script = os.path.join(self.site_path, '..','root.py')
+                if not os.path.exists(self.site_script):
+                    raise ServerException(
                         'Error: no root.py in the site provided (%s)' % self.site_name)
         else:
             self.site_path = os.path.dirname(os.path.realpath(site_script))
         self.init_options()
-
     def isVerbose(self, level=0):
         return self.options.verbose and self.options.verbose>level
 
     def site_name_to_path(self, site_name):
-        path_list = []
-        if 'sites' in self.gnr_config['gnr.environment_xml']:
-            path_list.extend([(expandpath(path), site_template) for path, site_template in
-                              self.gnr_config['gnr.environment_xml.sites'].digest('#a.path,#a.site_template') if
-                              os.path.isdir(expandpath(path))])
-        if 'projects' in self.gnr_config['gnr.environment_xml']:
-            projects = [(expandpath(path), site_template) for path, site_template in
-                        self.gnr_config['gnr.environment_xml.projects'].digest('#a.path,#a.site_template') if
-                        os.path.isdir(expandpath(path))]
-            for project_path, site_template in projects:
-                sites = glob.glob(os.path.join(project_path, '*/sites'))
-                path_list.extend([(site_path, site_template) for site_path in sites])
-        for path, site_template in path_list:
-            site_path = os.path.join(path, site_name)
-            if os.path.isdir(site_path):
-                return site_path, site_template
-        raise ServerException(
-                'Error: no site named %s found' % site_name)
+        return PathResolver().site_name_to_path(site_name)
 
 
     def init_options(self):
@@ -296,18 +283,7 @@ class Server(object):
                 self.options.__dict__[option] = site_option or wsgi_options.get(option) or envopt.get(option)
 
     def get_config(self):
-        site_config_path = os.path.join(self.site_path, 'siteconfig.xml')
-        base_site_config = Bag(site_config_path)
-        site_config = self.gnr_config['gnr.siteconfig.default_xml'] or Bag()
-        template = site_config['site?template'] or getattr(self, 'site_template', None)
-        if template:
-            site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % template] or Bag())
-        if 'sites' in self.gnr_config['gnr.environment_xml']:
-            for path, site_template in self.gnr_config.digest('gnr.environment_xml.sites:#a.path,#a.site_template'):
-                if path == os.path.dirname(self.site_path):
-                    site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % site_template] or Bag())
-        site_config.update(base_site_config)
-        return site_config
+        return PathResolver().get_siteconfig(self.site_name)
 
     @property 
     def site_config(self):

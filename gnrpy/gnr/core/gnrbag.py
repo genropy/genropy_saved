@@ -1792,7 +1792,7 @@ class Bag(GnrObject):
         if isinstance(destination, file):
             pickle.dump(self, destination, bin)
         else:
-            destination = file(destination, mode='wb')
+            destination = open(destination, mode='wb')
             pickle.dump(self, destination, bin)
             destination.close()
             
@@ -1808,7 +1808,7 @@ class Bag(GnrObject):
             
     def _unpickle(self, source, fromFile):
         if fromFile:
-            source = file(source, mode='rb')
+            source = open(source, mode='rb')
             result = pickle.load(source)
             source.close()
         else:
@@ -1960,7 +1960,7 @@ class Bag(GnrObject):
                     elif fext=='xsd':
                         return source,True,'xsd'
                     else:
-                        f = file(source, mode='r')
+                        f = open(source, mode='rb')
                         sourcestart = f.read(30)
                         f.close()
                         if sourcestart.startswith('<') or '<?xml' in sourcestart:
@@ -2910,7 +2910,7 @@ class TxtDocResolver(BagResolver):
     classArgs = ['path']
         
     def load(self):
-        f = file(self.path, mode='r')
+        f = open(self.path, mode='rb')
         result = f.read()
         f.close()
         return result
