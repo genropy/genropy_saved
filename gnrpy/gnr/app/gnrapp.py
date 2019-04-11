@@ -1332,7 +1332,7 @@ class GnrApp(object):
         :param path: TODO"""
         path = os.path.expandvars(str(path))
         if not path.startswith('/'):
-            path = os.path.realpath(os.path.join(self.instanceFolder, path))
+            path = os.path.realpath(os.path.join(self.instanceFolder,'..', 'data',path))
         return path
         
     def sendmail(self, from_address, to_address, subject, body):
