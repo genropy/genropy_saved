@@ -9,7 +9,7 @@ MAINTAINER Francesco Porcari - francesco@genropy.org
 ADD . /home/genropy
 
 RUN apt-get update
-RUN apt-get install -y supervisor nginx 
+RUN apt-get install -y supervisor nginx liblzma-dev
 RUN pip install --upgrade setuptools
 RUN pip install --upgrade pip
 RUN easy_install pip

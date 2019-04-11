@@ -51,7 +51,9 @@ class ExtDbExplorer(BaseComponent):
                         }
                         if (n.attr.checked && n.attr.tag=='column'){
                             var table_data = new gnr.GnrBag();
-                            columns.setItem(n.attr.table_fullname+'.'+n.attr.name,null,n.attr)
+                            let kw = {...n.attr};
+                            delete kw.default;
+                            columns.setItem(n.attr.table_fullname+'.'+n.attr.name,null,kw);
                         }
                     });
                     kwargs['data'] = columns
@@ -145,7 +147,7 @@ class ExtDbExplorer(BaseComponent):
         p = PathResolver()
         project_path = p.project_name_to_path(project)
         modelpath = os.path.join(project_path,'packages',package,'model')
-        instance_path = os.path.join(p.instance_name_to_path(instance),'instanceconfig.xml')
+        instance_path = os.path.join(p.instance_name_to_path(instance),'config','instanceconfig.xml')
         instance_bag = Bag(instance_path)
         dbname = connection_params['dbname'] or connection_params['filename']
         legacydb,ext = os.path.splitext(os.path.basename(dbname))

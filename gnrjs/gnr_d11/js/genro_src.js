@@ -644,7 +644,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
        //source.delItem('#0');
        
        //var root = genro.src.newRoot();
-       return genro.src.getNode()._('div', path)._(widget,path,pars);;
+       return genro.src.getNode()._('div', path)._(widget,path,pars);
        //var node = genro.src.getNode(path).clearValue();
        //return node._(widget,path,pars);        
     }

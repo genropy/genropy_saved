@@ -39,11 +39,15 @@ class Package(GnrDboPackage):
                 continue
             for tblNode in pkgNode.value['tables']:
                 legacy_code = tblNode.attr.get('legacy_code')
+                legacy_sync = tblNode.attr.get('legacy_sync')
                 tbl = tblNode.value
                 if legacy_code:
-                    self._lgcy_configure(tbl,legacy_code)
+                    self._lgcy_configure_converter(tbl,legacy_code)
+                if legacy_sync:
+                    self._lgcy_configure_transaction(tbl,legacy_sync)
+
        
-    def _lgcy_configure(self,tbl,legacy_code):
+    def _lgcy_configure_converter(self,tbl,legacy_code):
         pkg = tbl.attributes['pkg']
         model = self.db.model
         convertertbl =  model.src['packages.lgcy.tables.converter']
@@ -57,6 +61,10 @@ class Package(GnrDboPackage):
                                                                                  many_group='zz', one_group='zz',deferred=True)
         tbl.aliasColumn('legacy_code' if legacy_code is True else legacy_code,'@legacy.code',name_long='Lgcy Legacy codes')
 
+    def _lgcy_configure_transaction(self,tbl,legacy_sync):
+        tbl.column('lgcy_transaction_id',size='22', group='_', name_long='!!Lgcy Transaction'
+                    ).relation('lgcy.transaction.id', one_one='*', mode='foreignkey', onDelete='setnull')
+        tbl.formulaColumn('__protected_by_lgcy_sync',"($lgcy_transaction_id IS NOT NULL)")
 
 
 class Table(GnrDboTable):

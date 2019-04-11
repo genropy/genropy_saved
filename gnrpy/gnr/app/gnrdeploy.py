@@ -17,8 +17,6 @@ from collections import defaultdict
 from gnr.app.gnrconfig import MenuStruct,IniConfStruct
 from gnr.app.gnrconfig import getGnrConfig,gnrConfigPath, setEnvironment
 
-
-
 class GnrConfigException(Exception):
     pass
 
@@ -419,7 +417,13 @@ class PathResolver(object):
                 elif entity_type=='site':
                     folders = glob.glob(os.path.join(project_path, '*','instances',entity_name))
                     if folders:
-                        return expandpath(os.path.join(folders[0],'site'))
+                        sitepath = expandpath(os.path.join(folders[0],'site'))
+                        root_py_path = expandpath(os.path.join(folders[0],'root.py'))
+                        if os.path.exists(root_py_path):
+                            if not os.path.exists(sitepath):
+                                os.makedirs(sitepath)
+                            return sitepath
+
                         
         raise EntityNotFoundException('Error: %s %s not found' % (entity_type, entity_name))
         
@@ -551,14 +555,15 @@ class ProjectMaker(object):
         ``resources`` folder."""
         self.project_path = os.path.join(self.base_path, self.project_name)
         self.packages_path = os.path.join(self.project_path, 'packages')
-        self.sites_path = os.path.join(self.project_path, 'sites')
         self.instances_path = os.path.join(self.project_path, 'instances')
-        self.resources_path = os.path.join(self.project_path, 'resources')
-        for path in (self.project_path, self.packages_path, self.sites_path, self.instances_path, self.resources_path):
+        for path in (self.project_path, self.packages_path, self.instances_path):
             if not os.path.isdir(path):
                 os.mkdir(path)
                 
+
+
 class SiteMaker(object):
+    #deprecated 
     """Handle the autocreation of the ``sites`` folder.
     
     To autocreate the ``sites`` folder, please type in your console::
@@ -641,12 +646,13 @@ class InstanceMaker(object):
     """
     def __init__(self, instance_name, base_path=None, packages=None, authentication=True, authentication_pkg=None,
                  db_dbname=None, db_implementation=None, db_host=None, db_port=None,
-                 db_user=None, db_password=None, use_dbstores=False, config=None):
+                 db_user=None, db_password=None, use_dbstores=False, config=None,main_package=None):
         self.instance_name = instance_name
         self.base_path = base_path or '.'
         self.packages = packages or []
         self.db_dbname = db_dbname or instance_name
         self.authentication = authentication
+        self.main_package = main_package
         if self.authentication:
             self.authentication_pkg = authentication_pkg
             if not self.authentication_pkg and self.packages:
@@ -663,14 +669,18 @@ class InstanceMaker(object):
         self.db_password = db_password
         self.use_dbstores = use_dbstores
         self.config = config
-
-    def do(self):
-        """TODO"""
         self.instance_path = os.path.join(self.base_path, self.instance_name)
+        self.config_path = os.path.join(self.instance_path,'config')
+    
+    def do(self):
+        self.do_instance()
+        self.do_site()
+
+    def do_instance(self):
         custom_path = os.path.join(self.instance_path, 'custom')
         data_path = os.path.join(self.instance_path, 'data')
-        instanceconfig_xml_path = os.path.join(self.instance_path, 'instanceconfig.xml')
-        folders_to_make = [self.instance_path, custom_path, data_path]
+        instanceconfig_xml_path = os.path.join(self.config_path, 'instanceconfig.xml')
+        folders_to_make = [self.instance_path,self.config_path, custom_path, data_path]
         if self.use_dbstores:
             dbstores_path = os.path.join(self.instance_path, 'dbstores')
             folders_to_make.append(dbstores_path)
@@ -700,6 +710,43 @@ class InstanceMaker(object):
             else:
                 instanceconfig = self.config
             instanceconfig.toXml(instanceconfig_xml_path,typevalue=False,pretty=True)
+            
+    def do_site(self):
+        """TODO"""
+        self.site_path = os.path.join(self.instance_path, 'site')
+        root_py_path = os.path.join(self.instance_path, 'root.py')
+        siteconfig_xml_path = os.path.join(self.config_path, 'siteconfig.xml')
+        if not os.path.isdir(self.site_path):
+            os.mkdir(self.site_path)
+        if not os.path.isfile(root_py_path):
+            root_py = open(root_py_path, 'w')
+            root_py.write("""#!/usr/bin/env python2.6
+import sys
+sys.stdout = sys.stderr
+from gnr.web.gnrwsgisite import GnrWsgiSite
+site = GnrWsgiSite(__file__)
+
+def application(environ,start_response):
+    return site(environ,start_response)
+
+if __name__ == '__main__':
+    from gnr.web.server import NewServer
+    server=NewServer(__file__)
+    server.run()""")
+            root_py.close()
+        if not os.path.isfile(siteconfig_xml_path):
+            if not self.config:
+                siteconfig = Bag()
+                wsgi_options = dict()
+                wsgi_options.setdefault('mainpackage',self.main_package)
+                for option in ('reload', 'debug', 'port', 'mainpackage'):
+                    value = getattr(self, 'wsgi_%s' % option, None)
+                    if value:
+                        wsgi_options[option] = value
+                siteconfig.setItem('wsgi', None, **wsgi_options)
+            else:
+                siteconfig = self.config
+            siteconfig.toXml(siteconfig_xml_path,typevalue=False,pretty=True)
             
 class PackageMaker(object):
     """Handle the autocreation of the ``packages`` folder.
@@ -774,7 +821,7 @@ class GnrCustomWebPage(object):
                 helloworld.write("""# -*- coding: utf-8 -*-
             
 class GnrCustomWebPage(object):
-    def main(self,root,**kwargs):
+    def main_root(self,root,**kwargs):
         root.h1('Hello world',text_align='center')
     """)
             

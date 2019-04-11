@@ -650,7 +650,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         if isinstance(files,basestring):
             files = files.split(',')
         for f in files:
-            os.remove(f)
+            self.page.site.storageNode(f).delete()
 
     @public_method      
     def getFileSystemSelection(self,folders=None,ext=None,include=None,exclude=None,

@@ -2602,6 +2602,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             
             this.updateTotalsCount(); 
             scrollBox.scrollLeft = scrollLeft;
+            this.updateColumnsetsAndFooters();
             //},1,this);
         }
     },

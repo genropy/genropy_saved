@@ -1,6 +1,7 @@
 # encoding: utf-8
 from builtins import object
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrlang import MandatoryException
 from gnr.sql.gnrsql_exceptions import RecordNotExistingError
 from datetime import datetime
 
@@ -43,12 +44,13 @@ class Table(object):
                     if multidb_pref is True:
                         preference[pkgid] = pkgstorepref
                     else:
+                        preference[pkgid] = preference[pkgid] or Bag()
                         preference[pkgid].update(pkgstorepref,ignoreNone=True)
 
             self.db.application.cache.setItem(pref_cache_key,preference)
         return preference.deepcopy()
 
-    def getPreference(self, path, pkg=None, dflt=None):
+    def getPreference(self, path, pkg=None, dflt=None, mandatoryMsg=None):
         prefdata = self.getStorePreferences() if self.db.package('multidb') and not self.db.usingRootstore() else self.getMainStorePreference()
         if path=='*':
             path = None
@@ -59,6 +61,8 @@ class Table(object):
             return prefdata
         if path:
             prefdata = prefdata[path]
+            if mandatoryMsg and prefdata is None:
+                raise MandatoryException(description=mandatoryMsg)
         return  dflt if prefdata is None else prefdata    
   
     def envPreferences(self,username=None):

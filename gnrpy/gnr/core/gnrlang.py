@@ -371,9 +371,13 @@ class GnrSilentException(GnrException):
 
 class GnrDebugException(GnrException):
     pass
+
 class NotImplementedException(GnrException):
     pass
         
+class MandatoryException(GnrException):
+    pass
+
 class GnrObject(object):
     """TODO"""
     def __init__(self):

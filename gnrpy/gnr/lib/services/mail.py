@@ -131,7 +131,9 @@ class MailService(GnrBaseService):
                     #. tls -> server and client begin communitation in a unsecure way and after a starttls
                        command they start to encrypt data (this is the way you use to connect to gmail smtp)"""
         account_params = dict(self.smtp_account)
-        account_params.update(kwargs)
+        for k,v in kwargs.items():
+            if v is not None:
+                kwargs[k] = v
         return account_params
 
     def getDefaultMailAccount(self):

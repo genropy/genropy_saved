@@ -997,9 +997,9 @@ class GnrApp(object):
         if self.db.package('adm'):
             self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
 
-    def getPreference(self, path, pkg=None, dflt=None):
+    def getPreference(self, path, pkg=None, dflt=None, mandatoryMsg=None):
         if self.db.package('adm'):
-            return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
+            return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt, mandatoryMsg=mandatoryMsg)
     
     def getResource(self, path, pkg=None, locale=None):
         """TODO
@@ -1123,6 +1123,7 @@ class GnrApp(object):
             user_name = result.pop('user_name', user)
             user_id = result.pop('user_id', user)
             user_record_tags = result.pop('tags', user)
+            menubag = result.pop('menubag',None)
             if not tags:
                 tags = user_record_tags
             elif user_record_tags:
@@ -1132,7 +1133,7 @@ class GnrApp(object):
             return self.makeAvatar(user=user, user_name=user_name, user_id=user_id, tags=tags,
                                    login_pwd=password, authenticate=authenticate,
                                    external_user=external_user,
-                                   defaultTags=defaultTags, **result)
+                                   defaultTags=defaultTags,menubag=menubag, **result)
                                    
     def auth_sql(self, node, user, password=None, authenticate=False, **kwargs):
         """Authentication from database.
@@ -1503,7 +1504,7 @@ class GnrAvatar(object):
     :param login_pwd: the password inserted from user for authentication
     :param pwd: the avatar password
     :param tags: the tags for :ref:`auth`"""
-    def __init__(self, user, user_name=None, user_id=None, login_pwd=None, pwd=None, tags='', **kwargs):
+    def __init__(self, user, user_name=None, user_id=None, login_pwd=None, pwd=None, tags='', menubag=None,**kwargs):
         self.user = user
         self.user_name = user_name
         self.user_id = user_id
@@ -1512,6 +1513,7 @@ class GnrAvatar(object):
         self.login_pwd = login_pwd
         self.loginPars = {'tags': self.user_tags}
         self.extra_kwargs = kwargs or dict()
+        self.menubag = Bag(menubag) if menubag else None
         
     def addTags(self, tags):
         """Add tags to an avatar

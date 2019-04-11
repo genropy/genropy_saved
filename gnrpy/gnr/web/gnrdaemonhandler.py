@@ -199,12 +199,11 @@ class GnrDaemon(object):
     def ping(self,**kwargs):
         return 'ping'
 
-    def getSite(self,sitename=None,create=False,storage_path=None,autorestore=None,heartbeat_options=None,**kwargs):
+    def getSite(self,sitename=None,create=False,storage_path=None,autorestore=None,**kwargs):
         if sitename in self.siteregisters and self.siteregisters[sitename]['server_uri']:
             return self.siteregisters[sitename]
         elif create:
-            self.addSiteRegister(sitename,storage_path=storage_path,autorestore=autorestore,
-                                    heartbeat_options=heartbeat_options)
+            self.addSiteRegister(sitename,storage_path=storage_path,autorestore=autorestore)
             return dict()
 
     def stop(self,saveStatus=False,**kwargs):
@@ -273,7 +272,7 @@ class GnrDaemon(object):
         instanceconfig = PathResolver().get_instanceconfig(sitename)
         return instanceconfig and 'gnrcore:sys' in instanceconfig['packages']
 
-    def addSiteRegister(self,sitename,storage_path=None,autorestore=False,heartbeat_options=None,port=None):
+    def addSiteRegister(self,sitename,storage_path=None,autorestore=False,port=None):
         if not sitename in self.siteregisters:
             siteregister_processes_dict = dict()
             self.siteregisters_process[sitename] = siteregister_processes_dict
@@ -286,7 +285,7 @@ class GnrDaemon(object):
             childprocess = Process(name='sr_%s' %sitename, target=createSiteRegister,kwargs=process_kwargs)
             siteregister_dict.update(sitename=sitename,server_uri=False,
                                         register_uri=False,start_ts=datetime.now(),
-                                        storage_path=storage_path,heartbeat_options=heartbeat_options,
+                                        storage_path=storage_path,
                                         autorestore=autorestore)
             childprocess.daemon = True
             childprocess.start()
@@ -358,7 +357,6 @@ class GnrDaemon(object):
     def siteregister_start(self,stopStatus):
         for sitename,pars in list(stopStatus.items()):
             self.addSiteRegister(sitename,storage_path=pars['storage_path'],
-                        heartbeat_options=pars['heartbeat_options'],
                         autorestore=pars['autorestore'],
                         port=pars['register_port'])
 
