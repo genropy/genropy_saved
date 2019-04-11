@@ -1331,7 +1331,7 @@ class GnrApp(object):
         
         :param path: TODO"""
         path = os.path.expandvars(str(path))
-        if not path.startswith('/'):
+        if not os.path.isabs(path):
             path = os.path.realpath(os.path.join(self.instanceFolder,'..', 'data',path))
         return path
         
