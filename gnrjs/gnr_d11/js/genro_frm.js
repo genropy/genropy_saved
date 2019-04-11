@@ -593,6 +593,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             kw.default_kw = kw.default_kw || {};
             genro.dlg.prompt( _T(defaultPrompt.title || 'Fill parameters'),{
                 widget:defaultPrompt.fields,
+                dflt:new gnr.GnrBag(kw.default_kw),
+                cols:defaultPrompt.cols,
                 action:function(result){
                     objectUpdate(kw.default_kw,result.asDict());
                     if(defaultPrompt.doSave && that.store.table){
@@ -838,7 +840,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.store.duplicateRecord(null, kw.howmany);
             return;
         }
-        var kw = kw || {};
+        kw = kw || {};
         var sync = kw.sync;
         this.setControllerData('loading',true);
         var pkey= ('destPkey' in kw)? kw.destPkey : this.store.getStartPkey();
@@ -2488,17 +2490,27 @@ dojo.declare("gnr.formstores.Base", null, {
         virtual_columns = virtual_columns.concat(form_virtual_columns);
         kw['_sourceNode'] = form.sourceNode;
         kw.ignoreReadOnly = ignoreReadOnly;
-        var dbstoreField = this.parentStore?this.parentStore.storeNode.attr.dbstoreField:null;
-        if(dbstoreField){
-            var ps = this.parentStore;
-            var row = ps.rowFromItem(ps.rowBagNodeByIdentifier(currPkey));
-            this.form.sourceNode.attr.context_dbstore = row[dbstoreField];
-        }
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':arrayUniquify(virtual_columns).join(','),
                                                   'table':this.table, timeout:0},kw),null,'POST',null,maincb);
+        if(this.form.dbstoreField){
+            var row;
+            if(this.parentStore){
+                let rowNode = this.parentStore.rowBagNodeByIdentifier(currPkey);
+                if(rowNode){
+                    row = this.parentStore.rowFromItem(rowNode);
+                }
+            }
+            if(row){
+                this.form.sourceNode.attr.context_dbstore = row[this.form.dbstoreField];
+            }else{
+                deferred.addCallback(function(result){
+                    that.form.sourceNode.attr.context_dbstore = result.getValue().getItem(that.form.dbstoreField);
+                    return result;
+                });
+            }
+        }
         deferred.addCallback(cb);
-        
         if(loader.callbacks){
             this.handle_deferredCallBacks(deferred,loader.callbacks,kw);
         }

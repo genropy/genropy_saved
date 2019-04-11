@@ -3,7 +3,7 @@
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('converter', rowcaption='$code',caption_field='code',name_long='!!Hosting client',name_plural='!!Hosting clients')
+        tbl = pkg.table('converter', rowcaption='$code',caption_field='code',name_long='!!Legacy converter',name_plural='!!Legacy converters')
         self.sysFields(tbl,id=True ,ins=False, mod=False, ldel=False)
         tbl.column('code', size=':80', name_long='!!Legacy code')
 

@@ -191,13 +191,6 @@ class ServiceType(BaseServiceType):
     
 class StorageNode(object):
 
-    @classmethod
-    def fromPath(cls, path, parent=None):
-        if isinstance(path, cls):
-            return path
-        if not ':' in path:
-            path = '_raw_:%s'%path
-        return parent.storageNode(path)
 
     def __init__(self, parent=None, path=None, service=None, autocreate=None,must_exist=False, mode='r'):
         self.service = service
@@ -210,29 +203,36 @@ class StorageNode(object):
 
     @property
     def md5hash(self):
+        """Returns the md5 hash"""
         return self.service.md5hash(self.path)
 
     @property
     def fullpath(self):
+        """Returns the full symbolic path (eg. storage:path/to/me)"""
         return self.service.fullpath(self.path)
 
     @property
     def ext(self):
+        """Returns the file extension without leading dots"""
         return self.service.extension(self.path)
 
     @property
     def isdir(self):
+        """Returns True if the StorageNode points to a directory"""
         return self.service.isdir(self.path)
 
     def children(self):
+        """Returns a list of StorageNodes cointained (if self.isdir)"""
         if self.isdir:
             return self.service.children(self.path)
 
     def listdir(self):
+        """Returns a list of file/dir names cointained (if self.isdir)"""
         if self.isdir:
             return self.service.listdir(self.path)
     
     def mkdir(self, *args):
+        """Creates me as a directory"""
         return self.service.mkdir(self.path, *args)
 
     @property
@@ -241,77 +241,99 @@ class StorageNode(object):
 
     @property
     def basename(self, **kwargs):
+        """Returns the base name (eg. self.path=="/path/to/me.txt" self.basename=="me.txt")"""
         return self.service.basename(self.path)
 
     @property
     def cleanbasename(self, **kwargs):
+        """Returns the basename without extension"""
         return os.path.splitext(self.service.basename(self.path))[0]
 
     @property
     def isfile(self):
+        """Returns True if the StorageNode points to a file"""
         return self.service.isfile(self.path) 
 
     @property
     def exists(self):
+        """Returns True if the StorageNode points to an existing file/dir"""
         return self.service.exists(self.path)
     
     @property
     def mtime(self):
+        """Returns the last modification timestamp"""
         return self.service.mtime(self.path)
 
     @property
     def size(self):
+        """Returns the file size (if self.isfile)"""
         return self.service.size(self.path)
     
     @property
     def dirname(self):
+        """Returns the fullpath of parent directory"""
         return '%s:%s'%(self.service.service_name,os.path.dirname(self.path))
         
     @property
     def parentStorageNode(self):
+        """Returns the StorageNode pointing to the parent directory"""
         return self.parent.storageNode(self.dirname)
     
     def splitext(self):
+        """Returns a tuple of filename and extension"""
         return os.path.splitext(self.path)
 
     def base64(self, mime=None):
+        """Returns the base64 encoded string of the file content"""
         return self.service.base64(self.path, mime=mime)
 
     def open(self, mode='rb'):
+        """Is a context manager that returns the open file pointed"""
         self.service.autocreate(self.path, autocreate=-1)
         return self.service.open(self.path, mode=mode)
 
     def url(self, **kwargs):
+        """Returns the external url of this file"""
         return self.service.url(self.path, **kwargs)
 
     def internal_url(self, **kwargs):
         return self.service.internal_url(self.path, **kwargs)
 
     def delete(self):
+        """Deletes the dir content"""
         return self.service.delete(self.path)
 
     def move(self, dest=None):
+        """Moves the pointed file to another path, self now points to the new location"""
         dest = self.service.move(source=self, dest=dest)
         self.path = dest.path
         self.service = dest.service
 
     def copy(self, dest=None):
+        """Copy self to another path"""
         return self.service.copy(source=self, dest=dest)
 
     def serve(self, environ, start_response, **kwargs):
+        """Serves the file content"""
         return self.service.serve(self.path, environ, start_response, **kwargs)
 
     def local_path(self, mode=None, keep=False):
+        """Is a context manager that return a local path to a temporary file 
+        with the pointed file content, if modified, the new content will replace
+        the original content. Useful to let an external process work on a file
+        stored in cloud (like in a s3 bucket)"""
         self.service.autocreate(self.path, autocreate=-1)
         return self.service.local_path(self.path, mode=mode or self.mode, keep=keep)
 
     def child(self, path=None):
+        """Returns a StorageNode pointing a sub path"""
         if self.path and self.path[-1]!='/':
             path = '/%s'%path
         return self.service.parent.storageNode('%s%s'%(self.fullpath,path))
 
     @property
     def mimetype(self):
+        """Returns the file mime type"""
         return self.service.mimetype(self.path)
 
 class StorageService(GnrBaseService):
@@ -323,29 +345,38 @@ class StorageService(GnrBaseService):
         pass
 
     def md5hash(self,*args):
+        """Returns the md5 hash of a given path"""
         pass
 
     def fullpath(self, path):
+        """Returns the fullpath (comprending self.service_name) of a path"""
         return "%s:%s"%(self.service_name, path)
 
     def local_path(self, *args, **kwargs):
+        """Is a context manager that copies locally a remote file in a temporary
+        file and, if modified, at the __exit__ copies back on remote.
+        If on localfile works directly with the original file"""
         pass
     
     def expandpath(self,path):
         return path
 
     def basename(self, path=None):
+        """Returns the basename of a path"""
         return self.split_path(path)[-1]
     
     def extension(self, path=None):
+        """Returns the extension without the leading dots"""
         basename = self.basename(path)
         return os.path.splitext(basename)[-1].strip('.')
 
     def split_path(self, path):
+        """Splits the path to a list"""
         return path.replace('/','\t').replace(os.path.sep,'/').replace('\t','/').split('/')
 
     def sync_to_service(self, dest_service, subpath='', skip_existing=True, skip_same_size=False,
         thermo=None, done_list=None, doneCb=None):
+        """Copies the service content to another service"""
         assert not (skip_existing and skip_same_size), 'use either skip_existing or skip_same_size'
         done_list = done_list or []
         storage_resolver = StorageResolver(self.parent.storageNode('%s:%s'%(self.service_name,subpath)))
@@ -374,6 +405,7 @@ class StorageService(GnrBaseService):
                 doneCb(srcNode)
 
     def mimetype(self, *args,**kwargs):
+        """Returns the mimetype of file at the given path"""
         return mimetypes.guess_type(self.internal_path(*args))[0] or 'application/octet-stream'
 
     def base64(self, *args, **kwargs):
@@ -416,21 +448,28 @@ class StorageService(GnrBaseService):
         pass
 
     def open(self,*args,**kwargs):
+        """Is a context manager that returns the open file at given path"""
         pass
 
     def url(self,*args, **kwargs):
+        """Returns the external url of path"""
         pass
 
     def symbolic_url(self,*args, **kwargs):
         pass
 
-    def mtime(self, path):
+    def mtime(self, *args):
+        """Return the last modification time of file at a path"""
         pass
 
-    def size(self, path):
+    def size(self, *args):
+        """Return the size of a file at a path"""
         pass
 
     def delete(self, *args):
+        """Deletes the file or the directory"""
+        if not self.exists(*args):
+            return
         if self.isdir(*args):
             self.delete_dir(*args)
         else:
@@ -438,6 +477,7 @@ class StorageService(GnrBaseService):
 
 
     def autocreate(self, *args, **kwargs):
+        """Autocreates all intermediate directories of a path"""
 
         autocreate=kwargs.pop('autocreate', None)
         if not autocreate:
@@ -454,11 +494,15 @@ class StorageService(GnrBaseService):
             self.makedirs(dest_dir.path)
 
     def copyNodeContent(self, sourceNode=None, destNode=None):
+        """Copies the content of a node to another node, its used only
+        if copying between different service types"""
         with sourceNode.open(mode='rb') as sourceFile:
             with destNode.open(mode='wb') as destFile:
                 destFile.write(sourceFile.read())
 
     def copy(self, source=None, dest=None):
+        """Copies the content of a node to another node, 
+        will use the best option available (native vs content-copy)"""
         sourceNode = self._getNode(source)
         destNode = self._getNode(dest)
         if destNode.service.location_identifier == sourceNode.service.location_identifier:
@@ -469,6 +513,8 @@ class StorageService(GnrBaseService):
         return destNode
 
     def move(self, source=None, dest=None):
+        """Moves the content of a node to another node, 
+        will use the best option available (native vs content-copy)"""
         sourceNode = self._getNode(source)
         destNode = self._getNode(dest)
         if destNode.service == sourceNode.service:
@@ -480,6 +526,7 @@ class StorageService(GnrBaseService):
         return destNode
 
     def serve(self, path, **kwargs):
+        """Serves a file content"""
         pass
 
     def _call(self, call_args=None, call_kwargs=None, cb=None, cb_args=None, cb_kwargs=None, return_output=False):
@@ -496,9 +543,15 @@ class StorageService(GnrBaseService):
             return result
 
     def call(self, args, **kwargs):
+        """A context manager that calls an external process on a list of files
+        will work on local copies if the node is on cloud.
+        if run_async==True will immediately return and the process will be managed
+        by another thread,
+        an optional callback (cb) can be passed to the thread an will be called 
+        when the process will end, cb_args and cb_kwargs will be passed to cb"""
         cb = kwargs.pop('cb', None)
-        cb_args = kwargs.pop('cb', None)
-        cb_kwargs = kwargs.pop('cb', None)
+        cb_args = kwargs.pop('cb_args', None)
+        cb_kwargs = kwargs.pop('cb_kwargs', None)
         run_async = kwargs.pop('run_async', None)
         return_output = kwargs.pop('return_output', None)
         call_params = dict(call_args=args,call_kwargs=kwargs, cb=cb, cb_args=cb_args, cb_kwargs=cb_kwargs, return_output=return_output)
@@ -509,7 +562,12 @@ class StorageService(GnrBaseService):
             return self._call(**call_params)
 
     def listdir(self, *args, **kwargs):
+        """Returns a list of paths contained in a path"""
         return [sn.fullpath for sn in self.children(*args, **kwargs)]
+
+    def children(self, *args, **kwargs):
+        """Return a list of storageNodes contained in a path"""
+        pass
 
 class BaseLocalService(StorageService):
     def __init__(self, parent=None, base_path=None,**kwargs):
@@ -527,7 +585,7 @@ class BaseLocalService(StorageService):
         return outpath
 
     def delete_dir(self, *args):
-        os.rmtree(self.internal_path(*args))
+        shutil.rmtree(self.internal_path(*args))
 
     def delete_file(self, *args):
         return os.unlink(self.internal_path(*args))
@@ -547,7 +605,6 @@ class BaseLocalService(StorageService):
         return stats.st_mtime
 
     def local_path(self, *args, **kwargs): #TODO: vedere se fare così o con altro metodo
-        mode = kwargs.get('mode', 'r')
         internalpath = self.internal_path(*args)
         return LocalPath(fullpath=internalpath)
 

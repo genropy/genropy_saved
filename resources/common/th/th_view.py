@@ -717,7 +717,11 @@ class TableHandlerView(BaseComponent):
             if resources:
                 result.update(resources)
         flags = flags or 'is_%s' %res_type
-        templates = self.db.table('adm.userobject').userObjectMenu(table=table,objtype='template',flags=flags)
+        if self.getPreference('print.enable_pdfform',pkg='sys') and self.site.getService('pdfform'):
+            objtype = 'template,pdfform'
+        else:
+            objtype = 'template'
+        templates = self.db.table('adm.userobject').userObjectMenu(table=table,objtype=objtype,flags=flags)
         if templates and len(templates)>0:
             result.update(templates)
         result.walk(self._th_addTpl,res_type=res_type)
@@ -725,15 +729,25 @@ class TableHandlerView(BaseComponent):
     
     def _th_addTpl(self,node,res_type=None):
         if node.attr.get('code'):
-            node.attr['resource'] ='%s_template' %res_type
+            node.attr['resource'] ='%s_%s' %(res_type,node.attr['objtype'])
             node.attr['template_id'] = node.attr['pkey']
         
     @struct_method
     def th_slotbar_templateManager(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
-        paletteCode = '%(thlist_root)s_template_manager' %inattr
-        pane.paletteTemplateEditor(maintable=table,paletteCode=paletteCode,dockButton_iconClass='iconbox document')
+        htmlPaletteCode = '%(thlist_root)s_template_manager' %inattr
+        if self.getPreference('print.enable_pdfform',pkg='sys') and self.site.getService('pdfform'):
+            self.mixinComponent("services/pdfform/pdftk/component:PalettePdfFormEditor")
+            pdfPaletteCode = '%(thlist_root)s_pdf_template_manager' %inattr
+            templatemenu = pane.menudiv(iconClass='iconbox document',tip='!!Template menu')
+            #costruiscimenu
+            templatemenu.menuline(label='!!Html Template',action="PUBLISH %s_show"%htmlPaletteCode)
+            templatemenu.menuline(label='!!Pdf Template',action="PUBLISH %s_show"%pdfPaletteCode)
+            pane.paletteTemplateEditor(maintable=table,paletteCode=htmlPaletteCode,dockTo='dummyDock')
+            pane.pdfFormEditorPalette(maintable=table, paletteCode=pdfPaletteCode,dockTo='dummyDock')
+        else:
+            pane.paletteTemplateEditor(maintable=table,paletteCode=htmlPaletteCode,dockButton_iconClass='iconbox document')
 
     @struct_method
     def th_slotbar_pageHooksSelector(self,pane,**kwargs):

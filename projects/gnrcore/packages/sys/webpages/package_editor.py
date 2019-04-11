@@ -1,4 +1,3 @@
-#!/usr/bin/env pythonw
 # -*- coding: utf-8 -*-
 #
 #  Migration
@@ -40,14 +39,13 @@ class GnrCustomWebPage(object):
             instances_path = os.path.join(path,'instances')
             packages_path = os.path.join(path,'packages')
             if os.path.exists(instances_path):
-                instances = [l for l in os.listdir(instances_path) if os.path.isfile(os.path.join(instances_path,l,'instanceconfig.xml'))]
+                instances = [l for l in os.listdir(instances_path) if os.path.isdir(os.path.join(instances_path,l))]
             else:
                 instances = []
             packages = [l for l in os.listdir(packages_path) if os.path.isdir(os.path.join(packages_path,l))]
             data['instances'] = ','.join(instances) if instances else None
             data['packages'] =','.join(packages) if packages else None
             data['instance_name'] = instances[0] if instances else None
-
             return Bag(dict(errorcode=None,data=data))
         except Exception:
             return Bag(dict(errorcode='Not existing project',data=data))
@@ -60,38 +58,44 @@ class GnrCustomWebPage(object):
         project_maker.do()
         packages = included_packages.split(',') if included_packages else []
         base_instance_name = base_instance_name or project_name
-        site_maker = SiteMaker(project_name, base_path=project_maker.sites_path)
-        site_maker.do()
         instance_maker = InstanceMaker(project_name, base_path=project_maker.instances_path,packages=packages)
         instance_maker.do()
         return project_name
 
     @public_method
-    def makeNewPackage(self,package_name=None,name_long=None,is_main_package=None,project_name=None):
+    def makeNewPackage(self,package_name=None,name_long=None,
+                        is_main_package=None,project_name=None):
         path_resolver = PathResolver()
         project_path = path_resolver.project_name_to_path(project_name)
         packagespath = os.path.join(project_path,'packages')
         instances = os.path.join(project_path,'instances')
-        sites = os.path.join(project_path,'sites')
         package_maker = PackageMaker(package_name,base_path=packagespath,helloworld=True,name_long=name_long)
         package_maker.do()
         if os.path.exists(instances):
             for d in os.listdir(instances):
-                configpath = os.path.join(instances,d,'instanceconfig.xml')
+                legacy_mode = False
+                configpath = os.path.join(instances,d,'config','instanceconfig.xml')
+                if not os.path.exists(configpath):
+                    configpath = os.path.join(instances,d,'instanceconfig.xml')
+                    if os.path.exists(configpath):
+                        legacy_mode = True
+                    else:
+                        continue
                 if os.path.isfile(configpath):
                     b = Bag(configpath)
                     b.setItem('packages.%s' %package_name,'')
                     b.toXml(configpath,typevalue=False,pretty=True)
-        if os.path.exists(sites):
-            for d in os.listdir(sites):
-                configpath = os.path.join(sites,d,'siteconfig.xml')
-                if os.path.isfile(configpath):
+                if not is_main_package:
+                    continue
+                siteconfig_path = os.path.join(project_path,'instances','config','siteconfig.xml')
+                if legacy_mode:
+                    siteconfig_path = os.path.join(project_path,'sites','siteconfig.xml')
+                if os.path.isfile(siteconfig_path):
                     b = Bag(configpath)
                     n = b.getNode('wsgi')
                     n.attr['mainpackage'] = package_name
                     b.toXml(configpath,typevalue=False,pretty=True)
         return package_name
-
 
     def packageForm(self,form):
         bar = form.top.slotToolbar('2,fbinfo,10,extdbcon,*,dbsetup,10')

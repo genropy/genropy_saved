@@ -15,11 +15,8 @@ class TableScriptRunner(BaseComponent):
         
     @oncalled
     def table_script_dialogs(self,pane,batch_dict=None,extra_parameters=None,**kwargs):
-        if not self.site.heartbeat_options:
-            return
         if not self.application.checkResourcePermission(batch_dict.get('plan_tag','admin'),self.userTags):
             return
-        
         hasOptions = hasattr(self, 'table_script_option_pane')
         hasParameters = hasattr(self, 'table_script_parameters_pane')
         pane.data('gnr.dialog_scheduler.pars',Bag(dict(resource_path=batch_dict.get('resource_path'),table=batch_dict.get('table') or self.tblobj.name)))

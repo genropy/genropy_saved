@@ -2,8 +2,6 @@
 # encoding: utf-8
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdecorator import public_method
-import os
-import shutil
 import textwrap
 
 class Table(object):
@@ -62,50 +60,40 @@ class Table(object):
         def cb(row):
             row['docbag'] = row['docbag'].replace(old_link,new_link)
         
-        self.batchUpdate(cb,
-                            where='$docbag ILIKE :old_link_query OR $docbag ILIKE :old_link_query',
+        self.batchUpdate(cb,where='$docbag ILIKE :old_link_query OR $docbag ILIKE :old_link_query',
                             old_link_query='%%%s%%',_raw_update=True,bagFields=True)
 
     def trigger_onUpdated(self,record,old_record):
-
         if record['hierarchical_name'] != old_record['hierarchical_name']:
             self.updateLink(record, old_record)
-
-        old_tutorial_record_path = self.tutorialRecordPath(old_record) 
-        tutorial_record_path = self.tutorialRecordPath(record) 
-        if old_tutorial_record_path != tutorial_record_path:
-            if os.path.exists(old_tutorial_record_path):
-                shutil.rmtree(old_tutorial_record_path)
+            if record['sourcebag'] and record['sourcebag']==old_record['sourcebag']:
+                self.tutorialRecordNode(old_record).move(self.tutorialRecordNode(record))
         if record['sourcebag'] != old_record['sourcebag']:
             self.writeModulesFromSourceBag(record)
 
-    def tutorialRecordPath(self,record):
-        basepath = self.db.application.site.getStaticPath('site:webpages','docu_examples')
-        return os.path.join(basepath,record['hierarchical_name'])
+    def tutorialRecordNode(self,record):
+        return self.db.application.site.storageNode('site:webpages','docu_examples',record['hierarchical_name'])
 
     def writeModulesFromSourceBag(self,record):
-        tutorial_record_path = self.tutorialRecordPath(record)
-        if os.path.exists(tutorial_record_path):
-            shutil.rmtree(tutorial_record_path)
-        os.makedirs(tutorial_record_path)
+        tutorial_record_node = self.tutorialRecordNode(record)
+        if tutorial_record_node.exists:
+            for n in tutorial_record_node.children():
+                if n.exists and not n.isdir:
+                    tutorial_record_node.delete()
         if record['sourcebag']:
             for source_version in record['sourcebag'].values():
-                p = os.path.join(tutorial_record_path,source_version['version'])
-                #sys.modules.pop(p.replace('/','_'),None)
-                with open('%s.py' %p,'w') as f:
+                with tutorial_record_node.child('%(version)s.py' %source_version).open('wb') as f:
                     f.write(source_version['source'])
 
     @public_method
     def checkSourceBagModules(self,record=None,**kwargs):
         if not record['sourcebag']:
             return
-        tutorial_record_path = self.tutorialRecordPath(record)
-        if not os.path.exists(tutorial_record_path):
-            os.makedirs(tutorial_record_path)
+        tutorial_record_node = self.tutorialRecordNode(record)
         for source_version in record['sourcebag'].values():
-            p = os.path.join(tutorial_record_path,'%s.py' %source_version['version'])
-            if not os.path.exists(p):
-                with open(p,'w') as f:
+            n = tutorial_record_node.child('%(version)s.py' %source_version)
+            if not n.exists:
+                with n.open('wb') as f:
                     f.write(source_version['source'])
 
     def applyOnTreeNodeAttr(self,_record=None,**kwargs):
@@ -168,3 +156,4 @@ class Table(object):
         children =self.query(where=where, curr_date=ref_date or self.db.workdate, pkey=pkey).fetch()
         for c in children:
             pass
+    

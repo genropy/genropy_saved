@@ -714,10 +714,9 @@ dojo.declare('gnr.GenroClient', null, {
         this.windowStartHeight = window.outerHeight;
         this.windowStartWidth = window.outerWidth;
 
-        //dojo.connect(window,'onresize',function(e){
-        //    dojo.body().style.zoom = (window.outerHeight/genro.windowStartHeight + window.outerWidth/genro.windowStartWidth)/2;
-        //    console.log('window resize',e,window.outerHeight,window.outerWidth);
-        //});
+        dojo.connect(window,'onresize',function(e){
+            genro.publish('gnrWindowResize',{});
+        });
 
 
 

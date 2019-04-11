@@ -204,10 +204,18 @@ dojo.declare("gnr.GnrDevHandler", null, {
             return;
         }
         if (error=='gnrexception'){
-            genro.dlg.alert('<h2 align="center">'+envNode.getValue()+'</h2> <br/>','Warning');
+            if(genro.src.getNode()){
+                genro.dlg.alert('<h2 align="center">'+envNode.getValue()+'</h2> <br/>','Warning');
+            }else{
+                dojo.byId('mainWindow').innerHTML = '<h2 class="selectable" style="color:red;" align="center">'+envNode.getValue()+'</h2> <br/>';
+            }
             return;
         }else if (error=='server_exception'){
-            genro.dlg.alert('<h3 align="center">'+envNode.getValue()+'</h3> <br/>','Error');
+            if(genro.src.getNode()){
+                genro.dlg.alert('<h3 align="center">'+envNode.getValue()+'</h3> <br/>','Error');
+            }else{
+                dojo.byId('mainWindow').innerHTML = '<h2 class="selectable" style="color:red;" align="center">'+envNode.getValue()+'</h2> <br/>';
+            }
             return;
         }
         if (error == 'expired') {

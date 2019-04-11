@@ -20,6 +20,9 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+def setup(app):
+    app.add_css_file("custom.css")
+    app.add_js_file("custom.js")
 
 # -- General configuration ------------------------------------------------
 
@@ -157,6 +160,7 @@ texinfo_documents = [
      author, 'project_name', 'One line description of project.',
      'Miscellaneous'),
 ]
+
 
 
 
