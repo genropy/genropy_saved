@@ -3,6 +3,9 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwsgisite import GnrWsgiSite
 from werkzeug.serving import run_simple
+from werkzeug.debug.tbtools import get_current_traceback, render_console_html
+from werkzeug.debug import DebuggedApplication,_ConsoleFrame
+from werkzeug.wrappers import Response, Request
 import glob
 from datetime import datetime
 import os
@@ -41,6 +44,81 @@ wsgi_options = dict(
         )
 
 DNS_SD_PID = None
+
+
+class GnrDebuggedApplication(DebuggedApplication):
+    
+    def debug_application(self, environ, start_response):
+        """Run the application and conserve the traceback frames."""
+        app_iter = None
+        try:
+            app_iter = self.app(environ, start_response)
+            for item in app_iter:
+                yield item
+            if hasattr(app_iter, 'close'):
+                app_iter.close()
+        except Exception:
+            if hasattr(app_iter, 'close'):
+                app_iter.close()
+            traceback = get_current_traceback(
+                skip=1, show_hidden_frames=self.show_hidden_frames,
+                ignore_system_exceptions=True)
+            for frame in traceback.frames:
+                self.frames[frame.id] = frame
+            self.tracebacks[traceback.id] = traceback
+            request = Request(environ)
+            debug_url = '%sconsole?error=%i'%(request.host_url, traceback.id)
+
+            print('Error occurred, debug on: %s', debug_url)
+
+            try:
+                start_response('500 INTERNAL SERVER ERROR', [
+                    ('Content-Type', 'text/html; charset=utf-8'),
+                    # Disable Chrome's XSS protection, the debug
+                    # output can cause false-positives.
+                    ('X-XSS-Protection', '0'),
+                    ('X-Debug-Url', debug_url)
+                ])
+            except Exception:
+                # if we end up here there has been output but an error
+                # occurred.  in that situation we can do nothing fancy any
+                # more, better log something into the error log and fall
+                # back gracefully.
+                environ['wsgi.errors'].write(
+                    'Debugging middleware caught exception in streamed '
+                    'response at a point where response headers were already '
+                    'sent.\n')
+            else:
+                is_trusted = bool(self.check_pin_trust(environ))
+                yield traceback.render_full(evalex=self.evalex,
+                                            evalex_trusted=is_trusted,
+                                            secret=self.secret) \
+                    .encode('utf-8', 'replace')
+            traceback.log(environ['wsgi.errors'])
+
+
+    def display_console(self, request):
+        """Display a standalone shell."""
+        error = request.args.get('error', type=int)
+        traceback = self.tracebacks.get(error)
+        is_trusted = bool(self.check_pin_trust(request.environ))
+        if traceback:
+            return Response(traceback.render_full(evalex=self.evalex,
+                                            evalex_trusted=is_trusted,
+                                            secret=self.secret) \
+                    .encode('utf-8', 'replace'),
+                        mimetype='text/html')
+        if 0 not in self.frames:
+            if self.console_init_func is None:
+                ns = {}
+            else:
+                ns = dict(self.console_init_func())
+            ns.setdefault('app', self.app)
+            self.frames[0] = _ConsoleFrame(ns)
+        return Response(render_console_html(secret=self.secret,
+                                            evalex_trusted=is_trusted),
+                        mimetype='text/html')
+
 
 class ServerException(Exception):
     pass
@@ -280,6 +358,7 @@ class Server(object):
             gs.setItem('RESTART_TS',datetime.now())
             #GnrReloaderMonitor.add_reloader_callback(gnrServer.on_reloader_restart)
         atexit.register(gnrServer.on_site_stop)
-        run_simple(self.options.host, int(self.options.port), gnrServer, use_debugger=self.debug, 
-            use_evalex=self.debug, use_reloader=self.reloader, threaded=True)
+        if self.debug:
+            gnrServer = GnrDebuggedApplication(gnrServer, evalex=True, pin_security=False)
+        run_simple(self.options.host, int(self.options.port), gnrServer, use_reloader=self.reloader)
         
