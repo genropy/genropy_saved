@@ -118,7 +118,6 @@ class GnrSqlDb(GnrObject):
         :param debugger: TODO
         :param application: TODO
         """
-        
         self.implementation = implementation
         self.dbname = self.dbpar(dbname)
         self.host = self.dbpar(host)

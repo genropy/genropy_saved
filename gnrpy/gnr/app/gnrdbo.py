@@ -1190,6 +1190,8 @@ class AttachmentTable(GnrDboTable):
         tbl.formulaColumn('fileurl',"COALESCE($external_url,$adapted_url)",name_long='Fileurl')
         if hasattr(self,'atc_types'):
             tbl.column('atc_type',values=self.atc_types())
+        if hasattr(self,'atc_download'):
+            tbl.column('atc_download',dtype='B',name_lomg='DL')
         self.onTableConfig(tbl)
 
     def onArchiveExport(self,records,files=None):
