@@ -234,7 +234,7 @@ dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
 
 
     mixin_gnr_setDisabled:function(disabled){
-        genro.dom.setDomNodeDisabled(this.sourceNode.domNode,value);
+        genro.dom.setDomNodeDisabled(this.sourceNode.domNode,disabled);
         this.gnr_readOnly(disabled);
     },
 
