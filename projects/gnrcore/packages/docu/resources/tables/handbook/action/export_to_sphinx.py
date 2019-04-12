@@ -145,9 +145,12 @@ class Main(BaseResourceBatch):
                 tocstring=''
             lbag=docbag[self.handbook_record['language']] or Bag()
             rst = lbag['rst'] or ''
-            rsttable = self.doctable.dfAsRstTable(record['id'])
-            if rsttable:
-                rst = '%s\n\n**Parameters:**\n\n%s' %(rst,rsttable) 
+            df_rst = self.doctable.dfAsRstTable(record['id'])
+            if df_rst:
+                rst = '%s\n\n**Parameters:**\n\n%s' %(rst,df_rst) 
+            atc_rst = self.doctable.atcAsRstTable(record['id'], host=self.page.external_host)
+            if atc_rst:
+                rst = '%s\n\n**Attachments:**\n\n%s' %(rst,atc_rst)
 
             rst = IMAGEFINDER.sub(self.fixImages,rst)
             rst = LINKFINDER.sub(self.fixLinks, rst)
