@@ -504,6 +504,14 @@ class StorageService(GnrBaseService):
         will use the best option available (native vs content-copy)"""
         sourceNode = self._getNode(source)
         destNode = self._getNode(dest)
+        if sourceNode.isfile:
+            if destNode.isdir:
+                destNode = destNode.child(sourceNode.basename)
+            return self._copy_file(sourceNode, destNode)
+        elif sourceNode.isdir:
+            return self._copy_dir(sourceNode, destNode)
+
+    def _copy_file(self, sourceNode, destNode):
         if destNode.service.location_identifier == sourceNode.service.location_identifier:
             sourceNode.service.duplicateNode(sourceNode=sourceNode,
                 destNode = destNode)
@@ -511,11 +519,30 @@ class StorageService(GnrBaseService):
             self.copyNodeContent(sourceNode=sourceNode, destNode=destNode)
         return destNode
 
+    def _copy_dir(self, sourceNode, destNode):
+        for child in sourceNode.children():
+            dest_child = destNode.child(child.basename)
+            copy = self._copy_file if child.isfile else self._copy_dir
+            copy(child, dest_child)
+        return destNode
+
+
     def move(self, source=None, dest=None):
         """Moves the content of a node to another node, 
         will use the best option available (native vs content-copy)"""
         sourceNode = self._getNode(source)
         destNode = self._getNode(dest)
+        if sourceNode.isfile:
+            if destNode.isdir:
+                destNode = destNode.child(sourceNode.basename)
+            return self._move_file(sourceNode, destNode)
+        elif sourceNode.isdir:
+            return self._move_dir(sourceNode, destNode)
+
+
+    def _move_file(self, sourceNode, destNode):
+        """Moves the content of a node file to another node file, 
+        will use the best option available (native vs content-copy)"""
         if destNode.service == sourceNode.service:
             sourceNode.service.renameNode(sourceNode=sourceNode,
                 destNode=destNode)
@@ -523,6 +550,14 @@ class StorageService(GnrBaseService):
             self.copyNodeContent(sourceNode=sourceNode, destNode=destNode)
             sourceNode.delete()
         return destNode
+    
+    def _move_dir(self, sourceNode, destNode):
+        for child in sourceNode.children():
+            dest_child = destNode.child(child.basename)
+            move = self._move_file if child.isfile else self._move_dir
+            move(child, dest_child)
+        return destNode
+
 
     def serve(self, path, **kwargs):
         """Serves a file content"""
