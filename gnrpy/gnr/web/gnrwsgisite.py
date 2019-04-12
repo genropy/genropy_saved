@@ -252,6 +252,7 @@ class GnrWsgiSite(object):
         if self.site_static_dir and not os.path.isabs(self.site_static_dir):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
         self.find_gnrjs_and_dojo()
+        self._remote_edit = options.remote_edit if options else None
         self.gnrapp = self.build_gnrapp(options=options)
         self.server_locale = self.gnrapp.locale
         self.wsgiapp = self.build_wsgiapp(options=options)
@@ -261,7 +262,6 @@ class GnrWsgiSite(object):
         self.page_factory_lock = RLock()
         self.webtools = self.resource_loader.find_webtools()
         self.register
-        self._remote_edit = options.remote_edit if options else None
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
         if counter == 0 and options and options.source_instance:
