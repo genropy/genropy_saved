@@ -51,7 +51,6 @@ class Main(BaseResourceBatch):
         self.imagesDirNode = self.sourceDirNode.child(self.imagesPath)
         self.examplesDirNode = self.sourceDirNode.child(self.examplesPath)
 
-
     def step_prepareRstDocs(self):
         "Prepare Rst docs"
         if self.handbook_record['toc_roots']:
@@ -103,16 +102,9 @@ class Main(BaseResourceBatch):
         self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
 
 
-    #def post_process(self):
-    #    if self.batch_parameters['download_zip']:
-    #        self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
-    #        self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
-    #    
-    #def result_handler(self):
-    #    r=dict()
-    #    if self.batch_parameters['download_zip']:
-    #        r=dict(url=self.zipNode.url())
-    #    return 'Html Handbook created', r
+    def post_process(self):
+        self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
+        self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
         
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./:-]+)")
