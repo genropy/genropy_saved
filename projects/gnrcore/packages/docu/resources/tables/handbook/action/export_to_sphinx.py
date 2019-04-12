@@ -51,10 +51,8 @@ class Main(BaseResourceBatch):
         self.imagesDirNode = self.sourceDirNode.child(self.imagesPath)
         self.examplesDirNode = self.sourceDirNode.child(self.examplesPath)
 
-    def step_prepareRstDocs(self):
-        self.prepareRstDocs()
 
-    def prepareRstDocs(self):
+    def step_prepareRstDocs(self):
         "Prepare Rst docs"
         if self.handbook_record['toc_roots']:
             toc_roots = self.handbook_record['toc_roots'].split(',')

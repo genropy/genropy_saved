@@ -681,8 +681,8 @@ class GnrWsgiSite(object):
         # No path -> indexpage is served
         if path_info == '/' or path_info == '':
             path_info = self.indexpage
-        if path_info.endswith('.py'):
-            path_info = path_info[:-3]
+        #if path_info.endswith('.py'):
+        #    path_info = path_info[:-3]
         path_list = path_info.strip('/').split('/')
         path_list = [p for p in path_list if p]
         # if url starts with _ go to static file handling
