@@ -36,7 +36,7 @@ class Main(BaseResourceBatch):
         self.page.site.storageNode('rsrc:pkg_docu','sphinx_env','default_conf.py').copy(self.page.site.storageNode(self.sourceDirNode.child('conf.py')))
         self.imagesDict = dict()
         self.imagesPath='_static/images'
-        self.examplesPath='_webpages'
+        self.examplesPath='_static/_webpages'
         self.customCssPath='_static/custom.css'
         self.customJSPath='_static/custom.js'
         self.examples_root = None 
@@ -92,7 +92,6 @@ class Main(BaseResourceBatch):
         for k,v in build_args.items():
             if v:
                 args.extend(['-D', '%s=%s' % (k,v)])
-        print args
         customStyles = self.handbook_record['custom_styles'] or ''
         customStyles = '%s\n%s' %(customStyles,self.defaultCssCustomization())
         with self.sourceDirNode.child(self.customCssPath).open('wb') as cssfile:
@@ -286,14 +285,10 @@ class Main(BaseResourceBatch):
 
     def defaultJSCustomization(self):
         return """
-          var gnrExampleIframe = function(box,kw){
-              var src_root = (!window.location.host)?kw.examples_root_local:kw.examples_root;
-              var src = [src_root,kw.example_folder,kw.example_name].join('/');
-              src+=kw.parsstring;
-              if(!window.location.host){
-                  src = src+'&sourceloc='+window.location.pathname
-              }
-
+        var gnrExampleIframe = function(box,kw){
+            var src_root = window.location.port?window.location.origin+'/webpages/docu_examples':kw.examples_root;
+            var src = [src_root,kw.example_folder,kw.example_name].join('/');
+            src+=kw.parsstring;
             var height = kw.height || '200px';
             var width = kw.width || '100%'
             box.innerHTML = '<div class="gnrexamplebox_iframecont"><iframe style="padding-bottom:3px; padding-right:3px; resize:vertical;" src="'+src+'" frameborder="0" height="'+height+'" width="'+width+'"></iframe></div>';

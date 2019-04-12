@@ -772,11 +772,6 @@ class GnrWsgiSite(object):
                     % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO')))
                 return exc(environ, start_response)
 
-
-
-
-
-
     def maintenanceDispatcher(self,environ, start_response):
         request = self.currentRequest
         response = Response()
