@@ -1418,7 +1418,7 @@ class GnrApp(object):
         self.db.commit()
         self.db.closeConnection()
 
-    def fetchFromLegacy(self,tbl,where=None,legacy_db=None,**kwargs):
+    def importTableFromLegacyDb(self,tbl,legacy_db=None):
         destbl = self.db.table(tbl)
         legacy_db = legacy_db or destbl.attributes.get('legacy_db')
         if not legacy_db:
@@ -1426,6 +1426,8 @@ class GnrApp(object):
         if destbl.query().count():
             print 'do not import again',tbl
             return
+        
+   
         sourcedb = self.getLegacyDb(legacy_db)
         table_legacy_name =  destbl.attributes.get('legacy_name')
         columns = None
@@ -1446,7 +1448,7 @@ class GnrApp(object):
             print 'missing table in legacy',table_legacy_name
         if not oldtbl:
             return
-        q = oldtbl.query(where=where,columns=columns,addPkeyColumn=False,bagFields=True,**kwargs)
+        q = oldtbl.query(columns=columns,addPkeyColumn=False,bagFields=True)
         f = q.fetch()
         sourcedb.closeConnection()
         rows = []
@@ -1457,12 +1459,8 @@ class GnrApp(object):
             if adaptLegacyRow:
                 adaptLegacyRow(r)
             rows.append(r)
-        return rows
-
-    def importTableFromLegacyDb(self,tbl,legacy_db=None):
-        rows = self.fetchFromLegacy(tbl)
         if rows:
-            self.db.table(tbl).insertMany(rows)
+            destbl.insertMany(rows)
         print 'imported',tbl
 
     def getAuxInstance(self, name=None,check=False):
