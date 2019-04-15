@@ -423,9 +423,10 @@ class TableHandlerMain(BaseComponent):
             th.view.dataController("""FIRE .runQueryDo;""",subscribe_public_changed_partition=True,
                     storeServerTime='=.store?servertime',_if='storeServerTime')
             #partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
-            if th['view.top.bar.addrow']:
+            realColumn = self.tblobj.column(self.public_partitioned['field']).sqlclass=='column'
+            if th['view.top.bar.addrow'] and realColumn:
                 th.view.top.bar.addrow.getNode('addButton').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
-            if th['form.top.bar.form_add']:
+            if th['form.top.bar.form_add'] and realColumn:
                 th.form.top.bar.form_add.getNode('addButton').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
             if th['form'] and thwidget in ('stack','dialog'): #and partition_kwargs:
                 th.form.dataController("SET gnr.partition_selector.disabled = pkey?true:false;",

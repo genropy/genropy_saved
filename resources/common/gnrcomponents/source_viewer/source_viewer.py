@@ -5,6 +5,7 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrbag import Bag,DirectoryResolver
+from gnr.core.gnrdict import dictExtract
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
@@ -40,22 +41,23 @@ class SourceViewer(BaseComponent):
         if sourceViewer is None:
             return
         frame = sourceViewer.framePane('sourceViewerFrame',_class='source_viewer',datapath='gnr.source_viewer')
-        bar = frame.top.slotToolbar('2,sb,*,readOnlyEditor,dataInspector,2',height='20px')
-        
-        if getattr(self,'source_viewer_addButton',True):
-            sb = bar.sb.stackButtons(stackNodeId='source_viewer_stack')
-            self.source_viewer_addFileMenu(sb.div('<div class="multibutton_caption">+</div>',_class='multibutton'))
-        else:
-            bar.attributes.update(toolbar=False,background='#efefef')
-            bar.sb.div()
-        if self.source_viewer_edit_allowed():
-            bar.readOnlyEditor.div(_class='source_viewer_readonly').checkbox(value='^.readOnly',
-                                    label='ReadOnly',default_value=True,
-                                    disabled='^.changed_editor')
-        else:
-            bar.readOnlyEditor.div()
+        if self._call_kwargs.get('_source_toolbar','t')=='t' \
+            and not self._call_kwargs.get('_source_viewer','').startswith('stack'):
+            bar = frame.top.slotToolbar('2,sb,*,readOnlyEditor,dataInspector,2',height='20px')
+            if getattr(self,'source_viewer_addButton',True):
+                sb = bar.sb.stackButtons(stackNodeId='source_viewer_stack')
+                self.source_viewer_addFileMenu(sb.div('<div class="multibutton_caption">+</div>',_class='multibutton'))
+            else:
+                bar.attributes.update(toolbar=False,background='#efefef')
+                bar.sb.div()
+            if self.source_viewer_edit_allowed():
+                bar.readOnlyEditor.div(_class='source_viewer_readonly').checkbox(value='^.readOnly',
+                                        label='ReadOnly',default_value=True,
+                                        disabled='^.changed_editor')
+            else:
+                bar.readOnlyEditor.div()
         sc = frame.center.stackContainer(nodeId='source_viewer_stack')
-        bar.dataController("""
+        frame.dataController("""
             var label = docname.replace(/\./g, '_').replace(/\//g, '_');
             if(sc._value.getNode(label)){
                 return;
@@ -68,7 +70,12 @@ class SourceViewer(BaseComponent):
             """,docname='^.new_source_viewer_page',sc=sc,remotemethod=self.source_viewer_content)
         pane = sc.contentPane(title='Main',datapath='.main',overflow='hidden')
         docname = '%s.py' %os.path.splitext(sys.modules[self.__module__].__file__)[0]
-        pane.remote(self.source_viewer_content,docname=docname)
+        cmkwargs = dictExtract(self._call_kwargs,'cm_')
+        codemirror_config = {}
+        if cmkwargs:
+            for k,v in cmkwargs.items():
+                codemirror_config['config_%s' %k] = v
+        pane.remote(self.source_viewer_content,docname=docname,codemirror_config=codemirror_config)
         sourceViewer.addToDocumentation()
         if self.source_viewer_rebuild:
             page.dataController("""genro.src.updatePageSource('_pageRoot')""",
@@ -179,12 +186,16 @@ class SourceViewer(BaseComponent):
                             oldval='^.source_oldvalue',bar=commandbar)
         frame.data('.source',source)
         frame.data('.source_oldvalue',source)
+        codemirrorkw = dict(
+            config_mode='python',config_lineNumbers=True,
+            config_indentUnit=4,config_keyMap='softTab',
+        )
+    
+        codemirrorkw.update(self._call_kwargs.get('codemirror_config'))
         cm = frame.center.contentPane(overflow='hidden').codemirror(value='^.source',
-                                config_mode='python',config_lineNumbers=True,
-                                config_indentUnit=4,config_keyMap='softTab',
-                                #config_theme=self._call_kwargs.get('_source_viewer_theme','twilight'),
                                 height='100%',
-                                readOnly=not self.source_viewer_edit_allowed() or '^gnr.source_viewer.readOnly')
+                                readOnly=not self.source_viewer_edit_allowed() or '^gnr.source_viewer.readOnly',
+                                **codemirrorkw)
         
         frame.dataController("""
             var cm = cmNode.externalWidget;

@@ -128,9 +128,11 @@ class GnrStructData(Bag):
                 tag = n.tag
                 if not tag:
                     return
+                #check if tag belongs to valid children
                 validpars = valid_children.get(tag)
                 if not validpars:
                     raise GnrException(self.exceptions['invalid_child_tag'] %dict(tag=tag))
+                #check mandatory_tags
                 mandatory_val = mandatoryTags.get(tag)
                 if mandatory_val:
                     mandatory_val -= 1
@@ -138,8 +140,10 @@ class GnrStructData(Bag):
                         mandatoryTags[tag] = mandatory_val
                     else:
                         mandatoryTags.pop(tag)
+                #check if tag occurs too many times
                 minval,maxval = validpars
-                if maxval and len(n.value.filter(lambda n: n.tag == tag))>=int(maxval):
+                n_occurrences=len(n.value.filter(lambda n: n.tag == tag)) #this value is wrong. This check doesn't work
+                if maxval and n_occurrences>=int(maxval):
                     raise GnrException(self.exceptions['already_inserted_child_tag'] %dict(tag=tag,maxval=maxval))
             if mandatoryTags:
                 raise GnrException(self.exceptions['missing_mandatory_children'] %dict(mandatory_children=','.join(mandatoryTags.keys())))

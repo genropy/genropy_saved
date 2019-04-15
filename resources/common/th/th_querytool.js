@@ -204,7 +204,7 @@ dojo.declare("gnr.QueryManager", null, {
             if(currentQuery=='__basequery__' || currentQuery=='__newquery__'){
                 var where = this.sourceNode.getRelativeData('.query.where');
                 where.keys().slice(1).forEach(function(label){
-                    where.popNode(label);
+                    where.popNode(label);//fix in a better way. __extendedQuery__
                 });
                 this.buildQueryPane();
                 this.sourceNode.setRelativeData('.query.queryAttributes.extended',false);

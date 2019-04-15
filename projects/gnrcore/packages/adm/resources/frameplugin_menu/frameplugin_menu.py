@@ -130,7 +130,7 @@ class MenuResolver(BagResolver):
         return attr
 
     def load(self):
-        sitemenu = self._page.application.siteMenu
+        sitemenu = self._page.userMenu or self._page.application.siteMenu
         userTags = self._page.userTags
         dbstore = self._page.dbstore
 

@@ -614,7 +614,7 @@ class PageRegister(BaseRegister):
                 self.set_datachange(page_id,path=path,value=value,reason=reason, attributes=attributes, fired=fired)
 
 class SiteRegister(BaseRemoteObject):
-    def __init__(self,server,sitename=None,storage_path=None, batch_queue=None):
+    def __init__(self,server,sitename=None,storage_path=None):
         self.server = server
         self.global_register = GlobalRegister(self)
         self.page_register = PageRegister(self)
@@ -629,7 +629,6 @@ class SiteRegister(BaseRemoteObject):
         self.maintenance = False
         self.allowed_users = None
         self.interproces_commands = dict()
-        self.batch_queue = batch_queue
 
     def on_reloader_restart(self):
         if self.server.gnr_daemon_uri:
@@ -640,11 +639,6 @@ class SiteRegister(BaseRemoteObject):
 
     def on_site_stop(self):
         print 'site stopped'
-
-    def table_script_put(self, page_id=None, batch_kwargs=None):
-        if self.batch_queue:
-            batch_item = dict(page_id=page_id, batch_kwargs=batch_kwargs)
-            self.batch_queue.put(dict(type='batch', value=batch_item))
 
     def checkCachedTables(self,table):
         for register in (self.page_register,self.connection_register,self.user_register):
@@ -1039,8 +1033,7 @@ class SiteRegisterClient(object):
 
     def checkSiteRegisterServerUri(self,daemonProxy):
         if not self.siteregisterserver_uri:
-            info = daemonProxy.getSite(self.site.site_name,create=True,storage_path=self.storage_path,autorestore=True,
-                                        heartbeat_options=self.site.heartbeat_options)
+            info = daemonProxy.getSite(self.site.site_name,create=True,storage_path=self.storage_path,autorestore=True)
             self.siteregisterserver_uri = info.get('server_uri',False)
             if not self.siteregisterserver_uri:
                 time.sleep(1)
@@ -1175,14 +1168,12 @@ class SiteRegisterClient(object):
 ##############################################################################
 
 class GnrSiteRegisterServer(object):
-    def __init__(self,sitename=None,daemon_uri=None,storage_path=None,
-            debug=None, batch_queue=None):
+    def __init__(self,sitename=None,daemon_uri=None,storage_path=None,debug=None):
         self.sitename = sitename
         self.gnr_daemon_uri = daemon_uri
         self.debug = debug
         self.storage_path = storage_path
         self._running = False
-        self.batch_queue = batch_queue
     
     def running(self):
         return self._running
@@ -1225,8 +1216,7 @@ class GnrSiteRegisterServer(object):
         self.daemon = Pyro4.Daemon(**pyrokw)
         if not OLD_HMAC_MODE:
             self.daemon._pyroHmacKey = hmac_key
-        self.siteregister = SiteRegister(self,sitename=self.sitename,
-            storage_path=self.storage_path, batch_queue=self.batch_queue)
+        self.siteregister = SiteRegister(self,sitename=self.sitename,storage_path=self.storage_path)
         autorestore = autorestore and os.path.exists(self.storage_path)
         self.main_uri = self.daemon.register(self,'SiteRegisterServer')
         print 'autorestore',autorestore,os.path.exists(self.storage_path)

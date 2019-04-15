@@ -2366,6 +2366,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         this.applyFilter();
     },
+
     
     mixin_setStorepath:function(val, kw) {
         if(kw.reason=='autocreate'){
@@ -2602,6 +2603,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             
             this.updateTotalsCount(); 
             scrollBox.scrollLeft = scrollLeft;
+            //this.updateColumnsetsAndFooters(); makes grids slower
             //},1,this);
         }
     },

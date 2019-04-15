@@ -109,13 +109,13 @@ class GnrDboPackage(object):
         :param pkg: the :ref:`package <packages>` object"""
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
         
-    def getPreference(self, path, dflt=None):
+    def getPreference(self, path, dflt=None, mandatoryMsg=None):
         """Get a preference for the current package. Return the value of the specified
         preference, or *dflt* if it is missing
         
         :param path: a dotted name of the preference item
         :param dflt: the default value"""
-        return self.db.table('adm.preference').getPreference(path, pkg=self.name, dflt=dflt)
+        return self.db.table('adm.preference').getPreference(path, pkg=self.name, dflt=dflt, mandatoryMsg=mandatoryMsg)
         
     def setPreference(self, path, value):
         """Set a preference for the current package.
@@ -1190,6 +1190,8 @@ class AttachmentTable(GnrDboTable):
         tbl.formulaColumn('fileurl',"COALESCE($external_url,$adapted_url)",name_long='Fileurl')
         if hasattr(self,'atc_types'):
             tbl.column('atc_type',values=self.atc_types())
+        if hasattr(self,'atc_download'):
+            tbl.column('atc_download',dtype='B',name_lomg='DL')
         self.onTableConfig(tbl)
 
     def onArchiveExport(self,records,files=None):

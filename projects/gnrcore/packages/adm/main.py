@@ -23,7 +23,7 @@ class Package(GnrDboPackage):
         def cb(cache=None,identifier=None,**kwargs):
             if identifier in cache:
                 return cache[identifier],True
-            result = tblobj.query(columns='*,$all_tags',where='$username = :user',user=username, limit=1).fetch()
+            result = tblobj.query(columns='*,$all_tags,@group_code.custom_menu AS menubag',where='$username = :user',user=username, limit=1).fetch()
             kwargs = dict()
             if result:
                 user_record = dict(result[0])
@@ -39,6 +39,7 @@ class Package(GnrDboPackage):
                 kwargs['locale'] = user_record['locale'] or self.application.config('default?client_locale')
                 kwargs['user_name'] = '%s %s' % (user_record['firstname'], user_record['lastname'])
                 kwargs['user_record'] = user_record
+                kwargs['menubag'] = user_record['menubag']
                 kwargs.update(dictExtract(user_record, 'avatar_'))
                 allowed_ip = self.db.table('adm.user_access_group').allowedUser(user_record['id'])
                 if allowed_ip is not None:

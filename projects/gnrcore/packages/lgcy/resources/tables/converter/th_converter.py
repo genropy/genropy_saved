@@ -9,7 +9,7 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('code',edit=True,width='100%')
+        r.fieldcell('code',width='100%')
 
     def th_order(self):
         return 'code'
@@ -22,7 +22,7 @@ class ConverterEditorView(BaseComponent):
         for field in convertertbl.convertedFields():
             r.fieldcell(field,width='30em',
                         hidden='^main.lgcy_converter.view.sections.convertedtables.current?=#v!="conv_%s"' %field)
-        r.fieldcell('code',edit=True,width='20em')
+        r.fieldcell('code',width='20em')
 
     def th_order(self):
         return 'code'

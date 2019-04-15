@@ -5,6 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
+from json import dumps
 import re
 import urllib
 import os
@@ -30,15 +31,28 @@ class Main(BaseResourceBatch):
         self.doc_data = self.doctable.getHierarchicalData(root_id=self.handbook_record['docroot_id'], condition='$is_published IS TRUE')['root']['#0']
         self.handbookNode= self.page.site.storageNode(self.handbook_record['sphinx_path']) #or default_path
         self.sphinxNode = self.handbookNode.child('sphinx')
+        self.sphinxNode.delete()
         self.sourceDirNode = self.sphinxNode.child('source')
         self.page.site.storageNode('rsrc:pkg_docu','sphinx_env','default_conf.py').copy(self.page.site.storageNode(self.sourceDirNode.child('conf.py')))
         self.imagesDict = dict()
         self.imagesPath='_static/images'
+        self.examplesPath='_static/_webpages'
+        self.customCssPath='_static/custom.css'
+        self.customJSPath='_static/custom.js'
+        self.examples_root = None 
+        self.examples_pars = Bag(self.handbook_record['examples_pars'])
+        self.examples_mode = self.examples_pars['mode'] or 'iframe'
+        self.examples_root_local = ''
+        self.examplesDict = {}
+        if self.handbook_record['examples_site']:
+            self.examples_root = '%(examples_site)s/webpages/%(examples_directory)s' %self.handbook_record
+        if self.handbook_record['examples_local_site']:
+            self.examples_root_local = '%(examples_local_site)s/webpages/%(examples_directory)s' %self.handbook_record
         self.imagesDirNode = self.sourceDirNode.child(self.imagesPath)
+        self.examplesDirNode = self.sourceDirNode.child(self.examplesPath)
 
     def step_prepareRstDocs(self):
         "Prepare Rst docs"
-
         if self.handbook_record['toc_roots']:
             toc_roots = self.handbook_record['toc_roots'].split(',')
             toc_trees = []
@@ -60,10 +74,14 @@ class Main(BaseResourceBatch):
             child = self.sourceDirNode.child(k)
             with child.open('wb') as f:
                 f.write(urllib.urlopen(source_url).read())
+        for relpath,source in self.examplesDict.items():
+            if not source:
+                continue
+            with self.examplesDirNode.child(relpath).open('wb') as f:
+                f.write(source)
 
     def step_buildHtmlDocs(self):
         "Build HTML docs"
-
         self.resultNode = self.sphinxNode.child('build')
         build_args = dict(project=self.handbook_record['title'],
                           version=self.handbook_record['version'],
@@ -74,33 +92,36 @@ class Main(BaseResourceBatch):
         for k,v in build_args.items():
             if v:
                 args.extend(['-D', '%s=%s' % (k,v)])
+        customStyles = self.handbook_record['custom_styles'] or ''
+        customStyles = '%s\n%s' %(customStyles,self.defaultCssCustomization())
+        with self.sourceDirNode.child(self.customCssPath).open('wb') as cssfile:
+            cssfile.write(customStyles)
+        with self.sourceDirNode.child(self.customJSPath).open('wb') as jsfile:
+            jsfile.write(self.defaultJSCustomization())
         self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
 
 
     def post_process(self):
-        if self.batch_parameters['download_zip']:
-            self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
-            self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
-        
-    def result_handler(self):
-        r=dict()
-        if self.batch_parameters['download_zip']:
-            r=dict(url=self.zipNode.url())
-        return 'Html Handbook created', r
+        self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
+        self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
         
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./:-]+)")
         LINKFINDER = re.compile(r"`([^`]*) <([\w./]+)>`_\b")
+        #LINKFINDER = re.compile(r"`([^`]*) <([\w./-]+)(?:/(#[\w-]+))?>`_\b") version with group 3 after /#
         TOCFINDER = re.compile(r"_TOC?(\w*)")
+        EXAMPLE_FINDER = re.compile(r"`([^`]*)<javascript:localIframe\('version:([\w_]+)'\)>`_")
 
         result=[]
         for n in data:
-            
             v = n.value
             record = self.doctable.record(n.label).output('dict')
+            
             name=record['name']
             docbag = Bag(record['docbag'])
+            self.curr_sourcebag = Bag(record['sourcebag'])
             toc_elements=[name]
+            self.hierarchical_name = record['hierarchical_name']
             if n.attr['child_count']>0:
                 result.append('%s/%s.rst' % (name,name))
                 toc_elements=self.prepare(v, pathlist+toc_elements)
@@ -113,15 +134,64 @@ class Main(BaseResourceBatch):
                 result.append(name)
                 self.curr_pathlist=pathlist
                 tocstring=''
-            lbag=docbag[self.handbook_record['language']]
-            rst = IMAGEFINDER.sub(self.fixImages, lbag['rst'])
+            lbag=docbag[self.handbook_record['language']] or Bag()
+            rst = lbag['rst'] or ''
+            df_rst = self.doctable.dfAsRstTable(record['id'])
+            if df_rst:
+                rst = '%s\n\n**Parameters:**\n\n%s' %(rst,df_rst) 
+            atc_rst = self.doctable.atcAsRstTable(record['id'], host=self.page.external_host)
+            if atc_rst:
+                rst = '%s\n\n**Attachments:**\n\n%s' %(rst,atc_rst)
+
+            rst = IMAGEFINDER.sub(self.fixImages,rst)
             rst = LINKFINDER.sub(self.fixLinks, rst)
+            if self.examples_root and self.curr_sourcebag:
+                rst = EXAMPLE_FINDER.sub(self.fixExamples, rst)
+            rst=rst.replace('[tr-off]','').replace('[tr-on]','')
             self.createFile(pathlist=self.curr_pathlist, name=name,
                             title=lbag['title'], 
                             rst=rst,
                             tocstring=tocstring,
                             hname=record['hierarchical_name'])
         return result
+
+    def fixExamples(self, m):
+        example_label = m.group(1)
+        example_name = m.group(2)
+        
+        sourcedata = self.curr_sourcebag[example_name] or Bag()
+     
+        return '.. raw:: html\n\n %s' %self.exampleHTMLChunk(sourcedata,example_label=example_label,example_name=example_name)
+        
+    def exampleHTMLChunk(self,sourcedata,example_label=None,example_name=None):
+        height = sourcedata['iframe_height'] or self.examples_pars['default_height'] or  100
+        width = sourcedata['iframe_width'] or self.examples_pars['default_width']
+        source_theme = self.examples_pars['source_theme']
+        source_region = sourcedata['source_region'] or self.examples_pars['source_region']
+        parsstring = ''
+        if source_region:
+            source_region_inspector = sourcedata['source_inspector']
+            if source_region_inspector and not sourcedata['iframe_height']:
+                height = max(300,height)
+            source_region_inspector = 'f' if not source_region_inspector else 't'
+            parsstring = '?_source_viewer=%s&_source_toolbar=%s' %(source_region,source_region_inspector)
+            if source_theme:
+                parsstring = '%s&cm_theme=%s' %(parsstring,source_theme)
+
+        iframekw = dict(height=height,width=width or '100%',examples_root = self.examples_root,
+                        examples_root_local = self.examples_root_local,
+                        example_folder = self.hierarchical_name,parsstring=parsstring,
+                        example_label=example_label or example_name,example_name=example_name)
+        self.examplesDict['%(example_folder)s/%(example_name)s.py' %iframekw] = sourcedata['source']
+
+        return """<div class="gnrexamplebox">
+            <a class="gnrexamplebox_title" onclick='gnrExampleIframe(this.nextElementSibling,%s );'>
+                %s
+            </a>
+            <div></div>
+        </div> 
+        """  %(dumps(iframekw),iframekw['example_label'])
+
 
     def fixImages(self, m):
         old_filepath = m.group(1)
@@ -172,13 +242,55 @@ class Main(BaseResourceBatch):
              
     def createFile(self, pathlist=None, name=None, title=None, rst=None, hname=None, tocstring=None, footer=''):
         reference_label='.. _%s:\n' % hname if hname else ''
+        title = title or name
         content = '\n'.join([reference_label, title, '='*len(title), tocstring, '\n\n', rst, footer])
         storageNode = self.page.site.storageNode('/'.join([self.sourceDirNode.internal_path]+pathlist))
         with storageNode.child('%s.rst' % name).open('wb') as f:
             f.write(content)
 
 
-    def table_script_parameters_pane(self,pane,**kwargs):   
-        fb = pane.formbuilder(cols=1, border_spacing='5px')
-        fb.checkbox(lbl='Download Zip', value='^.download_zip')
+    #def table_script_parameters_pane(self,pane,**kwargs):   
+    #    fb = pane.formbuilder(cols=1, border_spacing='5px')
+    #    fb.checkbox(lbl='Download Zip', value='^.download_zip')
 
+
+
+    def defaultCssCustomization(self):
+        return """/* override table width restrictions */
+@media screen and (min-width: 767px) {
+
+   .wy-table-responsive table td {
+      /* !important prevents the common CSS stylesheets from overriding
+         this as on RTD they are loaded after this stylesheet */
+      white-space: normal !important;
+   }
+
+   .wy-table-responsive {
+      overflow: visible !important;
+   }
+}
+
+.gnrexamplebox{
+
+}
+.gnrexamplebox_title{
+    color:#2980B9;
+    cursor:pointer;
+}
+.gnrexamplebox_iframecont{
+    border:1px solid silver;
+    margin:5px;
+}
+"""
+
+    def defaultJSCustomization(self):
+        return """
+        var gnrExampleIframe = function(box,kw){
+            var src_root = window.location.port?window.location.origin+'/webpages/docu_examples':kw.examples_root;
+            var src = [src_root,kw.example_folder,kw.example_name].join('/');
+            src+=kw.parsstring;
+            var height = kw.height || '200px';
+            var width = kw.width || '100%'
+            box.innerHTML = '<div class="gnrexamplebox_iframecont"><iframe style="padding-bottom:3px; padding-right:3px; resize:vertical;" src="'+src+'" frameborder="0" height="'+height+'" width="'+width+'"></iframe></div>';
+        }
+    """

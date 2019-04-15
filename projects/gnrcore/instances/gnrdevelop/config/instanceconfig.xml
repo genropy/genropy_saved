@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <GenRoBag>
-	<db filename="data/develop" implementation="sqlite"/>
+	<db filename="../data/gnrvelop" implementation="sqlite"/>
 
 	<packages>
 		<gnrcore_sys pkgcode="gnrcore:sys"/>

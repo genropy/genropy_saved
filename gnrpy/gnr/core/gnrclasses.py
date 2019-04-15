@@ -29,6 +29,8 @@ from gnr.core.gnrlang import gnrImport
 from decimal import Decimal
 from dateutil.parser import parse as dateutil_parse
 from dateutil.tz import tzlocal
+from gnr.core.gnrlang import GnrException
+
 ISO_MATCH = re.compile(r'\d{4}\W\d{1,2}\W\d{1,2}')
 
 class GnrMixinError(Exception):
@@ -38,7 +40,10 @@ class GnrMixinError(Exception):
 class GnrMixinNotFound(Exception):
     pass
 
-    
+class GnrCastingError(GnrException):
+    pass
+
+
 class GnrClassCatalog(object):
     """TODO"""
     __standard = None
@@ -202,12 +207,20 @@ class GnrClassCatalog(object):
             return txt
         if not txt:
             return self.getEmpty(clsname)
+        
+        if not isinstance(txt,basestring):
+            if self.getType(txt)==clsname:
+                return txt
+            else:
+                raise GnrCastingError()
+            
         if clsname == 'JS':
             try:
                 return self.fromJson(txt)
             except Exception, e:
                 print 'error decoding json ',e
                 return txt
+        
         f = self.parsers.get(clsname, None)
         if f:
             return f(txt, **kwargs)

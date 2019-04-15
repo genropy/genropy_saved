@@ -886,6 +886,7 @@ dojo.declare("gnr.GnrBag", null, {
         var currnode = null;
         var currvalue = null;
         var getter;
+        var m;
         if (!label) {
             currnode = this._parentnode;
             currvalue = this;
@@ -894,7 +895,7 @@ dojo.declare("gnr.GnrBag", null, {
             currnode = this._parent.getNode();
         }
         else {
-            var m = label.match(/(.*?)([?|~])([^?|^=]*)(\??)(.*)/);
+            m = label.match(/(.*?)([?|~])([^?|^=]*)(\??)(.*)/);
 
             if(m){
                 label = m[1];

@@ -1,4 +1,4 @@
-#-*- coding: UTF-8 -*-
+#-*- coding: utf-8 -*-
 #--------------------------------------------------------------------------
 # package           : GenroPy web - see LICENSE for details
 # module gnrwebcore : core module for genropy web framework
@@ -47,7 +47,7 @@ from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
 from gnr.web.gnrwebstruct import GnrGridStruct
-from gnr.core.gnrlang import getUuid,gnrImport, GnrException, GnrSilentException,tracebackBag
+from gnr.core.gnrlang import getUuid,gnrImport, GnrException, GnrSilentException, MandatoryException,tracebackBag
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrdecorator import public_method,deprecated
 from gnr.core.gnrclasses import GnrMixinNotFound
@@ -1357,6 +1357,11 @@ class GnrWebPage(GnrBaseWebPage):
     def userTags(self):
         """TODO"""
         return self.avatar.user_tags if self.avatar else ''
+    
+    @property
+    def userMenu(self):
+        if self.avatar.menubag:
+            return self.avatar.menubag['root']
         
     def _get_user(self):
         if not getattr(self,'_user',None):
@@ -1710,13 +1715,13 @@ class GnrWebPage(GnrBaseWebPage):
         :param pkg: the :ref:`package <packages>` object"""
         self.site.setPreference(path, data, pkg=pkg)
         
-    def getPreference(self, path, pkg=None, dflt=None):
+    def getPreference(self, path, pkg=None, dflt=None, mandatoryMsg=None):
         """TODO
         
         :param path: TODO
         :param pkg: the :ref:`package <packages>` object
         :param dflt: TODO"""
-        return self.site.getPreference(path, pkg=pkg, dflt=dflt)
+        return self.site.getPreference(path, pkg=pkg, dflt=dflt, mandatoryMsg=mandatoryMsg)
        
     @public_method 
     def getUserPreference(self, path='*', pkg=None, dflt=None, username=None,**kwargs):
@@ -1870,10 +1875,10 @@ class GnrWebPage(GnrBaseWebPage):
         data = Bag(dict(root_page_id=self.root_page_id,parent_page_id=self.parent_page_id,rootenv=rootenv,prefenv=prefenv))
         self.pageStore().update(data)
         self._db = None #resetting db property after setting dbenv
-        page.data('gnr.mapkey',self.application.config['google?mapkey'])
         if hasattr(self, 'main_root'):
             self.main_root(page, **kwargs)
             return (page, pageattr)
+        page.data('gnr.mapkey',self.application.config['google?mapkey'])
         page.data('gnr.windowTitle', self.windowTitle())
         page.dataController("""genro.src.updatePageSource('_pageRoot')""",
                         subscribe_gnrIde_rebuildPage=True,_delay=100)

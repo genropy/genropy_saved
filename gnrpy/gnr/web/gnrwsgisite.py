@@ -252,6 +252,7 @@ class GnrWsgiSite(object):
         if self.site_static_dir and not os.path.isabs(self.site_static_dir):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
         self.find_gnrjs_and_dojo()
+        self._remote_edit = options.remote_edit if options else None
         self.gnrapp = self.build_gnrapp(options=options)
         self.server_locale = self.gnrapp.locale
         self.wsgiapp = self.build_wsgiapp(options=options)
@@ -261,7 +262,6 @@ class GnrWsgiSite(object):
         self.page_factory_lock = RLock()
         self.webtools = self.resource_loader.find_webtools()
         self.register
-        self._remote_edit = options.remote_edit if options else None
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
         if counter == 0 and options and options.source_instance:
@@ -681,8 +681,8 @@ class GnrWsgiSite(object):
         # No path -> indexpage is served
         if path_info == '/' or path_info == '':
             path_info = self.indexpage
-        if path_info.endswith('.py'):
-            path_info = path_info[:-3]
+        #if path_info.endswith('.py'):
+        #    path_info = path_info[:-3]
         path_list = path_info.strip('/').split('/')
         path_list = [p for p in path_list if p]
         # if url starts with _ go to static file handling
@@ -771,11 +771,6 @@ class GnrWsgiSite(object):
                     comment='SCRIPT_NAME=%r; PATH_INFO=%r;'
                     % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO')))
                 return exc(environ, start_response)
-
-
-
-
-
 
     def maintenanceDispatcher(self,environ, start_response):
         request = self.currentRequest
@@ -1218,7 +1213,7 @@ class GnrWsgiSite(object):
             pkg = pkg or self.currentPage.packageId
             self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
 
-    def getPreference(self, path, pkg=None, dflt=None):
+    def getPreference(self, path, pkg=None, dflt=None, mandatoryMsg=None):
         """TODO
 
         :param path: TODO
@@ -1226,7 +1221,7 @@ class GnrWsgiSite(object):
         :param dflt: TODO"""
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
-            return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
+            return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt, mandatoryMsg=mandatoryMsg)
 
     def getUserPreference(self, path, pkg=None, dflt=None, username=None):
         """TODO
@@ -1351,15 +1346,6 @@ class GnrWsgiSite(object):
         self._currentRequests[thread.get_ident()] = request
 
     currentRequest = property(_get_currentRequest, _set_currentRequest)
-
-    @property
-    def heartbeat_options(self):
-        heartbeat = boolean(self.config['wsgi?heartbeat'])
-        if heartbeat:
-            site_url = self.config['wsgi?heartbeat_host'] or self.config['wsgi?external_host'] or (self.currentRequest and self.currentRequest.host_url)
-            if site_url:
-                return dict(interval=60,site_url=site_url)
-
 
     def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None, **kwargs):
         """Call a script from a table's resources (e.g: ``_resources/tables/<table>/<respath>``).
@@ -1563,14 +1549,3 @@ class GnrWsgiSite(object):
         if _link:
             return '<a href="%s" target="_blank">%s</a>' %(path,_link if _link is not True else '')
         return path
-
-class GnrDaemonSite(GnrWsgiSite):
-
-
-    def build_wsgiapp(self, options=None):
-        def callme(*args,**kwargs):
-            pass
-        return callme
-    
-    def getService(self, service_type=None,service_name=None, **kwargs):
-        return self.services_handler.getService(service_type=service_type,service_name=service_name or service_type, **kwargs)

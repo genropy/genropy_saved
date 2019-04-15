@@ -104,7 +104,8 @@ class GnrSqlDb(GnrObject):
     
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
-                 main_schema=None, debugger=None, application=None, read_only=None,**kwargs):
+                 main_schema=None, debugger=None, application=None,
+                 read_only=None,islegacy=None,**kwargs):
         """
         This is the constructor method of the GnrSqlDb class.
         
@@ -118,7 +119,6 @@ class GnrSqlDb(GnrObject):
         :param debugger: TODO
         :param application: TODO
         """
-        
         self.implementation = implementation
         self.dbname = self.dbpar(dbname)
         self.host = self.dbpar(host)
@@ -135,6 +135,7 @@ class GnrSqlDb(GnrObject):
         if main_schema is None:
             main_schema = self.adapter.defaultMainSchema()
         self.main_schema = main_schema
+        self.islegacy = boolean(islegacy)
         self._connections = {}
         self.started = False
         self._currentEnv = {}
