@@ -700,15 +700,16 @@ class GnrWsgiSite(object):
 
         :param params: TODO"""
         out_dict = dict()
-        for name,value in request.values.lists():
-            try:
-                name = str(name)
-                if len(value)==1:
-                    out_dict[name]=value[0]
-                else:
-                    out_dict[name] = value
-            except UnicodeDecodeError:
-                pass
+        for source in (request.values, request.files):
+            for name,value in source.lists():
+                try:
+                    name = str(name)
+                    if len(value)==1:
+                        out_dict[name]=value[0]
+                    else:
+                        out_dict[name] = value
+                except UnicodeDecodeError:
+                    pass
         return out_dict
 
     @property
@@ -1479,7 +1480,7 @@ class GnrWsgiSite(object):
 
     def uploadFile(self,file_handle=None,dataUrl=None,filename=None,uploadPath=None):
         if file_handle is not None:
-            f = file_handle.file
+            f = file_handle.stream
             content = f.read()
             original_filename = os.path.basename(file_handle.filename)
             original_ext = os.path.splitext(original_filename)[1]
