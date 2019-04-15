@@ -804,7 +804,7 @@ class DbTableObj(DbModelObj):
         
     def _get_sqlfullname(self):
         """property. Returns the table's sqlfullname"""
-        if self.islegacy:
+        if self.db.islegacy:
             return self.adapted_sqlname
         return '%s.%s' % (self.sqlschema, self.adapted_sqlname)
         
