@@ -616,6 +616,8 @@ class DbModelObj(GnrStructObj):
     adapter = property(_get_adapter)
         
     def _get_sqlname(self):
+        if self.db.islegacy:
+            return self.attributes.get('legacy_name') or self.attributes.get('sqlname', self.name)
         return self.attributes.get('sqlname', self.name)
     sqlname = property(_get_sqlname)
 
@@ -787,6 +789,8 @@ class DbTableObj(DbModelObj):
         
     def _get_sqlname(self):
         """property. Returns the table's sqlname"""
+        if self.db.islegacy:
+            return self.attributes.get('legacy_name')
         sqlname = self.attributes.get('sqlname')
         if not sqlname:
             sqlname = self.pkg.tableSqlName(self)
