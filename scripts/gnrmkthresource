@@ -13,6 +13,7 @@ from gnr.app.gnrapp import GnrApp
 from optparse import OptionParser
 from gnr.core.gnrlang import uniquify
 from collections import defaultdict
+from gnr.app.gnrconfig import MenuStruct
 
 class ThResourceMaker(object):
     def __init__(self, options, args):
@@ -71,8 +72,11 @@ class ThResourceMaker(object):
         if self.option_menu:
             for pkg in self.pkg_tables.keys():
                 packageFolder = self.app.packages(pkg).packageFolder
-                self.packageMenues[pkg].toXml(os.path.join(packageFolder,'menu.xml'))
-        
+                xmlmenupath = os.path.join(packageFolder,'menu.xml')
+                self.packageMenues[pkg].toXml(xmlmenupath)
+                ms = MenuStruct(xmlmenupath)
+                ms.toPython(os.path.join(packageFolder,'menu.py'))
+                os.remove(xmlmenupath)
         
     def write(self, out_file, line=None, indent=0):
         line = line or ''
