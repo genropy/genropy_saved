@@ -416,18 +416,17 @@ class TableHandlerHierarchicalView(BaseComponent):
         if relation_table:
             mainjoiner = maintableobj.model.getJoiner(relation_table)
             relatedjoiner = self.db.table(dragTable).model.getJoiner(relation_table)
-
-            relation_name = relatedjoiner['relation_name']
-            
-            rel_fkey_name = mainjoiner['many_relation'].split('.')[-1]
-            condlist.append("""
-            ( ( @%s.%s =:fkey ) OR 
-                  ( :showInherited IS TRUE AND
-                        ( @%s.@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix) )
-                  )
-            )
-            """ %(relation_name,rel_fkey_name,relation_name,rel_fkey_name))
-            hiddencolumns.append('@%s.@%s.hierarchical_pkey AS many_hpkey' %(relation_name,rel_fkey_name))
+            if relatedjoiner:
+                relation_name = relatedjoiner['relation_name']
+                rel_fkey_name = mainjoiner['many_relation'].split('.')[-1]
+                condlist.append("""
+                ( ( @%s.%s =:fkey ) OR 
+                    ( :showInherited IS TRUE AND
+                            ( @%s.@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix) )
+                    )
+                )
+                """ %(relation_name,rel_fkey_name,relation_name,rel_fkey_name))
+                hiddencolumns.append('@%s.@%s.hierarchical_pkey AS many_hpkey' %(relation_name,rel_fkey_name))
         vstoreattr['condition'] = ' OR '.join(condlist)
         vstoreattr['fullReloadOnChange'] = True
         vstoreattr.update(condpars)
