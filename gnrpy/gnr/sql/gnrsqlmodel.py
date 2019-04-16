@@ -258,6 +258,8 @@ class DbModel(object):
         Save the sql statements that makes the database compatible with the model.
         
         :param applyChanges: boolean. If ``True``, apply the changes. Default value is ``False``"""
+        if self.db.islegacy:
+            return False
         checker = SqlModelChecker(self.db)
         self.modelChanges = checker.checkDb()
         self.modelBagChanges = checker.bagChanges
