@@ -809,10 +809,19 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var connectFilteringGrid=function(){
                 var filteringGrid = widget.sourceNode.currentFromDatasource(widget.sourceNode.attr.filteringGrid);
                 filteringGrid = filteringGrid.widget;
-                dojo.connect(filteringGrid,'newDataStore',function(){
-                    widget.filterToRebuild(true);
-                    widget.updateRowCount('*');
-                });
+                if (filteringGrid.gridEditor){
+                    dojo.connect(filteringGrid,'setStorepath',function(p,kw){
+                        if(kw.node.label==filteredColumn || kw.evt=='ins' || kw.evt=='del'){
+                            widget.filterToRebuild(true);
+                            widget.updateRowCount('*');
+                        }
+                    });
+                }else {
+                    dojo.connect(filteringGrid,'newDataStore',function(){
+                        widget.filterToRebuild(true);
+                        widget.updateRowCount('*');
+                    });
+                }
                 widget.excludeListCb=function(){
                     //widget.sourceNode.currentFromDatasource(widget.sourceNode.attr.filteringGrid);
                     return filteringGrid.getColumnValues(filteredColumn);
