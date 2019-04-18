@@ -616,7 +616,6 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 //for avoiding useless rpc. Uncommented on 5/11/2016. (for remoteSelect tab after select in options)
                 return;
             }
-
             var selectedAttrs = objectExtract(parentSourceNode.attr,'selected_*',true)
             if(!(('rowcaption' in parentSourceNode.attr) || parentSourceNode.attr._hdbselect || parentSourceNode.attr.condition || objectNotEmpty(selectedAttrs))){
                 var recordNodePath = parentSourceNode.attr.value;
@@ -639,12 +638,12 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 }
             }
             var finalize = dojo.hitch(this, function(r) {
-                var result;
                 var scope = request.scope ? request.scope : dojo.global;
                 if(r.attr.errors){
                     this._parentSourceNode.setValidationError({error:r.attr.errors});
+                    this._parentSourceNode.widget._lastQueryError = r.attr.errors;
                 }
-                result = r.getValue();
+                var result = r.getValue();
                 if (result instanceof gnr.GnrBag) {
                     result = result.getNode('#0');
                 } else {
@@ -659,10 +658,9 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 //}
             });
             var result = this.rootDataNode().getValue('', {_id:id});
-
-           if (result instanceof dojo.Deferred) {
+            if (result instanceof dojo.Deferred) {
                 result.addCallback(finalize);
-           }else{
+            }else{
                 return finalize(result);
             }
         }
