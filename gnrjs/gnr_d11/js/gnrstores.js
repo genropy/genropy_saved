@@ -617,7 +617,6 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 //for avoiding useless rpc. Uncommented on 5/11/2016. (for remoteSelect tab after select in options)
                 return;
             }
-            console.log('parentSourceNode.widget._lastQueryError',parentSourceNode.widget._lastQueryError);
             delete parentSourceNode.widget._lastQueryError;
             var selectedAttrs = objectExtract(parentSourceNode.attr,'selected_*',true)
             if(!(('rowcaption' in parentSourceNode.attr) || parentSourceNode.attr._hdbselect || parentSourceNode.attr.condition || objectNotEmpty(selectedAttrs))){
