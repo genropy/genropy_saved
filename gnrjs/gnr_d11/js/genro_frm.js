@@ -1838,6 +1838,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(!this.isNodeInFormData(changedNode)){
             return;
         }
+        if(changedNode && !changedNode.attr._loadedValue){
+            return;
+        }
         if(isValid){
             dojoValid.popNode(node_identifier);
         }else{
@@ -2061,14 +2064,9 @@ dojo.declare("gnr.GnrValidator", null, {
             return result;
         }
         if(sourceNode.widget._lastQueryError){
-            result = {'errorcode':'query_error','message':sourceNode.widget._lastQueryError};
-            delete sourceNode.widget._lastQueryError;
-            if(value){
-                return result;
-            }else{
-                result = null;
-            }
+            return {'errorcode':'query_error','message':sourceNode.widget._lastQueryError};
         }
+        delete sourceNode.widget._lastQueryError;
         var validate_notnull = sourceNode.getAttributeFromDatasource('validate_notnull');//.attr.validate_notnull;
         if ((value == undefined) || (value == '') || (value == null)) {
             if (sourceNode.widget._lastDisplayedValue != "") {
