@@ -617,7 +617,9 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 //for avoiding useless rpc. Uncommented on 5/11/2016. (for remoteSelect tab after select in options)
                 return;
             }
-            delete parentSourceNode.widget._lastQueryError;
+            if(parentSourceNode && parentSourceNode.widget){
+                delete parentSourceNode.widget._lastQueryError;
+            }
             var selectedAttrs = objectExtract(parentSourceNode.attr,'selected_*',true)
             if(!(('rowcaption' in parentSourceNode.attr) || parentSourceNode.attr._hdbselect || parentSourceNode.attr.condition || objectNotEmpty(selectedAttrs))){
                 var recordNodePath = parentSourceNode.attr.value;
@@ -726,7 +728,7 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 //console.log('dbselect execution',(new Date()-s_time))
                 findCallback(result, request);
             });
-            if(this._parentSourceNode && this._parentSourceNode){
+            if(this._parentSourceNode && this._parentSourceNode.widget){
                 delete this._parentSourceNode.widget._lastQueryError;
             }
             if(this._parentSourceNode && this._parentSourceNode.widget &&!this._parentSourceNode.widget._focused){
