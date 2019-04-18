@@ -146,8 +146,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
     floatingMessage:function(sourceNode,kw){
         kw = objectUpdate({},kw)
-        var yRatio = objectPop(kw,'yRatio')
-        var xRatio = objectPop(kw,'xRatio')
+        var yRatio = objectPop(kw,'yRatio');
+        var xRatio = objectPop(kw,'xRatio');
         var duration = objectPop(kw,'duration') || 2;
         var duration_in = objectPop(kw,'duration_in') || duration;
         var duration_out = objectPop(kw,'duration_out') || duration;
