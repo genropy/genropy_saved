@@ -2060,7 +2060,15 @@ dojo.declare("gnr.GnrValidator", null, {
             sourceNode.widget._lastValueReported = null;
             return result;
         }
-
+        if(sourceNode.widget._lastQueryError){
+            result = {'errorcode':'query_error','message':sourceNode.widget._lastQueryError};
+            delete sourceNode.widget._lastQueryError;
+            if(value){
+                return result;
+            }else{
+                result = null;
+            }
+        }
         var validate_notnull = sourceNode.getAttributeFromDatasource('validate_notnull');//.attr.validate_notnull;
         if ((value == undefined) || (value == '') || (value == null)) {
             if (sourceNode.widget._lastDisplayedValue != "") {
