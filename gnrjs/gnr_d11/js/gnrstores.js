@@ -590,6 +590,7 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
 
     fetchItemByIdentity: function(/* object */ request) {
         genro.debug('fetchItemByIdentity: identity=' + request.identity);
+
         if (!request.identity) {
             genro.debug('fetchItemByIdentity: return null');
             var result = new gnr.GnrBagNode();
@@ -616,6 +617,8 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 //for avoiding useless rpc. Uncommented on 5/11/2016. (for remoteSelect tab after select in options)
                 return;
             }
+            console.log('parentSourceNode.widget._lastQueryError',parentSourceNode.widget._lastQueryError);
+            delete parentSourceNode.widget._lastQueryError;
             var selectedAttrs = objectExtract(parentSourceNode.attr,'selected_*',true)
             if(!(('rowcaption' in parentSourceNode.attr) || parentSourceNode.attr._hdbselect || parentSourceNode.attr.condition || objectNotEmpty(selectedAttrs))){
                 var recordNodePath = parentSourceNode.attr.value;
@@ -640,8 +643,9 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
             var finalize = dojo.hitch(this, function(r) {
                 var scope = request.scope ? request.scope : dojo.global;
                 if(r.attr.errors){
-                    this._parentSourceNode.setValidationError({error:r.attr.errors});
                     this._parentSourceNode.widget._lastQueryError = r.attr.errors;
+                    
+                    this._parentSourceNode.setValidationError({error:r.attr.errors});
                 }
                 var result = r.getValue();
                 if (result instanceof gnr.GnrBag) {
@@ -723,6 +727,9 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 //console.log('dbselect execution',(new Date()-s_time))
                 findCallback(result, request);
             });
+            if(this._parentSourceNode && this._parentSourceNode){
+                delete this._parentSourceNode.widget._lastQueryError;
+            }
             if(this._parentSourceNode && this._parentSourceNode.widget &&!this._parentSourceNode.widget._focused){
                 kwargs.rpc_sync = true;
             }
