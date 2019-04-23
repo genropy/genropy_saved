@@ -811,7 +811,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 filteringGrid = filteringGrid.widget;
                 if (filteringGrid.gridEditor){
                     dojo.connect(filteringGrid,'setStorepath',function(p,kw){
-                        if(kw.node.label==filteredColumn || kw.evt=='ins' || kw.evt=='del'){
+                        if(kw.node.label==filteredColumn || kw.evt=='ins' || kw.evt=='del' || kw.reason=='loadData'){
                             widget.filterToRebuild(true);
                             widget.updateRowCount('*');
                         }
