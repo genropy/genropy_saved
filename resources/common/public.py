@@ -630,6 +630,10 @@ class TableHandlerMain(BaseComponent):
         return form
 
     def _th_parentFrameMessageSubscription(self,form):
+        fid = form.attributes['formId']
+        form.dataController("""var topic = 'iframeform_'+iframeFormId+'_ready';
+                                genro.dom.windowMessage('parent',{'topic':topic,'iframeFormId':iframeFormId});""",iframeFormId=fid,
+                                _onStart=1)
         form.dataController("""if(_subscription_kwargs.pkey){
                                     if(pkey=='*newrecord*'){
                                         this.form.newrecord(objectExtract(_subscription_kwargs,'default_*'))
