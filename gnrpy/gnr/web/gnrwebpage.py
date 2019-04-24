@@ -1402,7 +1402,11 @@ class GnrWebPage(GnrBaseWebPage):
 
     def _get_siteName(self):
         if not getattr(self,'_siteName',None):
-            self._siteName = os.path.basename(self.siteFolder.rstrip('/'))
+            if os.path.exists(os.path.join(self.siteFolder,'siteconfig.xml')):
+                #legacymode
+                self._siteName = os.path.basename(self.siteFolder.rstrip('/'))
+            else:
+                self._siteName = os.path.basename(os.path.dirname(self.siteFolder))
         return self._siteName
 
     def _set_siteName(self,siteName):
