@@ -423,7 +423,8 @@ class TableHandlerMain(BaseComponent):
             th.view.dataController("""FIRE .runQueryDo;""",subscribe_public_changed_partition=True,
                     storeServerTime='=.store?servertime',_if='storeServerTime')
             #partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
-            realColumn = self.tblobj.column(self.public_partitioned['field']).sqlclass=='column'
+            colobj = self.tblobj.column(self.public_partitioned['field'])
+            realColumn = colobj and colobj.sqlclass=='column'
             if th['view.top.bar.addrow'] and realColumn:
                 th.view.top.bar.addrow.getNode('addButton').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
             if th['form.top.bar.form_add'] and realColumn:
