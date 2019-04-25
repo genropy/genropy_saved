@@ -476,7 +476,10 @@ class TableHandler(BaseComponent):
         if pkey:
             root.dataController('SET .pkey = pkey; FIRE .controller.loaded=pkey;',pkey=pkey,_onStart=True)
             root.dataRecord('.record',table,pkey='^#FORM.pkey',_if='pkey')
-        getattr(self,'iframe_%s' %methodname)(root,**kwargs)
+        handler = self.getPublicMethod('rpc',methodname)
+        if handler:
+            return handler(root,**kwargs)
+        return getattr(self,'iframe_%s' %methodname)(root,**kwargs)
 
     #USER SETTINGS 
     def th_mainUserSettings(self,kwargs=None):
