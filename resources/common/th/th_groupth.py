@@ -28,13 +28,14 @@ from gnr.core.gnrbag import Bag
 class TableHandlerGroupBy(BaseComponent):
     js_requires = 'gnrdatasets,th/th_groupth'
 
-    @extract_kwargs(condition=True,store=True)
+    @extract_kwargs(condition=True,store=True,grid=True)
     @struct_method
     def th_groupByTableHandler(self,pane,frameCode=None,title=None,table=None,linkedTo=None,
                                 struct=None,where=None,viewResource=None,
                                 condition=None,condition_kwargs=None,store_kwargs=None,datapath=None,
                                 treeRoot=None,configurable=True,
-                                dashboardIdentifier=None,static=False,**kwargs):
+                                dashboardIdentifier=None,static=False,
+                                grid_kwargs=True,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = table or inattr.get('table')
         tblobj = self.db.table(table)
@@ -78,7 +79,8 @@ class TableHandlerGroupBy(BaseComponent):
                                     genro.groupth.addColumnCb(this,{data:data, column:column,fieldcellattr:fieldcellattr,treeNode:treeNode});
                                     """,
                                     datamode='attr',
-                                struct=struct or self._thg_defaultstruct,_newGrid=True,pageName='flatview',title='!!Flat')
+                                struct=struct or self._thg_defaultstruct,_newGrid=True,pageName='flatview',title='!!Flat',
+                                grid_kwargs=grid_kwargs)
         
         frame.dataFormula('.changets.flatview','new Date();',store='^.store',struct='^.grid.struct',
                             _delay=1)

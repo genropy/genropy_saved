@@ -487,6 +487,10 @@ class TableHandlerHierarchicalView(BaseComponent):
         treeattr['dropTargetCb_%s' %dragCode]="""if(!data){
                                                     return true;
                                                 }
+                                                var droppedOnVirtualNode = dropInfo.treeItem.attr._record && dropInfo.treeItem.attr._record._virtual_node;
+                                                if(droppedOnVirtualNode){
+                                                    return true;
+                                                }
                                                 if(data['inherited_pkeys']!=null || data.alias_pkeys!=null){
                                                     return data.inherited_pkeys.length==0 && data.alias_pkeys.length==0;
                                                 }
@@ -497,7 +501,8 @@ class TableHandlerHierarchicalView(BaseComponent):
                                                 var relationRecord = dropInfo.treeItem.attr._record || null;
                                                 var modifiers = dropInfo.modifiers;
                                                 var alias_on_field = this.getRelativeData('#FORM.controller.table?alias_on_field');
-                                                var asAlias = (relationRecord && alias_on_field)?relationRecord[alias_on_field]:modifiers=="Shift"
+                                                var droppedOnVirtualNode = dropInfo.treeItem.attr._record && dropInfo.treeItem.attr._record._virtual_node;
+                                                var asAlias = (relationRecord && alias_on_field)?relationRecord[alias_on_field]:(modifiers=="Shift" || droppedOnVirtualNode)
                                                 if(%s){
                                                     genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
                                                                                         relationValue:relationValue,modifiers:dropInfo.modifiers,

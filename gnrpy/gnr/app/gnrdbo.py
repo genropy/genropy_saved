@@ -234,7 +234,8 @@ class TableBase(object):
     @extract_kwargs(counter=True)
     def sysFields(self, tbl, id=True, ins=True, upd=True, full_upd=False, ldel=True, user_ins=None, user_upd=None, 
                   draftField=False, invalidFields=None,invalidRelations=None,md5=False,
-                  counter=None,hierarchical=None,hierarchical_root_id=False,useProtectionTag=None,
+                  counter=None,hierarchical=None,hierarchical_virtual_roots=False,
+                    hierarchical_root_id=False,useProtectionTag=None,
                   group='zzz', group_name='!!System',
                   df=None,counter_kwargs=None,**kwargs):
         """Add some useful columns for tables management (first of all, the ``id`` column)
@@ -303,6 +304,8 @@ class TableBase(object):
                 tbl.column('root_id',sql_value="substring(:hierarchical_pkey from 1 for 22)",
                             group='*',size='22').relation('%s.id' %tblname,relation_name='_grandchildren',mode='foreignkey',one_name='!!Root',many_name='!!Grandchildren',
                                                 onDelete='ignore')
+            if hierarchical_virtual_roots:
+                tbl.column('_virtual_node',dtype='B',name_lomg="!!H.Virtual node",copyFromParent=True)
 
             hfields = []
             for fld in hierarchical.split(','):
