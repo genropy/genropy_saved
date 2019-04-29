@@ -112,8 +112,6 @@ class Main(BaseResourceBatch):
         TOCFINDER = re.compile(r"_TOC?(\w*)")
         EXAMPLE_FINDER = re.compile(r"`([^`]*)<javascript:localIframe\('version:([\w_]+)'\)>`_")
         result=[]
-        if not data:
-            return result
         for n in data:
             v = n.value
             record = self.doctable.record(n.label).output('dict')
