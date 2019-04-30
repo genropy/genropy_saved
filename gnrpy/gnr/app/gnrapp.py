@@ -749,7 +749,7 @@ class GnrApp(object):
         
         if not forTesting:
             dbattrs = self.config.getAttr('db') or {}
-            
+            dbattrs['implementation'] = dbattrs.get('implementation') or 'sqlite'
             if self.remote_db:
                 dbattrs.update(self.config.getAttr('remote_db.%s' %self.remote_db))
             if dbattrs and dbattrs.get('implementation') == 'sqlite':
