@@ -355,7 +355,7 @@ dojo.declare("gnr.widgets.ColorFiltering", gnr.widgets.gnrwdg, {
             var cbfilter = function(n){return true;};
             if(_querystring){
                 _querystring = _querystring.slice(0,-1).toLowerCase();
-                cbfilter = function(n){return n.name.toLowerCase().indexOf(_querystring)>=0;};
+                cbfilter = function(n){return n.name && n.name.toLowerCase().indexOf(_querystring)>=0;};
             }else if(_id){
                 cbfilter = function(n){return n._pkey==_id;};
             }
@@ -4584,7 +4584,7 @@ dojo.declare("gnr.widgets.PackageSelect", gnr.widgets.gnrwdg, {
             var cbfilter = function(n){return true};
             if(_querystring){
                 _querystring = _querystring.slice(0,-1).toLowerCase();
-                cbfilter = function(n){return n.name.toLowerCase().indexOf(_querystring)>=0 || n.pkg.indexOf(_querystring)>=0;};
+                cbfilter = function(n){return (n.name && n.name.toLowerCase().indexOf(_querystring)>=0) || n.pkg.indexOf(_querystring)>=0;};
             }else if(_id){
                 cbfilter = function(n){return n._pkey==_id;}
             }
