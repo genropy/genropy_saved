@@ -290,6 +290,7 @@ genro_plugin_groupth = {
             joinConditions:th.querymanager.sourceNode.absDatapath('.query.joinConditions'),
             groupByStruct:'.grid.struct',
             groupMode:'.groupMode',
+            treeRootName:'.treeRootName',
             output:'.output',
             queryPars:'.queryPars',
         };

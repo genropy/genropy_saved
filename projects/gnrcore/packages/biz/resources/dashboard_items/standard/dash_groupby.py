@@ -77,13 +77,16 @@ class Main(BaseDashboardItem):
         defaultOutput= data['output'],frameCode=frameCode,
         defaultGroupMode = data['groupMode'],
         _fired='^%s.runItem' %self.workpath)
-
+        center.data('.conf.treeRootName',data['treeRootName'])
+        center.dataFormula('%s.treeRootName' %self.workpath,'confRootName',confRootName='^.conf.treeRootName',_onBuilt=True)
 
     def configuration(self,pane,table=None,userobject_id=None,**kwargs):
         bc = pane.borderContainer()
         fb = bc.contentPane(region='top').div(padding='10px').formbuilder()
         fb.filteringSelect(value='^.viewMode',lbl='Mode',
                             values='flatview_grid:Flat grid,stackedview_grid:Stacked view,flatview_tree:Tree,stackedview_tree:Stacked tree')
+        fb.textBox(value='^.treeRootName',
+                    hidden='^%s.viewMode?=#v?#v.endsWith("_grid"):false' %self.workpath,lbl='!!Tree root label')
         center = bc.contentPane(region='center')
         if not self.queryPars:
             return

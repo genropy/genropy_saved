@@ -12,6 +12,8 @@ from gnr.core.gnrdict import dictExtract
 class GnrCustomWebPage(object):
     py_requires="""public:Public,th/th:TableHandler,
                     dashboard_component/dashboard_component:DashboardGallery"""
+    public_multidbSelector = True 
+
     def main(self,root,th_public=None,**kwargs):
         callArgs = self.getCallArgs('dash_pkg','dash_code')
         root.attributes['datapath'] = 'main'
