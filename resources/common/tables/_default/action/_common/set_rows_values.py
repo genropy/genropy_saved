@@ -47,9 +47,12 @@ class Main(BaseResourceAction):
             kw = {}
             if attr.get('dtype')=='DH':
                 kw['tag'] = 'dateTextBox'
-            fb.field(k,validate_notnull=False,html_label=True,zoom=False,lbl_fieldname=k,
+            f = fb.field(k,validate_notnull=False,html_label=True,zoom=False,lbl_fieldname=k,
                         validate_onAccept='SET .%s?forced_null=false;' %k,
-                        lbl_color='^.%s?forced_null?=#v?"red":null' %k,**kw)
+                        lbl_color='^.%s?forced_null?=#v?"red":null' %k,
+                        **kw)
+            f.attributes.pop('disabled',None)
+            f.attributes.pop('unmodifiable',None)
         box.div(border_top='1px solid silver',padding='3px',text_align='right').checkbox(value='^.do_triggers',label='Do triggers',_tags='_DEV_')
 
 
