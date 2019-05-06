@@ -9,6 +9,28 @@
 """ public multidb """
 
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrdecorator import oncalled
+from gnr.web.gnrwebstruct import struct_method
+
+
+class Public(BaseComponent):
+    @oncalled
+    def public_applyOnRoot(self,frame,**kwargs):
+        if self.dbstore:
+            return
+        bar = frame.top.bar
+        if getattr(self,'public_multidbSelector',None):
+            frame.attributes['context_dbstore'] = '=current.context_dbstore'
+            bar.replaceSlots('avatar','multidb_selector,10,avatar')
+        
+    @struct_method
+    def public_publicRoot_multidb_selector(self,pane, **kwargs): 
+        pane.parent.parent.parent.center.attributes['context_dbstore'] = '=current.context_dbstore'
+        fb = pane.formbuilder(border_spacing='0',cols=1)
+        storetable = self.db.package('multidb').attributes['storetable']
+        fb.dbSelect(value='^current.context_dbstore',_storename=False,dbtable=storetable,
+                    alternatePkey='dbstore',font_size='.8em',lbl_color='white',
+                    color='#666',lbl_font_size='.8em',lbl=self.db.table(storetable).name_long)
 
 class TableHandlerMain(BaseComponent):
     def onMain_multidb_addOn(self):

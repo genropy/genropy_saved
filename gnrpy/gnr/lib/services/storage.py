@@ -190,7 +190,8 @@ class ServiceType(BaseServiceType):
         return self.implementations.get(implementation)
     
 class StorageNode(object):
-
+    def __str__(self):
+        return 'StorageNode %s <%s>' %(self.service.service_implementation,self.internal_path)
 
     def __init__(self, parent=None, path=None, service=None, autocreate=None,must_exist=False, mode='r'):
         self.service = service

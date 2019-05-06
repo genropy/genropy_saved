@@ -258,6 +258,8 @@ class DbModel(object):
         Save the sql statements that makes the database compatible with the model.
         
         :param applyChanges: boolean. If ``True``, apply the changes. Default value is ``False``"""
+        if self.db.islegacy:
+            return False
         checker = SqlModelChecker(self.db)
         self.modelChanges = checker.checkDb()
         self.modelBagChanges = checker.bagChanges
@@ -804,6 +806,8 @@ class DbTableObj(DbModelObj):
         
     def _get_sqlfullname(self):
         """property. Returns the table's sqlfullname"""
+        if self.db.islegacy:
+            return self.adapted_sqlname
         return '%s.%s' % (self.sqlschema, self.adapted_sqlname)
         
     sqlfullname = property(_get_sqlfullname)

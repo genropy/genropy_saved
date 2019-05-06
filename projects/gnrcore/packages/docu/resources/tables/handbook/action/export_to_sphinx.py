@@ -111,7 +111,6 @@ class Main(BaseResourceBatch):
         #LINKFINDER = re.compile(r"`([^`]*) <([\w./-]+)(?:/(#[\w-]+))?>`_\b") version with group 3 after /#
         TOCFINDER = re.compile(r"_TOC?(\w*)")
         EXAMPLE_FINDER = re.compile(r"`([^`]*)<javascript:localIframe\('version:([\w_]+)'\)>`_")
-
         result=[]
         for n in data:
             v = n.value

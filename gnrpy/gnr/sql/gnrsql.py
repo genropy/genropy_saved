@@ -496,6 +496,14 @@ class GnrSqlDb(GnrObject):
     def notifyDbEvent(self,tblobj,**kwargs):
         pass
 
+
+    def _onDbChange(self,tblobj,evt,record,old_record=None,**kwargs):
+        tblobj.updateTotalizers(record,old_record=old_record,evt=evt,**kwargs)
+        if tblobj.attributes.get('logChanges'):
+            tblobj.onLogChange(evt,record,old_record=old_record)
+            self.table(self.changeLogTable).logChange(tblobj,evt=evt,record=record)
+        
+
     @in_triggerstack
     def insert(self, tblobj, record, **kwargs):
         """Insert a record in a :ref:`table`
@@ -514,27 +522,29 @@ class GnrSqlDb(GnrObject):
             if hasattr(tblobj,'protect_draft'):
                 record[tblobj.draftField] = tblobj.protect_draft(record)
         self.adapter.insert(tblobj, record,**kwargs)
-        tblobj.updateTotalizers(record,old_record=None)
+        self._onDbChange(tblobj,'I',record=record,old_record=None)
         tblobj._doFieldTriggers('onInserted', record)
         tblobj.trigger_onInserted(record)
         tblobj._doExternalPkgTriggers('onInserted', record)
+    
 
-        
     def insertMany(self, tblobj, records, **kwargs):
         self.adapter.insertMany(tblobj, records,**kwargs)
 
     def raw_insert(self, tblobj, record, **kwargs):
         self.adapter.insert(tblobj, record,**kwargs)
-        tblobj.updateTotalizers(record,_raw=True,**kwargs)
+        self._onDbChange(tblobj,'I',record=record,
+                        old_record=None,_raw=True,**kwargs)
 
     def raw_update(self, tblobj, record,old_record=None, **kwargs):
         self.adapter.update(tblobj, record,**kwargs)
-        tblobj.updateTotalizers(record,old_record=old_record,_raw=True,**kwargs)
+        self._onDbChange(tblobj,'U',record=record,
+                        old_record=old_record,_raw=True,**kwargs)
 
     def raw_delete(self, tblobj, record, **kwargs):
         self.adapter.delete(tblobj, record,**kwargs)
-        tblobj.updateTotalizers(record=None,old_record=record,_raw=True,**kwargs)
-
+        self._onDbChange(tblobj,'D',record=record,
+                        old_record=None,_raw=True,**kwargs)
     @in_triggerstack
     def update(self, tblobj, record, old_record=None, pkey=None, **kwargs):
         """Update a :ref:`table`'s record
@@ -553,8 +563,7 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_assignCounters(record=record,old_record=old_record)
         self.adapter.update(tblobj, record, pkey=pkey,**kwargs)
         tblobj.updateRelated(record,old_record=old_record)
-        tblobj.updateTotalizers(record,old_record=old_record)
-
+        self._onDbChange(tblobj,'U',record=record,old_record=old_record,**kwargs)
         tblobj._doFieldTriggers('onUpdated', record, old_record=old_record)
         tblobj.trigger_onUpdated(record, old_record=old_record)
         tblobj._doExternalPkgTriggers('onUpdated', record, old_record=old_record)
@@ -576,7 +585,7 @@ class GnrSqlDb(GnrObject):
         tblobj._doExternalPkgTriggers('onDeleting', record)
         tblobj.deleteRelated(record)
         self.adapter.delete(tblobj, record,**kwargs)
-        tblobj.updateTotalizers(None,old_record=record)
+        self._onDbChange(tblobj,'D',record=record,**kwargs)
         tblobj._doFieldTriggers('onDeleted', record)
         tblobj.trigger_onDeleted(record)
         tblobj._doExternalPkgTriggers('onDeleted', record)

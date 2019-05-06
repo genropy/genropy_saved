@@ -23,7 +23,7 @@ class SftpClient(BaseComponent):
                             datapath='.local'),ftpname=ftpname,destdir=destdir)
 
     def sftp_remoteTree(self,frame,ftpname=None,remotedir=None):
-        resolver = self.getService(ftpname).sftpResolver(remotedir or '/')
+        resolver = self.getService('ftp',ftpname).sftpResolver(remotedir or '/')
         frame.data('.tree',resolver())
         self.sftp_fileTree(frame,nodeId='%s_src' %ftpname,topic='%s_upload' %ftpname)
         frame.dataRpc(None,self.sftp_uploadFiles,ftp=ftpname,
@@ -55,12 +55,12 @@ class SftpClient(BaseComponent):
 
     @public_method
     def sftp_downloadFiles(self,sourcefiles=None,destfolder=None,ftp=None,**kwargs):
-        self.getService(ftp).downloadFilesIntoFolder(sourcefiles=sourcefiles,
+        self.getService('ftp',ftp).downloadFilesIntoFolder(sourcefiles=sourcefiles,
                                                 destfolder=destfolder,**kwargs)
 
     @public_method
     def sftp_uploadFiles(self,sourcefiles=None,destfolder=None,ftp=None,**kwargs):
-        self.getService(ftp).uploadFilesIntoFolder(sourcefiles=sourcefiles,
+        self.getService('ftp',ftp).uploadFilesIntoFolder(sourcefiles=sourcefiles,
                                                 destfolder=destfolder,**kwargs)
 
 

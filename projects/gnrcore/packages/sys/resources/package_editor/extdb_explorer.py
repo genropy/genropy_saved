@@ -80,20 +80,28 @@ class ExtDbExplorer(BaseComponent):
         fb.textbox(value='^.user',lbl='User',width='7em',hidden='^.implementation?=#v=="sqlite"')
         fb.textbox(value='^.password',lbl='Password',width='5em',hidden='^.implementation?=#v=="sqlite"')
         fb.textbox(value='^.filename',lbl='Filename',width='50em',hidden='^.implementation?=#v!="sqlite"')
-        top.connecbutton.slotButton('Connect',fire='.connect')
+        top.connecbutton.slotButton('Connect',
+                                    action="""FIRE .connect= new gnr.GnrBag({"avoidImported":avoidImported,"avoidNoPkey":avoidNoPkey,"avoidEmpty":avoidEmpty});""",
+                                    ask=dict(title='Connect options',
+                                            fields=[dict(name='avoidImported',label='Avoid imported',tag='checkbox'),
+                                                    dict(name='avoidNoPkey',label='Avoid tables without pkey',tag='checkbox'),
+                                                    dict(name='avoidEmpty',label='Avoid empty tables',tag='checkbox')]),
+                                avoidImported=True,avoidNoPkey=False,avoidEmpty=False)
         top.dataRpc('.data',
                     self.extdb_getDbStructure,project='=.project',package='=.package',
                     connection_params='=.connection_params',
                     timeout=5000000,
-                    _fired='^.connect',
+                    connection_options='^.connect',
                     _lockScreen=True)
         center = bc.borderContainer(region='center')
-        left = center.contentPane(region='left',width='300px',padding='10px',overflow='auto',splitter=True)
-        left.tree(storepath='.data', persist=False,
+        left = center.framePane(region='left',width='300px',splitter=True)
+        #bar = left.top.slotToolbar('*,searchOn,2')
+       #bar.fbopt.formbuilder(,border_spacing='0')
+        left.center.contentPane(overflow='auto').tree(storepath='.data', persist=False,#searchOn=True,
+                    margin='10px',
                     inspect='shift', labelAttribute='name',
                     _class='fieldsTree',
                     hideValues=True,
-                    margin='6px',
                     draggable=True,
                     dragClass='draggedItem',
                     onChecked=True,
@@ -220,8 +228,15 @@ class ExtDbExplorer(BaseComponent):
         return externaldb
 
     @public_method
-    def extdb_getDbStructure(self,connection_params=None,project=None,package=None):
+    def extdb_getDbStructure(self,connection_params=None,connection_options=None,project=None,package=None):
         externaldb = self.extdb_getSourceDb(connection_params)
+        avoidImported = connection_options['avoidImported']
+        avoidNoPkey = connection_options['avoidNoPkey']
+        avoidEmpty = connection_options['avoidEmpty']
+        if avoidEmpty:
+            externaldb.model.build()
+        #externaldb.table('targetcross.anl_budget').query().count()
+
         existing_tables = []
         if project and package:
             p = PathResolver()
@@ -240,7 +255,15 @@ class ExtDbExplorer(BaseComponent):
             tables.sort('#k')
             for table,tblattr,tblval in tables.digest('#k,#a,#v'):
                 tblattr = dict(tblattr)
-                tblattr['checked'] = 'disabled:on' if table.lower() in existing_tables else False
+                imported_table = table.lower() in existing_tables
+                if imported_table and avoidImported:
+                    continue
+                if avoidNoPkey and not tblattr.get('pkey'):
+                    continue
+                if avoidEmpty:
+                    if not externaldb.table('%s.%s' %(pkg,table)).query().count():
+                        continue
+                tblattr['checked'] = 'disabled:on' if imported_table else False
                 tblattr['name'] = table
                 tableval = Bag()
                 pkgval.setItem(table,tableval,**tblattr)

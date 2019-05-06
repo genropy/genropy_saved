@@ -259,6 +259,8 @@ class SqlModelChecker(object):
                         new_size = '%s,0' % new_size
                     if new_dtype in ('X', 'Z', 'P') and old_dtype == 'T':
                         pass
+                    elif new_dtype=='serial' and old_dtype=='L':
+                        pass
                     elif new_dtype in ('L','I') and old_dtype in ('L','I') and not self.db.adapter.allowAlterColumn:
                         pass
                     elif new_dtype != old_dtype or new_size != old_size or bool(old_unique)!=bool(new_unique) or bool(old_notnull)!=bool(new_notnull):
@@ -270,6 +272,7 @@ class SqlModelChecker(object):
                         if bool(old_notnull)!=bool(new_notnull):
                             self.changes.append(self._alterNotNull(col,new_notnull, old_notnull))
                         #sql.extend(self.checkColumn(colnode, dbcolumns[self.sqlName(colnode)]))
+                    
                 else:
                     change = self._buildColumn(col)
                     self.changes.append(change)

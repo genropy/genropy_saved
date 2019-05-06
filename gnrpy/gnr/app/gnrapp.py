@@ -750,9 +750,11 @@ class GnrApp(object):
         if not forTesting:
             dbattrs = self.config.getAttr('db') or {}
             dbattrs['implementation'] = dbattrs.get('implementation') or 'sqlite'
-            if self.remote_db:
+            if dbattrs.get('dbname') == '_dummydb':
+                pass
+            elif self.remote_db:
                 dbattrs.update(self.config.getAttr('remote_db.%s' %self.remote_db))
-            if dbattrs and dbattrs.get('implementation') == 'sqlite':
+            elif dbattrs and dbattrs.get('implementation') == 'sqlite':
                 dbname = dbattrs.pop('filename',None) or dbattrs['dbname']
                 if not os.path.isabs(dbname):
                     dbname = self.realPath(os.path.join('..','data',dbname))

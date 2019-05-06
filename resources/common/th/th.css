@@ -233,7 +233,9 @@
 ._hieararchical_inherited .cellContent{
     opacity:.7;
 }
-
+.virtualNode{
+    font-style:italic;
+}
 
 /* @end */
 

@@ -645,7 +645,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
                 }
             }catch(e){
                 console.warn('not loaded frame');
-                return
+                return;
             }
             genro.dom.removeClass(this,'waiting');
             if(this.sourceNode.attr.documentClasses){
