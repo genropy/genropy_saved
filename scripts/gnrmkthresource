@@ -42,7 +42,7 @@ class ThResourceMaker(object):
                 pkg_name = full_pkg_name
             self.pkg_tables[pkg_name].append(table_name)
         config=Bag()
-        config['db']=None
+        config.setItem('db',None,dbname='_dummydb')
         for pkg in self.packages:
             config['packages.%s'%pkg]=None
         self.app=GnrApp(custom_config=config)
