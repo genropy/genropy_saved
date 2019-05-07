@@ -1623,6 +1623,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 selectHandler = self.dbSelect_default
             order_list = []
             preferred = tblobj.attributes.get('preferred') if preferred is None else preferred
+            weakCondition = weakCondition or tblobj.attributes.get('weakCondition')
             if preferred:
                 order_list.append('( %s ) desc' %preferred)
                 resultcolumns.append("""(CASE WHEN %s IS NOT TRUE THEN 'not_preferred_row' ELSE '' END) AS _customclasses_preferred""" %preferred)
@@ -1633,7 +1634,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             order_by = order_by or tblobj.attributes.get('order_by') or showcolumns[0]
             order_list.append(order_by if order_by[0] in ('$','@') else '$%s' %order_by)
             order_by = ', '.join(order_list)
-            cond = '(%s) AND (%s)' %(condition,weakCondition) if isinstance(weakCondition,basestring) else condition
+            cond = '(%s) AND (%s)' %(condition or 'TRUE',weakCondition) if isinstance(weakCondition,basestring) else condition
             selection = selectHandler(tblobj=tblobj, querycolumns=querycolumns, querystring=querystring,
                                       resultcolumns=resultcolumns, condition=cond, exclude=exclude,
                                       limit=limit, order_by=order_by,
