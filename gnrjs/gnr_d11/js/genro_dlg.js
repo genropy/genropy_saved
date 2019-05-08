@@ -942,7 +942,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                     });
                 }
                 if(sizeFromContent && !wdg._size_from_cache){
-                    wdg.setBoxAttributes({height:palette_height,width:palette_width});
+                    wdg.setBoxAttributes({height:palette_height || default_height,width:palette_width || default_width});
                 }
 
             }}).getParentNode();         
