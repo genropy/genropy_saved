@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <GenRoBag>
-
+	<db dbname='_dummydb'/>
 	<packages>
 		<base pkgcode="base"/>
 	</packages>
