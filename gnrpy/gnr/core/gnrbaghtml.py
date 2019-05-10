@@ -368,6 +368,7 @@ class BagToHtml(object):
     def mainLoop(self):
         """TODO"""
         self.copies = []
+        self.copy = 0
         self.lastPage = False
         self.defineStandardStyles()
         self.defineCustomStyles()
