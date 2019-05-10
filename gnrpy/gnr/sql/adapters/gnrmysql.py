@@ -55,7 +55,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                     'X': 'text', 'P': 'text', 'Z': 'text',
                     'B': 'boolean', 'D': 'date', 'H': 'time', 'DH': 'datetime',
                     'I': 'int', 'L': 'bigint', 'R': 'real','N':'decimal',
-                    'serial': 'serial8', 'O': 'longblob'}
+                    'serial': 'serial', 'O': 'longblob'}
 
     def defaultMainSchema(self):
         return ''
