@@ -432,7 +432,8 @@ class TableHandlerMain(BaseComponent):
             colobj = self.tblobj.column(self.public_partitioned['field'])
             realColumn = False 
             if colobj is not None:
-                realColumn = colobj.sqlclass=='column'
+                realColumn = colobj.sqlclass=='column' 
+                
             if th['view.top.bar.addrow'] and realColumn:
                 th.view.top.bar.addrow.getNode('addButton').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
             if th['form.top.bar.form_add'] and realColumn:
