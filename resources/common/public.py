@@ -430,7 +430,10 @@ class TableHandlerMain(BaseComponent):
                     storeServerTime='=.store?servertime',_if='storeServerTime')
             #partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
             colobj = self.tblobj.column(self.public_partitioned['field'])
-            realColumn = colobj and colobj.sqlclass=='column'
+            realColumn = False 
+            if colobj is not None:
+                realColumn = colobj.sqlclass=='column' 
+                
             if th['view.top.bar.addrow'] and realColumn:
                 th.view.top.bar.addrow.getNode('addButton').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
             if th['form.top.bar.form_add'] and realColumn:
