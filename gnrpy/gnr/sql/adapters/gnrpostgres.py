@@ -168,7 +168,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def dropDb(self, name):
         conn = self._managerConnection()
         curs = conn.cursor()
-        curs.execute("DROP DATABASE IF EXISTS %s;" % name)
+        curs.execute('DROP DATABASE IF EXISTS "%s";' % name)
         curs.close()
         conn.close()
         
