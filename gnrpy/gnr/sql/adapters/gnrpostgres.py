@@ -163,7 +163,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         self.dbroot.execute(sql)
 
     def createDbSql(self, dbname, encoding):
-        return "CREATE DATABASE %s ENCODING '%s';" % (dbname, encoding)
+        return """CREATE DATABASE "%s" ENCODING '%s';""" % (dbname, encoding)
 
     def dropDb(self, name):
         conn = self._managerConnection()
