@@ -4646,6 +4646,10 @@ div[disabled='true'], div[disabled='disabled']{
     border-left: 1px solid #ddd;
 }
 
+.treeGridCenter .selectedTreeNode{
+    font-weight: normal;
+    background-color: rgba(241, 205, 82, .2);
+}
 
 
 .treeGridLayout .treecell:last-child{
