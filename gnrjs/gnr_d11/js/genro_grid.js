@@ -1604,6 +1604,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                             },{_position:0});
                         }
                     }
+                    if(sourceNode.attr.multiStores){
+                        if(!rowBag.getNode('_storenameCol')){
+                            rowBag.setItem('_storenameCol',null,{
+                                field:'_dbstore_',name:_T('Storename'),width:'15em',
+                                calculated:true
+                            });
+                        }
+                    }
 
                     var that = this;
                     rowBag.forEach(function(n){
