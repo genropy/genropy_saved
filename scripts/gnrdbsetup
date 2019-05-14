@@ -177,7 +177,7 @@ def import_db(filepath):
 if __name__ == '__main__':
     app, storename = get_app()
     if storename == '*':
-        stores = [None] + app.db.dbstores.keys()
+        stores = [None] + sorted(app.db.dbstores.keys())
     else:
         stores = [storename]
     for storename in stores:
