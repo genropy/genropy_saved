@@ -212,7 +212,7 @@ class GnrClassCatalog(object):
             if self.getType(txt)==clsname:
                 return txt
             else:
-                raise GnrCastingError(description='Error in from text %s!=%s ' %(txt,clsname))
+                raise #GnrCastingError(description='Error in from text %s!=%s ' %(txt,clsname))
             
         if clsname == 'JS':
             try:
