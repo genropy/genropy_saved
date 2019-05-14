@@ -2477,6 +2477,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if (! this._batchUpdating) {
             this._gnrUpdateSelect(idx);
         }
+        this.changeManager.calculateFilteredTotals();
+        this.setClass('multiSelectionActive',this.selection.getSelected().length>1);
     },
     patch_sort: function() {
         var sortInfo = this.sortInfo;

@@ -1808,6 +1808,16 @@ dojo.declare("gnr.GridChangeManager", null, {
 
     calculateFilteredTotals:function(){
         var filteredStore = this.grid.storebag(true);
+        var selectedIdx =this.grid.getSelectedRowidx();
+        if(selectedIdx.length>1){
+            var selectedStore = new gnr.GnrBag();
+            filteredStore.getNodes().forEach(function(n,idx){
+                if(selectedIdx.indexOf(idx)>=0){
+                    selectedStore.setItem(n.label,n._value,n.attr);
+                }
+            });
+            filteredStore = selectedStore;
+        }
         for(let k in this.totalizeColumns){
             //this.updateTotalizer(k);
             var totvalue = filteredStore.sum(this.grid.datamode=='bag'?k:'#a.'+k);

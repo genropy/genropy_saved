@@ -5604,6 +5604,9 @@ div[disabled='true'], div[disabled='disabled']{
     background: rgba(221, 150, 90, 0.20);
 }
 
+.multiSelectionActive .gr_footer.gr_scrollbox .gr_itemcontainer{
+    background: rgba(221, 150, 90, 0.20);
+}
 
 .grid_filler{
     height: 100%;
