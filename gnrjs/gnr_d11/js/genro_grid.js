@@ -2477,10 +2477,11 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if (! this._batchUpdating) {
             this._gnrUpdateSelect(idx);
         }
+        var selectedMany = this.selection.getSelected().length>1;
         if(this.changeManager){
             this.changeManager.calculateFilteredTotals();
         }
-        this.setClass('multiSelectionActive',this.selection.getSelected().length>1);
+        this.setClass('multiSelectionActive',selectedMany);
     },
     patch_sort: function() {
         var sortInfo = this.sortInfo;
