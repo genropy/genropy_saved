@@ -212,7 +212,7 @@ class GnrClassCatalog(object):
             if self.getType(txt)==clsname:
                 return txt
             else:
-                return fromText(str(txt),clsname,**kwargs)
+                return self.fromText(str(txt),clsname,**kwargs)
             
         if clsname == 'JS':
             try:
