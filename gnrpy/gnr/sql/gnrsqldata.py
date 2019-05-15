@@ -1275,6 +1275,8 @@ class SqlSelection(object):
         self.key = key
         for i, r in enumerate(self._data):
             r[key] = i
+        if key not in self._index:
+            self._index[key] = len(self._index)
             
     def _get_allColumns(self):
         items = self._index.items()

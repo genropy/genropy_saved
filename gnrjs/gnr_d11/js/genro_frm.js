@@ -2496,10 +2496,10 @@ dojo.declare("gnr.formstores.Base", null, {
         virtual_columns = virtual_columns.concat(form_virtual_columns);
         kw['_sourceNode'] = form.sourceNode;
         kw.ignoreReadOnly = ignoreReadOnly;
-        var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
-                                                  'virtual_columns':arrayUniquify(virtual_columns).join(','),
-                                                  'table':this.table, timeout:0},kw),null,'POST',null,maincb);
+        var dbstoreOnDeferred = false;
         if(this.form.dbstoreField){
+            objectPop(that.form.sourceNode.attr,'context_dbstore')
+            dbstoreOnDeferred = true;
             var row;
             if(this.parentStore){
                 let rowNode = this.parentStore.rowBagNodeByIdentifier(currPkey);
@@ -2507,14 +2507,22 @@ dojo.declare("gnr.formstores.Base", null, {
                     row = this.parentStore.rowFromItem(rowNode);
                 }
             }
-            if(row){
+            if(row && row[this.form.dbstoreField]){
                 this.form.sourceNode.attr.context_dbstore = row[this.form.dbstoreField];
-            }else{
-                deferred.addCallback(function(result){
-                    that.form.sourceNode.attr.context_dbstore = result.getValue().getItem(that.form.dbstoreField);
-                    return result;
-                });
+                dbstoreOnDeferred = false;
             }
+        }
+        var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
+                                                  'virtual_columns':arrayUniquify(virtual_columns).join(','),
+                                                  'table':this.table, timeout:0},kw),null,'POST',null,maincb);
+        if(dbstoreOnDeferred){
+            deferred.addCallback(function(result){
+                var dbstore = result.getValue().getItem(that.form.dbstoreField);
+                if(dbstore){
+                    that.form.sourceNode.attr.context_dbstore = dbstore;
+                }
+                return result;
+            });
         }
         deferred.addCallback(cb);
         if(loader.callbacks){

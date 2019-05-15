@@ -472,7 +472,6 @@ class GnrSqlDb(GnrObject):
                         cursor = self.adapter.cursor(self.connection)
                 if isinstance(cursor, list):
                     for c in cursor:
-                        print c.connection.storename
                         c.execute(sql.replace("_STORENAME_" ,c.connection.storename), sqlargs)
                 else:
                     #if sql.startswith('INSERT') or sql.startswith('UPDATE') or sql.startswith('DELETE'):
