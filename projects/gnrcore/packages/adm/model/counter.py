@@ -265,9 +265,15 @@ class Table(object):
         return output
 
     def getCounter(self,tblobj=None,field=None,record=None,update=False):
+        counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
+        if counter_pars.get('rootstore'):
+            with self.db.tempEnv(storename=self.db.rootstore):
+                return self._getCounter(tblobj=None,field=None,record=None,update=False,counter_pars=counter_pars)
+        return self._getCounter(tblobj=None,field=None,record=None,update=False,counter_pars=counter_pars)
+
+    def _getCounter(self,tblobj,field=None,record=None,update=None,counter_pars=None):
         counterInfo = dict()
         codekey = self.getCounterPkey(tblobj=tblobj,field=field,record=record)
-        counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
         date_field = counter_pars.get('date_field')
         recycle = counter_pars.get('recycle') if date_field else False
         date = None

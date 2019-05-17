@@ -10,12 +10,12 @@ class GnrCustomWebPage(object):
     
     def test_1_pdfformeditor(self, pane):
         bc = pane.borderContainer(height='500px')
-        bc.pdfTkEditor(region='center',pdfFile='^.pdfFile', table='erpy_coge.scadenza',
+        bc.pdfTkEditor(region='center',pdfFile='^.pdfFile', table='cond.mav',
             storepath='.pdfMapping')
 
 
     def test_2_pdfformpalette(self, pane):
-        palette = pane.pdfFormEditorPalette(maintable='erpy_coge.scadenza',dockButton=True)
+        palette = pane.pdfFormEditorPalette(maintable='cond.mav',dockButton=True)
 
     def test_3_printpdfform(self, pane):
         bc = pane.borderContainer(height='500px')
@@ -23,9 +23,9 @@ class GnrCustomWebPage(object):
         fb = top.formbuilder(cols=3)
         fb.dbselect(value='^.tpl_id',dbtable='adm.userobject', 
             condition="$objtype=:ot AND $tbl=:tbl", 
-            condition_ot='pdfform', condition_tbl='erpy_coge.scadenza',
+            condition_ot='pdfform', condition_tbl='cond.mav',
             caption='$code')
-        fb.dbselect(value='^.record_id',dbtable='erpy_coge.scadenza')
+        fb.dbselect(value='^.record_id',dbtable='cond.mav')
         fb.button('Stampa', action='FIRE .stampa')
         fb.dataRpc('.url', self.stampa, userObject='=.uo', record_id='=.record_id',
             _fired='^.stampa')
@@ -37,5 +37,5 @@ class GnrCustomWebPage(object):
         pdfform_service = self.site.getService('pdfform')
         output = self.site.storageNode('page:%s.pdf'%record_id)
         pdfform_service.fillFromUserObject(userObject=userObject,
-            table='erpy_coge.scadenza', record_id=record_id, output=output)
+            table='cond.mav', record_id=record_id, output=output)
         return output.url(nocache="%i"%time())
