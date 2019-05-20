@@ -41,7 +41,7 @@ class TableHandlerView(BaseComponent):
         kwargs['grid_selfsubscribe_batchAssign'] = """
             if(this.widget.gridEditor){
                 //inlinetablehandler
-                this.gridEditor.batchAssign();
+                this.widget.gridEditor.batchAssign();
             }else{
                 FIRE .#parent.th_batch_run = {resource:'_common/assign_values',res_type:'action'};
             }
