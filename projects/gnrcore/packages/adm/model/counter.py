@@ -268,8 +268,8 @@ class Table(object):
         counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
         if counter_pars.get('rootstore'):
             with self.db.tempEnv(storename=self.db.rootstore):
-                return self._getCounter(tblobj=None,field=None,record=None,update=False,counter_pars=counter_pars)
-        return self._getCounter(tblobj=tblobj,field=field,record=record,update=False,counter_pars=counter_pars)
+                return self._getCounter(tblobj=tblobj,field=field,record=record,update=update,counter_pars=counter_pars)
+        return self._getCounter(tblobj=tblobj,field=field,record=record,update=update,counter_pars=counter_pars)
 
     def _getCounter(self,tblobj,field=None,record=None,update=None,counter_pars=None):
         counterInfo = dict()
