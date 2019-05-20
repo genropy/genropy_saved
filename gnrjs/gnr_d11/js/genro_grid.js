@@ -1604,6 +1604,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                             },{_position:0});
                         }
                     }
+                    if(sourceNode.attr.multiStores){
+                        if(!rowBag.getNode('_storenameCol')){
+                            rowBag.setItem('_storenameCol',null,{
+                                field:'_dbstore_',name:_T('Storename'),width:'15em',
+                                calculated:true
+                            });
+                        }
+                    }
 
                     var that = this;
                     rowBag.forEach(function(n){
@@ -2477,10 +2485,11 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if (! this._batchUpdating) {
             this._gnrUpdateSelect(idx);
         }
+        var selectedMany = this.selection.getSelected().length>1;
         if(this.changeManager){
             this.changeManager.calculateFilteredTotals();
         }
-        this.setClass('multiSelectionActive',this.selection.getSelected().length>1);
+        this.setClass('multiSelectionActive',selectedMany);
     },
     patch_sort: function() {
         var sortInfo = this.sortInfo;

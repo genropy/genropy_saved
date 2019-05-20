@@ -451,6 +451,7 @@ class SqlQueryCompiler(object):
                       group_by='', having='', for_update=False,
                       relationDict=None,
                       bagFields=False,
+                      storename=None,
                       count=False, excludeLogicalDeleted=True,excludeDraft=True,
                       ignorePartition=False,ignoreTableOrderBy=False,
                       addPkeyColumn=True):
@@ -503,9 +504,10 @@ class SqlQueryCompiler(object):
         columns = columns.replace('\n', '')
         columns = columns.replace(' as ', ' AS ')
         columns = columns.replace(' ,', ',')
+        if storename and (storename=='*' or ',' in storename):
+            columns = "%s, '_STORENAME_' AS _dbstore_" %columns
         if columns and not columns.endswith(','):
             columns = columns + ','
-            
         # expand * and *filters: see self.expandMultipleColumns
         if '*' in columns:
             col_list = [col for col in gnrstring.split(columns, ',') if col]
@@ -981,6 +983,7 @@ class SqlQuery(object):
                                                                   addPkeyColumn=self.addPkeyColumn,
                                                                   ignorePartition=self.ignorePartition,
                                                                   ignoreTableOrderBy=self.ignoreTableOrderBy,
+                                                                  storename=self.storename,
                                                                   **self.querypars)
                                                                   
     def cursor(self):
@@ -1272,6 +1275,8 @@ class SqlSelection(object):
         self.key = key
         for i, r in enumerate(self._data):
             r[key] = i
+        if key not in self._index:
+            self._index[key] = len(self._index)
             
     def _get_allColumns(self):
         items = self._index.items()

@@ -1807,22 +1807,26 @@ dojo.declare("gnr.GridChangeManager", null, {
     },
 
     calculateFilteredTotals:function(){
-        var filteredStore = this.grid.storebag(true);
+        var filteredStore;
         var selectedIdx =this.grid.getSelectedRowidx();
         if(selectedIdx.length>1){
-            var selectedStore = new gnr.GnrBag();
-            filteredStore.getNodes().forEach(function(n,idx){
-                if(selectedIdx.indexOf(idx)>=0){
-                    selectedStore.setItem(n.label,n._value,n.attr);
-                }
+            filteredStore = new gnr.GnrBag();
+            this.grid.getSelectedNodes().forEach(function(n){
+                filteredStore.setItem(n.label,n._value,n.attr);
             });
-            filteredStore = selectedStore;
+        }else if(this.grid.isFiltered()){
+            filteredStore = this.grid.storebag(true);
+        }else{
+            this.sourceNode.setRelativeData('.filtered_totalize',null);
+            return
         }
+        var filtered_totalize = new gnr.GnrBag();
         for(let k in this.totalizeColumns){
             //this.updateTotalizer(k);
             var totvalue = filteredStore.sum(this.grid.datamode=='bag'?k:'#a.'+k);
-            this.sourceNode.setRelativeData('.filtered_totalize.'+k,totvalue);
+            filtered_totalize.setItem(k,totvalue);
         }
+        this.sourceNode.setRelativeData('.filtered_totalize',filtered_totalize);
     },
 
     updateTotalizer:function(k){

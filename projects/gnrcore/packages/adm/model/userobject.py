@@ -12,8 +12,8 @@ class Table(object):
         tbl.column('objtype',size=':20', name_long='!!Object Type', indexed='y')
         tbl.column('pkg', size=':50',name_long='!!Package').relation('pkginfo.pkgid',relation_name='objects') # package code
         tbl.column('tbl', size=':50',name_long='!!Table').relation('tblinfo.tblid',relation_name='objects') # full table name: package.table
-        tbl.column('userid', name_long='!!User ID', indexed='y',size=':50')
-        tbl.column('description', 'T', name_long='!!Description',size=':50', indexed='y')
+        tbl.column('userid',size=':50', name_long='!!User ID', indexed='y')
+        tbl.column('description',size=':50', name_long='!!Description', indexed='y')
         tbl.column('notes', 'T', name_long='!!Notes')
         tbl.column('data', 'X', name_long='!!Data')
         tbl.column('authtags', 'T', name_long='!!Auth tags')

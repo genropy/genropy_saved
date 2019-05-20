@@ -398,6 +398,7 @@ class GnrSqlDb(GnrObject):
         connection = thread_connections.get(connectionTuple)
         if not connection:
             connection = self.adapter.connect(storename)
+            connection.storename = storename
             thread_connections[connectionTuple] = connection
         return connection
     
@@ -471,7 +472,7 @@ class GnrSqlDb(GnrObject):
                         cursor = self.adapter.cursor(self.connection)
                 if isinstance(cursor, list):
                     for c in cursor:
-                        c.execute(sql, sqlargs)
+                        c.execute(sql.replace("_STORENAME_" ,c.connection.storename), sqlargs)
                 else:
                     #if sql.startswith('INSERT') or sql.startswith('UPDATE') or sql.startswith('DELETE'):
                     #    print sql.split(' ',1)[0],storename,self.currentEnv.get('connectionName'),'dbtable',dbtable

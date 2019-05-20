@@ -3607,7 +3607,7 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
         sourceNode.updateTemplate = function(pkey){
             var that = this;
             if(pkey){
-                genro.serverCall('te_renderChunk',{record_id:pkey,template_address:tplpars.table+':'+tplpars.template},function(resultNode){
+                genro.serverCall('te_renderChunk',{record_id:pkey,template_address:tplpars.table+':'+tplpars.template,_sourceNode:sourceNode},function(resultNode){
                     var r = resultNode.getValue();
                     templateHandler.dataInfo = resultNode.attr;
                     if(r instanceof gnr.GnrBag){

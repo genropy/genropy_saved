@@ -839,6 +839,11 @@ class TableHandlerView(BaseComponent):
         _else = None
         if _if:
             _else = "this.store.clear();"
+        frame.dataController("""
+            console.log('multiStores',multiStores)
+            grid.attr.multiStores = multiStores;
+            grid.widget.setStructpath();
+        """,multiStores='^.query.multiStores',grid=frame.grid)
         frame.dataFormula('.sum_columns',"sum_columns_source && sum_columns_source.len()?sum_columns_source.keys().join(','):null",
                                         sum_columns_source='=.sum_columns_source',_onBuilt=True)
         frame.dataController("""
