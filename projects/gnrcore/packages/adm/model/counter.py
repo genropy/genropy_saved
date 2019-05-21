@@ -301,7 +301,7 @@ class Table(object):
                     counterInfo.update(recycled=True,cnt=counter)
                     break
         if counter is None:
-            counter = (counter_record['counter'] or 0) + 1
+            counter = (counter_record['counter'] or counter_pars.get('starting_value') or  0) + 1
             counter_record['last_used'] = date
             counter_record['counter'] = counter
             if date and  last_used and date< last_used:
