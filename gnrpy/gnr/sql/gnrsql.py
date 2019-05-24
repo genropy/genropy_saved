@@ -471,8 +471,9 @@ class GnrSqlDb(GnrObject):
                     else:
                         cursor = self.adapter.cursor(self.connection)
                 if isinstance(cursor, list):
-                    for c in cursor:
-                        c.execute(sql.replace("_STORENAME_" ,c.connection.storename), sqlargs)
+                    self._multiCursorExecute(cursor,sql,sqlargs)
+                    #for c in cursor:
+                    #    c.execute(sql.replace("_STORENAME_" ,c.connection.storename), sqlargs)
                 else:
                     #if sql.startswith('INSERT') or sql.startswith('UPDATE') or sql.startswith('DELETE'):
                     #    print sql.split(' ',1)[0],storename,self.currentEnv.get('connectionName'),'dbtable',dbtable
@@ -492,6 +493,16 @@ class GnrSqlDb(GnrObject):
             if autocommit:
                 self.commit()
         return cursor
+
+    def _multiCursorExecute(self, cursor_list, sql, sqlargs):
+        from multiprocessing.pool import ThreadPool
+        p = ThreadPool(4)
+        def _executeOnThread(cursor):
+            cursor.execute(sql.replace("_STORENAME_" ,cursor.connection.storename),sqlargs)
+        
+        #for c in cursor_list:
+        #    _executeOnThread(c)
+        p.map(_executeOnThread, cursor_list)
 
     def notifyDbEvent(self,tblobj,**kwargs):
         pass
