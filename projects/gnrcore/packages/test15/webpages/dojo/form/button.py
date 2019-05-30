@@ -59,6 +59,7 @@ class GnrCustomWebPage(object):
         fb.button('Question', action='alert(answer);',
                     ask=dict(title='Do you want to rule?',
                             fields=[dict(name='answer',tag='filteringSelect',values='NO,YES',
-                                        validate_onAccept="""SET #ANCHOR.last_answer=value""")]),
+                                        validate_onAccept="""SET #ANCHOR.last_answer=value"""),
+                                        dict(name='serious', wdg='checkbox', label='Serious?')]),
                             answer='=.last_answer')
         
