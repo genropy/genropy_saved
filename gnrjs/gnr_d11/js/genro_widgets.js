@@ -3142,14 +3142,15 @@ dojo.declare("gnr.widgets.CheckBox", gnr.widgets.baseDojo, {
         //patch
     },
     patch_onClick:function(e) {
-        //if(this.sourceNode._dynattr && this.sourceNode._dynattr.value){
-        //    this.sourceNode.setAttributeInDatasource('value',this.checked)
-        //}
-        var action = this.sourceNode.getInheritedAttributes().action;
-        if (action) {
-            dojo.hitch(this, funcCreate(action))(this.sourceNode.attr, this.sourceNode, e);
-            //funcCreate(action)(this.sourceNode.attr,this.sourceNode,e);
+        var actionScope = this.sourceNode.attributeOwnerNode('action');
+        if(actionScope){
+            var action = actionScope.attr.action;
+            if (action && actionScope.attr.tag!='button') {
+                dojo.hitch(this, funcCreate(action))(this.sourceNode.attr, this.sourceNode, e);
+            }
         }
+        
+        
     },
     patch_setValue: function(/*String*/ value, pc) {
         //this.setChecked(value);
