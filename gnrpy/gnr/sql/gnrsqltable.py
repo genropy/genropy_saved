@@ -592,17 +592,20 @@ class SqlTable(GnrObject):
                                 virtual_columns_set=virtual_columns_set)
 
     def findDuplicates(self,allrecords=True):
-        duplicated = [r[0] for r in self.query(columns='$_duplicate_finder,count(*)',having='count(*)>1',group_by='$_duplicate_finder').fetch()]
+        dup_records = self.query(where="($_duplicate_finder IS NOT NULL) AND ($_duplicate_finder!='')",
+                                 columns='$_duplicate_finder,count(*)',having='count(*)>1',
+                                 group_by='$_duplicate_finder').fetch()
+        duplicated = [r[0] for r in dup_records]
         if not duplicated:
             return []
         q = self.query(where='$_duplicate_finder IN :dpf',dpf=duplicated,columns='$_duplicate_finder',
                         order_by='$_duplicate_finder,$__mod_ts desc')
-        if allrecords:
-            return [r['pkey'] for r in q.fetch()]
-        else:
-            return [l[0]['pkey'] for l in q.fetchGrouped('_duplicate_finder').values()]
+        #if allrecords:
+        return [r['pkey'] for r in q.fetch()]
+        #else:
+        #    return [l[0]['pkey'] for l in q.fetchGrouped('_duplicate_finder').values()]
 
-
+    
     def opTranslate(self,column,op,value,dtype=None,sqlArgs=None):
         translator = self.db.adapter.getWhereTranslator()
         return translator.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=self)

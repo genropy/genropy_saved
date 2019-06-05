@@ -5964,10 +5964,12 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         var filteringMode = grid.filteringMode || 'exclude';
         var that = this;
+        var sn = grid.sourceNode
+        sn.__evaluated_attrs = sn.evaluateOnNode(sn.attr)
         dojo.forEach(this.getItems(), 
                     function(n,index,array){
                         var rowdata = that.rowFromItem(n);
-                        var result = cb? cb(rowdata,index,array):true; 
+                        var result = cb? cb.apply(sn, [rowdata,index,array]):true; 
                         var include;
                         if(result){
                             if(filteringMode=='exclude'){
