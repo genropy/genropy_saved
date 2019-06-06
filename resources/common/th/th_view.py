@@ -591,10 +591,10 @@ class TableHandlerView(BaseComponent):
     @metadata(prefix='query',code='default_duplicate_finder',description='!!Find all duplicates')
     def th_default_find_duplicates(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
         pkeys = tblobj.findDuplicates()
-        querypars=dict(**kwargs)
-        querypars['order_by']='$_duplicate_finder,$__mod_ts'
-        query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**querypars)
-        return query.selection(sortedBy='_duplicate_finder', _aggregateRows=True) 
+        query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
+        selection= query.selection(sortedBy=None, _aggregateRows=True) 
+        selection.forcedOrderBy='$_duplicate_finder,$__mod_ts'
+        return selection
 
     #@public_method
     #@metadata(prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')

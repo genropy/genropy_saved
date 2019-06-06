@@ -789,7 +789,6 @@ class GnrWebAppHandler(GnrBaseProxy):
             if fromSelection:
                 fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
                 pkeys = fromSelection.output('pkeylist')
-            
             if customOrderBy:
                 order_by = []
                 for fieldpath,sorting in customOrderBy.digest('#v.fieldpath,#v.sorting'):
@@ -808,6 +807,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                                       recordResolver=recordResolver, selectionName=selectionName, 
                                       pkeys=pkeys, sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,
                                       excludeDraft=excludeDraft,checkPermissions=checkPermissions ,filteringPkeys=filteringPkeys,**kwargs)
+
             selection = selecthandler(**selection_pars)
             if selection is False:
                 return Bag()
@@ -1028,8 +1028,11 @@ class GnrWebAppHandler(GnrBaseProxy):
                     if handler:
                         filteringPkeys = handler(tblobj=tblobj, 
                                                 where=where,relationDict=relationDict, 
-                                                sqlparams=sqlparams,limit=limit,**kwargs)
+                                                sqlparams=sqlparams,limit=limit,**kwargs)                      
                         if filteringPkeys and not isinstance(filteringPkeys,list):
+                            if hasattr(filteringPkeys,'forcedOrderBy'):
+                                order_by=filteringPkeys.forcedOrderBy
+                                sortedBy=None
                             filteringPkeys = filteringPkeys.output('pkeylist')
                     else:
                         filteringPkeys = [filteringPkeys]
@@ -1043,7 +1046,6 @@ class GnrWebAppHandler(GnrBaseProxy):
                     kwargs['_filteringPkeys'] = filteringPkeys
                 if filteringWhere:
                     where = filteringWhere if not where else ' ( %s ) AND ( %s ) ' %(filteringWhere, where)
-                
         query = tblobj.query(columns=columns, distinct=distinct, where=where,
                              order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
                              relationDict=relationDict, sqlparams=sqlparams, locale=self.page.locale,
