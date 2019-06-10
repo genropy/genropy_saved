@@ -859,14 +859,14 @@ class TableHandlerView(BaseComponent):
             this.fireEvent('.runQueryDo_'+viewPage,true);
         """,_runQueryDo='^.runQueryDo',viewPage='=.viewPage')
         store_kwargs.setdefault('weakLogicalDeleted',options.get('weakLogicalDeleted'))
-        
+        multiStores = store_kwargs.pop('multiStores',None)
         store = frame.grid.selectionStore(table=table,
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where',
                                queryMode='=.query.queryMode', 
                                sortedBy='=.grid.sorted',
                                customOrderBy='=.query.customOrderBy',
-                               multiStores='=.query.multiStores',
+                               multiStores=multiStores or '=.query.multiStores',
                                pkeys='=.query.pkeys', 
                                _runQueryDo='^.runQueryDo_mainView',
                                _cleared='^.clearStore',
