@@ -1729,7 +1729,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 where = where or condition
             return tblobj.query(where=where, columns=','.join(resultcolumns), limit=limit,
                                 order_by=order_by or querycolumns[0], exclude_list=exclude_list,
-                                **whereargs).selection()
+                                **whereargs).selection(_aggregateRows=True)
 
         exclude_list = None
         if exclude:
