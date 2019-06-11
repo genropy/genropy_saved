@@ -39,8 +39,15 @@ class View(BaseComponent):
                 dict(code='sud',caption='!![it]Sud',condition='@regione.zona=:zona',condition_zona='Sud'),
                 dict(code='isole',caption='!![it]Isole',condition='@regione.zona=:zona',condition_zona='Isole')]
                 
+    @metadata(remote=True,remote_zona='^.zone.current')
+    def th_sections_regioni(self,zona=None):
+        print x
+        f = self.db.table('glbl.regione').query(where='$zona ILIKE :zona',zona=zona).fetch()
+        return [dict(code='reg_%(sigla)s' %r, caption=r['nome'],condition='$regione=:rg',condition_rg=r['sigla']) for r in f]
+
     def th_top_custom(self,top):
-        top.bar.replaceSlots('searchOn','searchOn,sections@zone')
+        top.bar.replaceSlots('searchOn','searchOn,sections@zone,sections@regioni')
+
 
     def th_options(self):
         return dict(virtualStore=False)

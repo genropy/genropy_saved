@@ -141,6 +141,9 @@ var th_sections_manager = {
                 return;
             }
             current = sectionsbag.getItem('current');
+            if(!current){
+                return;
+            }
             variable_struct = sectionsbag.getItem('variable_struct');
             if(variable_struct){
                 structToSet = sectionsbag.getNode('data.'+current).attr.struct || '__baseView__';
@@ -163,7 +166,11 @@ var th_sections_manager = {
             if(!sectionsbag.getItem('enabled') || sectionsbag.getItem('excluded')){
                 return;
             }
-            var currents = sectionsbag.getItem('current').split(',');
+            var currsec = sectionsbag.getItem('current');
+            if(!currsec){
+                return;
+            }
+            var currents = currsec.split(',');
             var sectionsName = n.label;
             var orlist = [];
             var conditions = sectionsbag.getItem('data');
