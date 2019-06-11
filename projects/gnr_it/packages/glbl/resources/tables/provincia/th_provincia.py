@@ -4,7 +4,7 @@
 # Created by Francesco Porcari on 2011-03-31.
 # Copyright (c) 2011 Softwell. All rights reserved.
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import customizable,metadata
+from gnr.core.gnrdecorator import customizable,metadata,public_method
 
 class Form(BaseComponent):
 
@@ -39,8 +39,14 @@ class View(BaseComponent):
                 dict(code='sud',caption='!![it]Sud',condition='@regione.zona=:zona',condition_zona='Sud'),
                 dict(code='isole',caption='!![it]Isole',condition='@regione.zona=:zona',condition_zona='Isole')]
                 
+    @public_method(remote_zona='^.zone.current')
+    def sectionRegioni(self,zona=None):
+        f = self.db.table('glbl.regione').query(where='$zona ILIKE :zona',zona=zona).fetch()
+        return [dict(code='reg_%(sigla)s' %r, caption=r['nome'],condition='$regione=:rg',condition_rg=r['sigla']) for r in f]
+
     def th_top_custom(self,top):
-        top.bar.replaceSlots('searchOn','searchOn,sections@zone')
+        top.bar.replaceSlots('searchOn','searchOn,sections@zone,sections@reg',sections_reg_remote=self.sectionRegioni)
+
 
     def th_options(self):
         return dict(virtualStore=False)
