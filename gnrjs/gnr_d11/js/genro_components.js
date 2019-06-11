@@ -5634,6 +5634,23 @@ dojo.declare("gnr.stores._Collection",null,{
         this.linkedGrids().forEach(cb);
     },
 
+    setBlockingReason:function(reason,doset){
+        this._blocking_reasons = this._blocking_reasons || {};
+        if(doset=='toggle'){
+            doset = !(reason in this._blocking_reasons);
+        }
+        if(doset===true){
+            this._blocking_reasons[reason] = true;
+        }else if(doset===false){
+            objectPop(this._blocking_reasons,reason);
+        }
+    },
+
+    isEnabledStore:function() {
+        this._blocking_reasons = this._blocking_reasons || {};
+        return !objectNotEmpty(this._blocking_reasons) && (this.hasVisibleClients() || this.loadInvisible);
+    },
+
     hasVisibleClients:function(){
         if (this.linkedWidgetNode){
             return this.linkedWidgetNode.gnrwdg.isVisible();
@@ -6202,9 +6219,9 @@ dojo.declare("gnr.stores.RpcBase",gnr.stores.AttributesBagRows,{
     askToDelete:true,
     loadData:function(){
         var that = this;
-        if(!this.hasVisibleClients()){
-            this.storeNode.watch('hasVisibleClients',function(){
-                return that.hasVisibleClients();
+        if(!this.isEnabledStore()){
+            this.storeNode.watch('isEnabledStore',function(){
+                return that.isEnabledStore();
             },function(){
                 that.loadingDataDo();
             });
@@ -6349,7 +6366,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     loadData:function(runKwargs){
         var that = this;
         this.pendingLoading = true;
-        if(!(this.hasVisibleClients() || this.loadInvisible)){
+        if(!(this.hasVisibleClients())){
             this.storeNode.watch('hasVisibleClients',function(){
                 return that.hasVisibleClients();
             },function(){

@@ -423,8 +423,8 @@ class TableHandlerView(BaseComponent):
 
 
     @public_method
-    def _th_remoteSectionsDispatcher(self,handlername,th_root=None,**kwargs):
-        m = self._th_hook('sections_%s' %handlername,mangler=th_root,defaultCb=False)
+    def _th_remoteSectionsDispatcher(self,remotehandler=None,th_root=None,**kwargs):
+        m = self.getPublicMethod('remote',remotehandler)
         sectionslist = m(**kwargs)
         meta = dict(kwargs)
         sectionsBag = self._th_buildSectionsBag(sectionslist,meta=meta)
@@ -434,7 +434,9 @@ class TableHandlerView(BaseComponent):
         return result
 
 
-    def _th_sectionsMetadata(self,m,original_kwargs=None):
+    def _th_sectionsMetadata(self,m=None,original_kwargs=None):
+        remote = original_kwargs.pop('remote',None)
+        m = m or remote
         if m:
             result = dict(
                 dflt = getattr(m,'default',None),
@@ -448,7 +450,7 @@ class TableHandlerView(BaseComponent):
                 depending_condition = getattr(m,'_if',False),
                 depending_condition_kwargs = dictExtract(dict(m.__dict__),'_if_'),
                 exclude_fields = getattr(m,'exclude_fields',None),
-                remote = getattr(m,'remote',None),
+                remote = remote,
                 remotepars = dictExtract(dict(m.__dict__),'remote_')
             )
         else:
@@ -490,10 +492,20 @@ class TableHandlerView(BaseComponent):
         if remote:
             parent.dataRpc(None,self._th_remoteSectionsDispatcher,
             _onResult="""
+                if(!result){
+                    return result;
+                }
+                PUT .%s.data = null;
                 SET .%s.data = result.getItem('sectionsBag');
+                genro.wdgById(kwargs.th_root+'_grid').setStoreBlocked('building_section_'+kwargs._sectionname,false);
                 SET .%s.current = result.getItem('dflt');
-            """ %(sections,sections),handlername=sections,
-                th_root=th_root,datapath='.sections',**meta.get('remotepars'))
+            """ %(sections,sections,sections),
+                _onCalling="""
+                    genro.wdgById(th_root+'_grid').setStoreBlocked('building_section_'+_sectionname,true);
+                    PUT .%s.current = null;
+                """ %sections,
+                th_root=th_root,datapath='.sections',_sectionname=sections,
+                _onBuilt=True,remotehandler=remote,**meta.get('remotepars'))
         elif m:
             sectionslist = m()
         elif sections in  tblobj.model.columns and (tblobj.column(sections).relatedTable() is not None or 
@@ -837,13 +849,18 @@ class TableHandlerView(BaseComponent):
         hardQueryLimit = options.get('hardQueryLimit') or self.application.config['db?hardQueryLimit']
         allowLogicalDelete = store_kwargs.pop('allowLogicalDelete',None) or options.get('allowLogicalDelete')
         frame.data('.hardQueryLimit',int(hardQueryLimit) if hardQueryLimit else None)
-        frame.dataFormula('.title','(custom_title || name_plural || name_long)+sub_title',
+        frame.dataController("""
+                            if(_node && _node.label!='current'){
+                                return;
+                            }
+                            var sub_title = _sections?th_sections_manager.getSectionTitle(_sections):"";
+                            SET .title = (custom_title || name_plural || name_long)+sub_title;
+                        """,
                         custom_title=title or options.get('title') or False,
                         name_plural='=.table?name_plural',
                         name_long='=.table?name_long',
                         #view_title='=.title',
                         _sections='^.sections',
-                        sub_title='==_sections?th_sections_manager.getSectionTitle(_sections):"";',
                         _onBuilt=True,_init=True)
         condPars = {}
         if isinstance(condition,dict):
@@ -955,7 +972,10 @@ class TableHandlerView(BaseComponent):
                                    kwargs.excludeLogicalDeleted = 'mark';
                                }
                                if(_sections){
-                                    th_sections_manager.onCalling(_sections,kwargs);
+                                    if(th_sections_manager.onCalling(_sections,kwargs)===false){
+                                        console.log('waiting quindi non parte rpc');
+                                        return false;
+                                    }
                                }
                                if(kwargs['where'] && kwargs['where'] instanceof gnr.GnrBag){
                                     var newwhere = kwargs['where'].deepCopy();

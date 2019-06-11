@@ -3772,6 +3772,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_rowBagNodeByIdentifier:function(identifier){
         return this.collectionStore().rowBagNodeByIdentifier(identifier);
     },
+    mixin_setStoreBlocked:function(reason,doset){
+        this.collectionStore().setBlockingReason(reason,doset);
+    },
 
     mixin_setSelectedId: function(pkey) {
         var nrow = this.rowCount;
