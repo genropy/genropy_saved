@@ -402,11 +402,13 @@ class TableBase(object):
         
 
     def _sysFields_defaults(self,user_ins=None,user_upd=None):
-        default_user_ins = self.db.application.config['sysfield?user_ins']
-        default_user_ins = boolean(default_user_ins) if default_user_ins is not None else True
-        default_user_upd = self.db.application.config['sysfield?user_upd']
-        default_user_upd = boolean(default_user_upd) if default_user_upd is not None else False
-        return user_ins or default_user_ins,user_upd or default_user_upd
+        if user_ins is None:
+            default_user_ins = self.db.application.config['sysfield?user_ins']
+            user_ins = boolean(default_user_ins) if default_user_ins is not None else True
+        if user_upd is None:
+            default_user_upd = self.db.application.config['sysfield?user_upd']
+            user_upd = boolean(default_user_upd) if default_user_upd is not None else False
+        return user_ins,user_upd
 
     def sysFields_protectionTag(self,tbl,protectionTag=None,group=None):
         tbl.column('__protection_tag', name_long='!!Protection tag', group=group,_sysfield=True,_sendback=True,onInserting='setProtectionTag')
