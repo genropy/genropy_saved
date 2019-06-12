@@ -590,9 +590,10 @@ class TableHandlerView(BaseComponent):
                                         **depending_condition_kwargs)
         pane.dataController("genro.publish(channel+'_changed_section',{section:sectionname,value:current})",
                             channel=channel,current='^.current',sectionname=sections)
-        pane.dataController("""if(section==mysection){
+        pane.dataController("""if(section==mysection && data.getNode(value)){
             SET .current = value;
-        }""",mysection=sections,**{'subscribe_%s_changed_section' %channel:True})
+        }""",mysection=sections,data='=.data',
+        **{'subscribe_%s_changed_section' %channel:True})
         
         pane.dataController("""
             genro.dom.toggleVisible(__mb,enabled && !excluded);
