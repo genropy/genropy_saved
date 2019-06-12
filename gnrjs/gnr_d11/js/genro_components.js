@@ -6366,9 +6366,9 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
     loadData:function(runKwargs){
         var that = this;
         this.pendingLoading = true;
-        if(!(this.hasVisibleClients())){
-            this.storeNode.watch('hasVisibleClients',function(){
-                return that.hasVisibleClients();
+        if(!(this.isEnabledStore())){
+            this.storeNode.watch('isEnabledStore',function(){
+                return that.isEnabledStore();
             },function(){
                 that.loadingDataDo(runKwargs);
             });
