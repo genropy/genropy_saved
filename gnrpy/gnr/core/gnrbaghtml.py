@@ -10,7 +10,9 @@ import os
 from gnr.core.gnrstring import toText,templateReplace
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrbag import Bag, BagCbResolver
+from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrdict import dictExtract
 import tempfile
 
 class BagToHtml(object):
@@ -58,6 +60,8 @@ class BagToHtml(object):
         self.encoding = encoding
         self.thermo_kwargs = None
         self.thermo_wrapper = None
+        self.currentGrid = None
+        self.catalog = GnrClassCatalog() 
         if templates:
             self.templates = templates
         if templateLoader:
@@ -129,6 +133,7 @@ class BagToHtml(object):
             record = Bag()
         self.htmlContent = htmlContent
         self._data = Bag()
+        self._gridsColumnsBag = Bag()
         self.is_draft = is_draft
         self.record = record
         self.setData('record', record) #compatibility
@@ -310,6 +315,7 @@ class BagToHtml(object):
         
     def main(self):
         """It can be overridden"""
+        
         self.adaptGridColumns()
         if self.htmlContent:
             page = self.getNewPage()
@@ -353,6 +359,23 @@ class BagToHtml(object):
     @property
     def current_page_number(self):
         return self.copies[self.copy]['currPage']
+
+        
+    @property
+    def columnsBag(self):
+        gridName = self.currentGrid or '_main_'
+        if gridName in self._gridsColumnsBag:
+            return self._gridsColumnsBag[gridName]
+        if self.grid_columns:
+            columns = self.grid_columns
+        else:
+            columns = self.gridColumns(table=self.row_table, resource=self.row_viewResource, struct=self.row_struct)
+        
+        columnsBag = Bag()
+        for i,col in enumerate(columns):
+            columnsBag.addItem(col.get('field') or 'col_%02i' %i,None,_attributes=col)
+        self._gridsColumnsBag[gridName] = columnsBag
+        return columnsBag
     
     def copyHeight(self):
         """TODO"""
@@ -372,6 +395,7 @@ class BagToHtml(object):
         self.lastPage = False
         self.defineStandardStyles()
         self.defineCustomStyles()
+        self.currGrid= None
         self.doc_height = self.copyHeight() #- self.page_header_height - self.page_footer_height
         self.grid_height = self.doc_height - self.calcDocHeaderHeight() - self.calcDocFooterHeight()
         self.grid_body_height = float(self.grid_height or 0) - float(self.grid_header_height or 0) - float(self.grid_footer_height or 0)
@@ -426,14 +450,19 @@ class BagToHtml(object):
         self.copies[self.copy]['grid_body_used'] = 0
         self._createPage()
         self._openPage()
-        
+
+    def customizeRowData(self,rowData):
+        pass
+
     def _get_rowData(self):
         if isinstance(self.currRowDataNode, dict) or isinstance(self.currRowDataNode,Bag):
-            return self.currRowDataNode
+            rowData = self.currRowDataNode
         elif self.row_mode == 'attribute':
-            return self.currRowDataNode.attr
+            rowData = self.currRowDataNode.attr
         else:
-            return self.currRowDataNode.value
+            rowData = self.currRowDataNode.attr
+        self.customizeRowData(rowData)
+        return rowData
             
     rowData = property(_get_rowData)
     
@@ -458,19 +487,27 @@ class BagToHtml(object):
             self._grid_style_cell_list = self.grid_style_cell.split(';') if self.grid_style_cell else []
         return self._grid_style_cell_list 
 
+    def prepareRow(self,row):
+        #overridable
+        self.fillRow()
+    
     def fillRow(self):
-        for col in self.grid_columns:
-            col = dict(col)
-            if not col.get('align_class'):
-                col['align_class'] = 'aligned_right' if col.get('dtype') in ['N','L','R','F'] else 'aligned_left'
-            field = col.pop('field',None)
-            field_getter = col.pop('field_getter',None)
-            width = col.pop('mm_width')
-            self.rowCell(field=field_getter or field, default=col.pop('default',None), 
-                format=col.pop('format',None), mask=col.pop('mask',None), 
-                currency=col.pop('currency',None),style=self.getCellStyle(col.pop('style',None)),
-                hidden=col.pop('hidden',None),**col)
-
+        for colNode in self.columnsBag:
+            cell_kw = dict(colNode.attr)
+            field = cell_kw.pop('field',None)
+            extra_kw = self.rowData.get('%s_kw' %field) or dict()
+            extra_kw.update(dictExtract(self.rowData,'%s_kw_' %field))
+            cell_kw.update(extra_kw)
+            dtype = cell_kw.get('dtype')
+            if not cell_kw.get('align_class') and dtype:
+                cell_kw['align_class'] = self._guessAlign(dtype=dtype)
+            field_getter = cell_kw.pop('field_getter',None) or field
+            value = self.rowData.get(field_getter)
+            width = cell_kw.pop('mm_width')
+            self.rowCell(value=value, default=cell_kw.pop('default',None), 
+                format=cell_kw.pop('format',None), mask=cell_kw.pop('mask',None), 
+                currency=cell_kw.pop('currency',None),style=self.getCellStyle(cell_kw.pop('style',None)),
+                hidden=cell_kw.pop('hidden',None),**cell_kw)
         
     def rowCell(self, field=None, value=None, default=None, locale=None,
                 format=None, mask=None, currency=None,white_space='nowrap',align_class=None,
@@ -485,7 +522,8 @@ class BagToHtml(object):
         :param format: the format of the cell (e.g: use ``HH:mm``)
         :param mask: TODO
         :param currency: TODO"""
-        curr_attr = self.grid_columns[self.currColumn]
+        colNode = self.columnsBag.nodes[self.currColumn]
+        curr_attr = colNode.attr
         self.currColumn = self.currColumn + 1
         if curr_attr.get('hidden'):
             return
@@ -495,17 +533,16 @@ class BagToHtml(object):
             else:
                 value = self.rowField(field, default=default, locale=locale, format=format,
                                       mask=mask, currency=currency)
-        if value is not None:
-            #if self.lastPage:
-            #    print 'last page'
-            #    print self.currColumn
-            #    print self.grid_col_widths[self.currColumn]
-            value = self.toText(value, locale, format, mask, self.encoding)
-            if align_class:
-                content_class = '%s %s' %(content_class,align_class) if align_class else align_class
-            self.currRow.cell(value, width=curr_attr['mm_width'],overflow='hidden',
-                              white_space=white_space,content_class=content_class, **kwargs)
+        content_class = '%s %s' %(content_class,align_class) if content_class else align_class or self._guessAlign(value=value)
+        value = self.toText(value, locale, format, mask, self.encoding)
+        self.currRow.cell(value, width=curr_attr['mm_width'],overflow='hidden',
+                            white_space=white_space,content_class=content_class, **kwargs)
         return value
+    
+    def _guessAlign(self,value=None,dtype=None):
+        if not dtype:
+            dtype = self.catalog.getType(value)
+        return 'aligned_right' if dtype in ['N','L','R','F'] else 'aligned_left'
 
     def _createPage(self):
         curr_copy = self.copies[self.copy]
@@ -585,7 +622,8 @@ class BagToHtml(object):
         
         :param row: the grid row"""
         lbl_height = self.grid_col_headers_height
-        for pars in self.grid_columns:
+        for colNode in self.columnsBag:
+            pars = colNode.attr
             if pars.get('hidden'):
                 continue
             row.cell(lbl=self.toText(pars.get('name','')), lbl_height=lbl_height, width=pars.get('mm_width'), style=pars.get('header_style'))
@@ -599,10 +637,11 @@ class BagToHtml(object):
     def fillBodyGrid(self):
         """TODO"""
         row = self.copyValue('body_grid').row()
-        for w in self.grid_columns:
-            if w.get('hidden'):
+        for colNode in self.columnsBag:
+            pars = colNode.attr
+            if pars.get('hidden'):
                 continue
-            row.cell(width=w.get('mm_width'))
+            row.cell(width=pars.get('mm_width'))
             
     def copyValue(self, valuename):
         """TODO
