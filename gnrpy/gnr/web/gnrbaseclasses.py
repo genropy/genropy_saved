@@ -270,17 +270,22 @@ class TableScriptToHtml(BagToHtml):
         else:
             caption = '%i/%i' % (progress, maximum)
         return caption
+
+    def gridColumns(self, struct=None, table=None, viewResource=None):
+        if struct:
+            return self.gridColumnsFromStruct(struct=struct, table=table)
+        elif viewResource:
+            return self.gridColumnsFromResource(viewResource=viewResource, table=table)
     
     def gridColumnsFromResource(self,viewResource=None,table=None):
         table = table or self.rows_table or self.tblobj.fullname
         view = self.site.virtualPage(table=table,table_resources=viewResource)
         structbag = view.newGridStruct(maintable=table)
         view.th_struct(structbag)
-        self.gridColumnsFromStruct(struct=structbag,table=table)
-        return self.grid_columns
+        return self.gridColumnsFromStruct(struct=structbag,table=table)
     
     def gridColumnsFromStruct(self,struct=None,table=None):
-        self.grid_columns = []
+        grid_columns = []
         tblobj = self.db.table(table)
         cells = struct['view_0.rows_0'].nodes
         columns = []
@@ -301,7 +306,8 @@ class TableScriptToHtml(BagToHtml):
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),
                         style=attr.get('style'),sqlcolumn=sqlcolumn,dtype=attr.get('dtype'))
-            self.grid_columns.append(pars)
+            grid_columns.append(pars)
+        return grid_columns
 
     @property
     def grid_sqlcolumns(self):
