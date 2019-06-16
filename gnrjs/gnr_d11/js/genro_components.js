@@ -2460,7 +2460,17 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
         var videoNodeId = this.videoNodeId;
         slotsKw.playbutton = {tag:'slotButton',
             label:'==_playing?"Pause":"Play"',
-             action:'var _video = genro.domById(_videoNodeId); if(_playing){_video.pause()}else{_video.play()};',
+             action:function(){
+                var kw = arguments[arguments.length-1]
+                var _video = genro.domById(kw._videoNodeId); 
+                genro.bp(true);
+                if(kw._playing){
+                    _video.pause()
+                }else{
+                    _video.play()
+                };
+             },
+             //'var _video = genro.domById(_videoNodeId); if(_playing){_video.pause()}else{_video.play()};',
             _playing:'^.playing',
             iconClass:'==_playing?"player_pause":"player_play"',
             _videoNodeId:this.videoNodeId

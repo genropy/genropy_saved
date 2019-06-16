@@ -604,16 +604,17 @@ class GnrSqlDb(GnrObject):
 
     def commit(self):
         """Commit a transaction"""
-        self.onCommitting()
         thread_connections = self._connections.get(thread.get_ident(), {})
         currentConnectionName = self.currentConnectionName
         currentStorename = self.currentStorename
         liveconn = thread_connections.items()
         for c,conn in liveconn:
             storename,connectionName = c
-            if connectionName == currentConnectionName:
-                conn.commit()
-        self.onDbCommitted()
+            with self.tempEnv(storename=storename):
+                if connectionName == currentConnectionName:
+                    self.onCommitting()
+                    conn.commit()
+                    self.onDbCommitted()
 
     def onCommitting(self):
         deferreds = self.currentEnv.setdefault('deferredCalls_%s' %self.connectionKey(),Bag()) 
