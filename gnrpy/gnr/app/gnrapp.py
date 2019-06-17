@@ -979,6 +979,8 @@ class GnrApp(object):
     def _pkgBroadcast(self,method,*args,**kwargs):
         result = []
         for pkgId,pkg in self.packages.items():
+            if pkg.attributes.get('readOnly'):
+                continue
             if method.endswith('*'):
                 handlers = objectExtract(self,method[:-1]).values()
             else:
