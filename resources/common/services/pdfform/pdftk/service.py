@@ -45,9 +45,9 @@ class Service(PdfFormService):
                 colobj = tblobj.column(v['field_path'])
                 format = colobj.attributes.get('format')
                 dtype = colobj.attributes.get('dtype')
-                value = self.parent.currentPage.toText(self.rec[v['field_path'].replace('@','_').replace('.','_')] or '',
+                value = self.parent.currentPage.toText(rec[v['field_path'].replace('@','_').replace('.','_')] or '',
                                         dtype=dtype,format=format)
-                mapfields[v['pdf_field']] = self.rec[v['field_path'].replace('@','_').replace('.','_')] or ''
+                mapfields[v['pdf_field']] = value
         self.fillForm(template=pdfFile, values=mapfields,
             output=output)
 
