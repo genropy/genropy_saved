@@ -422,14 +422,16 @@ class BagToHtml(object):
                 for copy in range(self.copies_per_page):
                     extra_row_height = self.onNewRow() or 0
                     self.copy = copy
-                    rowheight = self.calcRowHeight()
+                    row_kw = self.getRowAttrsFromData()
+                    rowheight = row_kw.pop('height',None) or self.calcRowHeight()
                     availableSpace = self.grid_height - self.copyValue('grid_body_used') -\
                                      self.calcGridHeaderHeight() - self.calcGridFooterHeight()
                     if (rowheight+extra_row_height) > (availableSpace -self.grid_body_adjustment):
                         self._newPage()
                     if not self.rowData:
                         continue
-                    row = self.copyValue('body_grid').row(height=rowheight)
+                    
+                    row = self.copyValue('body_grid').row(height=rowheight, **row_kw)
                     self.copies[self.copy]['grid_body_used'] = self.copyValue('grid_body_used') + rowheight+extra_row_height
                     self.currColumn = 0
                     self.currRow = row
@@ -440,6 +442,9 @@ class BagToHtml(object):
                 self._closePage(True)
 
         
+    def getRowAttrsFromData(self):
+        return dictExtract(self.rowData,'row_')
+
     def onNewRow(self):
         pass
                 
@@ -495,9 +500,15 @@ class BagToHtml(object):
         for colNode in self.columnsBag:
             cell_kw = dict(colNode.attr)
             field = cell_kw.pop('field',None)
+            
+            anycell_kw = self.rowData.get('anycell_kw') or dict()
+            anycell_kw.update(dictExtract(self.rowData,'anycell_kw_'))
+            cell_kw.update(anycell_kw)
+
             extra_kw = self.rowData.get('%s_kw' %field) or dict()
             extra_kw.update(dictExtract(self.rowData,'%s_kw_' %field))
             cell_kw.update(extra_kw)
+
             dtype = cell_kw.get('dtype')
             if not cell_kw.get('align_class') and dtype:
                 cell_kw['align_class'] = self._guessAlign(dtype=dtype)
