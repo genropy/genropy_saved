@@ -399,6 +399,8 @@ class GnrSqlDb(GnrObject):
         if not connection:
             connection = self.adapter.connect(storename)
             connection.storename = storename
+            connection.committed = False
+            connection.connectionName = connectionTuple[1]
             thread_connections[connectionTuple] = connection
         return connection
     
@@ -478,6 +480,7 @@ class GnrSqlDb(GnrObject):
                     #if sql.startswith('INSERT') or sql.startswith('UPDATE') or sql.startswith('DELETE'):
                     #    print sql.split(' ',1)[0],storename,self.currentEnv.get('connectionName'),'dbtable',dbtable
                     cursor.execute(sql, sqlargs)
+                    cursor.connection.committed = False
                 if self.debugger:
                     self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable,delta_time=time()-t_0)
             
@@ -490,8 +493,10 @@ class GnrSqlDb(GnrObject):
                 str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
                 self.rollback()
                 raise
+        
             if autocommit:
                 self.commit()
+            
         return cursor
 
     def _multiCursorExecute(self, cursor_list, sql, sqlargs):
@@ -603,18 +608,18 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_releaseCounters(record)
 
     def commit(self):
-        """Commit a transaction"""
-        thread_connections = self._connections.get(thread.get_ident(), {})
-        currentConnectionName = self.currentConnectionName
-        currentStorename = self.currentStorename
-        liveconn = thread_connections.items()
-        for c,conn in liveconn:
-            storename,connectionName = c
-            with self.tempEnv(storename=storename):
-                if connectionName == currentConnectionName:
-                    self.onCommitting()
-                    conn.commit()
-                    self.onDbCommitted()
+        trconns = self._connections.get(thread.get_ident(), {})
+        while True:
+            connections = filter(lambda c: not c.committed and c.connectionName==self.currentConnectionName,
+                                trconns.values())
+            if not connections:
+                break
+            connection = connections[0]
+            with self.tempEnv(storename=connection.storename):
+                self.onCommitting()
+            connection.commit()
+            connection.committed = True
+        self.onDbCommitted()
 
     def onCommitting(self):
         deferreds = self.currentEnv.setdefault('deferredCalls_%s' %self.connectionKey(),Bag()) 
