@@ -984,6 +984,10 @@ class SqlTable(GnrObject):
         pkeycol = self.pkey
         updatedKeys = []
         updatercb,updaterdict = None,None
+        commit_every = False 
+        if autocommit and autocommit is not True:
+            commit_every = autocommit
+            autocommit = False
         if callable(updater):
             if updater_kwargs:
                 def updatercb(row):
@@ -992,7 +996,7 @@ class SqlTable(GnrObject):
                 updatercb = updater
         elif isinstance(updater,dict):
             updaterdict = updater
-        for row in fetch:
+        for i,row in enumerate(fetch):
             new_row = dict(row)
             if not _raw_update:
                 self.expandBagFields(row)
@@ -1011,6 +1015,8 @@ class SqlTable(GnrObject):
                 self.raw_update(new_row,old_record=row,pkey=record_pkey)
             if _onUpdatedCb:
                 _onUpdatedCb(record=new_row,old_record=row,pkey=record_pkey)
+            if commit_every and i%commit_every==0:
+                self.db.commit()
         if autocommit:
             self.db.commit()
         return updatedKeys
