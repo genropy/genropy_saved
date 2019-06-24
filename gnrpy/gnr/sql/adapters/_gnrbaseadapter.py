@@ -747,13 +747,17 @@ class GnrWhereTranslator(object):
                 result.append(' %s ( %s )' % (jc, onecondition ))
         return result
 
+    def checkValueIsField(self,value):
+        return value and isinstance(value,basestring) and value[0] in '$@'
+
     def prepareCondition(self, column, op, value, dtype, sqlArgs,tblobj=None):
         if not dtype:
             dtype = tblobj.column(column).dtype
         if not column[0] in '@$':
             column = '$%s' % column
-        if dtype in('D', 'DH','DHZ'):
-            value, op = self.decodeDates(value, op, 'D')
+        if dtype in ('D', 'DH','DHZ'):
+            if not self.checkValueIsField(value):
+                value, op = self.decodeDates(value, op, 'D')
             if dtype=='DH':
                 column = 'CAST (%s AS date)' % column
         if not dtype in ('A', 'T') and op in (
@@ -814,7 +818,7 @@ class GnrWhereTranslator(object):
         return value, op
 
     def storeArgs(self, value, dtype, sqlArgs):
-        if not dtype in ('A', 'T'):
+        if not dtype in ('A', 'T') and not self.checkValueIsField(value):
             if isinstance(value, list):
                 value = [self.catalog.fromText(v, dtype) for v in value]
             elif isinstance(value, basestring):
@@ -825,7 +829,7 @@ class GnrWhereTranslator(object):
 
     def op_startswithchars(self, column, value, dtype, sqlArgs,tblobj):
         "!!Starts with Chars"
-        return self.unaccentTpl(tblobj,column,'LIKE',mask=":%s||'%%%%'")  % (column, self.storeArgs(value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'LIKE',mask=":%s || '%%%%'")  % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_equal(self, column, value, dtype, sqlArgs,tblobj):
         "!!Equal to"
@@ -833,12 +837,12 @@ class GnrWhereTranslator(object):
 
     def op_startswith(self, column, value, dtype, sqlArgs,tblobj):
         "!!Starts with"
-        return self.unaccentTpl(tblobj,column,'ILIKE',mask=":%s|| '%%%%'")  % (column, self.storeArgs(value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'ILIKE',mask=":%s || '%%%%'")  % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_wordstart(self, column, value, dtype, sqlArgs,tblobj):
         "!!Word start"
         value = value.replace('(', '\(').replace(')', '\)').replace('[', '\[').replace(']', '\]')
-        return self.unaccentTpl(tblobj,column,'~*',mask="'(^|\\W)'||:%s")  % (column, self.storeArgs(value, dtype, sqlArgs))
+        return self.unaccentTpl(tblobj,column,'~*',mask="'(^|\\W)' || :%s")  % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_contains(self, column, value, dtype, sqlArgs,tblobj):
         "!!Contains"

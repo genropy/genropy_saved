@@ -443,7 +443,7 @@ class SqlQueryCompiler(object):
         for k,v in self.sqlparams.items():
             if isinstance(v,basestring):
                 if v.startswith('@') or v.startswith('$'):
-                    sql = re.sub(':%s(\W|$)' % k, v, sql)
+                    sql = re.sub('(:%s)(\W|$)' % k, lambda m: '%s%s' %(v,m.group(2)), sql)
         return sql
                     
     def compiledQuery(self, columns='', where='', order_by='',
