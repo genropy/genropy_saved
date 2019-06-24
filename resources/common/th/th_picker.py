@@ -140,7 +140,7 @@ class THPicker(BaseComponent):
                                               childname='picker_tablehandler',nodeId='%s_th' %paletteCode)
         if structure_field:
             structure_tblobj = tblobj.column(structure_field).relatedTable().dbtable
-            defaultPickerStructure =  structure_field if maintable and self.db.table(maintable).column(structure_field) is not None else None
+            defaultPickerStructure =  structure_field if structure_field in self.db.table(maintable).columns else None
             pickerStructure = structure_kwargs.pop('pickerStructure',defaultPickerStructure)
             top = bc.contentPane(region='top',height=top_height or '50%',splitter=True,datapath='.structuretree')
             structureTreeKwargs = dict(draggable=False,moveTreeNode=False)
