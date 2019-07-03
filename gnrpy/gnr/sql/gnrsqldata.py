@@ -1972,7 +1972,8 @@ class SqlSelection(object):
         
     def _cellStructFromCol(self, colname, examplerow=None):
         kwargs = dict(self.colAttrs.get(colname, {}))
-        kwargs.pop('tag', None)
+        for k in ('tag','sql_formula','_owner_package','virtual_column','_sysfield','_sendback','group','readOnly'):
+             kwargs.pop(k, None)
         kwargs['name'] = kwargs.pop('label', None)
         kwargs['field'] = colname
         size = kwargs.pop('size', None)
