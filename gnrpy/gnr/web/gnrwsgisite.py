@@ -1530,7 +1530,7 @@ class GnrWsgiSite(object):
         dirres().walk(cb,_mode='')
 
         
-    def externalUrl(self, path,serveAsLocalhost=None, _link=False,**kwargs):
+    def externalUrl(self, path, _link=False,**kwargs):
         """TODO
 
         :param path: TODO"""
@@ -1540,10 +1540,6 @@ class GnrWsgiSite(object):
             path = self.home_uri
         f =  '{}{}' if path.startswith('/') else '{}/{}'
         path = f.format(self.external_host,path)
-        if serveAsLocalhost:
-            protocol, _, domain = self.external_host.rpartition('://')
-            host, _, port = domain.partition(':')
-            path = path.replace(host,'localhost')
         if params:
             path = '%s?%s' % (path, params)
         if _link:
