@@ -545,7 +545,7 @@ class BagToHtml(object):
                 value = self.rowField(field, default=default, locale=locale, format=format,
                                       mask=mask, currency=currency)
         content_class = '%s %s' %(content_class,align_class) if content_class else align_class or self._guessAlign(value=value)
-        value = self.toText(value, locale, format, mask, self.encoding)
+        value = self.toText(value, locale, format, mask, self.encoding, currency=currency)
         self.currRow.cell(value, width=curr_attr['mm_width'],overflow='hidden',
                             white_space=white_space,content_class=content_class, **kwargs)
         return value
