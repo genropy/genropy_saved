@@ -193,7 +193,7 @@ class TableScriptToHtml(BagToHtml):
         self.letterhead_sourcedata = None
         self.record = None
         
-    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None,serveAsLocalhost=None, **kwargs):
+    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, **kwargs):
         if not record:
             return
         self.thermo_kwargs = thermo
@@ -202,7 +202,6 @@ class TableScriptToHtml(BagToHtml):
             record = None
         else:
             record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
-        self.serveAsLocalhost = serveAsLocalhost or pdf
         html_folder = self.getHtmlPath(autocreate=True)
         result = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
         
@@ -253,7 +252,7 @@ class TableScriptToHtml(BagToHtml):
         css_requires = []
         for css_require in self.css_requires.split(','):
             if not css_require.startswith('http'):
-                css_requires.extend(self.page.getResourceExternalUriList(css_require,'css',serveAsLocalhost=self.serveAsLocalhost))
+                css_requires.extend(self.page.getResourceExternalUriList(css_require,'css'))
             else:
                 css_requires.append(css_require)
         return css_requires
