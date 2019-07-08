@@ -29,10 +29,15 @@ try:
 except ImportError:
     try:
         from psycopg2cffi import compat
+        compat.register()
     except ImportError:
-        from psycopg2ct import compat
-    compat.register()
+        try:
+            from psycopg2ct import compat
+            compat.register()
+        except ImportError:
+            pass
     import psycopg2
+
 from psycopg2.extras import DictConnection, DictCursor, DictCursorBase
 from psycopg2.extensions import cursor as _cursor
 from psycopg2.extensions import connection as _connection
