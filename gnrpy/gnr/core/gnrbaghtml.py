@@ -430,7 +430,6 @@ class BagToHtml(object):
                         self._newPage()
                     if not self.rowData:
                         continue
-                    
                     row = self.copyValue('body_grid').row(height=rowheight, **row_kw)
                     self.copies[self.copy]['grid_body_used'] = self.copyValue('grid_body_used') + rowheight+extra_row_height
                     self.currColumn = 0
@@ -465,7 +464,7 @@ class BagToHtml(object):
         elif self.row_mode == 'attribute':
             rowData = self.currRowDataNode.attr
         else:
-            rowData = self.currRowDataNode.attr
+            rowData = self.currRowDataNode.value
         self.customizeRowData(rowData)
         return rowData
             
