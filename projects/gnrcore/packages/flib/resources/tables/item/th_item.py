@@ -89,12 +89,11 @@ class LoadedFilesView(ThumbsView):
         r.fieldcell("url", width='100%', edit=True)
         r.cell("_thumb", width='5em', name='!!Thumb', calculated=True,
             format_onclick="""var row = this.widget.rowByIndex($1.rowIndex);
-                                                           genro.childBrowserTab(row['url']);)
+                                                           genro.childBrowserTab(row['url']);""")
     
     def th_view(self,view):
         view.grid.attributes.update(draggable_row=True,
-                                    onDrag="""
-                                    var row = dragValues.gridrow.rowdata;
+                                    onDrag="""var row = dragValues.gridrow.rowdata;
                                     dragValues['flib_element'] = row._pkey;                                
                              """)
     
