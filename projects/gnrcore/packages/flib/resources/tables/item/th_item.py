@@ -85,10 +85,13 @@ class LoadedFilesView(ThumbsView):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell("title", width='10em', edit=True)
-        r.fieldcell("description", width='100%', hidden=True)
-        r.fieldcell("url", width='100%', edit=True)
-        r.cell("_thumb", width='5em', name='!!Thumb', calculated=True,
-            format_onclick="""var row = this.widget.rowByIndex($1.rowIndex);
+        r.fieldcell("description", width='100%', edit=True)
+        r.fieldcell("url", width='100%', hidden=True)
+        r.cell("_thumb", width='5em', name='!!Thumb', calculated=True)
+        r.cell('apri_tab', name="Apri", calculated=True, width='3em',
+               cellClasses='cellbutton',
+               format_buttonclass='icnBaseLens buttonIcon',
+               format_isbutton=True, format_onclick="""var row = this.widget.rowByIndex($1.rowIndex);
                                                            genro.childBrowserTab(row['url']);""")
     
     def th_view(self,view):
