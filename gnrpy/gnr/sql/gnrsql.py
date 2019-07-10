@@ -705,11 +705,14 @@ class GnrSqlDb(GnrObject):
             
     packages = property(_get_packages)
 
-    def tablesMasterIndex(self,hard=False,filterCb=None):
+    def tablesMasterIndex(self,hard=False,filterCb=None,filterPackages=None):
         packages = self.packages.keys()
+        filterPackages = filterPackages or packages
         toImport = []
         dependencies = dict()
         for k,pkg in enumerate(packages):
+            if pkg not in filterPackages:
+                continue
             pkgobj = self.package(pkg)
             tables = pkgobj.tables.values()
             if filterCb:
@@ -718,7 +721,10 @@ class GnrSqlDb(GnrObject):
             for tbl in tables:
                 dset = set()
                 for d,isdeferred in tbl.dependencies:
-                    if not isdeferred and (packages.index(d.split('.')[0])<=k or hard):
+                    dpkg = d.split('.')[0]
+                    if dpkg not in filterPackages:
+                        continue
+                    if not isdeferred and (packages.index(dpkg)<=k or hard):
                         dset.add(d)
                 dependencies[tbl.fullname] = dset
         imported = set()
