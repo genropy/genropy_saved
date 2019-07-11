@@ -1295,22 +1295,32 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return m.join();
     },
 
-    scrollableTable:function(domnode, gridbag, kw) {
+    scrollableTable:function(domnode, data, kw) {
         var max_height = kw.max_height || '180px';
         var columns = kw.columns;
         var headers = kw.headers;
         var tblclass = kw.tblclass;
+        var items = [];
         var thead = '<thead onmouseup="dojo.stopEvent(event)"><tr>';
         for (var k = 0; k < columns.length; k++) {
             thead = thead + "<th>" + headers[k] + "</th>";
         }
         thead = thead + "<th style='width:13px;'>&nbsp</th></thead>";
-        var nodes = gridbag.getNodes();
         var item,r, value,v,_customClasses,rowvalidation;
         var tbl = ["<tbody>"];
-        for (var i = 0; i < nodes.length; i++) {
+        var cnt=0;
+        data.forEach(function(n){
+            
             r = "";
-            item = nodes[i].attr;
+            if (n.attr){
+                item = n.attr;
+                identifier = n.label
+            }else{
+                item = n;
+                identifier = cnt;
+                cnt=cnt+1;
+            }
+            items.push(item);
             rowvalidation = ' _is_valid_item="true" ';
             if(item._is_invalid_item){
                 rowvalidation = ' onmouseup="dojo.stopEvent(arguments[0]);" _is_valid_item="false" '
@@ -1332,8 +1342,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
             }
 
             
-            tbl.push('<tr id="' + nodes[i].label + '"  '+_customClasses+ rowvalidation + '>' + r + '</tr>');
-        }
+            tbl.push('<tr id="' + identifier + '"  '+_customClasses+ rowvalidation + '>' + r + '</tr>');
+        })
+
         tbl.push("</tbody>");
         var tbody = tbl.join('');
         var cbf = function(cgr) {
@@ -1359,7 +1370,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             dojo.style(domnode, {width:'auto'});
             var rows = dojo.query('tbody tr', domnode);
             for (var i = 0; i < rows.length; i++) {
-                rows[i].item = nodes[i];
+                rows[i].item = items[i];
             }
             ;
         };
