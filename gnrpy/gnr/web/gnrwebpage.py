@@ -1409,7 +1409,11 @@ class GnrWebPage(GnrBaseWebPage):
 
     def _get_siteName(self):
         if not getattr(self,'_siteName',None):
-            self._siteName = os.path.basename(self.siteFolder.rstrip('/'))
+            if os.path.exists(os.path.join(self.siteFolder,'siteconfig.xml')):
+                #legacymode
+                self._siteName = os.path.basename(self.siteFolder.rstrip('/'))
+            else:
+                self._siteName = os.path.basename(os.path.dirname(self.siteFolder))
         return self._siteName
 
     def _set_siteName(self,siteName):
@@ -1491,14 +1495,14 @@ class GnrWebPage(GnrBaseWebPage):
         flist = self.getResourceList(path, ext=ext)
         return [self.resolveResourceUri(f, add_mtime=add_mtime) for f in flist]
 
-    def getResourceExternalUriList(self, path, ext=None, add_mtime=False,serveAsLocalhost=None):
+    def getResourceExternalUriList(self, path, ext=None, add_mtime=False):
         """TODO
 
         :param path: TODO
         :param ext: TODO
         :param add_mtime: TODO"""
         flist = self.getResourceList(path, ext=ext)
-        return [self.externalUrl(self.resolveResourceUri(f, add_mtime=add_mtime),serveAsLocalhost=serveAsLocalhost) for f in flist]
+        return [self.externalUrl(self.resolveResourceUri(f, add_mtime=add_mtime)) for f in flist]
 
     def onServingCss(self, css_requires):
         """TODO

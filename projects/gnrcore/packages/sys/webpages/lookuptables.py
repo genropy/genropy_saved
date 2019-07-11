@@ -80,7 +80,7 @@ class GnrCustomWebPage(object):
                                     nodeId='mainth',configurable='*',
                                     view_structCb=self.lookupTablesDefaultStruct,condition_loaddata='^main.load_data',
                                     grid_selfDragRows=tblobj.attributes.get('counter'))
-            th.view.top.bar.replaceSlots('addrow','addrow,importer')
+            th.view.top.bar.replaceSlots('addrow','addrow,export,importer')
             if modal:
                 bar = th.view.bottom.slotBar('10,revertbtn,*,cancel,savebtn,10',margin_bottom='2px',_class='slotbar_dialog_footer')
                 bar.revertbtn.slotButton('!!Revert',action='FIRE main.load_data;',disabled='==status!="changed"',status='^.grid.editor.status')

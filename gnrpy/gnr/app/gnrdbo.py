@@ -238,7 +238,8 @@ class TableBase(object):
     @extract_kwargs(counter=True)
     def sysFields(self, tbl, id=True, ins=True, upd=True, full_upd=False, ldel=True, user_ins=None, user_upd=None, 
                   draftField=False, invalidFields=None,invalidRelations=None,md5=False,
-                  counter=None,hierarchical=None,hierarchical_root_id=False,useProtectionTag=None,
+                  counter=None,hierarchical=None,hierarchical_virtual_roots=False,
+                    hierarchical_root_id=False,useProtectionTag=None,
                   group='zzz', group_name='!!System',
                   df=None,counter_kwargs=None,**kwargs):
         """Add some useful columns for tables management (first of all, the ``id`` column)
@@ -307,6 +308,8 @@ class TableBase(object):
                 tbl.column('root_id',sql_value="substring(:hierarchical_pkey from 1 for 22)",
                             group='*',size='22').relation('%s.id' %tblname,relation_name='_grandchildren',mode='foreignkey',one_name='!!Root',many_name='!!Grandchildren',
                                                 onDelete='ignore')
+            if hierarchical_virtual_roots:
+                tbl.column('_virtual_node',dtype='B',name_lomg="!!H.Virtual node",copyFromParent=True)
 
             hfields = []
             for fld in hierarchical.split(','):
@@ -403,11 +406,13 @@ class TableBase(object):
         
 
     def _sysFields_defaults(self,user_ins=None,user_upd=None):
-        default_user_ins = self.db.application.config['sysfield?user_ins']
-        default_user_ins = boolean(default_user_ins) if default_user_ins is not None else True
-        default_user_upd = self.db.application.config['sysfield?user_upd']
-        default_user_upd = boolean(default_user_upd) if default_user_upd is not None else False
-        return user_ins or default_user_ins,user_upd or default_user_upd
+        if user_ins is None:
+            default_user_ins = self.db.application.config['sysfield?user_ins']
+            user_ins = boolean(default_user_ins) if default_user_ins is not None else True
+        if user_upd is None:
+            default_user_upd = self.db.application.config['sysfield?user_upd']
+            user_upd = boolean(default_user_upd) if default_user_upd is not None else False
+        return user_ins,user_upd
 
     def sysFields_protectionTag(self,tbl,protectionTag=None,group=None):
         tbl.column('__protection_tag', name_long='!!Protection tag', group=group,_sysfield=True,_sendback=True,onInserting='setProtectionTag')
@@ -1194,6 +1199,8 @@ class AttachmentTable(GnrDboTable):
         tbl.formulaColumn('fileurl',"COALESCE($external_url,$adapted_url)",name_long='Fileurl')
         if hasattr(self,'atc_types'):
             tbl.column('atc_type',values=self.atc_types())
+        if hasattr(self,'atc_download'):
+            tbl.column('atc_download',dtype='B',name_lomg='DL')
         self.onTableConfig(tbl)
 
     def onArchiveExport(self,records,files=None):

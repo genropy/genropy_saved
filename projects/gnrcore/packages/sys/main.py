@@ -9,8 +9,10 @@ class Package(GnrDboPackage):
                     name_short='System',
                     name_long='System',
                     name_full='System',_syspackage=True)
+    
+    def onDbStarting(self):
+        self.db.changeLogTable = 'sys.dbchange'
 
-        
 class Table(GnrDboTable):
     def isInStartupData(self):
         return False

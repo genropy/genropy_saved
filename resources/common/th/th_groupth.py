@@ -29,13 +29,14 @@ from gnr.core.gnrbag import Bag
 class TableHandlerGroupBy(BaseComponent):
     js_requires = 'gnrdatasets,th/th_groupth'
 
-    @extract_kwargs(condition=True,store=True)
+    @extract_kwargs(condition=True,store=True,grid=True)
     @struct_method
     def th_groupByTableHandler(self,pane,frameCode=None,title=None,table=None,linkedTo=None,
                                 struct=None,where=None,viewResource=None,
                                 condition=None,condition_kwargs=None,store_kwargs=None,datapath=None,
                                 treeRoot=None,configurable=True,
-                                dashboardIdentifier=None,static=False,**kwargs):
+                                dashboardIdentifier=None,static=False,
+                                grid_kwargs=True,groupMode=None,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = table or inattr.get('table')
         tblobj = self.db.table(table)
@@ -60,7 +61,7 @@ class TableHandlerGroupBy(BaseComponent):
             struct = self._th_hook('groupedStruct',mangler=frameCode)
             store_kwargs['applymethod'] = store_kwargs.get('applymethod') or self._th_hook('groupedApplymethod',mangler=frameCode)
         sc = pane.stackContainer(datapath=datapath,_class='group_by_th',selectedPage='^.output',_anchor=True,
-                                nodeId=rootNodeId,
+                                nodeId=rootNodeId,_forcedGroupMode=groupMode,
                                 _linkedTo = linkedTo,table=table,
                                 selfsubscribe_viewMode="""
                                     var viewMode = $1.split('_');
@@ -79,7 +80,8 @@ class TableHandlerGroupBy(BaseComponent):
                                     genro.groupth.addColumnCb(this,{data:data, column:column,fieldcellattr:fieldcellattr,treeNode:treeNode});
                                     """,
                                     datamode='attr',
-                                struct=struct or self._thg_defaultstruct,_newGrid=True,pageName='flatview',title='!!Flat')
+                                struct=struct or self._thg_defaultstruct,_newGrid=True,pageName='flatview',title='!!Flat',
+                                grid_kwargs=grid_kwargs)
         
         frame.dataFormula('.changets.flatview','new Date();',store='^.store',struct='^.grid.struct',
                             _delay=1)
@@ -179,7 +181,12 @@ class TableHandlerGroupBy(BaseComponent):
 
     @struct_method
     def thg_slotbar_groupByModeSelector(self,pane,**kwargs):
-        pane.multiButton(value='^#ANCHOR.groupMode',values='flatview:[!![en]Flat],stackedview:[!![en]Stacked]')
+        inattr = pane.getInheritedAttributes()
+        _forcedGroupMode = inattr.get('_forcedGroupMode')
+        if _forcedGroupMode:
+            pane.dataFormula('#ANCHOR.groupMode','groupMode',groupMode=_forcedGroupMode,_onBuilt=100)
+        else:
+            pane.multiButton(value='^#ANCHOR.groupMode',values='flatview:[!![en]Flat],stackedview:[!![en]Stacked]')
 
     
     def _thg_structMenuData(self,frame,table=None,linkedTo=None):
@@ -285,12 +292,14 @@ class TableHandlerGroupBy(BaseComponent):
         def asName(field,group_aggr):
             return '%s_%s' %(field.replace('.','_').replace('@','_').replace('-','_'),
                     group_aggr.replace('.','_').replace('@','_').replace('-','_').replace(' ','_').lower())
+        pkeyFields = []
         for v in struct['#0.#0'].digest('#a'):
             if v['field'] =='_grp_count' or v.get('calculated'):
                 continue
             col = v.get('queryfield') or v['field']
             if not col.startswith('@'):
                 col = '$%s' %col
+            
             dtype = v.get('dtype')
             group_aggr =  v.get('group_aggr') 
             if dtype in ('N','L','I','F','R') and group_aggr is not False:

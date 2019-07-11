@@ -621,6 +621,7 @@ class DbModelObj(GnrStructObj):
         
     def _get_sqlname(self):
         return self.attributes.get('sqlname', self.name)
+
     sqlname = property(_get_sqlname)
 
     @property
@@ -795,11 +796,6 @@ class DbTableObj(DbModelObj):
         if not sqlname:
             sqlname = self.pkg.tableSqlName(self)
         return sqlname
-
-    @property
-    def adapted_sqlname(self):
-        return self.adapter.adaptSqlName(self.sqlname)
-        
     sqlname = property(_get_sqlname)
         
     def _get_sqlfullname(self):

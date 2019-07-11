@@ -110,7 +110,8 @@ class GnrSqlDb(GnrObject):
     
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
-                 main_schema=None, debugger=None, application=None, read_only=None,**kwargs):
+                 main_schema=None, debugger=None, application=None,
+                 read_only=None,**kwargs):
         """
         This is the constructor method of the GnrSqlDb class.
         
@@ -124,7 +125,6 @@ class GnrSqlDb(GnrObject):
         :param debugger: TODO
         :param application: TODO
         """
-        
         self.implementation = implementation
         self.dbname = self.dbpar(dbname)
         self.host = self.dbpar(host)
@@ -404,6 +404,9 @@ class GnrSqlDb(GnrObject):
         connection = thread_connections.get(connectionTuple)
         if not connection:
             connection = self.adapter.connect(storename)
+            connection.storename = storename
+            connection.committed = False
+            connection.connectionName = connectionTuple[1]
             thread_connections[connectionTuple] = connection
         return connection
     
@@ -476,12 +479,14 @@ class GnrSqlDb(GnrObject):
                     else:
                         cursor = self.adapter.cursor(self.connection)
                 if isinstance(cursor, list):
-                    for c in cursor:
-                        c.execute(sql, sqlargs)
+                    self._multiCursorExecute(cursor,sql,sqlargs)
+                    #for c in cursor:
+                    #    c.execute(sql.replace("_STORENAME_" ,c.connection.storename), sqlargs)
                 else:
                     #if sql.startswith('INSERT') or sql.startswith('UPDATE') or sql.startswith('DELETE'):
                     #    print sql.split(' ',1)[0],storename,self.currentEnv.get('connectionName'),'dbtable',dbtable
                     cursor.execute(sql, sqlargs)
+                    cursor.connection.committed = False
                 if self.debugger:
                     self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable,delta_time=time()-t_0)
             
@@ -494,12 +499,32 @@ class GnrSqlDb(GnrObject):
                 str(e), sql, str(sqlargs).encode('ascii', 'ignore'))))
                 self.rollback()
                 raise
+        
             if autocommit:
                 self.commit()
+            
         return cursor
+
+    def _multiCursorExecute(self, cursor_list, sql, sqlargs):
+        from multiprocessing.pool import ThreadPool
+        p = ThreadPool(4)
+        def _executeOnThread(cursor):
+            cursor.execute(sql.replace("_STORENAME_" ,cursor.connection.storename),sqlargs)
+        
+        #for c in cursor_list:
+        #    _executeOnThread(c)
+        p.map(_executeOnThread, cursor_list)
 
     def notifyDbEvent(self,tblobj,**kwargs):
         pass
+
+
+    def _onDbChange(self,tblobj,evt,record,old_record=None,**kwargs):
+        tblobj.updateTotalizers(record,old_record=old_record,evt=evt,**kwargs)
+        if tblobj.attributes.get('logChanges'):
+            tblobj.onLogChange(evt,record,old_record=old_record)
+            self.table(self.changeLogTable).logChange(tblobj,evt=evt,record=record)
+        
 
     @in_triggerstack
     def insert(self, tblobj, record, **kwargs):
@@ -519,27 +544,29 @@ class GnrSqlDb(GnrObject):
             if hasattr(tblobj,'protect_draft'):
                 record[tblobj.draftField] = tblobj.protect_draft(record)
         self.adapter.insert(tblobj, record,**kwargs)
-        tblobj.updateTotalizers(record,old_record=None)
+        self._onDbChange(tblobj,'I',record=record,old_record=None)
         tblobj._doFieldTriggers('onInserted', record)
         tblobj.trigger_onInserted(record)
         tblobj._doExternalPkgTriggers('onInserted', record)
+    
 
-        
     def insertMany(self, tblobj, records, **kwargs):
         self.adapter.insertMany(tblobj, records,**kwargs)
 
     def raw_insert(self, tblobj, record, **kwargs):
         self.adapter.insert(tblobj, record,**kwargs)
-        tblobj.updateTotalizers(record,_raw=True,**kwargs)
+        self._onDbChange(tblobj,'I',record=record,
+                        old_record=None,_raw=True,**kwargs)
 
     def raw_update(self, tblobj, record,old_record=None, **kwargs):
         self.adapter.update(tblobj, record,**kwargs)
-        tblobj.updateTotalizers(record,old_record=old_record,_raw=True,**kwargs)
+        self._onDbChange(tblobj,'U',record=record,
+                        old_record=old_record,_raw=True,**kwargs)
 
     def raw_delete(self, tblobj, record, **kwargs):
         self.adapter.delete(tblobj, record,**kwargs)
-        tblobj.updateTotalizers(record=None,old_record=record,_raw=True,**kwargs)
-
+        self._onDbChange(tblobj,'D',record=record,
+                        old_record=None,_raw=True,**kwargs)
     @in_triggerstack
     def update(self, tblobj, record, old_record=None, pkey=None, **kwargs):
         """Update a :ref:`table`'s record
@@ -558,8 +585,7 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_assignCounters(record=record,old_record=old_record)
         self.adapter.update(tblobj, record, pkey=pkey,**kwargs)
         tblobj.updateRelated(record,old_record=old_record)
-        tblobj.updateTotalizers(record,old_record=old_record)
-
+        self._onDbChange(tblobj,'U',record=record,old_record=old_record,**kwargs)
         tblobj._doFieldTriggers('onUpdated', record, old_record=old_record)
         tblobj.trigger_onUpdated(record, old_record=old_record)
         tblobj._doExternalPkgTriggers('onUpdated', record, old_record=old_record)
@@ -581,23 +607,24 @@ class GnrSqlDb(GnrObject):
         tblobj._doExternalPkgTriggers('onDeleting', record)
         tblobj.deleteRelated(record)
         self.adapter.delete(tblobj, record,**kwargs)
-        tblobj.updateTotalizers(None,old_record=record)
+        self._onDbChange(tblobj,'D',record=record,**kwargs)
         tblobj._doFieldTriggers('onDeleted', record)
         tblobj.trigger_onDeleted(record)
         tblobj._doExternalPkgTriggers('onDeleted', record)
         tblobj.trigger_releaseCounters(record)
 
     def commit(self):
-        """Commit a transaction"""
-        self.onCommitting()
-        thread_connections = self._connections.get(_thread.get_ident(), {})
-        currentConnectionName = self.currentConnectionName
-        currentStorename = self.currentStorename
-        liveconn = thread_connections.items()
-        for c,conn in liveconn:
-            storename,connectionName = c
-            if connectionName == currentConnectionName:
-                conn.commit()
+        trconns = self._connections.get(thread.get_ident(), {})
+        while True:
+            connections = filter(lambda c: not c.committed and c.connectionName==self.currentConnectionName,
+                                trconns.values())
+            if not connections:
+                break
+            connection = connections[0]
+            with self.tempEnv(storename=connection.storename):
+                self.onCommitting()
+            connection.commit()
+            connection.committed = True
         self.onDbCommitted()
 
     def onCommitting(self):
@@ -684,11 +711,14 @@ class GnrSqlDb(GnrObject):
             
     packages = property(_get_packages)
 
-    def tablesMasterIndex(self,hard=False,filterCb=None):
-        packages = list(self.packages.keys())
+    def tablesMasterIndex(self,hard=False,filterCb=None,filterPackages=None):
+        packages = self.packages.keys()
+        filterPackages = filterPackages or packages
         toImport = []
         dependencies = dict()
         for k,pkg in enumerate(packages):
+            if pkg not in filterPackages:
+                continue
             pkgobj = self.package(pkg)
             tables = list(pkgobj.tables.values())
             if filterCb:
@@ -697,7 +727,10 @@ class GnrSqlDb(GnrObject):
             for tbl in tables:
                 dset = set()
                 for d,isdeferred in tbl.dependencies:
-                    if not isdeferred and (packages.index(d.split('.')[0])<=k or hard):
+                    dpkg = d.split('.')[0]
+                    if dpkg not in filterPackages:
+                        continue
+                    if not isdeferred and (packages.index(dpkg)<=k or hard):
                         dset.add(d)
                 dependencies[tbl.fullname] = dset
         imported = set()

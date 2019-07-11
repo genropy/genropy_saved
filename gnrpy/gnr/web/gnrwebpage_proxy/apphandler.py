@@ -793,7 +793,6 @@ class GnrWebAppHandler(GnrBaseProxy):
             if fromSelection:
                 fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
                 pkeys = fromSelection.output('pkeylist')
-            
             if customOrderBy:
                 order_by = []
                 for fieldpath,sorting in customOrderBy.digest('#v.fieldpath,#v.sorting'):
@@ -812,6 +811,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                                       recordResolver=recordResolver, selectionName=selectionName, 
                                       pkeys=pkeys, sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,
                                       excludeDraft=excludeDraft,checkPermissions=checkPermissions ,filteringPkeys=filteringPkeys,**kwargs)
+
             selection = selecthandler(**selection_pars)
             if selection is False:
                 return Bag()
@@ -1032,8 +1032,11 @@ class GnrWebAppHandler(GnrBaseProxy):
                     if handler:
                         filteringPkeys = handler(tblobj=tblobj, 
                                                 where=where,relationDict=relationDict, 
-                                                sqlparams=sqlparams,limit=limit,**kwargs)
+                                                sqlparams=sqlparams,limit=limit,**kwargs)                      
                         if filteringPkeys and not isinstance(filteringPkeys,list):
+                            if hasattr(filteringPkeys,'forcedOrderBy'):
+                                order_by=filteringPkeys.forcedOrderBy
+                                sortedBy=None
                             filteringPkeys = filteringPkeys.output('pkeylist')
                     else:
                         filteringPkeys = [filteringPkeys]
@@ -1047,7 +1050,6 @@ class GnrWebAppHandler(GnrBaseProxy):
                     kwargs['_filteringPkeys'] = filteringPkeys
                 if filteringWhere:
                     where = filteringWhere if not where else ' ( %s ) AND ( %s ) ' %(filteringWhere, where)
-                
         query = tblobj.query(columns=columns, distinct=distinct, where=where,
                              order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
                              relationDict=relationDict, sqlparams=sqlparams, locale=self.page.locale,
@@ -1627,6 +1629,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 selectHandler = self.dbSelect_default
             order_list = []
             preferred = tblobj.attributes.get('preferred') if preferred is None else preferred
+            weakCondition = weakCondition or tblobj.attributes.get('weakCondition')
             if preferred:
                 order_list.append('( %s ) desc' %preferred)
                 resultcolumns.append("""(CASE WHEN %s IS NOT TRUE THEN 'not_preferred_row' ELSE '' END) AS _customclasses_preferred""" %preferred)
@@ -1637,7 +1640,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             order_by = order_by or tblobj.attributes.get('order_by') or showcolumns[0]
             order_list.append(order_by if order_by[0] in ('$','@') else '$%s' %order_by)
             order_by = ', '.join(order_list)
-            cond = '(%s) AND (%s)' %(condition,weakCondition) if isinstance(weakCondition,basestring) else condition
+            cond = '(%s) AND (%s)' %(condition or 'TRUE',weakCondition) if isinstance(weakCondition,basestring) else condition
             selection = selectHandler(tblobj=tblobj, querycolumns=querycolumns, querystring=querystring,
                                       resultcolumns=resultcolumns, condition=cond, exclude=exclude,
                                       limit=limit, order_by=order_by,
@@ -1730,7 +1733,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 where = where or condition
             return tblobj.query(where=where, columns=','.join(resultcolumns), limit=limit,
                                 order_by=order_by or querycolumns[0], exclude_list=exclude_list,
-                                **whereargs).selection()
+                                **whereargs).selection(_aggregateRows=True)
 
         exclude_list = None
         if exclude:

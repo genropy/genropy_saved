@@ -424,14 +424,26 @@ class TableHandler(BaseComponent):
         pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
         #pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
         #box = pane.div(_class='detacher',z_index=30)
-        kwargs = dict([('main_%s' %k,v) for k,v in list(kwargs.items())])
-        iframe = pane.iframe(main=self.th_iframedispatcher,main_methodname=method,
+        kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
+        iframe = pane.iframe(main='th_iframedispatcher',main_methodname=method,
                             main_table=pane.getInheritedAttributes().get('table'),
                             main_pkey='=#FORM.pkey',
                             src=src,**kwargs)
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
         return iframe
-    
+
+    @struct_method
+    def th_externalThForm(self,pane,src=None,table=None,pkeyField=None,formResource='Form',**kwargs):
+        pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
+        iframe = pane.htmliframe(src='%s/sys/thpage/%s?main_call=main_form&th_formResource=%s' %(src,table.replace('.','/'),formResource),
+                                    height='100%',width='100%',border=0)
+        pane.dataController("""
+                            if(myiframe.domNode && myiframe.domNode.contentWindow){
+                                myiframe.domNode.contentWindow.postMessage({topic:'main_form_open',pkey:pkey},'*')
+                            }
+                           """,myiframe=iframe,_virtual_column=pkeyField,pkey='^#FORM.record.%s' %pkeyField,
+                           _delay=100,**{'subscribe_iframeform_%s_ready' %table.replace('.','_'):True})
+
 
     @struct_method
     def th_relatedIframeForm(self,pane,related_field=None,related_table=None,src=None,formResource=None,**kwargs):
@@ -465,7 +477,10 @@ class TableHandler(BaseComponent):
         if pkey:
             root.dataController('SET .pkey = pkey; FIRE .controller.loaded=pkey;',pkey=pkey,_onStart=True)
             root.dataRecord('.record',table,pkey='^#FORM.pkey',_if='pkey')
-        getattr(self,'iframe_%s' %methodname)(root,**kwargs)
+        handler = self.getPublicMethod('rpc',methodname)
+        if handler:
+            return handler(root,**kwargs)
+        return getattr(self,'iframe_%s' %methodname)(root,**kwargs)
 
     #USER SETTINGS 
     def th_mainUserSettings(self,kwargs=None):

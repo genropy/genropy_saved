@@ -146,8 +146,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
     floatingMessage:function(sourceNode,kw){
         kw = objectUpdate({},kw)
-        var yRatio = objectPop(kw,'yRatio')
-        var xRatio = objectPop(kw,'xRatio')
+        var yRatio = objectPop(kw,'yRatio');
+        var xRatio = objectPop(kw,'xRatio');
         var duration = objectPop(kw,'duration') || 2;
         var duration_in = objectPop(kw,'duration_in') || duration;
         var duration_out = objectPop(kw,'duration_out') || duration;
@@ -942,7 +942,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                     });
                 }
                 if(sizeFromContent && !wdg._size_from_cache){
-                    wdg.setBoxAttributes({height:palette_height,width:palette_width});
+                    wdg.setBoxAttributes({height:palette_height || default_height,width:palette_width || default_width});
                 }
 
             }}).getParentNode();         
@@ -959,12 +959,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
     _prepareThIframeUrl:function(kw){
         var prefix = kw.lookup? '/sys/lookuptables/':'/sys/thpage/';
+        var zoomUrl = kw.zoomUrl || prefix+kw.table.replace('.','/');
         var dbstore = genro.getData('gnr.dbstore');
         if(dbstore){
-            prefix = '/'+dbstore+'/'+prefix;
+            zoomUrl = '/'+dbstore+zoomUrl;
         }
-
-        var zoomUrl = kw.zoomUrl || prefix+kw.table.replace('.','/');
         var urlKw = objectExtract(kw,'url_*');
         urlKw.th_public = objectPop(kw,'public') || false;
         if(kw.pkey){

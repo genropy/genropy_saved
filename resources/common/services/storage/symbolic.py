@@ -9,6 +9,10 @@ from gnr.core.gnrsys import expandpath
 import random
 class Service(BaseLocalService):
 
+    def __init__(self, parent=None, base_path=None,**kwargs):
+        self.parent = parent
+        self.base_path =  'SYMBOLIC'
+
     @property
     def home_uri(self):
         return self.parent.default_uri

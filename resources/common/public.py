@@ -10,7 +10,7 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdecorator import extract_kwargs,public_method
+from gnr.core.gnrdecorator import extract_kwargs,public_method,customizable
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrbag import Bag
 import os
@@ -55,7 +55,11 @@ class PublicBase(BaseComponent):
                 }
             """,
             title='^gnr.publicTitle',titleFullDesc='^gnr.publicTitle?titleFullDesc',_delay=1,_onStart=True)
-        return root.contentPane(_class='pbl_root', **kwargs)   
+        return root.contentPane(_class='pbl_root', **kwargs)  
+
+    @customizable
+    def public_applyOnRoot(self,frame):
+        pass
 
     @extract_kwargs(top=True,bottom=True)
     def _pbl_frameroot(self, rootbc, title=None, height=None, width=None, flagsLocale=False,
@@ -65,13 +69,15 @@ class PublicBase(BaseComponent):
         frame.dataController("SET gnr.windowTitle=gnr_public_title[0];",subscribe_gnr_public_title=True)
         self.public_frameTopBar(frame.top,title=title,**top_kwargs)
         self.root_publicframe = frame
+        self.public_applyOnRoot(frame)
         return frame
-        
+    
     def public_frameTopBarSlots(self,baseslot):
         if getattr(self,'public_partitioned',None):
             baseslot = baseslot.replace('avatar','partition_selector,10,avatar')
         return baseslot
-        
+    
+    @customizable
     def public_frameTopBar(self,pane,slots=None,title=None,**kwargs):
         pane.attributes.update(dict(_class='pbl_root_top'))
         baseslots = '15,captionslot,*,dock,avatar,countErrors'
@@ -423,7 +429,11 @@ class TableHandlerMain(BaseComponent):
             th.view.dataController("""FIRE .runQueryDo;""",subscribe_public_changed_partition=True,
                     storeServerTime='=.store?servertime',_if='storeServerTime')
             #partition_kwargs = dictExtract(self.tblobj.attributes,'partition_')
-            realColumn = self.tblobj.column(self.public_partitioned['field']).sqlclass=='column'
+            colobj = self.tblobj.column(self.public_partitioned['field'])
+            realColumn = False 
+            if colobj is not None:
+                realColumn = colobj.sqlclass=='column' 
+                
             if th['view.top.bar.addrow'] and realColumn:
                 th.view.top.bar.addrow.getNode('addButton').attr.update(hidden='^current.%s?=!#v' %self.public_partitioned['field'])
             if th['form.top.bar.form_add'] and realColumn:
@@ -630,6 +640,10 @@ class TableHandlerMain(BaseComponent):
         return form
 
     def _th_parentFrameMessageSubscription(self,form):
+        fid = form.attributes['formId']
+        form.dataController("""var topic = 'iframeform_'+iframeFormId+'_ready';
+                                genro.dom.windowMessage('parent',{'topic':topic,'iframeFormId':iframeFormId});""",iframeFormId=fid,
+                                _onStart=1)
         form.dataController("""if(_subscription_kwargs.pkey){
                                     if(pkey=='*newrecord*'){
                                         this.form.newrecord(objectExtract(_subscription_kwargs,'default_*'))
@@ -656,7 +670,6 @@ class TableHandlerMain(BaseComponent):
         pane.div('^gnr.publicTitle', _class='pbl_title_caption',
                     draggable=True,onDrag='dragValues["webpage"] = genro.page_id; dragValues["dbrecords"] = objectUpdate({},genro.getDataNode("gnr.publicTitle").attr);',
                     childname='captionbox',**kwargs)
-
 
     def public_frameTopBarSlots(self,baseslot):
         baseslot = baseslot.replace('avatar','tablelimiter,10,avatar')

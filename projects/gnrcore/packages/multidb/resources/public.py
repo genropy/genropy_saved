@@ -9,8 +9,52 @@
 """ public multidb """
 
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrdecorator import oncalled
+from gnr.web.gnrwebstruct import struct_method
+
+
+
+class Public(BaseComponent):
+    @oncalled
+    def public_applyOnRoot(self,frame,**kwargs):
+        if self.dbstore:
+            return
+        bar = frame.top.bar
+        if getattr(self,'public_multidbSelector',None):
+            frame.attributes['context_dbstore'] = '=current.context_dbstore'
+            slots = bar.attributes.get('slots').split(',')
+            if 'partition_selector' in slots:
+                bar.replaceSlots('partition_selector','multidb_selector,10,partition_selector')
+            else:
+                bar.replaceSlots('avatar','multidb_selector,10,avatar')
+
+        
+    @struct_method
+    def public_publicRoot_multidb_selector(self,pane, **kwargs): 
+        pane.parent.parent.parent.center.attributes['context_dbstore'] = '=current.context_dbstore'
+        fb = pane.div(margin_top='2px').formbuilder(border_spacing='0',cols=1)
+        storetable = self.db.package('multidb').attributes['storetable']
+        extra_kw = {} if self.public_multidbSelector is True else self.public_multidbSelector
+        fb.dbSelect(value='^current.context_dbstore',_storename=False,dbtable=storetable,
+                    alternatePkey='dbstore',font_size='.8em',lbl_color='white',
+                    color='#666',lbl_font_size='.8em',lbl=self.db.table(storetable).name_long,**extra_kw)
 
 class TableHandlerMain(BaseComponent):
+
+    @struct_method
+    def public_publicRoot_multidb_selector(self,pane, **kwargs): 
+        pane.parent.parent.parent.center.attributes['context_dbstore'] = '=current.context_dbstore'
+        fb = pane.div(margin_top='2px').formbuilder(border_spacing='0',cols=1)
+        storetable = self.db.package('multidb').attributes['storetable']
+        extra_kw = {} if self.public_multidbSelector is True else self.public_multidbSelector
+        fb.dbSelect(value='^current.context_dbstore',_storename=False,dbtable=storetable,
+                    alternatePkey='dbstore',font_size='.8em',lbl_color='white',
+                    disabled='^%s.form.pkey' %self.maintable.replace('.','_'),
+                    color='#666',lbl_font_size='.8em',lbl=self.db.table(storetable).name_long,**extra_kw)
+        fb.dataController("FIRE %s.view.runQueryDo;" %self.maintable.replace('.','_'),
+                            runned='=%s.view.store?method' %self.maintable.replace('.','_'),
+                            _if='runned',_fired='^current.context_dbstore')
+
     def onMain_multidb_addOn(self):
         if not self.tblobj.multidb:
             return

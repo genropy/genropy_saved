@@ -78,7 +78,7 @@ var THTree = {
         var draggedNode = sourceNode.widget.storebag().getNodeByAttr('pkey',dragged_record.pkey);
         var dropNode = dropInfo.treeItem;
         if(!draggedNode){
-            console.log('Resolver damaged')
+            console.log('Resolver damaged');
             return false;
         }
         if(draggedNode.isAncestor(dropNode)){
@@ -86,6 +86,11 @@ var THTree = {
         }
         var ondrop_record = dropNode.attr;
         var ondrop_pkey = ondrop_record.pkey;
+        var drop_fullrec = ondrop_record._record || {};
+        var drag_fullrec = dragged_record._record || {};
+        if((drop_fullrec._virtual_node || false) !== (drag_fullrec._virtual_node || false) ){
+            return false;
+        }
         return (ondrop_pkey!=dragged_record.pkey && dragged_record.parent_id != ondrop_pkey);
     },
     

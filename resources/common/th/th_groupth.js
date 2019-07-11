@@ -9,14 +9,15 @@ genro_plugin_groupth = {
         var tr = root._('treeGrid',{storepath:'.treestore',autoCollapse:false,headers:true,_class:'groupby_tree'});
         var struct_row = structBag.getItem('#0.#0');
         tr._('treegrid_column',{field:'description',header:''});
-        var fld;
+        var fld,width;
         
         struct_row.forEach(function(n){
             if(n.attr.group_aggr && 'NLIRF'.indexOf(n.attr.dtype)>=0  || n.attr.group_nobreak || n.attr.calculated){
                 fld = n.attr.field.replace(/\W/g, '_');
                 fld += (n.attr.group_aggr?'_'+n.attr.group_aggr.replace(/\W/g, '_').toLowerCase():'');
+                width = n.attr.width && n.attr.width.endsWith('px')?parseInt(n.attr.width):120;
                 tr._('treegrid_column',{field:fld,dtype:(n.attr.group_aggr && n.attr.group_nobreak)?'T':n.attr.dtype,
-                                        size:120,header:n.attr.tree_name || n.attr.name,format:n.attr.format});
+                                        size:width,header:n.attr.tree_name || n.attr.name,format:n.attr.format});
             }
         });
         root.unfreeze();
@@ -290,6 +291,7 @@ genro_plugin_groupth = {
             joinConditions:th.querymanager.sourceNode.absDatapath('.query.joinConditions'),
             groupByStruct:'.grid.struct',
             groupMode:'.groupMode',
+            treeRootName:'.treeRootName',
             output:'.output',
             queryPars:'.queryPars',
         };

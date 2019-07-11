@@ -18,8 +18,8 @@ class GnrCustomWebPage(object):
 
         fb.textbox(value='^.url',lbl='Url',width='40em', readOnly=True)
         fb.dataRpc('.url',self.url,filepath='^.path')
-        root.data('.store',StorageResolver(self.site.storageNode('s3:'),cacheTime=10,
-                            include='*.txt', exclude='_*,.*',dropext=True,readOnly=False)()
+        root.data('.store',StorageResolver(self.site.storageNode('pkg:test15'),cacheTime=10,
+                            include='*.txt', exclude='_*,.*',dropext=True,readOnly=False,_page=self)()
                             )
         root.tree(storepath='.store', hideValues=True, inspect='shift', draggable=True, dragClass='draggedItem')
 
@@ -38,7 +38,7 @@ class GnrCustomWebPage(object):
 
     def test_2_copy(self,root,**kwargs):
         bc = root.borderContainer(_anchor=True,height='400px')
-        bc.storageTreeFrame(frameCode='localStorage',storagepath='site:',
+        bc.storageTreeFrame(frameCode='localStorage',storagepath='pkg:test15/lib',
                                 border='1px solid silver',margin='2px',rounded=4,
                                 region='center',preview_region='right',
                                 store__onBuilt=True,

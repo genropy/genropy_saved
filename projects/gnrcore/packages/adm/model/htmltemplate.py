@@ -30,7 +30,7 @@ class Table(object):
         tbl.column('name', name_long='!!Name',validate_notnull=True)
         tbl.column('username', name_long='!!Username')
         tbl.column('version', name_long='!!Version')
-        tbl.column('type_code',name_long='Type').relation('letterhead_type.code',relation_name='letterheads',mode='foreignkey',onDelete='raise')
+        tbl.column('type_code',size=':15',name_long='Type').relation('letterhead_type.code',relation_name='letterheads',mode='foreignkey',onDelete='raise')
         tbl.column('data', dtype='X', name_long='!!Data', _sendback=True)
         tbl.column('center_height',dtype='I',name_long='!!Center height')
         tbl.column('center_width',dtype='I',name_long='!!Center width')

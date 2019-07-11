@@ -4646,6 +4646,10 @@ div[disabled='true'], div[disabled='disabled']{
     border-left: 1px solid #ddd;
 }
 
+.treeGridCenter .selectedTreeNode{
+    font-weight: normal;
+    background-color: rgba(241, 205, 82, .2);
+}
 
 
 .treeGridLayout .treecell:last-child{
@@ -5600,6 +5604,9 @@ div[disabled='true'], div[disabled='disabled']{
     background: rgba(221, 150, 90, 0.20);
 }
 
+.multiSelectionActive .gr_footer.gr_scrollbox .gr_itemcontainer{
+    background: rgba(221, 150, 90, 0.20);
+}
 
 .grid_filler{
     height: 100%;

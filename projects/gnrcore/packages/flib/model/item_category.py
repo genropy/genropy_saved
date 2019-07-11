@@ -13,4 +13,4 @@ class Table(object):
                                                                                           relation_name='items',
                                                                                           mode='foreignkey',
                                                                                           onDelete='cascade')
-        
+        tbl.aliasColumn('url','@item_id.url')

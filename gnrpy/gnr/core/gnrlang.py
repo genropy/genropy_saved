@@ -329,6 +329,10 @@ class GnrException(Exception):
     localizer = None
     
     def __init__(self, description=None, localizer=None,**kwargs):
+        if not description:
+            import inspect
+            st = inspect.stack()
+            description = "%s:%i"%(st[1][1],st[1][2])
         self.description = description
         self.localizer = localizer
         self.msgargs = kwargs

@@ -409,7 +409,7 @@ class GnrWebUtils(GnrBaseProxy):
             page_path = self.page.site.getStaticPath('page:exportPdfFromNodes',*hp,autocreate=-1)
             print_handler.htmlToPdf(EXPORT_PDF_TEMPLATE %dict(title='%s %i' %(name,i) ,style=style, body=p),page_path, orientation=orientation)
             pdf_list.append(page_path)
-        pdf_handler.joinPdf(pdf_list,'export_%s' %name,os.path.splitext(outputFilePath)[0])
+        pdf_handler.joinPdf(pdf_list,outputFilePath)
         self.page.setInClientData(path='gnr.clientprint',
                                   value=self.page.site.getStaticUrl('page:exportPdfFromNodes',*pl, nocache=True),
                                   fired=True)

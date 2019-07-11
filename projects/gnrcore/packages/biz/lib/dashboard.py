@@ -75,6 +75,7 @@ class BaseDashboardItem(object):
             bc = sc.borderContainer(pageName='conf')
             bc.dataController("""FIRE .runItem;""",
                             _onBuilt=self.run_onbuilt,
+                            _fired='^current.context_dbstore',
                             datapath=workpath,_timing='=.runTimer')
             bc.dataController("""if(runRequired){
                 SET .runRequired = false;

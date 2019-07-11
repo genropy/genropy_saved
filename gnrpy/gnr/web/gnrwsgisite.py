@@ -251,6 +251,7 @@ class GnrWsgiSite(object):
         if self.site_static_dir and not os.path.isabs(self.site_static_dir):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
         self.find_gnrjs_and_dojo()
+        self._remote_edit = options.remote_edit if options else None
         self.gnrapp = self.build_gnrapp(options=options)
         self.server_locale = self.gnrapp.locale
         self.wsgiapp = self.build_wsgiapp(options=options)
@@ -260,7 +261,6 @@ class GnrWsgiSite(object):
         self.page_factory_lock = RLock()
         self.webtools = self.resource_loader.find_webtools()
         self.register
-        self._remote_edit = options.remote_edit if options else None
         if counter == 0 and self.debug:
             self.onInited(clean=not noclean)
         if counter == 0 and options and options.source_instance:
@@ -680,8 +680,8 @@ class GnrWsgiSite(object):
         # No path -> indexpage is served
         if path_info == '/' or path_info == '':
             path_info = self.indexpage
-        if path_info.endswith('.py'):
-            path_info = path_info[:-3]
+        #if path_info.endswith('.py'):
+        #    path_info = path_info[:-3]
         path_list = path_info.strip('/').split('/')
         path_list = [p for p in path_list if p]
         # if url starts with _ go to static file handling
@@ -771,11 +771,6 @@ class GnrWsgiSite(object):
                     comment='SCRIPT_NAME=%r; PATH_INFO=%r;'
                     % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO')))
                 return exc(environ, start_response)
-
-
-
-
-
 
     def maintenanceDispatcher(self,environ, start_response):
         request = self.currentRequest
@@ -1517,30 +1512,31 @@ class GnrWsgiSite(object):
         with zipresult.open(mode='wb') as zipresult:
             zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED,allowZip64=True)
             for fpath in file_list:
-                if os.path.isdir(fpath):
-                    self._zipDirectory(fpath,zip_archive)
-                    continue
                 newname = None
                 if isinstance(fpath,tuple):
                     fpath,newname = fpath
                 fpath = self.storageNode(fpath)
+                if fpath.isdir:
+                    self._zipDirectory(fpath,zip_archive)
+                    continue
                 if not newname:
-                    newname = os.path.basename(fpath.basename)
+                    newname = fpath.basename
                 with fpath.local_path(mode='r') as local_path:
                     zip_archive.write(local_path, newname)
             zip_archive.close()
 
     def _zipDirectory(self,path, zip_archive):
+        from gnr.lib.services.storage import StorageResolver
         def cb(n):
             if n.attr.get('file_ext')!='directory':
                 fpath = self.storageNode(n.attr['abs_path'])
                 with fpath.local_path(mode='r') as local_path:
                     zip_archive.write(local_path,n.attr['rel_path'])
-        dirres = DirectoryResolver(path)
+        dirres = StorageResolver(path)
         dirres().walk(cb,_mode='')
 
         
-    def externalUrl(self, path,serveAsLocalhost=None, _link=False,**kwargs):
+    def externalUrl(self, path, _link=False,**kwargs):
         """TODO
 
         :param path: TODO"""
@@ -1550,10 +1546,6 @@ class GnrWsgiSite(object):
             path = self.home_uri
         f =  '{}{}' if path.startswith('/') else '{}/{}'
         path = f.format(self.external_host,path)
-        if serveAsLocalhost:
-            protocol, _, domain = self.external_host.rpartition('://')
-            host, _, port = domain.partition(':')
-            path = path.replace(host,'localhost')
         if params:
             path = '%s?%s' % (path, params)
         if _link:

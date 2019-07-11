@@ -10,12 +10,12 @@ class Table(object):
         tbl = pkg.table('userobject', pkey='id', name_long='!!User Object',name_plural='!!User Objects',rowcaption='$code,$objtype',broadcast='objtype')
         self.sysFields(tbl, id=True, ins=True, upd=True)
         tbl.column('identifier',size=':120',indexed=True,sql_value="COALESCE(:tbl,:pkg,'')||:objtype||:code|| CASE WHEN :private THEN :userid ELSE '' END",unique=True)
-        tbl.column('code', name_long='!!Code', indexed='y') # a code unique for the same type / pkg / tbl
-        tbl.column('objtype', name_long='!!Object Type', indexed='y')
-        tbl.column('pkg', name_long='!!Package').relation('pkginfo.pkgid',relation_name='objects') # package code
-        tbl.column('tbl', name_long='!!Table').relation('tblinfo.tblid',relation_name='objects') # full table name: package.table
-        tbl.column('userid', name_long='!!User ID', indexed='y')
-        tbl.column('description', 'T', name_long='!!Description', indexed='y')
+        tbl.column('code', size=':40',name_long='!!Code', indexed='y') # a code unique for the same type / pkg / tbl
+        tbl.column('objtype',size=':20', name_long='!!Object Type', indexed='y')
+        tbl.column('pkg', size=':50',name_long='!!Package').relation('pkginfo.pkgid',relation_name='objects') # package code
+        tbl.column('tbl', size=':50',name_long='!!Table').relation('tblinfo.tblid',relation_name='objects') # full table name: package.table
+        tbl.column('userid',size=':50', name_long='!!User ID', indexed='y')
+        tbl.column('description',size=':50', name_long='!!Description', indexed='y')
         tbl.column('notes', 'T', name_long='!!Notes')
         tbl.column('data', 'X', name_long='!!Data')
         tbl.column('authtags', 'T', name_long='!!Auth tags')

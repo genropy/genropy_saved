@@ -295,7 +295,7 @@ class BagToXml(object):
         
     #-------------------- toXml --------------------------------
     def build(self, bag, filename=None, encoding='UTF-8', catalog=None, typeattrs=True, typevalue=True,
-              addBagTypeAttr=True,
+              addBagTypeAttr=True, output_encoding=None,
               unresolved=False, autocreate=False, docHeader=None, self_closed_tags=None,
               translate_cb=None, omitUnknownTypes=False, omitRoot=False, forcedTagAttr=None,mode4d=False,pretty=None):
         """Return a complete standard XML version of the Bag, including the encoding tag 
@@ -334,6 +334,7 @@ class BagToXml(object):
         self.catalog = catalog
         self.typeattrs = typeattrs
         self.typevalue = typevalue
+        self.output_encoding = output_encoding
         self.self_closed_tags = self_closed_tags or []
         self.forcedTagAttr = forcedTagAttr
         self.addBagTypeAttr = addBagTypeAttr
@@ -462,6 +463,8 @@ class BagToXml(object):
                 #    value = value[:-6]
                 #
             #if value.find('\n')!=-1: value= '\n%s\n' % value
+            if self.output_encoding:
+                value = value.encode(self.output_encoding, 'xmlcharrefreplace')
         if not value and tagName in self.self_closed_tags:
             result = '%s/>' % result
         else:

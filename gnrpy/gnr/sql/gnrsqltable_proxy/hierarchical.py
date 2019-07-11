@@ -235,6 +235,10 @@ class HierarchicalHandler(object):
             v=record.get(pkeyfield if fld=='pkey' else fld) 
             record[parent_h_fld]= parent_record[h_fld] if parent_record else None
             record[h_fld]= '%s/%s'%( parent_record[h_fld], v) if parent_record else v
+        if parent_record:
+            for field,colobj in tblobj.columns.items():
+                if colobj.attributes.get('copyFromParent'):
+                    record[field] = parent_record[field]
         if tblobj.column('_row_count') is None:
             return 
         record['_parent_h_count'] = parent_record['_h_count'] if parent_record else None

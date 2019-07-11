@@ -753,12 +753,16 @@ class GnrApp(object):
         
         if not forTesting:
             dbattrs = self.config.getAttr('db') or {}
-            
-            if self.remote_db:
+            dbattrs['implementation'] = dbattrs.get('implementation') or 'sqlite'
+            if dbattrs.get('dbname') == '_dummydb':
+                pass
+            elif self.remote_db:
                 dbattrs.update(self.config.getAttr('remote_db.%s' %self.remote_db))
-            if dbattrs and dbattrs.get('implementation') == 'sqlite':
+            elif dbattrs and dbattrs.get('implementation') == 'sqlite':
                 dbname = dbattrs.pop('filename',None) or dbattrs['dbname']
-                dbattrs['dbname'] = self.realPath(dbname)
+                if not os.path.isabs(dbname):
+                    dbname = self.realPath(os.path.join('..','data',dbname))
+                dbattrs['dbname'] = dbname
         else:
             # Setup for testing with a temporary sqlite database
             tempdir = tempfile.mkdtemp()
@@ -978,7 +982,9 @@ class GnrApp(object):
     
     def _pkgBroadcast(self,method,*args,**kwargs):
         result = []
-        for pkgId,pkg in list(self.packages.items()):
+        for pkgId,pkg in self.packages.items():
+            if pkg.attributes.get('readOnly'):
+                continue
             if method.endswith('*'):
                 handlers = list(objectExtract(self,method[:-1]).values())
             else:
@@ -1335,7 +1341,7 @@ class GnrApp(object):
         
         :param path: TODO"""
         path = os.path.expandvars(str(path))
-        if not path.startswith('/'):
+        if not os.path.isabs(path):
             path = os.path.realpath(os.path.join(self.instanceFolder, path))
         return path
         

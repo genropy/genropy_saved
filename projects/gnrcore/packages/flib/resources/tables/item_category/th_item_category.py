@@ -10,6 +10,12 @@ class View(BaseComponent):
         r = struct.view().rows()
         r.fieldcell('item_id')
         r.fieldcell('category_id')
+        r.fieldcell('url', hidden=True)
+        r.cell('apri_tab', name="Apri", calculated=True, width='3em',
+               cellClasses='cellbutton',
+               format_buttonclass='icnBaseLens buttonIcon',
+               format_isbutton=True, format_onclick="""var row = this.widget.rowByIndex($1.rowIndex);
+                                                           genro.childBrowserTab(row['url']);""")
 
     def th_order(self):
         return 'item_id'

@@ -44,6 +44,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+class GnrSqliteConnection(pysqlite.Connection):
+    pass
+
 class SqlDbAdapter(SqlDbBaseAdapter):
     typesDict = {'charactervarying': 'A','nvarchar':'A', 'character varying': 'A', 'character': 'C','char': 'C', 'text': 'T','varchar':'A', 'blob': 'X',
                  'boolean': 'B','bool':'B', 'date': 'D', 'time': 'H', 'datetime':'DH','timestamp': 'DH', 'numeric': 'N',
@@ -76,7 +79,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             dbdir = os.path.dirname(dbpath) or os.path.join('..','data')
             if not os.path.isdir(dbdir):
                 os.makedirs(dbdir)
-        conn = pysqlite.connect(dbpath, detect_types=pysqlite.PARSE_DECLTYPES | pysqlite.PARSE_COLNAMES, timeout=20.0)
+        conn = pysqlite.connect(dbpath, detect_types=pysqlite.PARSE_DECLTYPES | pysqlite.PARSE_COLNAMES, timeout=20.0,factory=GnrSqliteConnection)
         conn.create_function("regexp", 2, self.regexp)
         #conn.row_factory = pysqlite.Row
         conn.row_factory = GnrDictRow

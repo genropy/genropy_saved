@@ -153,7 +153,9 @@ class SqlModelChecker(object):
             for r in actual_relations:
                 self.actual_relations.setdefault('%s.%s' % (r[1], r[2]), []).append(r)
             self.unique_constraints = self.db.adapter.getTableContraints()
-        for pkg in list(self.db.packages.values()):
+        for pkg in self.db.packages.values():
+            if pkg.attributes.get('readOnly'):
+                continue
             #print '----------checking %s----------'%pkg.name
             self._checkPackage(pkg)
         enabled_unaccent = False if create_db else 'unaccent' in self.db.adapter.listElements('enabled_extensions')
@@ -261,6 +263,8 @@ class SqlModelChecker(object):
                         new_size = '%s,0' % new_size
                     if new_dtype in ('X', 'Z', 'P') and old_dtype == 'T':
                         pass
+                    elif new_dtype=='serial' and old_dtype=='L':
+                        pass
                     elif new_dtype in ('L','I') and old_dtype in ('L','I') and not self.db.adapter.allowAlterColumn:
                         pass
                     elif new_dtype != old_dtype or new_size != old_size or bool(old_unique)!=bool(new_unique) or bool(old_notnull)!=bool(new_notnull):
@@ -272,6 +276,7 @@ class SqlModelChecker(object):
                         if bool(old_notnull)!=bool(new_notnull):
                             self.changes.append(self._alterNotNull(col,new_notnull, old_notnull))
                         #sql.extend(self.checkColumn(colnode, dbcolumns[self.sqlName(colnode)]))
+                    
                 else:
                     change = self._buildColumn(col)
                     self.changes.append(change)
@@ -306,8 +311,10 @@ class SqlModelChecker(object):
         return tablechanges
         
     def _checkAllRelations(self):
-        for pkg in list(self.db.packages.values()):
-            for tbl in list(pkg.tables.values()):
+        for pkg in self.db.packages.values():
+            if pkg.attributes.get('readOnly'):
+                continue
+            for tbl in pkg.tables.values():
                 self._checkTblRelations(tbl)
                 
     def _checkTblRelations(self, tbl):

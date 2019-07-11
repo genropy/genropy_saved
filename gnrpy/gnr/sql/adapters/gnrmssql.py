@@ -388,10 +388,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         
 
 class GnrWhereTranslator(GnrWhereTranslator_base):
-    def op_startswith(self, column, value, dtype, sqlArgs):
+    def op_startswith(self, column, value, dtype, sqlArgs,tblobj):
         "Starts with"
         return '%s LIKE :%s' % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
 
-    def op_contains(self, column, value, dtype, sqlArgs):
+    def op_contains(self, column, value, dtype, sqlArgs,tblobj):
         "Contains"
         return '%s LIKE :%s' % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))

@@ -51,6 +51,8 @@ class AttachManagerView(AttachManagerViewBase):
         r.fieldcell('fileurl',hidden=True)
         if hasattr(r.tblobj,'atc_types'):
             r.fieldcell('atc_type',edit=True,name='Type')
+        if hasattr(r.tblobj,'atc_download'):
+            r.fieldcell('atc_download',edit=True,name='DL')
         r.cell('imp',calculated=True,name='!!Imp.',format_isbutton=True,format_buttonclass='iconbox document',
                 format_onclick="""
                     genro.serverCall('_table.'+this.attr.table+'.atc_importAttachment',{pkey:this.widget.rowIdByIndex($1.rowIndex)},

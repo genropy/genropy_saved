@@ -187,7 +187,7 @@ if __name__ == '__main__':
     else:
         stores = [storename]
     options_dict = options.__dict__
-    starstores = [(instance_path,store,options_dict) for store in stores]
+    starstores = [(instance_path,store,options_dict) for store in sorted(stores)]
     p.map(check_store,starstores)
     #for storename in stores:
     #    check_store(app,storename, options)

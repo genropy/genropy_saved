@@ -90,17 +90,27 @@ class RstDocumentationHandler(BaseComponent):
     :figclass: align-center
 
     $description"""
+    
+        template_link= """ `$description <$fileurl ?download=1>`_"""
         th.view.grid.attributes.update(onDrag_rstimage="""
                                     var rowset = dragValues.gridrow.rowset;
                                     var result = [];
-                                    var tpl = dragInfo.sourceNode.attr[dragInfo.modifier=='Shift' ? '_tpl_figure':'_tpl_image'];
+                                    var url = dragValues.gridrow.rowdata.fileurl;
+                                    var ext = url.slice(url.lastIndexOf('.'));
+                                    var tpl;
+                                    if(!['.jpg','.jpag','.png','.svg','.tiff'].includes(ext)){
+                                        tpl = '_tpl_link';
+                                    }else{
+                                        tpl = dragInfo.modifier=='Shift' ? '_tpl_figure':'_tpl_image';
+                                    }
+                                    tpl = dragInfo.sourceNode.attr[tpl];
                                     rowset.forEach(function(row){
                                         if(row.fileurl){
                                             result.push(dataTemplate(tpl,row));
                                         }
                                     });
                                     dragValues['text/plain'] = result.join(_lf+_lf)
-                                """ ,_tpl_image=template_image,
+                                """ ,_tpl_image=template_image,_tpl_link=template_link,
                                     _tpl_figure=template_figure)
 
 
@@ -111,7 +121,7 @@ class RstDocumentationHandler(BaseComponent):
                        closable=closable,
                        splitter=True,datapath='#FORM',region='right',width=width,**kwargs)
         self.rst_snippetTab(tc.contentPane(title='Snippet',overflow='hidden'),path=self.getResource('rst_snippets.xml',pkg='docu'))
-        self.rst_imageTab(tc.contentPane(title='Images',overflow='hidden'))
+        self.rst_imageTab(tc.contentPane(title='Attachments',overflow='hidden'))
 
     @struct_method
     def rst_translationController(self,pane):

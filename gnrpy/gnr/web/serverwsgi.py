@@ -327,12 +327,10 @@ class Server(object):
                                     _gnrconfig=self.gnr_config,
                                     counter=getattr(self.options, 'counter', None), noclean=self.options.noclean,
                                     options=self.options)
-        with gnrServer.register.globalStore() as gs:
-            gs.setItem('RESTART_TS',datetime.now())
-            #GnrReloaderMonitor.add_reloader_callback(gnrServer.on_reloader_restart)
         atexit.register(gnrServer.on_site_stop)
         if self.debug:
             gnrServer = GnrDebuggedApplication(gnrServer, evalex=True, pin_security=False)
         port = int(self.options.port)
         run_simple(self.options.host, port, gnrServer, use_reloader=self.reloader)
+        
         

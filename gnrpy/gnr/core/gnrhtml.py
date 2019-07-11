@@ -172,6 +172,7 @@ class GnrHtmlSrc(GnrStructData):
         assert self.parentNode.getAttr('tag') == 'layout'
         layout = self
         row = self.child(tag='row', **kwargs)
+        
         row.lbl_height = float(lbl_height or 0)
         row.lbl_class = lbl_class
         row.content_class = content_class
@@ -582,6 +583,9 @@ class GnrHtmlBuilder(object):
         attr['height'] = row.height
         attr['top'] = layout.curr_y
         attr['tag'] = 'div'
+        attr['left'] = 0
+        attr['right'] = 0
+        attr['class'] = ' '.join(x for x in [attr.get('class'), 'layout_row'] if x)
         layout.curr_y += row.height + layout.border_width
         self.calculate_style(attr, layout.um, position='absolute')
         row.curr_x = 0

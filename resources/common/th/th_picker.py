@@ -141,16 +141,35 @@ class THPicker(BaseComponent):
                                               childname='picker_tablehandler',nodeId='%s_th' %paletteCode)
         if structure_field:
             structure_tblobj = tblobj.column(structure_field).relatedTable().dbtable
+            defaultPickerStructure = False
+            if maintable:
+                defaultPickerStructure =  structure_field if structure_field in self.db.table(maintable).columns else False
+            pickerStructure = structure_kwargs.pop('pickerStructure',defaultPickerStructure)
             top = bc.contentPane(region='top',height=top_height or '50%',splitter=True,datapath='.structuretree')
-            top.tree(storepath='.store',_class='fieldsTree', hideValues=True,
-                            draggable=False,
+            structureTreeKwargs = dict(draggable=False,moveTreeNode=False)
+            if pickerStructure:
+                structureTreeKwargs['draggable'] = True 
+                structureTreeKwargs['draggableFolders'] = structure_kwargs.pop('draggableFolders',True)
+                structureTreeKwargs['onDrag']="""function(dragValues, dragInfo, treeItem) {
+                                                if (treeItem.attr.child_count && treeItem.attr.child_count > 0 && !dragInfo.sourceNode.attr.draggableFolders) {
+                                                    return false;
+                                                }
+                                                dragValues['text/plain'] = treeItem.attr.caption;
+                                                var kw_drag = objectUpdate({},treeItem.attr);
+                                                kw_drag.structure_many = '%s';
+                                                dragValues['%s'] = kw_drag;
+                                            }""" %(pickerStructure,paletteCode)
+                structureTreeKwargs['checkbox'] = checkbox
+            structureTree = top.tree(storepath='.store',_class='fieldsTree', hideValues=True,
                             selectedLabelClass='selectedTreeNode',
                             labelAttribute='caption',
                             selected_pkey='.tree.pkey',
                             selected_hierarchical_pkey='.tree.hierarchical_pkey',                          
                             selectedPath='.tree.path',  
                             identifier='treeIdentifier',margin='6px',
+                            **structureTreeKwargs
                         ).htableViewStore(table=structure_tblobj.fullname,**structure_kwargs)
+
             if structure_field.startswith('@'):
                 sf = structure_field.split('.')
                 hpkey_ref = '%s.@%s.hierarchical_pkey' %(sf[0],sf[-1]) 

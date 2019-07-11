@@ -213,12 +213,12 @@ class GnrClassCatalog(object):
             return txt
         if not txt:
             return self.getEmpty(clsname)
-        
+    
         if not isinstance(txt,basestring):
             if self.getType(txt)==clsname:
                 return txt
             else:
-                raise GnrCastingError()
+                return self.fromText(str(txt),clsname,**kwargs)
             
         if clsname == 'JS':
             try:

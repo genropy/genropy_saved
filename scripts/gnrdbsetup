@@ -38,6 +38,11 @@ parser.add_option('-u', '--upgrade',
                   action='store_true',
                   help="Execute upgrade")
 
+parser.add_option('-U', '--upgrade_only',
+                  dest='upgrade_only',
+                  action='store_true',
+                  help="Execute only upgrade")
+
 parser.add_option('-v', '--verbose',
                   dest='verbose',
                   action='store_true',
@@ -178,11 +183,17 @@ def import_db(filepath):
 if __name__ == '__main__':
     app, storename = get_app()
     if storename == '*':
-        stores = [None] + list(app.db.dbstores.keys())
+        stores = [None] + sorted(app.db.dbstores.keys())
     else:
         stores = [storename]
     for storename in stores:
         app.db.use_store(storename)
+        if options.upgrade_only:
+            app.pkgBroadcast('onDbUpgrade,onDbUpgrade_*')
+            app.db.table('sys.upgrade').runUpgrades()
+            app.db.commit()
+            app.db.closeConnection()
+            continue
         if options.check:
             check_db(app)
         elif options.import_file:

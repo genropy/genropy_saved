@@ -418,18 +418,17 @@ class TableHandlerHierarchicalView(BaseComponent):
         if relation_table:
             mainjoiner = maintableobj.model.getJoiner(relation_table)
             relatedjoiner = self.db.table(dragTable).model.getJoiner(relation_table)
-
-            relation_name = relatedjoiner['relation_name']
-            
-            rel_fkey_name = mainjoiner['many_relation'].split('.')[-1]
-            condlist.append("""
-            ( ( @%s.%s =:fkey ) OR 
-                  ( :showInherited IS TRUE AND
-                        ( @%s.@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix) )
-                  )
-            )
-            """ %(relation_name,rel_fkey_name,relation_name,rel_fkey_name))
-            hiddencolumns.append('@%s.@%s.hierarchical_pkey AS many_hpkey' %(relation_name,rel_fkey_name))
+            if relatedjoiner:
+                relation_name = relatedjoiner['relation_name']
+                rel_fkey_name = mainjoiner['many_relation'].split('.')[-1]
+                condlist.append("""
+                ( ( @%s.%s =:fkey ) OR 
+                    ( :showInherited IS TRUE AND
+                            ( @%s.@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix) )
+                    )
+                )
+                """ %(relation_name,rel_fkey_name,relation_name,rel_fkey_name))
+                hiddencolumns.append('@%s.@%s.hierarchical_pkey AS many_hpkey' %(relation_name,rel_fkey_name))
         vstoreattr['condition'] = ' OR '.join(condlist)
         vstoreattr['fullReloadOnChange'] = True
         vstoreattr.update(condpars)
@@ -490,6 +489,10 @@ class TableHandlerHierarchicalView(BaseComponent):
         treeattr['dropTargetCb_%s' %dragCode]="""if(!data){
                                                     return true;
                                                 }
+                                                var droppedOnVirtualNode = dropInfo.treeItem.attr._record && dropInfo.treeItem.attr._record._virtual_node;
+                                                if(droppedOnVirtualNode){
+                                                    return true;
+                                                }
                                                 if(data['inherited_pkeys']!=null || data.alias_pkeys!=null){
                                                     return data.inherited_pkeys.length==0 && data.alias_pkeys.length==0;
                                                 }
@@ -500,7 +503,8 @@ class TableHandlerHierarchicalView(BaseComponent):
                                                 var relationRecord = dropInfo.treeItem.attr._record || null;
                                                 var modifiers = dropInfo.modifiers;
                                                 var alias_on_field = this.getRelativeData('#FORM.controller.table?alias_on_field');
-                                                var asAlias = (relationRecord && alias_on_field)?relationRecord[alias_on_field]:modifiers=="Shift"
+                                                var droppedOnVirtualNode = dropInfo.treeItem.attr._record && dropInfo.treeItem.attr._record._virtual_node;
+                                                var asAlias = (relationRecord && alias_on_field)?relationRecord[alias_on_field]:(modifiers=="Shift" || droppedOnVirtualNode)
                                                 if(%s){
                                                     genro.serverCall('ht_updateRelatedRows',{table:'%s',fkey_name:'%s',pkeys:data.pkeys,
                                                                                         relationValue:relationValue,modifiers:dropInfo.modifiers,

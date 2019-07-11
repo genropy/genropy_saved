@@ -104,6 +104,20 @@ class Table(object):
             result['title_%s' %lang] = content['title']
         return result
 
+    def atcAsRstTable(self, pkey, host=None):
+        attachments = self.db.table('docu.documentation_atc').query(columns='*,$fileurl',where='$maintable_id=:pkey AND $atc_download IS TRUE', pkey=pkey).fetch()
+        if not attachments:
+            return
+        result = []
+        host = host or ''
+        tpl = """- `%(description)s <%(host)s%(fileurl)s?download=1>`_ """
+
+        for atc in attachments:
+            atc = dict(atc)
+            atc['host'] = host
+            result.append(tpl % atc)
+        return '\n'.join(result)
+
     def dfAsRstTable(self,pkey):
         rows = self.df_getFieldsRows(pkey=pkey)
         if not rows:

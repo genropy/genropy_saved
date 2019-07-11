@@ -306,6 +306,8 @@ class Service(StorageService):
             return self.parent.redirect(environ, start_response, location=url,temporary=True)
 
     def children(self, *args, **kwargs):
+        if not self.bucket:
+            return []
         def strip_prefix(inpath, prefix=None):
             prefix = prefix or self.base_path
             return inpath.replace(prefix,'',1).strip('/')

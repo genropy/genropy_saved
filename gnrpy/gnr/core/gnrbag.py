@@ -1792,9 +1792,8 @@ class Bag(GnrObject):
         if isinstance(destination, file):
             pickle.dump(self, destination, bin)
         else:
-            destination = open(destination, mode='wb')
-            pickle.dump(self, destination, bin)
-            destination.close()
+            with open(destination, mode='wb') as destination:
+                pickle.dump(self, destination, bin)
             
         #-------------------- unpickle --------------------------------
         
@@ -1808,9 +1807,8 @@ class Bag(GnrObject):
             
     def _unpickle(self, source, fromFile):
         if fromFile:
-            source = open(source, mode='rb')
-            result = pickle.load(source)
-            source.close()
+            with open(source, mode='rb') as f:
+                result = pickle.load(f)
         else:
             result = pickle.loads(source)
         return result
@@ -1825,7 +1823,7 @@ class Bag(GnrObject):
         
     #-------------------- toXml --------------------------------
     def toXml(self, filename=None, encoding='UTF-8', typeattrs=True, typevalue=True, unresolved=False,
-              addBagTypeAttr=True,
+              addBagTypeAttr=True, output_encoding=None,
               autocreate=False, translate_cb=None, self_closed_tags=None,
               omitUnknownTypes=False, catalog=None, omitRoot=False, forcedTagAttr=None, docHeader=None,
               mode4d=False,pretty=False):
@@ -1863,7 +1861,7 @@ class Bag(GnrObject):
         from gnr.core.gnrbagxml import BagToXml
         
         return BagToXml().build(self, filename=filename, encoding=encoding, typeattrs=typeattrs, typevalue=typevalue,
-                                addBagTypeAttr=addBagTypeAttr,
+                                addBagTypeAttr=addBagTypeAttr, output_encoding=output_encoding,
                                 unresolved=unresolved, autocreate=autocreate, forcedTagAttr=forcedTagAttr,
                                 translate_cb=translate_cb, self_closed_tags=self_closed_tags,
                                 omitUnknownTypes=omitUnknownTypes, catalog=catalog, omitRoot=omitRoot,
@@ -1960,9 +1958,8 @@ class Bag(GnrObject):
                     elif fext=='xsd':
                         return source,True,'xsd'
                     else:
-                        f = open(source, mode='rb')
-                        sourcestart = f.read(30)
-                        f.close()
+                        with open(source, mode='rb') as f:
+                            sourcestart = f.read(30)
                         if sourcestart.startswith('<') or '<?xml' in sourcestart:
                             return source, True, 'xml' #file xml with unknown extension
                         else:
@@ -2910,9 +2907,8 @@ class TxtDocResolver(BagResolver):
     classArgs = ['path']
         
     def load(self):
-        f = open(self.path, mode='rb')
-        result = f.read()
-        f.close()
+        with open(self.path, mode='rb') as f:
+            result = f.read()
         return result
 
 class XmlDocResolver(BagResolver):

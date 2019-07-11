@@ -122,7 +122,7 @@ class Package(GnrDboPackage):
 
     def checkFullSyncTables_do(self,errorlog_folder=None,dbstores=None,packages=None,tbllist=None):
         errors = Bag()
-        master_index = self.db.tablesMasterIndex()['_index_'] 
+        master_index = self.db.tablesMasterIndex(filterPackages=packages)['_index_'] 
         for tbl in master_index.digest('#a.tbl'):
             if tbllist and tbl not in tbllist:
                 continue

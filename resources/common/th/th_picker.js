@@ -1,6 +1,11 @@
 var THPicker = {
 
     onDropElement:function(sourceNode,data,mainpkey,rpcmethod,treepicker,tbl,one,many,grid,defaults,nodup){
+        if(data.structure_many){
+            //dragging from structure tree
+            many = data.structure_many;
+            treepicker = true;
+        }
         var kw = {dropPkey:mainpkey,tbl:tbl,one:one,many:many};
         var cbdef = function(destrow,sourcerow,d){
             var l = d.split(':');
@@ -9,7 +14,7 @@ var THPicker = {
             destrow[dfield] = sourcerow[sfield];
         };
         if(treepicker){
-            kw.dragPkeys = [data['pkey']];
+            kw.dragPkeys = [data.pkey];
             if(defaults){
                 var drow = {};
                 kw.dragDefaults = {};
@@ -38,7 +43,7 @@ var THPicker = {
             });
         }
 
-        kw['_sourceNode'] = sourceNode;
+        kw._sourceNode = sourceNode;
         if(grid.gridEditor && grid.gridEditor.editorPars){
             var rows = [];
             dojo.forEach(kw.dragPkeys,function(fkey){
@@ -55,4 +60,4 @@ var THPicker = {
         }
 
     }
-}
+};

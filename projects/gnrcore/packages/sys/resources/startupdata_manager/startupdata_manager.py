@@ -45,7 +45,7 @@ class _StartupDataSaver(BaseComponent):
         fb = bar.fb.formbuilder(cols=2)
         if len(self.db.dbstores):
             fb.filteringSelect(value='^.current_storename',
-                               lbl='!!Store', values=','.join(self.db.dbstores))
+                               lbl='!!Store', values=','.join(sorted(self.db.dbstores)))
         fb.filteringSelect(value='^.current_package',
                            lbl='Package',
                            values=','.join(list(self.application.packages.keys())))

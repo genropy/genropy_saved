@@ -600,17 +600,20 @@ class SqlTable(GnrObject):
                                 virtual_columns_set=virtual_columns_set)
 
     def findDuplicates(self,allrecords=True):
-        duplicated = [r[0] for r in self.query(columns='$_duplicate_finder,count(*)',having='count(*)>1',group_by='$_duplicate_finder').fetch()]
+        dup_records = self.query(where="($_duplicate_finder IS NOT NULL) AND ($_duplicate_finder!='')",
+                                 columns='$_duplicate_finder,count(*)',having='count(*)>1',
+                                 group_by='$_duplicate_finder').fetch()
+        duplicated = [r[0] for r in dup_records]
         if not duplicated:
             return []
         q = self.query(where='$_duplicate_finder IN :dpf',dpf=duplicated,columns='$_duplicate_finder',
                         order_by='$_duplicate_finder,$__mod_ts desc')
-        if allrecords:
-            return [r['pkey'] for r in q.fetch()]
-        else:
-            return [l[0]['pkey'] for l in list(q.fetchGrouped('_duplicate_finder').values())]
+        #if allrecords:
+        return [r['pkey'] for r in q.fetch()]
+        #else:
+        #    return [l[0]['pkey'] for l in q.fetchGrouped('_duplicate_finder').values()]
 
-
+    
     def opTranslate(self,column,op,value,dtype=None,sqlArgs=None):
         translator = self.db.adapter.getWhereTranslator()
         return translator.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=self)
@@ -989,6 +992,10 @@ class SqlTable(GnrObject):
         pkeycol = self.pkey
         updatedKeys = []
         updatercb,updaterdict = None,None
+        commit_every = False 
+        if autocommit and autocommit is not True:
+            commit_every = autocommit
+            autocommit = False
         if callable(updater):
             if updater_kwargs:
                 def updatercb(row):
@@ -997,7 +1004,7 @@ class SqlTable(GnrObject):
                 updatercb = updater
         elif isinstance(updater,dict):
             updaterdict = updater
-        for row in fetch:
+        for i,row in enumerate(fetch):
             new_row = dict(row)
             if not _raw_update:
                 self.expandBagFields(row)
@@ -1016,6 +1023,8 @@ class SqlTable(GnrObject):
                 self.raw_update(new_row,old_record=row,pkey=record_pkey)
             if _onUpdatedCb:
                 _onUpdatedCb(record=new_row,old_record=row,pkey=record_pkey)
+            if commit_every and i%commit_every==0:
+                self.db.commit()
         if autocommit:
             self.db.commit()
         return updatedKeys
@@ -2216,11 +2225,19 @@ class SqlTable(GnrObject):
     def setQueryCondition(self,condition_name,condition):
         self.db.currentEnv['env_%s_condition_%s' %(self.fullname.replace('.','_'),condition_name)] = condition
     
-    def updateTotalizers(self,record=None,old_record=None,_raw=None,_ignore_totalizer=None,**kwargs):
+    def onLogChange(self,evt,record,old_record=None):
+        pass
+
+
+    def updateTotalizers(self,record=None,old_record=None,evt=None,
+                        _raw=None,_ignore_totalizer=None,**kwargs):
         if _raw and _ignore_totalizer:
             return
         totalizers = dictExtract(self.attributes,'totalizer_')
-        for tbl in list(totalizers.values()):
+        if evt=='D':
+            old_record = record
+            record = None
+        for tbl in totalizers.values():
             self.db.table(tbl).tt_totalize(record=record,old_record=old_record)
             
 if __name__ == '__main__':

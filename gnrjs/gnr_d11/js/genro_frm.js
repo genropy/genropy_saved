@@ -1838,6 +1838,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(!this.isNodeInFormData(changedNode)){
             return;
         }
+        if(changedNode && !changedNode.attr._loadedValue){
+            return;
+        }
         if(isValid){
             dojoValid.popNode(node_identifier);
         }else{
@@ -2060,7 +2063,10 @@ dojo.declare("gnr.GnrValidator", null, {
             sourceNode.widget._lastValueReported = null;
             return result;
         }
-
+        if(sourceNode.widget._lastQueryError){
+            return {'errorcode':'query_error','message':sourceNode.widget._lastQueryError};
+        }
+        delete sourceNode.widget._lastQueryError;
         var validate_notnull = sourceNode.getAttributeFromDatasource('validate_notnull');//.attr.validate_notnull;
         if ((value == undefined) || (value == '') || (value == null)) {
             if (sourceNode.widget._lastDisplayedValue != "") {
@@ -2490,10 +2496,10 @@ dojo.declare("gnr.formstores.Base", null, {
         virtual_columns = virtual_columns.concat(form_virtual_columns);
         kw['_sourceNode'] = form.sourceNode;
         kw.ignoreReadOnly = ignoreReadOnly;
-        var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
-                                                  'virtual_columns':arrayUniquify(virtual_columns).join(','),
-                                                  'table':this.table, timeout:0},kw),null,'POST',null,maincb);
+        var dbstoreOnDeferred = false;
         if(this.form.dbstoreField){
+            objectPop(that.form.sourceNode.attr,'context_dbstore')
+            dbstoreOnDeferred = true;
             var row;
             if(this.parentStore){
                 let rowNode = this.parentStore.rowBagNodeByIdentifier(currPkey);
@@ -2501,14 +2507,22 @@ dojo.declare("gnr.formstores.Base", null, {
                     row = this.parentStore.rowFromItem(rowNode);
                 }
             }
-            if(row){
+            if(row && row[this.form.dbstoreField]){
                 this.form.sourceNode.attr.context_dbstore = row[this.form.dbstoreField];
-            }else{
-                deferred.addCallback(function(result){
-                    that.form.sourceNode.attr.context_dbstore = result.getValue().getItem(that.form.dbstoreField);
-                    return result;
-                });
+                dbstoreOnDeferred = false;
             }
+        }
+        var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
+                                                  'virtual_columns':arrayUniquify(virtual_columns).join(','),
+                                                  'table':this.table, timeout:0},kw),null,'POST',null,maincb);
+        if(dbstoreOnDeferred){
+            deferred.addCallback(function(result){
+                var dbstore = result.getValue().getItem(that.form.dbstoreField);
+                if(dbstore){
+                    that.form.sourceNode.attr.context_dbstore = dbstore;
+                }
+                return result;
+            });
         }
         deferred.addCallback(cb);
         if(loader.callbacks){

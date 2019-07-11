@@ -809,10 +809,19 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var connectFilteringGrid=function(){
                 var filteringGrid = widget.sourceNode.currentFromDatasource(widget.sourceNode.attr.filteringGrid);
                 filteringGrid = filteringGrid.widget;
-                dojo.connect(filteringGrid,'newDataStore',function(){
-                    widget.filterToRebuild(true);
-                    widget.updateRowCount('*');
-                });
+                if (filteringGrid.gridEditor){
+                    dojo.connect(filteringGrid,'setStorepath',function(p,kw){
+                        if(kw.node.label==filteredColumn || kw.evt=='ins' || kw.evt=='del' || kw.reason=='loadData'){
+                            widget.filterToRebuild(true);
+                            widget.updateRowCount('*');
+                        }
+                    });
+                }else {
+                    dojo.connect(filteringGrid,'newDataStore',function(){
+                        widget.filterToRebuild(true);
+                        widget.updateRowCount('*');
+                    });
+                }
                 widget.excludeListCb=function(){
                     //widget.sourceNode.currentFromDatasource(widget.sourceNode.attr.filteringGrid);
                     return filteringGrid.getColumnValues(filteredColumn);
@@ -1595,6 +1604,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                             },{_position:0});
                         }
                     }
+                    if(sourceNode.attr.multiStores){
+                        if(!rowBag.getNode('_storenameCol')){
+                            rowBag.setItem('_storenameCol',null,{
+                                field:'_dbstore_',name:_T('Storename'),width:'15em',
+                                calculated:true
+                            });
+                        }
+                    }
 
                     var that = this;
                     rowBag.forEach(function(n){
@@ -2366,6 +2383,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         this.applyFilter();
     },
+
     
     mixin_setStorepath:function(val, kw) {
         if(kw.reason=='autocreate'){
@@ -2467,6 +2485,11 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if (! this._batchUpdating) {
             this._gnrUpdateSelect(idx);
         }
+        var selectedMany = this.selection.getSelected().length>1;
+        if(this.changeManager){
+            this.changeManager.calculateFilteredTotals();
+        }
+        this.setClass('multiSelectionActive',selectedMany);
     },
     patch_sort: function() {
         var sortInfo = this.sortInfo;
@@ -2602,7 +2625,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             
             this.updateTotalsCount(); 
             scrollBox.scrollLeft = scrollLeft;
-            this.updateColumnsetsAndFooters();
+            //this.updateColumnsetsAndFooters(); makes grids slower
             //},1,this);
         }
     },
@@ -3748,6 +3771,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
     mixin_rowBagNodeByIdentifier:function(identifier){
         return this.collectionStore().rowBagNodeByIdentifier(identifier);
+    },
+    mixin_setStoreBlocked:function(reason,doset){
+        this.collectionStore().setBlockingReason(reason,doset);
     },
 
     mixin_setSelectedId: function(pkey) {

@@ -195,7 +195,7 @@ class TableScriptToHtml(BagToHtml):
         self.letterhead_sourcedata = None
         self.record = None
         
-    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None,serveAsLocalhost=None, **kwargs):
+    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, **kwargs):
         if not record:
             return
         self.thermo_kwargs = thermo
@@ -204,7 +204,6 @@ class TableScriptToHtml(BagToHtml):
             record = None
         else:
             record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
-        self.serveAsLocalhost = serveAsLocalhost or pdf
         html_folder = self.getHtmlPath(autocreate=True)
         result = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
         
@@ -255,7 +254,7 @@ class TableScriptToHtml(BagToHtml):
         css_requires = []
         for css_require in self.css_requires.split(','):
             if not css_require.startswith('http'):
-                css_requires.extend(self.page.getResourceExternalUriList(css_require,'css',serveAsLocalhost=self.serveAsLocalhost))
+                css_requires.extend(self.page.getResourceExternalUriList(css_require,'css'))
             else:
                 css_requires.append(css_require)
         return css_requires
@@ -272,17 +271,22 @@ class TableScriptToHtml(BagToHtml):
         else:
             caption = '%i/%i' % (progress, maximum)
         return caption
+
+    def gridColumns(self, struct=None, table=None, viewResource=None):
+        if struct:
+            return self.gridColumnsFromStruct(struct=struct, table=table)
+        elif viewResource:
+            return self.gridColumnsFromResource(viewResource=viewResource, table=table)
     
     def gridColumnsFromResource(self,viewResource=None,table=None):
         table = table or self.rows_table or self.tblobj.fullname
         view = self.site.virtualPage(table=table,table_resources=viewResource)
         structbag = view.newGridStruct(maintable=table)
         view.th_struct(structbag)
-        self.gridColumnsFromStruct(struct=structbag,table=table)
-        return self.grid_columns
+        return self.gridColumnsFromStruct(struct=structbag,table=table)
     
     def gridColumnsFromStruct(self,struct=None,table=None):
-        self.grid_columns = []
+        grid_columns = []
         tblobj = self.db.table(table)
         cells = struct['view_0.rows_0'].nodes
         columns = []
@@ -303,7 +307,8 @@ class TableScriptToHtml(BagToHtml):
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),
                         style=attr.get('style'),sqlcolumn=sqlcolumn,dtype=attr.get('dtype'))
-            self.grid_columns.append(pars)
+            grid_columns.append(pars)
+        return grid_columns
 
     @property
     def grid_sqlcolumns(self):
