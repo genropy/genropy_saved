@@ -167,11 +167,11 @@ class XlsWriter(object):
             '@': 496.356, '[': 146.015, '\\': 146.015, ']': 146.015, '^': 203.852, '_': 262.637, '`': 175.407,
             '{': 175.407, '|': 146.015, '}': 175.407, '~': 291.556}
         units = 220
+        try:
+            data = str(data)
+        except UnicodeEncodeError:
+            return max(units*len(data), 700)
         for char in data:
-            try:
-                char = str(char)
-            except UnicodeEncodeError:
-                char = '0'
             if char in charwidths:
                 units += charwidths[char]
             else:
