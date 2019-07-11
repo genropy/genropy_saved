@@ -428,8 +428,8 @@ class Server(object):
         else:
             try:
                 gnrServer = GnrWsgiSite(self.site_script, site_name=site_name, **site_options)
-                with gnrServer.register.globalStore() as gs:
-                    gs.setItem('RESTART_TS',datetime.now())
+                #with gnrServer.register.globalStore() as gs:
+                #    gs.setItem('RESTART_TS',datetime.now())
                 GnrReloaderMonitor.add_reloader_callback(gnrServer.on_reloader_restart)
                 atexit.register(gnrServer.on_site_stop)
                 if HAS_WAITRESS:
