@@ -63,6 +63,8 @@ if __name__ == '__main__':
             package_maker.do()
             packages.append(main_package)
         if create_instance:
+            if create_instance is True:
+                create_instance = project_name
             print 'Creating instance %s in %s...' % (create_instance, project_maker.instances_path)
             instance_maker = InstanceMaker(create_instance, base_path=project_maker.instances_path,packages=packages,main_package=main_package)
             instance_maker.do()
