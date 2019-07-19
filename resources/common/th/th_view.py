@@ -640,6 +640,7 @@ class TableHandlerView(BaseComponent):
                         if(currentQuery=='__querybysample__'){
                             SET .query.currentQuery = '__basequery__';
                         }
+                        SET .query.currentQuery = $1.fullpath;
                         SET .query.queryEditor=true; 
                         SET .query.queryAttributes.extended = true;
                     }else{
@@ -1156,12 +1157,27 @@ class TableHandlerView(BaseComponent):
                          _op='^.c_0?op', _class='helperField')
 
 
-        querybox_stack.div("==_internalQueryCaption || _caption",_caption='^.#parent.queryAttributes.caption',
+        extendedQueryButton = querybox_stack.lightbutton("==_internalQueryCaption || _caption",
+                        _caption='^.#parent.queryAttributes.caption',
                         _internalQueryCaption='^.#parent.#parent.internalQuery.caption', 
+                        action="""if(!_querybysample){
+                            SET .#parent.#parent.query.queryEditor=true;
+                        }""",
                         _class='th_querybox_extended',
-                        tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
-                                    _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
-                                    hidden='^.#parent.queryAttributes.extended?=!#v',min_width='20em')
+                        _querybysample = '=.#parent.#parent.query.currentQuery?=#v=="__querybysample__"',
+                        hidden='^.#parent.queryAttributes.extended?=!#v',min_width='20em')
+        extendedQueryButton.tooltip(callback="""
+            var internalQueryTooltip = this.getRelativeData('.internalQuery.tooltip');
+            var internalQueryCaption = this.getRelativeData('.internalQuery.caption');
+            var whereAsPlainText = this.getRelativeData('.store?whereAsPlainText');
+            var currentQuery = this.getRelativeData('.query.currentQuery');
+            return internalQueryTooltip || whereAsPlainText || internalQueryCaption || _T('Click to show query');
+
+        """,datapath='.#parent.#parent',modifiers='Shift')
+        
+            #_internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
+            #tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption || _internalQueryCaption',
+            #_internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
 
         
     def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):
