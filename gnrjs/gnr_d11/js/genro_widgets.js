@@ -1362,11 +1362,11 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
             }
         }
         if (dojo_version == '1.1') {
-            dlgtype = 'modal';
-            zindex = 800;
+            var dlgtype = 'modal';
+            var zindex = 800;
             if(sourceNode.attr.noModal){
-                var dlgtype = 'nomodal';
-                var zindex = 500;
+                dlgtype = 'nomodal';
+                zindex = 500;
             }
             var ds = genro.dialogStack;
             
@@ -1375,9 +1375,10 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                             var parentDialog = ds.length>0?ds[ds.length-1]:null;
                             if (this != ds.slice(-1)[0]) {
                                 ds.push(this);
-                                var zIndex = widget.sourceNode.attr.z_index || (zindex + ds.length*2);
-                                dojo.style(this._underlay.domNode, 'zIndex', zIndex);
-                                dojo.style(this.domNode, 'zIndex', zIndex + 1);
+                                console.log(dlgtype,'dlgtype')
+                                zindex = widget.sourceNode.attr.z_index || (zindex + ds.length*2);
+                                dojo.style(this._underlay.domNode, 'zIndex', zindex);
+                                dojo.style(this.domNode, 'zIndex', zindex + 1);
                                 if (parentDialog) {
                                     dojo.forEach(parentDialog._modalconnects, dojo.disconnect);
                                     parentDialog._modalconnects = [];
