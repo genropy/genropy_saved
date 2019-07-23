@@ -1375,7 +1375,6 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                             var parentDialog = ds.length>0?ds[ds.length-1]:null;
                             if (this != ds.slice(-1)[0]) {
                                 ds.push(this);
-                                console.log(dlgtype,'dlgtype')
                                 zindex = widget.sourceNode.attr.z_index || (zindex + ds.length*2);
                                 dojo.style(this._underlay.domNode, 'zIndex', zindex);
                                 dojo.style(this.domNode, 'zIndex', zindex + 1);
