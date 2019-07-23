@@ -50,6 +50,7 @@ class View(BaseComponent):
             return dict(_customClasses=' '.join(_customClasses))
         selection.apply(cb)
 
+
 class ViewMixedComponent(View):
     def th_struct(self,struct):
         r = struct.view().rows()
@@ -170,6 +171,19 @@ class ViewPlugin(View):
 
     def th_bottom_custom(self,bottom):
         bottom.slotToolbar('2,sections@entities,*,2')
+
+
+class ViewDashboard(ViewPlugin):
+    def th_bottom_custom(self,bottom):
+        bottom.slotToolbar('2,sections@priority,*,sections@action_type_id,2',
+                                sections_action_type_id_multiButton=False,
+                                sections_action_type_id_multivalue=False,
+                                sections_action_type_id_lbl='!!Actions')
+
+
+    def th_top_custom(self,top):
+        top.bar.replaceSlots('vtitle','sections@entities')
+    
 
 
 class ActionOutcomeForm(BaseComponent):
@@ -444,6 +458,23 @@ class FormMixedComponent(Form):
         sc = form.center.stackContainer(selectedPage='^.record.rec_type')
         self.orgn_annotationForm(sc.borderContainer(pageName='AN'),linked_entity=linked_entity,sub_action_default_kwargs=default_kwargs)
         self.orgn_actionForm(sc.borderContainer(pageName='AC'),linked_entity=linked_entity,default_kwargs=default_kwargs)
+
+
+class FormAction(Form):
+    #def th_options(self):
+       # anno
+       # entities =.getLinkedEntityDict()
+#
+       # print x
+       # return dict(dialog_height='350px', dialog_width='550px',modal=True,
+       #                     defaultPrompt=dict(title='!!New Action',
+       #                             fields=[dict(value='^.linked_entity',lbl='Entity',tag='filteringSelect',values=entities)]))
+#
+    def th_form(self, form):
+        linked_entity = '=#FORM.record.linked_entity'
+        default_kwargs = form.store.handler('load').attributes.get('default_kwargs')
+        self.orgn_actionForm(form.center.borderContainer(),linked_entity=linked_entity,default_kwargs=default_kwargs)
+
 
 
 class ViewActionComponent(BaseComponent):
