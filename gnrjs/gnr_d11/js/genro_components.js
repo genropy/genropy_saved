@@ -3662,6 +3662,47 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.DropUploaderGrid", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var uploaderPars = objectExtract(kw,'onUploadedMethod,onUploadingMethod');
+        var uploaderKw = objectExtract(kw,'uploadPath,filename,onResult,onError,onProgress,onAbort');
+        objectUpdate(uploaderPars,objectExtract(kw,'rpc_*'));
+        var nodeId = objectPop(kw,'nodeId') || 'uploader_'+genro.getCounter()
+        uploaderKw.uploadPath = uploaderKw.uploadPath || 'page:'+nodeId;
+        var label = objectPop(kw,'label');
+        var containerKw = objectExtract(kw,'position,top,left,right,bottom,height,width,border,rounded,_class,style,region');
+        var rootbc = sourceNode._('bordercontainer',containerKw);
+        
+        var grid = rootbc._('contentPane',{'region':'center'})._('quickGrid',{value:kw.storepath || '^gnr.uploadedFiles',
+                                        nodeId:nodeId,
+                                        dropTarget_grid:'Files',
+                                        dropTypes:'Files',
+                                        selfsubscribe_doUpload:function(){
+                                            
+                                            genro.rpc.uploadMultipartFiles(this.widget.storebag(),
+                                                                    {onResult:funcCreate(uploaderKw.onResult,'result',this),
+                                                                    uploadPath:uploaderKw.uploadPath,uploaderId:nodeId});
+                                        },
+                                        onDrop:function(dropInfo,files){
+                                            var filebag = this.widget.storebag();
+                                            files.forEach(function(f){
+                                                let row = {_name:f.name,_size:f.size,_type:f.type,_file:f,_uploaderId:nodeId};
+                                                let label = (f.name+'_'+f.size+'_'+f.type).replace(/\W/g,'_');
+                                                if(filebag.index(label)<0){
+                                                    filebag.addItem(label,new gnr.GnrBag(row));
+                                                }
+                                            });
+                                        }});
+        grid._('column',{name:_T('Filename'),field:'_name',width:'15em',edit:true});
+        grid._('column',{name:_T('Size'),field:'_size',width:'5em','dtype':'L'});
+        grid._('column',{name:_T('Type'),field:'_type',width:'10em'});
+        grid._('column',{name:_T('Status'),field:'_status',width:'10em'});
+        grid._('tools',{tools:'delrow',title:label || _T('Drop here files to upload')});
+
+        return rootbc;
+    }
+});
+
 dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var gnrwdg = sourceNode.gnrwdg;
