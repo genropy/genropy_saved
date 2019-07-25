@@ -2463,7 +2463,6 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
              action:function(){
                 var kw = arguments[arguments.length-1]
                 var _video = genro.domById(kw._videoNodeId); 
-                genro.bp(true);
                 if(kw._playing){
                     _video.pause()
                 }else{
