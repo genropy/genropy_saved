@@ -167,9 +167,9 @@ class BaseResourceBatch(object):
         tblobj = self.db.table(table) 
         tblobj.batchUpdate(updater=updater,_pkeys=self.get_selection_pkeys() if not where else None,
                            _wrapper=self.btc.thermo_wrapper,
-                           _wrapperKwargs=dict(line_code='date',
+                           _wrapperKwargs=dict(line_code=line_code or 'date',
                                                message=message or self.get_record_caption,
-                                               tblobj=tblobj), **kwargs)
+                                               tblobj=tblobj), where=where,**kwargs)
 
     def result_handler(self):
         """TODO"""

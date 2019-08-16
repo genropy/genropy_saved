@@ -184,7 +184,7 @@ class TableHandlerView(BaseComponent):
                 base_slots = extendedQuery.split(',')
         elif not virtualStore:
             if root_tablehandler:
-                base_slots = ['5','searchOn','5','count','viewsMenu','5','menuUserSets','*','export','5',statsSlot,'advancedTools','10',pageHooksSelector,'5','resourcePrints','resourceMails','resourceActions','10']
+                base_slots = ['5','searchOn','5','count','viewsMenu','5','menuUserSets','*','export','5',statsSlot,'advancedTools','10',pageHooksSelector,'5','resourcePrints','resourceMails','resourceActions',batchAssign,'10']
                 if searchOn is False:
                     base_slots.remove('searchOn')
             else:

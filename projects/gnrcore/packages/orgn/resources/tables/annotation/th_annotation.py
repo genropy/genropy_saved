@@ -142,7 +142,7 @@ class ViewAction(BaseComponent):
 
 class ViewPlugin(View):
     def th_hiddencolumns(self):
-        return '$annotation_ts,$linked_fkey'
+        return '$calculated_due_ts,$linked_fkey'
 
     def th_struct(self,struct):
         r = struct.view().rows()
@@ -166,7 +166,7 @@ class ViewPlugin(View):
         return dict(liveUpdate=True,limit=1000)
         
     def th_order(self):
-        return '$annotation_ts:d'
+        return '$calculated_due_ts'
 
 
     def th_bottom_custom(self,bottom):
