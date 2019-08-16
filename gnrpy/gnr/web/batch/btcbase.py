@@ -165,7 +165,7 @@ class BaseResourceBatch(object):
         :param message: TODO"""
         table = table or self.maintable
         tblobj = self.db.table(table) 
-        tblobj.batchUpdate(updater=updater,_pkeys=self.get_selection_pkeys() if not 'where' in kwargs else None,
+        tblobj.batchUpdate(updater=updater,_pkeys=self.get_selection_pkeys() if ('where' not in kwargs) else None,
                            _wrapper=self.btc.thermo_wrapper,
                            _wrapperKwargs=dict(line_code=line_code or 'date',
                                                message=message or self.get_record_caption,
