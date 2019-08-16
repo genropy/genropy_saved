@@ -150,7 +150,7 @@ class BaseResourceBatch(object):
         self.records[key] = record
         self.result_info[key] = info
 
-    def batchUpdate(self, updater=None, table=None, line_code=None, message=None, where=None,**kwargs):
+    def batchUpdate(self, updater=None, table=None, line_code=None, message=None,**kwargs):
         """Redefine the :meth:`batchUpdate() <gnr.sql.gnrsqltable.SqlTable.batchUpdate>` of the
         :ref:`gnrsqltable <library_gnrsqltable>` module. Allow to make an update of the database.
         For more information, check the :ref:`batchupdate` section
@@ -165,11 +165,11 @@ class BaseResourceBatch(object):
         :param message: TODO"""
         table = table or self.maintable
         tblobj = self.db.table(table) 
-        tblobj.batchUpdate(updater=updater,_pkeys=self.get_selection_pkeys() if not where else None,
+        tblobj.batchUpdate(updater=updater,_pkeys=self.get_selection_pkeys() if not 'where' in kwargs else None,
                            _wrapper=self.btc.thermo_wrapper,
                            _wrapperKwargs=dict(line_code=line_code or 'date',
                                                message=message or self.get_record_caption,
-                                               tblobj=tblobj), where=where,**kwargs)
+                                               tblobj=tblobj),**kwargs)
 
     def result_handler(self):
         """TODO"""
