@@ -108,7 +108,7 @@ class BaseResourceExport(BaseResourceBatch):
                         if curr_columnset.get('name'):
                             self.groups.append(curr_columnset)
                         curr_columnset = dict(start=curr_column, name=columnset_name)
-                curr_columnset['end']=curr_column-1
+                curr_columnset['end']=curr_column
                 if curr_columnset.get('name'):
                     self.groups.append(curr_columnset)
         
