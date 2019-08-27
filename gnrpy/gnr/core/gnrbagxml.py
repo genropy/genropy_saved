@@ -361,7 +361,7 @@ class BagToXml(object):
                     dirname = os.path.dirname(filename)
                     if dirname and not os.path.exists(dirname):
                         os.makedirs(dirname)
-                with open(filename, 'w') as output:
+                with open(filename, 'wb') as output:
                     output.write(result)
         return result
         

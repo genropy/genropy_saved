@@ -618,6 +618,7 @@ class GnrSqlDb(GnrObject):
         while True:
             connections = filter(lambda c: not c.committed and c.connectionName==self.currentConnectionName,
                                 trconns.values())
+            connections = list(connections)
             if not connections:
                 break
             connection = connections[0]
