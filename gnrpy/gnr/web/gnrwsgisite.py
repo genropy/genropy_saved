@@ -4,20 +4,17 @@ standard_library.install_aliases()
 from builtins import str
 from past.builtins import basestring
 from builtins import object
-from gnr.core.gnrbag import Bag,DirectoryResolver
+from gnr.core.gnrbag import Bag
 from werkzeug.wrappers import Request, Response
 from webob.exc import WSGIHTTPException, HTTPInternalServerError, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError, HTTPMovedPermanently,HTTPTemporaryRedirect
 from gnr.web.gnrwebapp import GnrWsgiWebApp
 from gnr.web.gnrwebpage import GnrUnsupportedBrowserException, GnrMaintenanceException
 import os
-import glob
 import re
 import logging
 import subprocess
 import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
 import httplib2
-import locale
 from gnr.core import gnrstring
 import six
 from time import time
@@ -45,6 +42,7 @@ from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
 from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WsgiWebSocketHandler
 import pdb
+from werkzeug import EnvironBuilder
 
 import warnings
 
@@ -714,7 +712,10 @@ class GnrWsgiSite(object):
 
     @property
     def dummyPage(self):
-        request = Request.blank(self.externalUrl('/sys/headless'))
+        from gnr.web.gnrsoappage import GnrSoapApplication
+        from gnr.web.gnrheadlesspage import GnrHeadlessPage
+        environ_builder = EnvironBuilder(method='GET',path='/sys/headless')
+        request = Request(environ_builder.get_environ())
         response = Response()
         page = self.resource_loader(['sys', 'headless'], request, response)
         page.locale = self.server_locale

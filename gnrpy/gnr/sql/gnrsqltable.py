@@ -934,7 +934,7 @@ class SqlTable(GnrObject):
         :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute
         :param locale: the current locale (e.g: en, en_us, it)
         :param mode: TODO
-        :param \*\*kwargs: another way to pass sql query parameters"""
+        :param **kwargs: another way to pass sql query parameters"""
         joinConditions = joinConditions or {}
         for v in list(jc_kwargs.values()):
             rel,cond = v.split(':',1)
@@ -1176,7 +1176,7 @@ class SqlTable(GnrObject):
         """Delete a selection from the table. It works only in SQL so no python trigger is executed
         
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
-        :param \*\*kwargs: optional arguments for the "where" attribute"""
+        :param **kwargs: optional arguments for the "where" attribute"""
         if where:
             todelete = self.query('$%s' % self.pkey, where=where, addPkeyColumn=False, for_update=True,excludeDraft=False ,_pkeys=_pkeys,**kwargs).fetch()
             _pkeys = [x[0] for x in todelete] if todelete else None

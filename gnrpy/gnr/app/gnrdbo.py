@@ -1192,7 +1192,7 @@ class AttachmentTable(GnrDboTable):
         tbl.column('maintable_id',size='22',group='*',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
                     mode='foreignkey', onDelete_sql='cascade',onDelete='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_',deferred=True)
-        tbl.formulaColumn('adapted_url',"""CASE WHEN position('\:' in $filepath)>0 THEN '/'||$filepath
+        tbl.formulaColumn('adapted_url',"""CASE WHEN position('\\:' in $filepath)>0 THEN '/'||$filepath
              ELSE '/_vol/' || $filepath
             END""",group='_')
                     

@@ -388,7 +388,7 @@ class DbModelSrc(GnrStructData):
         :param name_short: the :ref:`name_short` of the table
         :param name_long: the :ref:`name_long` of the table
         :param name_full: the :ref:`name_full` of the table
-        :param \*\*kwargs: 
+        :param **kwargs: 
             
             * **name_plural** - the :ref:`name_plural` of the table"""
         if not 'tables' in self:

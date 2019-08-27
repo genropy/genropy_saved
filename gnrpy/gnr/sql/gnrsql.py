@@ -614,7 +614,7 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_releaseCounters(record)
 
     def commit(self):
-        trconns = self._connections.get(thread.get_ident(), {})
+        trconns = self._connections.get(_thread.get_ident(), {})
         while True:
             connections = filter(lambda c: not c.committed and c.connectionName==self.currentConnectionName,
                                 trconns.values())

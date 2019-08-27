@@ -1222,7 +1222,7 @@ class GnrApp(object):
             if avt and 'passpartout' in avt.user_tags:
                 return True
         if len(pwd) == 32:
-            return (hashlib.md5(login_pwd).hexdigest() == pwd)
+            return (hashlib.md5(login_pwd.encode()).hexdigest() == pwd)
         elif len(pwd) == 65 and ':' in pwd:
             pwd = pwd.split(':')
             return (hashlib.md5(login_pwd + pwd[1]).hexdigest() == pwd[0])

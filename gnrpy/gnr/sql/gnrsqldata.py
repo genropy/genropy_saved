@@ -160,7 +160,7 @@ class SqlQueryCompiler(object):
         
         It automatically adds the join tables as needed.
         
-        It can be recursive to resolve :ref:`table_virtualcolumn`\s.
+        It can be recursive to resolve :ref:`table_virtualcolumn`s.
         
         :param fieldpath: a field path. (e.g: '$colname'; e.g: '@relname.@rel2name.colname')
         :param curr: TODO. 
@@ -451,7 +451,7 @@ class SqlQueryCompiler(object):
         for k,v in list(self.sqlparams.items()):
             if isinstance(v,basestring):
                 if v.startswith('@') or v.startswith('$'):
-                    sql = re.sub('(:%s)(\W|$)' % k, lambda m: '%s%s' %(v,m.group(2)), sql)
+                    sql = re.sub(r'(:%s)(\W|$)' % k, lambda m: '%s%s' %(v,m.group(2)), sql)
         return sql
                     
     def compiledQuery(self, columns='', where='', order_by='',

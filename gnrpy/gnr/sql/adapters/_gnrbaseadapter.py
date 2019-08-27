@@ -846,7 +846,7 @@ class GnrWhereTranslator(object):
 
     def op_wordstart(self, column, value, dtype, sqlArgs,tblobj):
         "!!Word start"
-        value = value.replace('(', '\(').replace(')', '\)').replace('[', '\[').replace(']', '\]')
+        value = value.replace('(', r'\(').replace(')', r'\)').replace('[', r'\[').replace(']', r'\]')
         return self.unaccentTpl(tblobj,column,'~*',mask="'(^|\\W)' || :%s")  % (column, self.storeArgs(value, dtype, sqlArgs))
 
     def op_contains(self, column, value, dtype, sqlArgs,tblobj):
