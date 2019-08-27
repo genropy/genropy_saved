@@ -43,6 +43,7 @@ from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
 from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WsgiWebSocketHandler
 import pdb
 from werkzeug import EnvironBuilder
+from gnr.web.gnrheadlesspage import GnrHeadlessPage
 
 import warnings
 
@@ -712,8 +713,6 @@ class GnrWsgiSite(object):
 
     @property
     def dummyPage(self):
-        from gnr.web.gnrsoappage import GnrSoapApplication
-        from gnr.web.gnrheadlesspage import GnrHeadlessPage
         environ_builder = EnvironBuilder(method='GET',path='/sys/headless')
         request = Request(environ_builder.get_environ())
         response = Response()
