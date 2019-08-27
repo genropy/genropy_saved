@@ -883,7 +883,7 @@ class ThPackageResourceMaker(object):
         self.out_file.write('%s%s\n'%(self.option_indent*indent*' ',line))
 
     def writeHeaders(self):
-        self.write('#!/usr/bin/python')
+        self.write('#!/usr/bin/python3')
         self.write('# -*- coding: utf-8 -*-')
         self.write()
     
@@ -1088,7 +1088,7 @@ class GunicornDeployBuilder(object):
         self.supervisor_log_path = os.path.join(self.gnr_path,'supervisord.log')
         self.supervisord_socket_path = os.path.join(self.gnr_path,'supervisord.sock')
         self.supervisord_monitor_parameters = self.path_resolver.gnr_config.getAttr('gnr.environment_xml.supervisord')
-        self.bin_folder = os.path.join(os.environ.get('VIRTUAL_ENV'),'bin') if os.environ.has_key('VIRTUAL_ENV') else ''
+        self.bin_folder = os.path.join(os.environ.get('VIRTUAL_ENV'),'bin') if 'VIRTUAL_ENV' in  os.environ else ''
         self.socket_path = os.path.join(self.site_path, 'sockets')
         self.logs_path = os.path.join(self.site_path, 'logs')
         self.pidfile_path = os.path.join(self.site_path, '%s_pid' % site_name)

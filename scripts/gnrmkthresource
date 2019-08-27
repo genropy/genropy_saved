@@ -85,7 +85,7 @@ class ThResourceMaker(object):
         out_file.write('%s%s\n'%(self.option_indent*indent*' ',line))
 
     def writeHeaders(self, out_file):
-        self.write(out_file, '#!/usr/bin/python')
+        self.write(out_file, '#!/usr/bin/python3')
         self.write(out_file, '# -*- coding: utf-8 -*-')
         self.write(out_file)
     
