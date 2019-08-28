@@ -306,13 +306,13 @@ class GnrWsgiSite(object):
 
     @property
     def register(self):
-        if not self._register:
+        if self._register is None:
             self._register = SiteRegisterClient(self)
             self.checkPendingConnection()
         return self._register
 
     def getSubscribedTables(self,tables):
-        if self._register:
+        if self._register is not None:
             return self.register.filter_subscribed_tables(tables,register_name='page')
 
     @property

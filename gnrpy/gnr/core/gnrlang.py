@@ -225,7 +225,9 @@ def timer_call(time_list=None, print_time=True):
 
 def getUuid():
     """Return a Python Universally Unique IDentifier 3 (UUID3) through the Python \'base64.urlsafe_b64encode\' method"""
-    uuid_to_encode = uuid.uuid3(uuid.uuid1(), str(six.moves._thread.get_ident())).bytes
+    t_id = six.moves._thread.get_ident()
+    t_id = bytes(t_id) if six.PY2 else str(t_id)
+    uuid_to_encode = uuid.uuid3(uuid.uuid1(), t_id).bytes
     return base64.urlsafe_b64encode(uuid_to_encode)[0:22].replace(b'-', b'_').decode()
 
 def safe_dict(d):

@@ -23,6 +23,7 @@
 from __future__ import print_function
 import os
 import sys
+import six
 
 def progress(count, total, status=''):
     bar_len = 60
@@ -51,6 +52,8 @@ def expandpath(path):
     expanded path
     
     :param path: the path to expand"""
+    if six.PY2:
+        path = path.encode('utf-8')
     return os.path.expanduser(os.path.expandvars(path))
     
 def listdirs(path, invisible_files=False):

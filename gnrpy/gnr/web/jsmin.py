@@ -32,17 +32,17 @@
 
 from future import standard_library
 standard_library.install_aliases()
-from builtins import object
+from builtins import object,str
 from io import StringIO
 
 def jsmin(js):
-    ins = StringIO(js)
+    ins = StringIO(str(js))
     outs = StringIO()
     JavascriptMinify().minify(ins, outs)
-    str = outs.getvalue()
-    if len(str) > 0 and str[0] == '\n':
-        str = str[1:]
-    return str
+    outstr = outs.getvalue()
+    if len(outstr) > 0 and outstr[0] == '\n':
+        outstr = outstr[1:]
+    return outstr
 
 def isAlphanum(c):
     """return true if the character is a letter, digit, underscore,
@@ -81,7 +81,7 @@ class JavascriptMinify(object):
         if c == '': # EOF
             return '\000'
         if c == '\r':
-            return '\n'
+            return str('\n')
         return ' '
 
     def _peek(self):
@@ -168,7 +168,7 @@ class JavascriptMinify(object):
            replaced with spaces. Carriage returns will be replaced with linefeeds.
            Most spaces and linefeeds will be removed.
         """
-        self.theA = '\n'
+        self.theA = str('\n')
         self._action(3)
 
         while self.theA != '\000':
@@ -207,7 +207,7 @@ class JavascriptMinify(object):
     def minify(self, instream, outstream):
         self.instream = instream
         self.outstream = outstream
-        self.theA = '\n'
+        self.theA = str('\n')
         self.theB = None
         self.theLookahead = None
 
