@@ -84,7 +84,10 @@ class HTableTree(BaseComponent):
         storeRoot = treeNode.parent #to make it indipendent from tree rebuild
         if tree_datapath and storepath.startswith('.'): #htableViewStore can be used outside componet
             storepath = '%s%s' %(tree_datapath,storepath) #store storepath from the same point of tree
-        if condition:
+        if condition or related_kwargs.get('condition'):
+            storekw = dict(kwargs)
+            for k,v in related_kwargs.items():
+                storekw['related_%s' %k] = v
             d = storeRoot.dataRpc(None,tblobj.getHierarchicalData,
                         table=table,
                         caption_field=caption_field,
@@ -92,10 +95,9 @@ class HTableTree(BaseComponent):
                         childname='store',caption=caption,dbstore=dbstore,
                         columns=columns,related_kwargs=related_kwargs,
                         nodeId='%s_hdata' %table.replace('.','_'),
-                        **kwargs)
+                        **storekw)
             d.addCallback("""
                 var selectedIdentifier;
-
                 if(treeNode.attr.tag.toLocaleLowerCase()=='tree'){ //avoid paletteTree
                     //tree 
                     var selectedNode = treeNode.widget.currentSelectedNode;
