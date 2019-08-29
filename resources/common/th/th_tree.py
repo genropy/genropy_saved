@@ -109,10 +109,11 @@ class HTableTree(BaseComponent):
                 if(!selectedIdentifier){
                     return;
                 }
+                var that = this;
                 setTimeout(function(){
                     treeNode.widget.restoreExpanded();
                     if(selectedIdentifier){
-                        var fullpath = THTree.fullPathByIdentifier(treeNode.widget,selectedIdentifier);
+                        var fullpath = THTree.fullPathByIdentifier(treeNode.widget,selectedIdentifier,that);
                         treeNode.widget.setSelectedPath(null,{value:fullpath});
                     }
                 },1)
