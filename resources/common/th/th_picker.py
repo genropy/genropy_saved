@@ -218,7 +218,7 @@ class THPicker(BaseComponent):
         relation_field = relation_field or picker_kwargs.pop('relation_field',None)
         if ',' in relation_field:
             pg = pane.paletteGroup(groupCode='pickers_%s' %view.getInheritedAttributes().get('nodeId'),title=title or '!!Picker',
-                            dockButton=dict(parentForm=True,iconClass='iconbox app'))
+                            dockButton=dict(parentForm=True,iconClass='iconbox app picker'))
             for rf in relation_field.split(','):
                 pg.palettePicker(view.grid,relation_field=rf,picker_kwargs=picker_kwargs,**kwargs)
             return pg

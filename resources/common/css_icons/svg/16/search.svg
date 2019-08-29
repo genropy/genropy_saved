@@ -1,0 +1,10 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>Select_query_16x16</title>
+  <line x1="10.2" y1="10.3" x2="14.7" y2="14.8" fill="none" stroke="#1b4d7f" stroke-linecap="round" stroke-miterlimit="10"/>
+  <path d="M11.3,11.9l.6-.6a.6.6,0,0,1,.8,0l2.9,2.9a.6.6,0,0,1,0,.8l-.6.6a.6.6,0,0,1-.8,0l-2.9-2.9A.6.6,0,0,1,11.3,11.9Z" fill="#3585c1" stroke="#1b4d7f" stroke-miterlimit="10" stroke-width="0.5"/>
+  <path d="M6.2,11.8a5.5,5.5,0,1,1,5.5-5.5h0A5.5,5.5,0,0,1,6.2,11.8Z" fill="#fff"/>
+  <g>
+    <circle cx="6" cy="6" r="5.5" fill="#fff"/>
+    <path d="M6,1A5,5,0,1,1,1,6,5,5,0,0,1,6,1M6,0a6,6,0,1,0,6,6A6,6,0,0,0,6,0Z" fill="#3585c1"/>
+  </g>
+</svg>

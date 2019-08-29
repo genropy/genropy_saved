@@ -375,7 +375,7 @@ class TableHandlerView(BaseComponent):
                             _tags=tags,
                             _tablePermissions=dict(table=table,permissions='ins,upd,import'),
                             match_values= ','.join(self.db.table(table).model.columns.keys()) if not matchColumns else None,
-                            dockButton_iconClass='iconbox inbox',title='!!Importer',**kwargs)
+                            dockButton_iconClass='iconbox import_data_tool inbox',title='!!Importer',**kwargs)
 
     @struct_method
     def th_slotbar_sum(self,pane,label=None,format=None,width=None,**kwargs):
@@ -627,7 +627,7 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_slotbar_stats(self,pane,**kwargs):
-        pane.slotButton(label='Group By',iconClass='iconbox sum',
+        pane.slotButton(label='Group By',iconClass='iconbox statistica_tools sum',
                         action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools";')
 
 
@@ -756,7 +756,7 @@ class TableHandlerView(BaseComponent):
         
     @struct_method
     def th_slotbar_resourceActions(self,pane,**kwargs):
-        pane.menudiv(iconClass='iconbox gear',storepath='.resources.action.menu',
+        pane.menudiv(iconClass='iconbox gear batch_scripts',storepath='.resources.action.menu',
                             _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
                                                         permissions='action'),action="""
                             FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};

@@ -1,0 +1,7 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>Locked_Padlock_16x16</title>
+  <rect x="2" y="6" width="12" height="10" rx="1" ry="1" fill="#990a29"/>
+  <path d="M11.9,8H10.1V4A1.9,1.9,0,0,0,8.4,1.9H7.6A1.9,1.9,0,0,0,5.9,4V8H4.1V4A3.7,3.7,0,0,1,7.6.1h.9A3.7,3.7,0,0,1,11.9,4Z" fill="#990a29"/>
+  <rect x="6" y="8" width="4" height="4" rx="2" ry="2" fill="#fff"/>
+  <rect x="7" y="11" width="2" height="3" fill="#fff"/>
+</svg>

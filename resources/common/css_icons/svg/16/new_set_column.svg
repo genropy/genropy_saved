@@ -1,0 +1,21 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>New_set_column_16x16_02</title>
+  <rect width="4" height="4" fill="#515151"/>
+  <rect y="6" width="4" height="4" fill="#515151"/>
+  <rect y="12" width="4" height="4" fill="#515151"/>
+  <rect x="1" y="1" width="2" height="2" fill="#fff"/>
+  <rect x="1" y="7" width="2" height="2" fill="#990a29"/>
+  <rect x="1" y="13" width="2" height="2" fill="#fff"/>
+  <g>
+    <rect x="6.5" y="0.5" width="9" height="3" fill="#fff"/>
+    <path d="M15,1V3H7V1h8m1-1H6V4H16V0Z" fill="#515151"/>
+  </g>
+  <g>
+    <rect x="6.5" y="6.5" width="9" height="3" fill="#fff"/>
+    <path d="M15,7V9H7V7h8m1-1H6v4H16V6Z" fill="#990a29"/>
+  </g>
+  <g>
+    <rect x="6.5" y="12.5" width="9" height="3" fill="#fff"/>
+    <path d="M15,13v2H7V13h8m1-1H6v4H16V12Z" fill="#515151"/>
+  </g>
+</svg>

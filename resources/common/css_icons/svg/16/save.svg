@@ -1,0 +1,8 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>Save_16x16</title>
+  <path d="M1.7,0H11.9L16,3.8V14.3A1.7,1.7,0,0,1,14.3,16H1.7A1.7,1.7,0,0,1,0,14.3V1.7A1.7,1.7,0,0,1,1.7,0Z" fill="#515151"/>
+  <rect x="3" y="1" width="8" height="5" fill="#fff"/>
+  <rect x="7" y="1" width="2" height="4" fill="#515151"/>
+  <line x1="3" y1="9.5" x2="13" y2="9.5" fill="none" stroke="#f4f4f4" stroke-miterlimit="10"/>
+  <line x1="3" y1="12.5" x2="13" y2="12.5" fill="none" stroke="#f4f4f4" stroke-miterlimit="10"/>
+</svg>
