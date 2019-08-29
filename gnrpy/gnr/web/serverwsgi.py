@@ -331,6 +331,7 @@ class Server(object):
         if self.debug:
             gnrServer = GnrDebuggedApplication(gnrServer, evalex=True, pin_security=False)
         port = int(self.options.port)
-        run_simple(self.options.host, port, gnrServer, use_reloader=self.reloader)
+        run_simple(self.options.host, port, gnrServer, use_reloader=self.reloader, threaded=True,
+            reloader_type='stat')
         
         
