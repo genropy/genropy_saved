@@ -28,7 +28,7 @@ from __future__ import print_function
 from future import standard_library
 standard_library.install_aliases()
 from past.utils import old_div
-from builtins import object
+#from builtins import object
 from gnr.core.gnrbag import Bag, BagNode
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring

@@ -6,7 +6,7 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
-from builtins import object
+#from builtins import object
 class GnrBaseProxy(object):
     """TODO"""
     def __init__(self, page, **kwargs):

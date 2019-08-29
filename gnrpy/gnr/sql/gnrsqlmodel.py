@@ -24,7 +24,7 @@
 from __future__ import print_function
 from builtins import str
 from builtins import range
-from builtins import object
+#from builtins import object
 import logging
 from datetime import datetime,timedelta
 from gnr.core.gnrstring import boolean

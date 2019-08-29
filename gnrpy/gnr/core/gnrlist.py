@@ -28,7 +28,7 @@ from __future__ import print_function
 from past.builtins import cmp
 from builtins import range
 from past.builtins import basestring
-from builtins import object
+#from builtins import object
 from gnr.core.gnrlang import GnrException
 from gnr.core.gnrdecorator import deprecated
 from gnr.core.gnrstring import slugify

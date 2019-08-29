@@ -3,7 +3,7 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import str
 from past.builtins import basestring
-from builtins import object
+#from builtins import object
 from gnr.core.gnrbag import Bag
 from werkzeug.wrappers import Request, Response
 from webob.exc import WSGIHTTPException, HTTPInternalServerError, HTTPNotFound, HTTPForbidden, HTTPPreconditionFailed, HTTPClientError, HTTPMovedPermanently,HTTPTemporaryRedirect
@@ -963,10 +963,17 @@ class GnrWsgiSite(object):
                 response.headers[k] = str(v)
         for k,v in list(info_kwargs.items()):
             if v is not None:
-                response.headers['X-%s' %k] = str(v)
-        if isinstance(result, str):
+                if six.PY2:
+                    v=unicode(v)
+                else:
+                    v=str(v)
+                response.headers['X-%s' %k] = v
+        if six.PY2 and isinstance(result, unicode):
+            response.data=result
+        elif isinstance(result, str):
             response.mimetype = kwargs.get('mimetype') or 'text/plain'
             response.data=result # PendingDeprecationWarning: .unicode_body is deprecated in favour of Response.text
+        
         elif isinstance(result, basestring):
             response.data=result
         elif isinstance(result, Response):

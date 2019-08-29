@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-from builtins import object
+#from builtins import object
 import os, os.path
 from gnr.devel.utils import AutoDiscovery, expandpath
 

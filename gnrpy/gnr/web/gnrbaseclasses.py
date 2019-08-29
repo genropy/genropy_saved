@@ -24,7 +24,7 @@
 #Copyright (c) 2007 Softwell. All rights reserved.
 
 from past.builtins import basestring
-from builtins import object
+#from builtins import object
 import os,sys
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrdecorator import extract_kwargs

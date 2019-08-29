@@ -7,7 +7,7 @@ Created by Saverio Porcari on 2009-07-08.
 Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 """
 
-from builtins import object
+#from builtins import object
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrstring import toText
 

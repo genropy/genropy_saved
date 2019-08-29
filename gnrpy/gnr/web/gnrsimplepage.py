@@ -24,7 +24,7 @@
 
 from future import standard_library
 standard_library.install_aliases()
-from builtins import object
+#from builtins import object
 import _thread
 
 from time import time

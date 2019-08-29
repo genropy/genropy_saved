@@ -10,7 +10,7 @@
 
 from __future__ import division
 from past.utils import old_div
-from builtins import object
+#from builtins import object
 from gnr.core.gnrbag import Bag, BagNode
 from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrstructures import GnrStructData

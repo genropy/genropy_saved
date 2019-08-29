@@ -32,7 +32,7 @@
 
 from future import standard_library
 standard_library.install_aliases()
-from builtins import object,str
+#from builtins import object,str
 from io import StringIO
 
 def jsmin(js):

@@ -8,7 +8,7 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import str
 from past.builtins import basestring
-from builtins import object
+#from builtins import object
 import os
 from gnr.core.gnrbag import Bag
 from datetime import datetime

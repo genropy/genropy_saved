@@ -68,6 +68,8 @@ class DictCursorWrapper(Cursor):
             raise StopIteration()
         return res
 
+    next=__next__
+
     def execute(self, operation, args=()):
         self.index = {}
         self._query_executed = 1

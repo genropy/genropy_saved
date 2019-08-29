@@ -25,7 +25,7 @@
 #import weakref
 from future import standard_library
 standard_library.install_aliases()
-from builtins import object
+#from builtins import object
 from gnr.core.gnrbag import Bag, BagNode
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring

@@ -22,7 +22,7 @@
 
 from builtins import str
 from past.builtins import basestring
-from builtins import object
+#from builtins import object
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrlang import GnrObject,GnrException
 from gnr.core.gnrdict import GnrDict

@@ -30,7 +30,7 @@ from builtins import str
 from builtins import range
 from past.builtins import basestring
 from past.utils import old_div
-from builtins import object
+#from builtins import object
 import re
 import pickle
 import zipfile

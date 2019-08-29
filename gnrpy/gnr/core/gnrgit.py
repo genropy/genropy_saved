@@ -6,7 +6,7 @@
 #  Created by Francesco Porcari
 #  Copyright (c) 2018 Softwell. All rights reserved.
 
-from builtins import object
+#from builtins import object
 from dulwich.client import HttpGitClient
 from dulwich.repo import Repo
 from gnr.core.gnrbag import  Bag

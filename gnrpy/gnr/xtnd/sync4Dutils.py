@@ -6,7 +6,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 from past.builtins import basestring
-from builtins import object
+#from builtins import object
 import os.path
 from gnr.core.gnrbag import Bag
 

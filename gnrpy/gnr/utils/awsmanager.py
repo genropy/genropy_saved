@@ -1,6 +1,6 @@
 from __future__ import print_function
 from builtins import map
-from builtins import object
+#from builtins import object
 import boto3
 import json
 import inspect

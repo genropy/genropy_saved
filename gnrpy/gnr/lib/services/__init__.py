@@ -25,7 +25,7 @@
 
 from builtins import map
 from builtins import str
-from builtins import object
+#from builtins import object
 import os
 
 import sys

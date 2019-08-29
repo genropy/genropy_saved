@@ -21,7 +21,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 from future import standard_library
 standard_library.install_aliases()
-from builtins import object
+#from builtins import object
 #import gnr.web.gnrcookie as Cookie
 from werkzeug.contrib.securecookie import SecureCookie
 #from six.moves.http_cookies import SimpleCookie

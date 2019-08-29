@@ -28,7 +28,7 @@ this test module focus on SqlSelection's methods
 from __future__ import print_function
 
 from past.builtins import basestring
-from builtins import object
+#from builtins import object
 import os
 import datetime
 

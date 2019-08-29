@@ -22,13 +22,14 @@
 
 from __future__ import division
 from __future__ import print_function
+
 from builtins import str
-from past.builtins import basestring
-from builtins import object
+from past.builtins import basestring, str as old_str
+#from builtins import object
 from past.utils import old_div
 import datetime
 import re
-
+import six
 from gnr.core import gnrstring
 from gnr.core.gnrdate import decodeOneDate, decodeDatePeriod
 from gnr.core.gnrlang import gnrImport
@@ -272,7 +273,7 @@ class GnrClassCatalog(object):
             result = self.quoted(result)
         return result
         
-    def asTextAndType(self, o, translate_cb=None):
+    def asTextAndType(self, o, translate_cb=None): 
         """Add???
             
         :param o: TODO
@@ -297,7 +298,7 @@ class GnrClassCatalog(object):
         """
         from gnr.core.gnrbag import Bag
         
-        self.addClass(cls=str, key='T', aliases=['TEXT', 'P', 'A','text'], altcls=[basestring, str], empty='')
+        self.addClass(cls=str, key='T', aliases=['TEXT', 'P', 'A','text'], altcls=[basestring, old_str, six.text_type], empty='')
         #self.addSerializer("asText", unicode, lambda txt: txt)
         
         self.addClass(cls=float, key='R', aliases=['REAL', 'FLOAT', 'F'], align='R', empty=0.0)
@@ -353,7 +354,7 @@ class GnrClassCatalog(object):
         self.addClass(cls=type, key='CLS', aliases=[],empty=None)
         self.addSerializer("asText", type, self.serializeClass)
         self.addParser(type, self.parseClass)
-
+        
 
     def parseClass(self,txt):
         module,clsname = txt.split(':')

@@ -1,6 +1,6 @@
 from builtins import range
 from past.builtins import basestring
-from builtins import object
+#from builtins import object
 from gnr.core.gnrstructures import GnrStructData
 from reportlab.pdfgen import canvas
 from reportlab import lib as pdflib

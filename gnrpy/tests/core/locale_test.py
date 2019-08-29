@@ -23,7 +23,7 @@
 
 
 
-from builtins import object
+#from builtins import object
 import datetime
 import pytz
 from gnr.core.gnrlocale import localize, parselocal

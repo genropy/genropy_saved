@@ -1,6 +1,6 @@
 from builtins import str
 from builtins import range
-from builtins import object
+#from builtins import object
 from gnr.core.gnrbag import Bag
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, A4

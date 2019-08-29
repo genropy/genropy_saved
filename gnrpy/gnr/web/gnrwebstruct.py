@@ -30,7 +30,7 @@ from builtins import str
 from builtins import range
 from past.builtins import basestring
 from past.utils import old_div
-from builtins import object
+#from builtins import object
 from gnr.core.gnrbag import Bag,BagCbResolver,DirectoryResolver
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring

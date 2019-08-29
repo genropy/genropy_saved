@@ -10,7 +10,7 @@ from __future__ import division
 from __future__ import print_function
 from builtins import range
 from past.utils import old_div
-from builtins import object
+#from builtins import object
 import os.path
 import tempfile
 from gnr.core.gnrbag import Bag, BagCbResolver

@@ -53,7 +53,7 @@ KEY         Public Key  The public encryption key associated with the vCard obje
 """
 from __future__ import print_function
 
-from builtins import object
+#from builtins import object
 from gnr.core.gnrbag import Bag
 import os.path
 import sys

@@ -84,7 +84,7 @@ Copyright, credits and license:
 Licensed under the Open Software License version 2.1.
 """
 
-from builtins import object
+#from builtins import object
 __version__ = '1.0'
 __revision__ = "$Rev: 7680 $"
 __date__ = "$Date: 2008-11-29 07:55:36 -0700 (Sat, 29 Nov 2008) $"

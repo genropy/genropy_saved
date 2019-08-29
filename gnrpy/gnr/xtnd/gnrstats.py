@@ -1,4 +1,4 @@
-from builtins import object
+#from builtins import object
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import toText
 import time

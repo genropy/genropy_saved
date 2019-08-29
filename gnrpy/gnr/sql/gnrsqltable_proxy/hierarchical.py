@@ -21,7 +21,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from builtins import str
-from builtins import object
+#from builtins import object
 from gnr.core.gnrstring import encode36
 from gnr.core.gnrbag import Bag,BagResolver
 from gnr.core.gnrdict import dictExtract

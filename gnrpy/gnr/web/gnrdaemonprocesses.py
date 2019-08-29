@@ -3,7 +3,7 @@
 #
 
 from builtins import range
-from builtins import object
+#from builtins import object
 from datetime import datetime
 from multiprocessing import Process, get_logger, cpu_count
 import threading

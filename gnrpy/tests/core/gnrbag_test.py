@@ -1,6 +1,6 @@
 from __future__ import print_function
 from builtins import str
-from builtins import object
+#from builtins import object
 from gnr.core.gnrbag import Bag, BagNode, BagResolver
 import datetime
 import socket, os

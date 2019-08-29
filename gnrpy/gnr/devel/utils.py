@@ -12,7 +12,7 @@ from __future__ import print_function
 
 from builtins import str
 from past.utils import old_div
-from builtins import object
+#from builtins import object
 
 import time
 import math

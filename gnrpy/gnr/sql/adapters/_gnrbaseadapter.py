@@ -23,7 +23,7 @@
 from __future__ import division
 from builtins import str
 from past.builtins import basestring
-from builtins import object
+#from builtins import object
 from past.utils import old_div
 import re
 

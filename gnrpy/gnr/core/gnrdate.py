@@ -25,7 +25,7 @@ from past.builtins import cmp
 from builtins import str
 from builtins import map
 from past.builtins import basestring
-from builtins import object
+#from builtins import object
 from past.utils import old_div
 import re
 import logging

@@ -6,7 +6,7 @@
 #Created by Francesco Porcari on 2010-10-16.
 #Copyright (c) 2011 Softwell. All rights reserved.
 
-from builtins import object
+#from builtins import object
 from gnr.web.batch.btcbase import BaseResourceBatch
 
 from gnr.core.gnrxls import XlsWriter

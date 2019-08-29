@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from builtins import str
-from builtins import object
+#from builtins import object
 from gnr.core.gnrbag import Bag
 import inspect
 import os

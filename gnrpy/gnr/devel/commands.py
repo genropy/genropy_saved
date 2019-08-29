@@ -32,7 +32,7 @@ Argument parsing inspired by Michele Simionato's plac.
 from __future__ import print_function
 
 from builtins import zip
-from builtins import object
+#from builtins import object
 import sys
 import os.path
 import argparse

@@ -2,7 +2,7 @@ from __future__ import print_function
 
 # -*- coding: utf-8 -*-
 
-from builtins import object
+#from builtins import object
 import os
 
 class CommandHandler(object):

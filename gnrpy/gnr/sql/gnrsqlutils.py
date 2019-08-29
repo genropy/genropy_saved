@@ -7,7 +7,7 @@
 # Copyright (c) 2007 Softwell. All rights reserved.
 
 from __future__ import print_function
-from builtins import object
+#from builtins import object
 from gnr.core import gnrlist
 from gnr.core.gnrbag import Bag
 from gnr.sql.gnrsql_exceptions import GnrNonExistingDbException

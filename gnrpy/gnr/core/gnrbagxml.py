@@ -25,7 +25,7 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import str
 from past.builtins import basestring
-from builtins import object
+#from builtins import object
 import re, os
 import datetime
 
@@ -363,6 +363,8 @@ class BagToXml(object):
                         os.makedirs(dirname)
                 with open(filename, 'wb') as output:
                     output.write(result)
+        if six.PY2:
+            result = result.decode()
         return result
         
     def buildTag(self, tagName, value, attributes=None, cls='', xmlMode=False,localize=True,namespaces=None):

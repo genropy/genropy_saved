@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from builtins import object
+#from builtins import object
 class GnrBaseTask(object):
     def __init__(self, page):
         self.page = page

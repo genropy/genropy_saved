@@ -6,7 +6,7 @@ from future import standard_library
 standard_library.install_aliases()
 from builtins import str
 from past.builtins import basestring
-from builtins import object
+##from builtins import object
 from datetime import datetime
 import logging
 from multiprocessing import Process, log_to_stderr, get_logger, Manager
@@ -21,8 +21,8 @@ import atexit
 import os
 import time
 import Pyro4
-from gnr.web.gnrdaemonprocesses import GnrCronHandler, GnrWorkerPool, GnrDaemonServiceManager
-from gnr.web.gnrtask import GnrTaskScheduler,GnrTaskWorker
+from gnr.web.gnrdaemonprocesses import GnrCronHandler, GnrDaemonServiceManager
+from gnr.web.gnrtask import GnrTaskScheduler
 import six
 if hasattr(Pyro4.config, 'METADATA'):
     Pyro4.config.METADATA = False

@@ -8,7 +8,7 @@
 
 from __future__ import print_function
 from builtins import str
-from builtins import object
+#from builtins import object
 from gnr.core.gnrbag import Bag
 from datetime import datetime
 from gnr.core.gnrlang import tracebackBag
