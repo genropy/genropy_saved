@@ -37,6 +37,8 @@ import zipfile
 import io
 import logging
 import datetime
+import six
+import json
 
 from decimal import Decimal
 
@@ -960,10 +962,7 @@ def jsquote(str_or_unicode):
     'pippo'
     >>> print jsquote(u'pippo')
     'pippo'"""
-    if isinstance(str_or_unicode, str):
-        return repr(str_or_unicode)
-    elif isinstance(str_or_unicode, str):
-        return repr(str_or_unicode.encode('utf-8'))
+    return json.dumps(str_or_unicode)
 
         
 if __name__ == '__main__':
