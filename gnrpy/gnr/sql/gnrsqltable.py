@@ -2199,7 +2199,7 @@ class SqlTable(GnrObject):
                 attributes['dtype'] = 'RM'
             resultAppend(result, aliastbl.name, attributes, omit)
         if dosort:
-            result.sort(lambda a, b: cmp(a.getAttr('group', '').split('.'), b.getAttr('group', '').split('.')))
+            result.sort(lambda a: a.getAttr('group', '').split('.'))
             grdict = dict([(k[6:], v) for k, v in list(self.attributes.items()) if k.startswith('group_')])
             if not grdict:
                 return result

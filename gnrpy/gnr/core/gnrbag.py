@@ -647,7 +647,8 @@ class Bag(GnrObject):
         
         :param pars: TODO None: label ascending"""
         if not isinstance(pars, basestring):
-            self._nodes.sort(pars)
+            print(pars)
+            self._nodes.sort(key=pars)
         else:
             levels = pars.split(',')
             levels.reverse()
@@ -660,14 +661,14 @@ class Bag(GnrObject):
                 what = what.strip().lower()
                 reverse = (not (mode.strip().lower() in ('a', 'asc', '>')))
                 if what == '#k':
-                    self._nodes.sort(lambda a, b: cmp(a.label.lower(), b.label.lower()), reverse=reverse)
+                    self._nodes.sort(key=lambda a: a.label.lower(), reverse=reverse)
                 elif what == '#v':
-                    self._nodes.sort(lambda a, b: cmp(a.value, b.value), reverse=reverse)
+                    self._nodes.sort(key=lambda a: a.value, reverse=reverse)
                 elif what.startswith('#a'):
                     attrname = what[3:]
-                    self._nodes.sort(lambda a, b: cmp(a.getAttr(attrname), b.getAttr(attrname)), reverse=reverse)
+                    self._nodes.sort(key=lambda a: a.getAttr(attrname), reverse=reverse)
                 else:
-                    self._nodes.sort(lambda a, b: cmp(a.value[what], b.value[what]), reverse=reverse)
+                    self._nodes.sort(key=lambda a:a.value[what], reverse=reverse)
         return self
         
     def sum(self, what='#v'):
