@@ -70,7 +70,7 @@ class BaseResourceBatch(object):
         except self.btc.exception_stopped:
             self.btc.batch_aborted()
             self.batch_log_write('Batch Aborted')
-        except Exception, e:
+        except Exception as e:
             if task_execution_record:
                 task_execution_record['is_error'] = True
                 task_execution_record['errorbag'] = tracebackBag()
