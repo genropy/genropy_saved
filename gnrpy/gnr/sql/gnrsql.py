@@ -458,9 +458,10 @@ class GnrSqlDb(GnrObject):
         storename = storename or envargs.get('env_storename', self.rootstore)
         sqlargs = envargs
         for k,v in list(sqlargs.items()):
+            if isinstance(v,bytes):
+                v=v.decode('utf-8')
+                sqlargs[k] = v
             if isinstance(v,basestring):
-                if isinstance(v,bytes):
-                    v=v.decode('utf-8')
                 if (v.startswith('$') or v.startswith('@')):
                     sqlargs[k] = v[1:]
         if dbtable and self.table(dbtable).use_dbstores(**sqlargs) is False:
