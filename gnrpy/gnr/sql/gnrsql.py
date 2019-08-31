@@ -462,7 +462,7 @@ class GnrSqlDb(GnrObject):
                 if isinstance(v,bytes):
                     v=v.decode('utf-8')
                 if (v.startswith('$') or v.startswith('@')):
-                sqlargs[k] = v[1:]
+                    sqlargs[k] = v[1:]
         if dbtable and self.table(dbtable).use_dbstores(**sqlargs) is False:
             storename = self.rootstore
         with self.tempEnv(storename=storename):
