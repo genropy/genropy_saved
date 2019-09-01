@@ -26,6 +26,7 @@ Some useful operations on lists.
 """
 from __future__ import print_function
 from past.builtins import cmp
+from functools import cmp_to_key
 from builtins import range
 from past.builtins import basestring
 #from builtins import object
@@ -92,18 +93,18 @@ def sortByItem(l, *args, **kwargs):
     for crit, rev, caseInsensitive in criteria:
         if caseInsensitive:
             if '.' in crit and hkeys:
-                #l.sort(lambda a, b: safeCmp((hGetItem(a, crit) or '').lower(), (hGetItem(b, crit) or '').lower()))
-                l.sort(key= lambda i: (hGetItem(i, crit) or '').lower())
+                cmp_func = lambda a, b: safeCmp((hGetItem(a, crit) or '').lower(), (hGetItem(b, crit) or '').lower())
+                l.sort(key= cmp_to_key(cmp_func))
             else:
-                #l.sort(lambda a, b: safeCmp((a.get(crit, None) or '').lower(), (b.get(crit, None) or '').lower()))
-                l.sort(key=lambda i: (i.get(crit, None) or '').lower())
+                cmp_func = lambda a, b: safeCmp((a.get(crit, None) or '').lower(), (b.get(crit, None) or '').lower())
+                l.sort(key= cmp_to_key(cmp_func))
         else:
             if '.' in crit and hkeys:
-                #l.sort(lambda a, b: safeCmp(hGetItem(a, crit), hGetItem(b, crit)))
-                l.sort(key=lambda i: hGetItem(i, crit))
+                cmp_func = lambda a, b: safeCmp(hGetItem(a, crit), hGetItem(b, crit))
+                l.sort(key= cmp_to_key(cmp_func))
             else:
-                #l.sort(lambda a, b: safeCmp(a.get(crit, None), b.get(crit, None)))
-                l.sort(key=lambda i: i.get(crit, None))
+                cmp_func = lambda a, b: safeCmp(a.get(crit, None), b.get(crit, None))
+                l.sort(key= cmp_to_key(cmp_func))
         if(rev):
             l.reverse()
     return l
