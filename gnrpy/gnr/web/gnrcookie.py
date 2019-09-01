@@ -312,12 +312,7 @@ class MarshalCookie(SignedCookie):
         # on long cookies, the base64 encoding can contain multiple lines
         # separated by \n or \r\n
         m = m.decode()
-        print(type(m))
-        print(m)
         m = (''.join(m.split())).encode()
-        print(type(m))
-        print(m)
-        print('-------')
         result = ["%s=%s%s" % (self.name, self.hexdigest(m), m)]
         for name in self._valid_attr:
             if hasattr(self, name):
