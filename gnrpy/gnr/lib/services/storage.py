@@ -423,7 +423,7 @@ class StorageService(GnrBaseService):
             mime = self.mimetype(*args)
         with self.open(*args, mode='rb') as fp:
             data = fp.read()
-            data64 = ''.join(base64.encodestring(data).splitlines())
+            data64 = ''.join(base64.b64encode(data).splitlines())
             if mime:
                 result  ='data:%s;base64,%s' % (mime, data64)
             else:
