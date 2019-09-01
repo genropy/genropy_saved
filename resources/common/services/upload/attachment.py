@@ -35,7 +35,6 @@ class Main(GnrBaseService):
         attachment_table.addAttach
         f = attachment.file
         content = f.read()
-        print len(content)
         if pkg and tbl and attachment:
-            print x
+            print(x)
         return json.dumps(kwargs)
