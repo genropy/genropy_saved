@@ -604,10 +604,11 @@ class DynamicForm(BaseComponent):
             attr['validate_notnull'] = attr.pop('mandatory')            
         if attr.get('field_visible'):
             condition = attr.pop('field_visible')
-            tpv = (','.join([str(x['code']) for x in fields if x['code'] in condition]),"", "",attr['code'])
+            allcodes = ','.join([str(x['code']) for x in fields if x['code'] in condition])
+            tpv = (allcodes,"", "",attr['code'])
             if attr.get('validate_notnull'):
                 attr['validate_notnull']  = "^#WORKSPACE.%s.do_validations" %attr['code']
-                tpv = ("sourceNode.setRelativeData('#WORKSPACE.%s.do_validations',true);" %attr['code'], "sourceNode.setRelativeData('#WORKSPACE.%s.do_validations',false);" %attr['code'],attr['code'])
+                tpv = (allcodes,"sourceNode.setRelativeData('#WORKSPACE.%s.do_validations',true);" %attr['code'], "sourceNode.setRelativeData('#WORKSPACE.%s.do_validations',false);" %attr['code'],attr['code'])
             attr['_formulaVisibleIf'] = condition
             attr['hidden'] = """==function(sourceNode){
                                         var locals='%s';

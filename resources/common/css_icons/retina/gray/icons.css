@@ -274,8 +274,11 @@
 	background: url(16/display_on.png) no-repeat center center;
 }
 
-.iconbox.document{
+.document{
 	background: url(16/document.png) no-repeat center center;
+}
+.create_edit_html_template{
+    background: url(16/document.png) no-repeat center center;
 }
 
 .document_empty{

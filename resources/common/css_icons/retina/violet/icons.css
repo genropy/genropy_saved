@@ -261,6 +261,10 @@
 	background: url(16/document.png) no-repeat center center;
 }
 
+.create_edit_html_template{
+    background: url(16/document.png) no-repeat center center;
+}
+
 .document_empty{
 	background: url(16/document_empty.png) no-repeat center center;
 }

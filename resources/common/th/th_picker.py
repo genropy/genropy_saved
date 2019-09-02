@@ -18,7 +18,7 @@ class THPicker(BaseComponent):
                          viewResource=None,searchOn=True,multiSelect=True,structure_field=None,
                          title=None,autoInsert=None,dockButton=None,nodup=None,picker_kwargs=None,
                          height=None,width=None,checkbox=False,defaults=None,condition=None,**kwargs):
-        dockButton = dockButton or dict(parentForm=True,iconClass='iconbox app')
+        dockButton = dockButton or dict(parentForm=True,iconClass='iconbox picker app')
         picker_kwargs = picker_kwargs or dict()
         checkbox = checkbox or picker_kwargs.get('checkbox',False)
         one = picker_kwargs.get('one',False)

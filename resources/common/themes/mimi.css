@@ -1140,7 +1140,7 @@
     background: url(/_rsrc/common/css_icons/svg/16/batch_scripts.svg) no-repeat center center;
 }
 
-.create_edit_html_template{
+.mimi .create_edit_html_template {
     background: url(/_rsrc/common/css_icons/svg/16/create_edit_html_template.svg) no-repeat center center;
 }
 
@@ -1159,7 +1159,7 @@
 .mimi .export_to_excel, .mimi .export{
     background: url(/_rsrc/common/css_icons/svg/16/export_to_excel.svg) no-repeat center center;
 }
-.mimi .picker{
+.mimi .picker, .mimi .iconbox.app.picker{
     background: url(/_rsrc/common/css_icons/svg/16/picker.svg) no-repeat center center;
 }
 

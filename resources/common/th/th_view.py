@@ -803,14 +803,14 @@ class TableHandlerView(BaseComponent):
         if self.getPreference('print.enable_pdfform',pkg='sys') and self.site.getService('pdfform'):
             self.mixinComponent("services/pdfform/pdftk/component:PalettePdfFormEditor")
             pdfPaletteCode = '%(thlist_root)s_pdf_template_manager' %inattr
-            templatemenu = pane.menudiv(iconClass='iconbox document',tip='!!Template menu')
+            templatemenu = pane.menudiv(iconClass='iconbox create_edit_html_template',tip='!!Template menu')
             #costruiscimenu
             templatemenu.menuline(label='!!Html Template',action="PUBLISH %s_show"%htmlPaletteCode)
             templatemenu.menuline(label='!!Pdf Template',action="PUBLISH %s_show"%pdfPaletteCode)
             pane.paletteTemplateEditor(maintable=table,paletteCode=htmlPaletteCode,dockTo='dummyDock')
             pane.pdfFormEditorPalette(maintable=table, paletteCode=pdfPaletteCode,dockTo='dummyDock')
         else:
-            pane.paletteTemplateEditor(maintable=table,paletteCode=htmlPaletteCode,dockButton_iconClass='iconbox document')
+            pane.paletteTemplateEditor(maintable=table,paletteCode=htmlPaletteCode,dockButton_iconClass='iconbox create_edit_html_template')
 
     @struct_method
     def th_slotbar_pageHooksSelector(self,pane,**kwargs):
