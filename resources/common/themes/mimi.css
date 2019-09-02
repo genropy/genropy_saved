@@ -1203,8 +1203,8 @@
     background: url(/_rsrc/common/css_icons/svg/16/minus_square_grey.svg) no-repeat center center;
 }
 
-.minus_square_red, .mimi .delete_record{
-    background: url(/_rsrc/common/css_icons/svg/16/minus_square_red.svg) no-repeat center center;
+.minus_square, .mimi .delete_record{
+    background: url(/_rsrc/common/css_icons/svg/16/minus_square.svg) no-repeat center center;
 }
 
 .mimi .new_row, .mimi .add_row{
@@ -1223,8 +1223,8 @@
     background: url(/_rsrc/common/css_icons/svg/16/next_record.svg) no-repeat center center;
 }
 
-.mimi .plus_square_green, .mimi .add_record{
-    background: url(/_rsrc/common/css_icons/svg/16/plus_square_green.svg) no-repeat center center;
+.mimi .plus_square, .mimi .add_record{
+    background: url(/_rsrc/common/css_icons/svg/16/plus_square.svg) no-repeat center center;
 }
 
 .mimi .plus_square_grey{
