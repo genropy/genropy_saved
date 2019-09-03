@@ -2163,31 +2163,13 @@ class GnrFormBuilder(object):
             field = f
             lbl = field.pop('lbl', '')
             dbfield = field.get('dbfield')
-            if 'hidden' in field:
-                checklblhidden = """
-                    var _lblDomNode = this.getAttributeFromDatasource('_lblDomNode');
-                    if(_lblDomNode){
-                        genro.dom.toggleVisible(_lblDomNode,!$1.value);
-                    }
-                """
-                field['selfsubscribe_on_setHidden'] = checklblhidden
-                onCreated = field.get('onCreated') or ''
-                field['onCreated'] = """
-                    %s
-                    var _lblDomNode = this.getAttributeFromDatasource('_lblDomNode');
-                    if(_lblDomNode){
-                        genro.dom.toggleVisible(_lblDomNode,!this.getAttributeFromDatasource('hidden'));
-                    }
-                """ %onCreated
             if dbfield and excludeCols and dbfield.split('.')[-1] in excludeCols:
                 field.setdefault('hidden',True)
             if field.get('checkpref'):
                 lbl_kwargs['checkpref'] = field['checkpref']
                 lbl_kwargs.update(dictExtract(field,'checkpref_'))
-            
-           #if 'hidden' in field and 'lbl_hidden' not in field:
-           #    field['lbl_hidden'] = field['hidden']
-            
+            if 'hidden' in field and 'lbl_hidden' not in field:
+                field['lbl_hidden'] = field['hidden']
             if '_valuelabel' not in field and not lbl.startswith('=='):  #BECAUSE IT CANNOT CALCULATE ON THE FIELD SOURCENODE SCOPE
                 field['_valuelabel'] = lbl
             if 'lbl_href' in field:
@@ -2238,18 +2220,15 @@ class GnrFormBuilder(object):
                 lbl_kwargs['_class'] = self.lblclass + ' ' + lbl_kwargs['_class']
             else:
                 lbl_kwargs['_class'] = self.lblclass
-            lblNode = None
             if lblhref:
                 cell = row.td(childname='c_%i_l' % c, childcontent=lbl, align=lblalign, vertical_align=lblvalign, **td_lbl_attr)
                 if lblvalue:
                     lbl_kwargs['tabindex'] = -1 # prevent tab navigation to the zoom link
-                    lblNode = cell.a(childcontent=lblvalue, href=lblhref, **lbl_kwargs)
+                    cell.a(childcontent=lblvalue, href=lblhref, **lbl_kwargs)
             else:
                 cell = row.td(childname='c_%i_l' % c, align=lblalign, vertical_align=lblvalign, **td_lbl_attr)
                 if lbl:
-                    lblNode = cell.div(childcontent=lbl, **lbl_kwargs)
-            if lblNode is not None:
-                field['_lblDomNode'] = lblNode.js_domNode
+                    cell.div(childcontent=lbl, **lbl_kwargs)
             for k, v in row_attributes.items():
                 # TODO: warn if row_attributes already contains the attribute k (and it has a different value)
                 row.parentNode.attr[k] = v

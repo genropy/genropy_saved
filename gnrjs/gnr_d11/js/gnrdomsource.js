@@ -1301,7 +1301,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
             else {
                 var setter = 'set' + stringCapitalize(attr);
-                this.publish('on_'+setter,{'value':value});
                 if(!(setter in this.widget)){
                     setter = 'catch_'+attr.split('_')[0];
                 }
@@ -1385,7 +1384,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         else if (this.domNode) {
             var domnode = this.domNode;
             var setter = 'set' + stringCapitalize(attr);
-            this.publish('on_'+setter,{'value':value});
             if (setter in domnode.gnr) {
                 dojo.hitch(domnode.gnr, setter)(domnode, value, kw);
             }

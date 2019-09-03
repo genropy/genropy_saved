@@ -3126,17 +3126,12 @@ dojo.declare("gnr.widgets.CheckBox", gnr.widgets.baseDojo, {
             labelattrs['margin_left'] = labelattrs['margin_left'] || '3px';
             var domnode = genro.wdg.create('label', widget.domNode.parentNode, labelattrs);
             domnode.innerHTML = label;
-            sourceNode._labelHTML = domnode;
-            genro.dom.toggleVisible(sourceNode._labelHTML,!sourceNode.getAttributeFromDatasource('hidden'));
         }
         if (sourceNode.hasDynamicAttr('value')) {
             var value = sourceNode.getAttributeFromDatasource('value');
             //widget.setChecked(value);
             widget.setAttribute('checked', value);
         }
-        dojo.connect(widget,'setHidden',function(){
-            genro.dom.toggleVisible(sourceNode._labelHTML,!sourceNode.getAttributeFromDatasource('hidden'));
-        });
     },
     _getKeeperRoot:function(sourceNode){
         return sourceNode._gnrcheckbox_wrapper;
@@ -3155,7 +3150,6 @@ dojo.declare("gnr.widgets.CheckBox", gnr.widgets.baseDojo, {
         
         
     },
-
     patch_setValue: function(/*String*/ value, pc) {
         //this.setChecked(value);
         this.setAttribute('checked', value);
