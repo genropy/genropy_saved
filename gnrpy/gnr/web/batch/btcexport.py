@@ -45,7 +45,7 @@ class CsvWriter(object):
             csv_open = self.filepath.open
         else:
             csv_open = lambda **kw: open(self.filepath,**kw)
-        with csv_open(mode='w') as f:
+        with csv_open(mode='wb') as f:
             result = '\n'.join(self.result)
             f.write(result.encode('utf-8'))
             
@@ -164,7 +164,7 @@ class BaseResourceExport(BaseResourceBatch):
         if not filename:
             filename = self.maintable.replace('.', '_') if hasattr(self, 'maintable') else self.page.getUuid()
         filename = filename.replace(' ', '_').replace('.', '_').replace('/', '_')[:64]
-        filename = filename.encode('ascii', 'ignore')
+        filename = filename.encode('ascii', 'ignore').decode('utf-8')
         self.filename = filename
         self.filepath = self.page.site.storageNode('page:output',self.export_mode,'%s.%s' % (self.filename, self.export_mode), autocreate=-1)
 
