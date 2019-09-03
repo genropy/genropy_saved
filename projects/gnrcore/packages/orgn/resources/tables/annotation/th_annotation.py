@@ -155,7 +155,7 @@ class ViewPlugin(View):
     def th_top_custom(self,top):
         top.bar.replaceSlots('#','2,sections@action_type_id,5,searchOn,count,*',
                                 sections_action_type_id_multiButton=False,
-                                sections_action_type_id_multivalue=False,
+                                sections_action_type_id_multivalue=True,
                                 sections_action_type_id_lbl='!!Actions')
         
         top.slotToolbar('*,sections@priority,*',
