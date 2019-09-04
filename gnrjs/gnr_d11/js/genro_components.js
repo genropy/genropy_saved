@@ -7,7 +7,6 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
     _beforeCreation: function(attributes, sourceNode) {
         sourceNode.gnrwdg = objectUpdate({'gnr':this,'sourceNode':sourceNode},objectExtract(this,'gnrwdg_*',true));
         attributes = sourceNode.attr;
-        objectPop(attributes,'onCreating');
         sourceNode._saved_attributes = objectUpdate({},attributes);
         sourceNode.attr = {};
         sourceNode.attr.tag = objectPop(attributes,'tag');
@@ -4807,6 +4806,7 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             rootNode = tb._('comboArrow')._('tooltipPane',{placingId:textBoxId,onOpening:onOpening})._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
         }else{
             table_kw['tooltip']=objectPop(kw,'tooltip');
+            objectUpdate(table_kw,originalKwargs);
         }
         gnrwdg.rootNode = rootNode;
         if(!gnrwdg.hierarchical){

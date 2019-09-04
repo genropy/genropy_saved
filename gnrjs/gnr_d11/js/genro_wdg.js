@@ -257,21 +257,20 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         attributes = attributes || {};
         var newobj, domnode,domtag;
         var handler = this.getHandler(tag);
-        var onCreating = objectPop(attributes,'onCreating');
-        if (onCreating) {
-            funcCreate(onCreating).call(sourceNode, attributes,handler);
-        }
-
-        var zoomToFit = objectPop(attributes,'zoomToFit')
-
         genro.assert(handler,'missing handler for tag:'+tag);
         if (handler._beforeCreation) {
             var goOn = handler._beforeCreation(attributes,sourceNode);
             if (goOn === false) {
                 return false;
             }
-            domtag =objectPop(attributes,'domtag')
+            console.warn('should never happen _beforeCreation not returning false');
+            domtag =objectPop(attributes,'domtag');
         }
+        var onCreating = objectPop(attributes,'onCreating');
+        if (onCreating) {
+            funcCreate(onCreating).call(sourceNode, attributes,handler);
+        }
+        var zoomToFit = objectPop(attributes,'zoomToFit')
         domtag = domtag || handler._domtag || tag;
         if (ind == 'replace') {
             domnode = destination;

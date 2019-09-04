@@ -15,7 +15,7 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.zzzz',lbl='zzz',colspan=2)
 
         fb.textbox(value='^.alfa',lbl='Alfa',hidden='^.hidden_alfa')
-        fb.textbox(value='^.beta',lbl='Beta',hidden='^.hidden_beta')
+        fb.checkboxText(value='^.beta',lbl='Beta',hidden='^.hidden_beta',values='pippo,pluto,paperino,/,pancrazio')
         fb.textbox(value='^.yyy',lbl='yyy',colspan=2)
         fb.checkbox(value='^.hidden_gamma',label='Hidden gamma')
         fb.checkbox(value='^.row_hidden',label='Row hidden',hidden='^.hidden_gamma',zzz='^.yyy')
@@ -48,3 +48,11 @@ class GnrCustomWebPage(object):
         pane.br()
         pane.button('Test',action='alert("test")',hidden='^.status?=#v!="SHOW"')
         pane.checkbox(value='^.zio',hidden='^.status?=#v=="SHOW"',label='Not SHOW')
+
+    def test_3_cbtext(self,pane):
+        fb = pane.formbuilder(cols=2,spacing=10)
+        fb.data('.hidden_beta',True)
+        fb.checkbox(value='^.hidden_beta',label='Hidden beta')
+        fb.br()
+        fb.checkboxText(value='^.beta',lbl='Beta',hidden='^.hidden_beta',
+                    values='/2,pippo,pluto,paperino,pancrazio')
