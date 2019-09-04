@@ -5021,14 +5021,19 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         if(!values){
             return;
         }
-        this.separator =  kw.separator ||  values.indexOf('\n')>=0? '\n':',';
-        var splitter = this.separator;
+        this.separator =  kw.separator || ',';
+        var splitter = values.indexOf('\n')>=0? '\n':',';
         var valuelist = splitStrip(values,splitter);
+        var cols = objectPop(kw,'cols');
+
+        if(valuelist[0][0]=='/'){
+            cols = valuelist.shift();
+            cols = parseInt(cols.slice(1)) || 1;
+        }
         var curr_row = tblNode._('tr',row_kw);
         var cell,cbpars,label,_code;
         var i = 1;
         var colspan;
-        var cols = objectPop(kw,'cols');
         var cell_kw = objectExtract(kw,'cell_*');
         var row_kw = objectExtract(kw,'row_*');
         var label_kw = objectExtract(kw,'label_*',null,true);

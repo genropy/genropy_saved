@@ -799,7 +799,7 @@ class GnrDomSrc(GnrStructData):
                     colswidth=None,
                     lblalign=None, lblvalign='top',
                     fldalign=None, fldvalign='top', disabled=False,
-                    rowdatapath=None, head_rows=None, **kwargs):
+                    rowdatapath=None, head_rows=None,spacing=None, **kwargs):
         """In :ref:`formbuilder` you can put dom and widget elements; its most classic usage is to create
         a :ref:`form` made by fields and layers, and that's because formbuilder can manage automatically
         fields and their positioning
@@ -824,6 +824,13 @@ class GnrDomSrc(GnrStructData):
         :param rowdatapath: TODO
         :param head_rows: TODO
         :param \*\*kwargs: for the complete list of the ``**kwargs``, check the :ref:`fb_kwargs` section"""
+        if spacing:
+            h_padding = float((kwargs.get('border_spacing') or '6px').replace('px',''))/2
+            kwargs['border_spacing'] = '0px'
+            v_padding = float(spacing)/2
+            padding = '%spx %spx %spx %spx' %(v_padding,h_padding,v_padding,h_padding)
+            kwargs['tdf_padding'] = padding
+            kwargs['tdl_padding'] = padding
 
         dbtable = table or kwargs.get('dbtable') or self.getInheritedAttributes().get('table') or self.page.maintable
         if kwargs.get('fbname'):
@@ -838,6 +845,7 @@ class GnrDomSrc(GnrStructData):
                 formNode._mainformbuilder = tbl
             if formNode.attr.get('excludeCols'):
                 excludeCols = formNode.attr.pop('excludeCols')
+        
         tbl.fbuilder = GnrFormBuilder(tbl, cols=int(cols), dbtable=dbtable,
                                       lblclass=lblclass, lblpos=lblpos, lblalign=lblalign, fldalign=fldalign,
                                       fieldclass=fieldclass,
@@ -2168,8 +2176,40 @@ class GnrFormBuilder(object):
             if field.get('checkpref'):
                 lbl_kwargs['checkpref'] = field['checkpref']
                 lbl_kwargs.update(dictExtract(field,'checkpref_'))
-            if 'hidden' in field and 'lbl_hidden' not in field:
-                field['lbl_hidden'] = field['hidden']
+            if 'hidden' in field and 'lbl_hidden' not in field and self.lblpos=='L':
+                onCreating = field.get('onCreating') or ''
+                field['onCreating'] = """
+                    %s
+                    this._startHidden = objectPop(arguments[0],'hidden');
+                """ %onCreating
+                onCreated = field.get('onCreated') or ''
+                field['onCreated'] = """%s
+                    this._hiddenTargets = [];
+                    var parentNode = this.getChild('parent');
+                    this._hiddenTargets.push(parentNode.domNode)
+                    this._hiddenTargets.push(parentNode.getChild('parent/'+parentNode.label.replace('_f','_l')).domNode);
+                    var hiddenGroup = this.attr.hiddenGroup;
+                    if(hiddenGroup){
+                        var tblNode = this.attributeOwnerNode('tag','table');
+                        tblNode._hiddenGroups = tblNode._hiddenGroups || {};
+                        tblNode._hiddenGroups[hiddenGroup] = this._hiddenTargets;
+                    }
+                    var that = this;
+                    genro.src.onBuiltCall(function(){
+                        that.setHidden(that._startHidden);
+                        delete that._startHidden;
+                    },1);
+                """ %onCreated
+            if field.get('hiddenGroup') and 'hidden' not in field:
+                onCreated = field.get('onCreated') or ''
+                field['onCreated'] = """%s
+                    var hiddenGroup = this.attr.hiddenGroup;
+                    var tblNode = this.attributeOwnerNode('tag','table');
+                    var parentNode = this.getChild('parent');
+                    var groupHiddenTargets = tblNode._hiddenGroups[hiddenGroup];
+                    groupHiddenTargets.push(parentNode.domNode)
+                    groupHiddenTargets.push(parentNode.getChild('parent/'+parentNode.label.replace('_f','_l')).domNode);
+                """ %onCreated
             if '_valuelabel' not in field and not lbl.startswith('=='):  #BECAUSE IT CANNOT CALCULATE ON THE FIELD SOURCENODE SCOPE
                 field['_valuelabel'] = lbl
             if 'lbl_href' in field:

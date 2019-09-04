@@ -1204,7 +1204,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
     },
 
     mixin_setHidden: function(hidden) {
-        dojo.style(this.domNode, 'display', (hidden ? 'none' : ''));
+        this.sourceNode.setHidden(hidden);
     },
     mixin_setSizeShare: function(value) {
         this.sizeShare = value;
@@ -3112,6 +3112,10 @@ dojo.declare("gnr.widgets.CheckBox", gnr.widgets.baseDojo, {
         return savedAttrs;
     },
     created: function(widget, savedAttrs, sourceNode) {
+        if(sourceNode._gnrcheckbox_wrapper){
+            sourceNode._gnrcheckbox_wrapper.parentNode.removeChild(sourceNode._gnrcheckbox_wrapper);
+            delete sourceNode._gnrcheckbox_wrapper;
+        }
         var label = savedAttrs['label'];
         var dn = widget.domNode;
         var pn = widget.domNode.parentNode;
@@ -3121,11 +3125,16 @@ dojo.declare("gnr.widgets.CheckBox", gnr.widgets.baseDojo, {
         gnrcheckbox_wrapper.appendChild(dn);
         sourceNode._gnrcheckbox_wrapper = gnrcheckbox_wrapper;
         if (label) {
+            if(sourceNode._labelNode){
+                sourceNode._labelNode.parentNode.removeChild(sourceNode._labelNode);
+                delete sourceNode._labelNode;
+            }
             var labelattrs = savedAttrs['labelattrs'];
             labelattrs['for'] = widget.id;
             labelattrs['margin_left'] = labelattrs['margin_left'] || '3px';
             var domnode = genro.wdg.create('label', widget.domNode.parentNode, labelattrs);
             domnode.innerHTML = label;
+            sourceNode._labelNode = domnode;
         }
         if (sourceNode.hasDynamicAttr('value')) {
             var value = sourceNode.getAttributeFromDatasource('value');
