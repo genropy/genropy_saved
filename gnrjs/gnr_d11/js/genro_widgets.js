@@ -3142,9 +3142,18 @@ dojo.declare("gnr.widgets.CheckBox", gnr.widgets.baseDojo, {
             widget.setAttribute('checked', value);
         }
     },
+    mixin_setHidden: function(hidden) {
+        if(this.sourceNode._hiddenTargets){
+            this.sourceNode.setHidden(hidden);
+        }else{
+            dojo.style(this.sourceNode._gnrcheckbox_wrapper, 'display', (hidden ? 'none' : ''));
+        }
+    },
+
     _getKeeperRoot:function(sourceNode){
         return sourceNode._gnrcheckbox_wrapper;
     },
+    
     mixin_displayMessage:function() {
         //patch
     },

@@ -47,3 +47,4 @@ class GnrCustomWebPage(object):
         pane.textbox('^.status',lbl='Status')
         pane.br()
         pane.button('Test',action='alert("test")',hidden='^.status?=#v!="SHOW"')
+        pane.checkbox(value='^.zio',hidden='^.status?=#v=="SHOW"',label='Not SHOW')
