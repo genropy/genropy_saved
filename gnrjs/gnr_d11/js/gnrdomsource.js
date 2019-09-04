@@ -1462,8 +1462,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     
     setHidden:function(hidden){
-        var hiddenTargets = this._hiddenTargets || [this.getDomNode()];
-        hiddenTargets.forEach(function(domNode){
+        var targets = this._hiddenTargets || [this.domNode || this.widget.domNode];
+        targets.forEach(function(domNode){
             dojo.style(domNode, 'display', (hidden ? 'none' : ''));
         });
     },

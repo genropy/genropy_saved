@@ -42,3 +42,8 @@ class GnrCustomWebPage(object):
 
         fb.textbox(value='^.r1',lbl='R1',hiddenGroup='alfa')        
         fb.textbox(value='^.r1',lbl='R2')
+
+    def test_2_nofb(self, pane):
+        pane.textbox('^.status',lbl='Status')
+        pane.br()
+        pane.button('Test',action='alert("test")',hidden='^.status?=#v!="SHOW"')
