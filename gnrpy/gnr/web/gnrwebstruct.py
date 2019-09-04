@@ -2185,9 +2185,9 @@ class GnrFormBuilder(object):
                 onCreated = field.get('onCreated') or ''
                 field['onCreated'] = """%s
                     this._hiddenTargets = [];
-                    var parentNode = this.getChild('parent');
-                    this._hiddenTargets.push(parentNode.domNode)
-                    this._hiddenTargets.push(parentNode.getChild('parent/'+parentNode.label.replace('_f','_l')).domNode);
+                    var tdNode = this.attributeOwnerNode('tag','td');
+                    this._hiddenTargets.push(tdNode.domNode)
+                    this._hiddenTargets.push(tdNode.getChild('parent/'+tdNode.label.replace('_f','_l')).domNode);
                     var hiddenGroup = this.attr.hiddenGroup;
                     if(hiddenGroup){
                         var tblNode = this.attributeOwnerNode('tag','table');
@@ -2205,10 +2205,10 @@ class GnrFormBuilder(object):
                 field['onCreated'] = """%s
                     var hiddenGroup = this.attr.hiddenGroup;
                     var tblNode = this.attributeOwnerNode('tag','table');
-                    var parentNode = this.getChild('parent');
+                    var tdNode = this.getChild('parent');
                     var groupHiddenTargets = tblNode._hiddenGroups[hiddenGroup];
-                    groupHiddenTargets.push(parentNode.domNode)
-                    groupHiddenTargets.push(parentNode.getChild('parent/'+parentNode.label.replace('_f','_l')).domNode);
+                    groupHiddenTargets.push(tdNode.domNode)
+                    groupHiddenTargets.push(tdNode.getChild('parent/'+tdNode.label.replace('_f','_l')).domNode);
                 """ %onCreated
             if '_valuelabel' not in field and not lbl.startswith('=='):  #BECAUSE IT CANNOT CALCULATE ON THE FIELD SOURCENODE SCOPE
                 field['_valuelabel'] = lbl
