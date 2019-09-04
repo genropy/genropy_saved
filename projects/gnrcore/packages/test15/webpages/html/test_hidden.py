@@ -55,4 +55,6 @@ class GnrCustomWebPage(object):
         fb.checkbox(value='^.hidden_beta',label='Hidden beta')
         fb.br()
         fb.checkboxText(value='^.beta',lbl='Beta',hidden='^.hidden_beta',
-                    values='/2,pippo,pluto,paperino,pancrazio')
+                    values='/2,pippo,pluto,paperino,pancrazio',
+                    popup=True)
+        fb.textbox(value='^.beta',lbl='Valori')

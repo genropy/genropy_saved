@@ -626,7 +626,9 @@ class DynamicForm(BaseComponent):
                                                 return false;
                                             }else{
                                                 %s
-                                                sourceNode.setRelativeData('.%s',null);
+                                                if(!sourceNode._isBuilding){
+                                                    sourceNode.setRelativeData('.%s',null);
+                                                }
                                                 return true;
                                             }
                                         }catch(e){
