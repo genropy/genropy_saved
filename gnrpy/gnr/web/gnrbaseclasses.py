@@ -278,6 +278,8 @@ class TableScriptToHtml(BagToHtml):
     
     def gridColumnsFromResource(self,viewResource=None,table=None):
         table = table or self.rows_table or self.tblobj.fullname
+        if not ':' in viewResource:
+            viewResource = 'th_%s:%s' %(table.split('.')[1],viewResource)
         view = self.site.virtualPage(table=table,table_resources=viewResource)
         structbag = view.newGridStruct(maintable=table)
         view.th_struct(structbag)
@@ -310,7 +312,7 @@ class TableScriptToHtml(BagToHtml):
 
     @property
     def grid_sqlcolumns(self):
-        return ','.join([d['sqlcolumn'] for d in self.grid_columns if d.get('sqlcolumn')])
+        return ','.join([c for c in self.columnsBag.digest('#a.sqlcolumn') if c])
 
                 
     def getHtmlPath(self, *args, **kwargs):
