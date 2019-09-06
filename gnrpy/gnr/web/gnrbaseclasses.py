@@ -175,7 +175,7 @@ class TableScriptToHtml(BagToHtml):
     cached = None
     css_requires = 'print_stylesheet'
     client_locale = False
-
+    row_relation = None
 
     def __init__(self, page=None, resource_table=None, **kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
@@ -270,20 +270,24 @@ class TableScriptToHtml(BagToHtml):
             caption = '%i/%i' % (progress, maximum)
         return caption
 
-    def gridColumns(self, struct=None, table=None, viewResource=None):
-        if struct:
-            return self.gridColumnsFromStruct(struct=struct, table=table)
-        elif viewResource:
-            return self.gridColumnsFromResource(viewResource=viewResource, table=table)
+    def gridColumns(self):
+        if self.grid_columns:
+            return self.grid_columns
+        struct = self.page.newGridStruct(maintable=self.row_table)
+        self.rowStruct(struct)
+        return self.gridColumnsFromStruct(struct=struct,table=self.row_table)
     
-    def gridColumnsFromResource(self,viewResource=None,table=None):
+    def rowStruct(self,struct):
+        pass
+    
+    def structFromResource(self,viewResource=None,table=None):
         table = table or self.rows_table or self.tblobj.fullname
         if not ':' in viewResource:
             viewResource = 'th_%s:%s' %(table.split('.')[1],viewResource)
         view = self.site.virtualPage(table=table,table_resources=viewResource)
         structbag = view.newGridStruct(maintable=table)
         view.th_struct(structbag)
-        return self.gridColumnsFromStruct(struct=structbag,table=table)
+        return structbag
     
     def gridColumnsFromStruct(self,struct=None,table=None):
         grid_columns = []
@@ -303,12 +307,34 @@ class TableScriptToHtml(BagToHtml):
                 columnobj = tblobj.column(field_getter)
                 if columnobj is not None:
                     sqlcolumn = '$%s' %field_getter
-            pars = dict(field=field,name=attr.get('name'),field_getter=field_getter,
+            pars = dict(field=field,name=self.page.localize(attr.get('name')),field_getter=field_getter,
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),
                         style=attr.get('style'),sqlcolumn=sqlcolumn,dtype=attr.get('dtype'))
             grid_columns.append(pars)
         return grid_columns
+    
+    def rowsCondition(self):
+        return dict()
+
+    def getRows(self):
+        self.row_mode = 'attribute'
+        kw = dict()
+        where = []
+        if self.row_relation:
+            relation_attr = self.tblobj.model.relations.getAttr(self.row_relation, 'joiner')
+            many = relation_attr['many_relation'].split('.')
+            fkey = many.pop()
+            self.row_table =  str('.'.join(many))
+            where.append('$%s=:_fkey' %fkey)
+            kw['_fkey'] = self.record[self.tblobj.pkey]
+        columns = self.grid_sqlcolumns
+        condition_dict = self.rowsCondition()
+        rowtblobj = self.db.table(self.row_table)
+        if condition_dict:
+            where.append(condition_dict.pop('condition'))
+            kw.update(condition_dict)
+        return rowtblobj.query(columns=columns,where= ' AND '.join(where),**kw).selection(_aggregateRows=True).output('grid',recordResolver=False)
 
     @property
     def grid_sqlcolumns(self):

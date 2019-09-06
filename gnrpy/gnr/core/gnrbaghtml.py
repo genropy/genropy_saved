@@ -35,10 +35,10 @@ class BagToHtml(object):
     page_leftbar_width = 0
     page_rightbar_width = 0
     print_button = None
-    row_mode = 'value'
-    rows_path = 'rows'
     row_table = None
     row_struct= None
+    row_mode = 'value'
+    rows_path = 'rows'
     doc_header_height = 0 # e.g. 10
     doc_footer_height = 0 # e.g. 15
     grid_header_height = 0 # e.g. 6.2
@@ -157,6 +157,8 @@ class BagToHtml(object):
         self.print_button = kwargs.pop('print_button', self.print_button)
         if self.onRecordLoaded() is False:
             return False
+        if self.getData(self.rows_path) is None:
+            self.setData(self.rows_path,self.getRows())
         if self.splittedPages:
             self.pages_folder = os.path.splitext(self.filepath)[0]
         self.showTemplate(hideTemplate is not True)
@@ -363,18 +365,16 @@ class BagToHtml(object):
     @property
     def current_page_number(self):
         return self.copies[self.copy]['currPage']
-
+    
+    def gridColumns(self):
+        return self.grid_columns
         
     @property
     def columnsBag(self):
         gridName = self.currentGrid or '_main_'
         if gridName in self._gridsColumnsBag:
             return self._gridsColumnsBag[gridName]
-        if self.grid_columns:
-            columns= self.gridColumns(table=self.row_table, grid_columns=self.grid_columns)
-        else:
-            columns = self.gridColumns(table=self.row_table, viewResource=self.row_viewResource, struct=self.row_struct)
-        
+        columns = self.gridColumns()
         columnsBag = Bag()
         for i,col in enumerate(columns):
             columnsBag.addItem(col.get('field') or 'col_%02i' %i,None,_attributes=col)
@@ -448,6 +448,10 @@ class BagToHtml(object):
     def getRowAttrsFromData(self):
         return dictExtract(self.rowData,'row_')
 
+    def getRows(self):
+        pass
+    
+    
     def onNewRow(self):
         pass
                 
