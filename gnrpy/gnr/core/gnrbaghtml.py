@@ -158,7 +158,7 @@ class BagToHtml(object):
         if self.onRecordLoaded() is False:
             return False
         if self.getData(self.rows_path) is None:
-            self.setData(self.rows_path,self.getRows())
+            self.setData(self.rows_path,self.gridData())
         if self.splittedPages:
             self.pages_folder = os.path.splitext(self.filepath)[0]
         self.showTemplate(hideTemplate is not True)
@@ -448,7 +448,7 @@ class BagToHtml(object):
     def getRowAttrsFromData(self):
         return dictExtract(self.rowData,'row_')
 
-    def getRows(self):
+    def gridData(self):
         pass
     
     
@@ -583,11 +583,15 @@ class BagToHtml(object):
             #    curr_copy['page_footer'] = self.page_layout.row(height=self.page_footer_height,lbl_height=4,lbl_class='caption').cell()
             
     def mainLayout(self, page):
-        """Hook method that must be overridden. It gives the :ref:`print_layout_page`
+        """Hook method that could be overridden. It gives the :ref:`print_layout_page`
         object to which you have to append a :meth:`layout <gnr.core.gnrhtml.GnrHtmlSrc.layout>`
-        
         :param page: the page object"""
-        print 'mainLayout must be overridden'
+        defaultkw = dict(name='mainLayout',top=1,left=1,right=1,bottom=1,border_width=0)
+        defaultkw.update(self.mainLayoutParamiters())
+        return page.layout(**defaultkw)
+    
+    def mainLayoutParamiters(self):
+        return dict()
         
     def _openPage(self):
         #if self.page_header_height:
@@ -626,13 +630,22 @@ class BagToHtml(object):
             self.gridHeader(grid.row(height=header_height))
         self.copies[self.copy]['body_grid'] = grid
         
-    def gridLayout(self, grid):
-        """Hook method. MANDATORY if you define a :ref:`print_layout_grid` in
+    def gridLayout(self, body):
+        """Hook method. if you define a :ref:`print_layout_grid` in
         your :ref:`print`. Through this method you receive the center of the page and you can
         define the layout of the grid
         
         :param grid: the :ref:`print_layout_grid`"""
-        print 'gridLayout must be overridden'
+        defaultkw = dict(name='gridLayout',um='mm',border_color='gray',
+                            top=1,bottom=1,left=1,right=1,
+                            border_width=.3,lbl_class='caption',
+                            font_size='10pt',text_align='left')
+        customkw = self.gridLayoutParameters()
+        defaultkw.update(customkw)
+        return body.layout(**defaultkw)     
+
+    def gridLayoutParameters(self):
+        return dict()   
         
  
     def gridHeader(self, row):
