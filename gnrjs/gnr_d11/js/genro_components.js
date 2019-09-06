@@ -5774,6 +5774,8 @@ dojo.declare("gnr.stores._Collection",null,{
     deleteRows:function(pkeys,protectPkeys){
         return;
     },
+    duplicateRows:function(pkeys){},
+
     archiveRows:function(){
         console.error('archiveRows not implemented')
     },
@@ -5786,7 +5788,6 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         var dlg = genro.dlg.quickDialog('Alert',{_showParent:true,width:'280px'});
         var msg = count==1?'one':'many';
-        var master;
         dlg.center._('div',{innerHTML:_T(this.messages['archive_'+msg]).replace('$count',count), 
                             text_align:'center',_class:'alertBodyMessage'});
         var that = this;
@@ -6727,6 +6728,21 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             grid.sourceNode.publish('onExternalChanged');
         });
 
+    },
+
+    duplicateRows:function(pkeys){
+        var lockreason = this.storeNode.attr.nodeId+'_'+'deletingDbRows';
+        var that = this;
+        const n_records = pkeys.length;
+        genro.dlg.ask(_T('Duplicate rows'),_T("You are going to duplicate")+' '+n_records+' ' +_T('records'),null,{
+            confirm:function(){
+                genro.lockScreen(true,lockreason,{thermo:true});
+                genro.serverCall('app.duplicateDbRows',{pkeys:pkeys,table:that.storeNode.attr.table,
+                                                    _sourceNode:that.storeNode,timeout:0},function(result){
+                    genro.lockScreen(false,lockreason,'duplicatingRecords');
+                },null,'POST');
+           }
+        });
     },
 
     deleteRows:function(pkeys,protectPkeys){

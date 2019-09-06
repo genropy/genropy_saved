@@ -3678,6 +3678,12 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
     },
 
     mixin_addRows:function(counterOrSource,evt,duplicate,onEditNode){
+        if(duplicate && !this.gridEditor){
+            var pkeys = this.getSelectedPkeys();
+            this.collectionStore().duplicateRows(pkeys);
+
+            return;
+        }
         if(this.sourceNode.attr.defaultPrompt){
             var defaultPrompt = this.sourceNode.attr.defaultPrompt;
             if(typeof(counterOrSource)=='number'){
