@@ -349,7 +349,7 @@ class TableScriptToHtml(BagToHtml):
             where.append(relkw.pop('condition'))
             parameters.update(dictExtract(relkw,'condition_'))
         if condition:
-            where.append(where)
+            where.append(condition)
         columns = self.grid_sqlcolumns
         rowtblobj = self.db.table(self.row_table)
         return rowtblobj.query(columns=columns,where= ' AND '.join(where),**parameters

@@ -24,8 +24,10 @@ class BagToHtml(object):
     currencyFormat = u'#,###.00'
     encoding = 'utf-8'
     page_debug = False
-    page_width = 200
-    page_height = 280
+    page_format = 'A4'
+    page_height = None
+    page_width = None
+    page_orientation = 'V'
     page_margin_top = 0
     page_margin_left = 0
     page_margin_right = 0
@@ -56,6 +58,21 @@ class BagToHtml(object):
     body_attributes = None
     splittedPages = 0
     watermark_draft_class = 'document_draft'
+
+    @property
+    def currentPageFormat(self):
+        return getattr(self,'format_%s' %self.page_format)()
+
+    def format_A4(self):
+        return dict(height=280,width=200)
+
+    @property
+    def sheetHeight(self):
+        return self.page_height or self.currentPageFormat['height']
+
+    @property
+    def sheetWidth(self):
+        return self.page_width or self.currentPageFormat['width']
 
     def __init__(self, locale='en', encoding='utf-8', templates=None, templateLoader=None, **kwargs):
         self.locale = locale
@@ -195,8 +212,14 @@ class BagToHtml(object):
                 self.htmlTemplate.walk(self.fillLetterheadSourceData)
                 top_layer =  self.htmlTemplate['#%i' %(len(self.htmlTemplate)-1)]
         d = self.__dict__
-        self.page_height = float(d.get('page_height') or top_layer['main.page.height'] or self.page_height)
-        self.page_width = float(d.get('page_width') or top_layer['main.page.width'] or self.page_width)
+        sheet_height = float(d.get('page_height') or top_layer['main.page.height'] or self.sheetHeight)
+        sheet_width = float(d.get('page_width') or top_layer['main.page.width'] or self.sheetWidth)
+        if self.page_orientation=='V': 
+            self.page_height = sheet_height
+            self.page_width = sheet_width
+        else:
+            self.page_width = sheet_height
+            self.page_height = sheet_width
         self.page_margin_top = float(d.get('page_margin_top') or top_layer['main.page.top'] or self.page_margin_top)
         self.page_margin_left = float(d.get('page_margin_left')or top_layer['main.page.left'] or self.page_margin_left)
         self.page_margin_right = float(d.get('page_margin_right')or top_layer['main.page.right'] or self.page_margin_right)
@@ -377,7 +400,7 @@ class BagToHtml(object):
         columns = self.gridColumns()
         columnsBag = Bag()
         for i,col in enumerate(columns):
-            columnsBag.addItem(col.get('field') or 'col_%02i' %i,None,_attributes=col)
+            columnsBag.addItem('col_%02i' %i,None,_attributes=col)
         self._gridsColumnsBag[gridName] = columnsBag
         return columnsBag
     

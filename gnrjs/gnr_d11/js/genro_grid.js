@@ -4291,14 +4291,17 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var struct = this.structbag().deepCopy();
         var cells = struct.getItem('#0.#0');
         var sourceNode = this.sourceNode;
-        cells._nodes.forEach(function(n){
-            if(!n.attr.hidden){
-                return;
-            }
-            if(n.attr.hidden==true || sourceNode.getRelativeData(n.attr.hidden)){
+
+        var headerList = dojo.query('th',this.viewsHeaderNode);
+        var headerTable = dojo.query('table',this.viewsHeaderNode)[0];
+        const totalWidth =headerTable? headerTable.clientWidth:0;
+
+        cells._nodes.forEach(function(n,idx){
+            if((n.attr.hidden && (n.attr.hidden==true || sourceNode.getRelativeData(n.attr.hidden))) || !genro.dom.isVisible(headerList[idx])){
                 cells.popNode(n.label);
                 return;
             }
+            n.attr.q_width = Math.round10(headerList[idx].clientWidth/totalWidth)
         });
         return struct;
     }
