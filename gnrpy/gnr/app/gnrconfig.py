@@ -238,8 +238,7 @@ def gnrConfigPath(force_return=False, no_virtualenv=False):
     if ('VIRTUAL_ENV' in os.environ or hasattr(sys, 'real_prefix')) and not no_virtualenv:
         prefix = os.environ.get('VIRTUAL_ENV', sys.prefix)
         config_path = expandpath(os.path.join(prefix,'etc','gnr'))
-        if force_return or os.path.isdir(config_path):
-            return config_path
+        return config_path
     if sys.platform == 'win32':
         config_path = '~\gnr'
     else:
