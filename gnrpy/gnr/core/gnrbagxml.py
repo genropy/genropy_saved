@@ -362,7 +362,7 @@ class BagToXml(object):
                     if dirname and not os.path.exists(dirname):
                         os.makedirs(dirname)
                 with open(filename, 'wb') as output:
-                    output.write(result)
+                    output.write(result.encode('utf-8'))
         if six.PY2:
             result = result.decode()
         return result
