@@ -204,7 +204,7 @@ class GnrWsgiWebApp(GnrApp):
     siteMenu = property(_get_siteMenu)
 
 
-    def compileSiteMenu(self, menubag, basepath=None,level=None,aux_instance=None):
+    def compileSiteMenu(self, menubag, basepath=None,level=None,parent_aux_instance=None):
         basepath = basepath or []
         level = level or 0
         result = Bag()
@@ -213,7 +213,7 @@ class GnrWsgiWebApp(GnrApp):
             attributes = {}
             attributes.update(node.getAttr())
             currbasepath = basepath
-            aux_instance = attributes.setdefault('aux_instance',aux_instance)
+            aux_instance = attributes.setdefault('aux_instance',parent_aux_instance) 
             if 'pkg' in attributes:
                 if 'dir' in attributes:
                     url_info = self.site.getUrlInfo([attributes['pkg'], attributes['dir']])
@@ -238,7 +238,7 @@ class GnrWsgiWebApp(GnrApp):
                 else:
                     currbasepath = basepath + [newbasepath]
             if isinstance(value, Bag):
-                value = self.compileSiteMenu(value, currbasepath,level=level+1,aux_instance=aux_instance)
+                value = self.compileSiteMenu(value, currbasepath,level=level+1,parent_aux_instance=aux_instance)
             elif not isinstance(value, DirectoryResolver):
                 value = None
                 filepath = attributes.get('file')
