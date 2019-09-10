@@ -302,6 +302,10 @@ dojo.declare("gnr.FramedIndexManager", null, {
         if(kw.workInProgress){
             urlPars.workInProgress = true;
         }
+        if(kw.aux_instance){
+            urlPars.aux_instance = kw.aux_instance;
+            objectPop(urlPars,'th_from_package');
+        }
         objectUpdate(urlPars,objectExtract(kw,'url_*'));
         kw.url = genro.addParamsToUrl(url,urlPars);
         if(!('multipage' in kw )&& kw.table){

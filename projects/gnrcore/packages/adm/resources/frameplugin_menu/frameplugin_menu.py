@@ -147,8 +147,7 @@ class MenuResolver(BagResolver):
             nodetags = nodeattr.get('tags')
             filepath = nodeattr.get('file')
             checkenv = nodeattr.get('checkenv')
-            multidb = nodeattr.get('multidb')
-            tableattr = self._page.db.table(nodeattr['table']).attributes if 'table' in nodeattr else None
+            multidb = nodeattr.get('multidb')            
             dashboard = nodeattr.get('dashboard')
             if nodeattr.get('dashboard'):
                 dashboards = self._getDashboards(pkg=nodeattr['dashboard'])
@@ -157,11 +156,14 @@ class MenuResolver(BagResolver):
                 node.value = dashboards
             if (multidb=='slave' and not dbstore) or (multidb=='master' and dbstore):
                 allowed = False
+            aux_instance = nodeattr.get('aux_instance')
             if nodetags:
                 allowed = allowed and self._page.application.checkResourcePermission(nodetags, userTags)
             allowed = allowed and self._page.application.allowedByPreference(**nodeattr)
-            if tableattr:
-                allowed = allowed and self._page.application.allowedByPreference(**tableattr)
+            if not aux_instance:
+                tableattr = self._page.db.table(nodeattr['table']).attributes if 'table' in nodeattr else None
+                if tableattr:
+                    allowed = allowed and self._page.application.allowedByPreference(**tableattr)
             if allowed and filepath:
                 allowed = self._page.checkPermission(filepath)
             if checkenv:
@@ -171,6 +173,7 @@ class MenuResolver(BagResolver):
                 if node.resolver:
                     basepath='%(pkg)s/%(dir)s' % node.attr if 'dir' in node.attr else node.attr.get('basepath')
                     def cb(n):
+                        n.attr['aux_instance'] = n.attr.get('aux_instance') or aux_instance
                         n.attr['label']=n.attr.get('caption')
                         if n.attr.get('file_ext')== 'py':
                             n.attr['file']= '%s/%s' %(basepath,n.attr.get('rel_path'))

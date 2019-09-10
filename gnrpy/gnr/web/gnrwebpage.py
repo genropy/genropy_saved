@@ -134,6 +134,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.extraFeatures = copy.deepcopy(self.site.extraFeatures)
         self.extraFeatures.update(dictExtract(request_kwargs,'_extrafeature_',pop=True))
         dbstore = request_kwargs.pop('temp_dbstore',None) or None
+        self.aux_instance =  request_kwargs.pop('_aux_instance',None) or None
         self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
         self.user_agent = request.user_agent or []
         self._environ = environ
