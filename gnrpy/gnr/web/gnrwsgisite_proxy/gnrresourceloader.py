@@ -45,7 +45,6 @@ class ResourceLoader(object):
     def gnrapp(self):
         return self.site.gnrapp
 
-        
     def find_webtools(self):
         """TODO"""
         def isgnrwebtool(cls):
@@ -246,6 +245,7 @@ class ResourceLoader(object):
         :param pkg: the :ref:`package <packages>` object"""
 
         if pkg:
+            currentAuxInstanceName = self.site.currentAuxInstanceName
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
             packageResourcePath =  os.path.join(self.gnrapp.packages[pkg].packageFolder, 'resources')
         else:
