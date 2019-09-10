@@ -292,6 +292,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
             urlPars['th_from_package'] = kw['pkg_menu'] || genro.getData("gnr.package");
         }else if(lookup_manager){
             url = this.lookup_url+(lookup_manager=='*'?'':('/'+lookup_manager.replace('.','/')));
+        }else if(url){
+            url = this.dbstore?'/'+this.dbstore+url:url;
         }
         if(kw.formResource){
             urlPars['th_formResource'] = kw.formResource;
