@@ -13,7 +13,7 @@ import email
 from datetime import datetime
 
 
-EMAIL_PATTERN = re.compile('([\w\-\.]+@(\w[\w\-]+\.)+[\w\-]+)')
+EMAIL_PATTERN = re.compile(r'([\w\-\.]+@(\w[\w\-]+\.)+[\w\-]+)')
 
 class Table(object):
 
