@@ -292,8 +292,11 @@ dojo.declare("gnr.FramedIndexManager", null, {
             urlPars['th_from_package'] = kw['pkg_menu'] || genro.getData("gnr.package");
         }else if(lookup_manager){
             url = this.lookup_url+(lookup_manager=='*'?'':('/'+lookup_manager.replace('.','/')));
-        }else if(url){
-            url = this.dbstore?'/'+this.dbstore+url:url;
+        }
+        else if(this.dbstore && url && url.indexOf('/')===0){
+            if(url.slice(1).split('/')[0]!=this.dbstore){
+                url = '/'+this.dbstore+url;
+            }
         }
         if(kw.formResource){
             urlPars['th_formResource'] = kw.formResource;
