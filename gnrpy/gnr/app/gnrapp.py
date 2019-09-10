@@ -1225,7 +1225,7 @@ class GnrApp(object):
             return (hashlib.md5(login_pwd.encode()).hexdigest() == pwd)
         elif len(pwd) == 65 and ':' in pwd:
             pwd = pwd.split(':')
-            return (hashlib.md5(login_pwd + pwd[1]).hexdigest() == pwd[0])
+            return (hashlib.md5(login_pwd.encode() + pwd[1].encode()).hexdigest() == pwd[0])
         else:
             return (login_pwd == toText(pwd))
 
@@ -1251,10 +1251,10 @@ class GnrApp(object):
             valid = True # trust 
         if valid:
             if userid:
-                md5_userid = hashlib.md5(str(userid)).hexdigest()
-                return hashlib.md5(newpwd + md5_userid).hexdigest() + ':' + md5_userid
+                md5_userid = hashlib.md5(str(userid).encode()).hexdigest()
+                return hashlib.md5(newpwd.encode() + md5_userid.encode()).hexdigest() + ':' + md5_userid
             else:
-                return hashlib.md5(newpwd).hexdigest()
+                return hashlib.md5(newpwd.encode()).hexdigest()
                 
     def checkResourcePermission(self, resourceTags, userTags):
         """TODO
