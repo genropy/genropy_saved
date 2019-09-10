@@ -267,6 +267,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var kw = objectUpdate({}, xhrKwargs);
         kw.start_time = new Date();
         kw.url = kw.url || this.pageIndexUrl();
+        if(genro.startArgs.aux_instance){
+            content.aux_instance = genro.startArgs.aux_instance;
+        }
         
         if(sourceNode){
             var req_dbstore = sourceNode.inheritedAttribute('context_dbstore');
