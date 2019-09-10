@@ -2159,7 +2159,7 @@ class GnrWebPage(GnrBaseWebPage):
         if not result:
             return None
         if os.path.exists(result):
-            return file(result,'r')
+            return open(result,'r')
         return result
     
     @public_method                                 
