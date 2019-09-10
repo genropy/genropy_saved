@@ -42,6 +42,8 @@ class DynamicFormBagManager(BaseComponent):
         r.cell('data_type', name='!!Type', width='7em')
         r.cell('wdg_tag',name='!!Widget',width='7em')
         r.cell('page',name='!!Page',width='10em')
+        r.cell('hiddenGroup',name='!!Hidden group',width='10em')
+
         r.cell('querable',name='!!Querable',width='7em',dtype='B')
         r.cell('mandatory', name='!!Mandatory',width='7em',dtype='B')
 
@@ -69,10 +71,10 @@ class DynamicFormBagManager(BaseComponent):
         fb.dataController("dynamicFormHandler.onSetCalculated(this,calculated);",calculated="^.calculated")
 
         fb.textbox(value='^.page',lbl='Page')
+
         self.df_formulaField(fb)   
 
-        fb.filteringSelect(value='^.wdg_tag',lbl='!!Widget',values='^#FORM.allowedWidget',row_class='df_row field_enterable',colspan=2)
-        fb.br()
+        fb.filteringSelect(value='^.wdg_tag',lbl='!!Widget',values='^#FORM.allowedWidget',row_class='df_row field_enterable',colspan=2)        
         fb.dataController("dynamicFormHandler.onSetWdgTag(this,wdg_tag);",wdg_tag="^.wdg_tag")
         
         fb.numberTextBox(value='^.wdg_kwargs.colspan',lbl='!!Colspan', row_class='df_row field_enterable field_calculated',width='5em')
@@ -122,10 +124,12 @@ class DynamicFormBagManager(BaseComponent):
         accesspane = tc.contentPane(title='!!Access')
 
         accesspane = accesspane.div(margin='5px',margin_right='15px').formbuilder(cols=2, border_spacing='4px',width='100%',fld_width='18em')
-        accesspane.checkbox(value='^.mandatory',lbl='',label='!!Mandatory',row_hidden='^.calculated')
-        accesspane.textbox(value='^.default_value',lbl='Dflt.Value')
-        accesspane.simpleTextArea(value='^.field_visible',lbl='!!Visible if',lbl_vertical_align='top',width='100%',height='60px',colspan=2)
-        accesspane.simpleTextArea(value='^.field_tip',lbl='!!Tip',lbl_vertical_align='top',height='60px',width='100%',colspan=2)
+        accesspane.checkbox(value='^.mandatory',lbl='',label='!!Mandatory',hidden='^.calculated')
+        accesspane.textbox(value='^.default_value',lbl='Dflt.Value',hidden='^.calculated')
+        accesspane.simpleTextArea(value='^.field_visible',lbl='!!Visible if',lbl_vertical_align='top',width='100%',height='50px',colspan=2)
+        accesspane.textbox(value='^.hiddenGroup',lbl='Hidden Group')
+        accesspane.br()
+        accesspane.simpleTextArea(value='^.field_tip',lbl='!!Help',lbl_vertical_align='top',height='50px',width='100%',colspan=2)
         accesspane.textbox(value='^.field_placeholder',lbl='!!Placeholder',lbl_width='6em')
         accesspane.checkbox(value='^.querable',lbl='',label='!!Querable')
 
@@ -376,7 +380,7 @@ class DynamicForm(BaseComponent):
         pkeylist = df_groups.digest('#a.pkey') if df_groups else [df_pkey]
         global_fields = dict([(pkey,df_tblobj.df_getFieldsRows(pkey=pkey)) for pkey in pkeylist])
         if df_groups:
-            groupfb = pane.div(padding='10px').formbuilder(cols=df_groups_cols or 1,border_spacing='3px',datapath=datapath,tdl_hidden=True)
+            groupfb = pane.div(padding='10px').formbuilder(cols=df_groups_cols or 1,spacing=3,border_spacing='3px',datapath=datapath,tdl_hidden=True)
             global_vars = self.df_prepareGlobalVars(global_fields=global_fields,df_groups=df_groups)
             for gr in df_groups:
                 gr_attr=gr.attr
@@ -417,8 +421,9 @@ class DynamicForm(BaseComponent):
             pane.dynamicFormGroup(fdict[p],ncol=ncol,colswidth=colswidth,**kwargs)
 
     @struct_method
-    def df_dynamicFormGroup(self,pane,fields=None,ncol=None,colswidth=None,setInAttributes=False,**kwargs):
-        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,colswidth=colswidth,width='100%',tdf_width='100%',lbl_white_space='nowrap')        
+    def df_dynamicFormGroup(self,pane,fields=None,ncol=None,colswidth=None,spacing=3,setInAttributes=False,**kwargs):
+        fb = pane.div(margin_right='10px').formbuilder(cols=ncol or 1,keeplabel=True,colswidth=colswidth,width='100%',border_spacing='3px',
+                                                            spacing=spacing,tdf_width='100%',lbl_white_space='nowrap')        
         fb.addDynamicFields(fields=fields,setInAttributes=setInAttributes,**kwargs)
 
 
@@ -606,12 +611,16 @@ class DynamicForm(BaseComponent):
             attr['validate_notnull'] = attr.pop('mandatory')            
         if attr.get('field_visible'):
             condition = attr.pop('field_visible')
-            tpv = ("", "",attr['code'])
+
+            variables = ','.join([x['code'] for x in fields if x['code'] in condition])
+            tpv = (variables,"", "",attr['code'])
             if attr.get('validate_notnull'):
                 attr['validate_notnull']  = "^#WORKSPACE.%s.do_validations" %attr['code']
-                tpv = ("sourceNode.setRelativeData('#WORKSPACE.%s.do_validations',true);" %attr['code'], "sourceNode.setRelativeData('#WORKSPACE.%s.do_validations',false);" %attr['code'],attr['code'])
-            attr['row__formulaVisibleIf'] = condition
-            attr['row_hidden'] = """==function(sourceNode){
+                tpv = (variables,"sourceNode.setRelativeData('#WORKSPACE.%s.do_validations',true);" %attr['code'], "sourceNode.setRelativeData('#WORKSPACE.%s.do_validations',false);" %attr['code'],attr['code'])
+            
+            attr['_formulaVisibleIf'] = condition
+            attr['hidden'] = """==function(sourceNode){
+                                        var __all_vars__ = '%s';
                                         var __c = dynamicFormHandler.executeFormula(sourceNode,sourceNode.attr._formulaVisibleIf,'hidden');
                                         try{
                                             if(__c){
@@ -619,7 +628,9 @@ class DynamicForm(BaseComponent):
                                                 return false;
                                             }else{
                                                 %s
-                                                sourceNode.setRelativeData('.%s',null);
+                                                if(!sourceNode._isBuilding){
+                                                    sourceNode.setRelativeData('.%s',null);
+                                                }
                                                 return true;
                                             }
                                         }catch(e){
@@ -627,7 +638,7 @@ class DynamicForm(BaseComponent):
                                         }
                                     }(this);""" %tpv
 
-            conditionArgs = dict([('row_%s' %str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in condition])
+            conditionArgs = dict([(str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in condition])
             attr.update(conditionArgs)
 
             

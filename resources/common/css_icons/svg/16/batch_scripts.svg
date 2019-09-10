@@ -1,0 +1,8 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>Batch_scripts_16x16</title>
+  <rect x="0.5" y="1.5" width="15" height="14" fill="none" stroke="#5b5b5b" stroke-miterlimit="10"/>
+  <rect x="3" y="3" width="10" height="12" transform="translate(17 1) rotate(90)" fill="#515151"/>
+  <rect width="16" height="3" rx="1.2" ry="1.2" fill="#1b4d7f"/>
+  <polyline points="4.5 6.5 6.5 8.5 4.5 10.5" fill="none" stroke="#fff" stroke-linecap="round" stroke-miterlimit="10"/>
+  <line x1="8.5" y1="10.5" x2="12.5" y2="10.5" fill="none" stroke="#fff" stroke-linecap="round" stroke-miterlimit="10"/>
+</svg>

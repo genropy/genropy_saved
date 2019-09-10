@@ -185,7 +185,7 @@ class TableHandlerView(BaseComponent):
                 base_slots = extendedQuery.split(',')
         elif not virtualStore:
             if root_tablehandler:
-                base_slots = ['5','searchOn','5','count','viewsMenu','5','menuUserSets','*','export','5',statsSlot,'advancedTools','10',pageHooksSelector,'5','resourcePrints','resourceMails','resourceActions','10']
+                base_slots = ['5','searchOn','5','count','viewsMenu','5','menuUserSets','*','export','5',statsSlot,'advancedTools','10',pageHooksSelector,'5','resourcePrints','resourceMails','resourceActions',batchAssign,'10']
                 if searchOn is False:
                     base_slots.remove('searchOn')
             else:
@@ -376,7 +376,7 @@ class TableHandlerView(BaseComponent):
                             _tags=tags,
                             _tablePermissions=dict(table=table,permissions='ins,upd,import'),
                             match_values= ','.join(list(self.db.table(table).model.columns.keys())) if not matchColumns else None,
-                            dockButton_iconClass='iconbox inbox',title='!!Importer',**kwargs)
+                            dockButton_iconClass='iconbox import_data_tool inbox',title='!!Importer',**kwargs)
 
     @struct_method
     def th_slotbar_sum(self,pane,label=None,format=None,width=None,**kwargs):
@@ -628,7 +628,7 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_slotbar_stats(self,pane,**kwargs):
-        pane.slotButton(label='Group By',iconClass='iconbox sum',
+        pane.slotButton(label='Group By',iconClass='iconbox statistica_tools sum',
                         action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools";')
 
 
@@ -641,6 +641,7 @@ class TableHandlerView(BaseComponent):
                         if(currentQuery=='__querybysample__'){
                             SET .query.currentQuery = '__basequery__';
                         }
+                        SET .query.currentQuery = $1.fullpath;
                         SET .query.queryEditor=true; 
                         SET .query.queryAttributes.extended = true;
                     }else{
@@ -756,7 +757,7 @@ class TableHandlerView(BaseComponent):
         
     @struct_method
     def th_slotbar_resourceActions(self,pane,**kwargs):
-        pane.menudiv(iconClass='iconbox gear',storepath='.resources.action.menu',
+        pane.menudiv(iconClass='iconbox gear batch_scripts',storepath='.resources.action.menu',
                             _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
                                                         permissions='action'),action="""
                             FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};
@@ -803,14 +804,14 @@ class TableHandlerView(BaseComponent):
         if self.getPreference('print.enable_pdfform',pkg='sys') and self.site.getService('pdfform'):
             self.mixinComponent("services/pdfform/pdftk/component:PalettePdfFormEditor")
             pdfPaletteCode = '%(thlist_root)s_pdf_template_manager' %inattr
-            templatemenu = pane.menudiv(iconClass='iconbox document',tip='!!Template menu')
+            templatemenu = pane.menudiv(iconClass='iconbox create_edit_html_template',tip='!!Template menu')
             #costruiscimenu
             templatemenu.menuline(label='!!Html Template',action="PUBLISH %s_show"%htmlPaletteCode)
             templatemenu.menuline(label='!!Pdf Template',action="PUBLISH %s_show"%pdfPaletteCode)
             pane.paletteTemplateEditor(maintable=table,paletteCode=htmlPaletteCode,dockTo='dummyDock')
             pane.pdfFormEditorPalette(maintable=table, paletteCode=pdfPaletteCode,dockTo='dummyDock')
         else:
-            pane.paletteTemplateEditor(maintable=table,paletteCode=htmlPaletteCode,dockButton_iconClass='iconbox document')
+            pane.paletteTemplateEditor(maintable=table,paletteCode=htmlPaletteCode,dockButton_iconClass='iconbox create_edit_html_template')
 
     @struct_method
     def th_slotbar_pageHooksSelector(self,pane,**kwargs):
@@ -1157,12 +1158,27 @@ class TableHandlerView(BaseComponent):
                          _op='^.c_0?op', _class='helperField')
 
 
-        querybox_stack.div("==_internalQueryCaption || _caption",_caption='^.#parent.queryAttributes.caption',
+        extendedQueryButton = querybox_stack.lightbutton("==_internalQueryCaption || _caption",
+                        _caption='^.#parent.queryAttributes.caption',
                         _internalQueryCaption='^.#parent.#parent.internalQuery.caption', 
+                        action="""if(!_querybysample){
+                            SET .#parent.#parent.query.queryEditor=true;
+                        }""",
                         _class='th_querybox_extended',
-                        tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
-                                    _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
-                                    hidden='^.#parent.queryAttributes.extended?=!#v',min_width='20em')
+                        _querybysample = '=.#parent.#parent.query.currentQuery?=#v=="__querybysample__"',
+                        hidden='^.#parent.queryAttributes.extended?=!#v',min_width='20em')
+        extendedQueryButton.tooltip(callback="""
+            var internalQueryTooltip = this.getRelativeData('.internalQuery.tooltip');
+            var internalQueryCaption = this.getRelativeData('.internalQuery.caption');
+            var whereAsPlainText = this.getRelativeData('.store?whereAsPlainText');
+            var currentQuery = this.getRelativeData('.query.currentQuery');
+            return internalQueryTooltip || whereAsPlainText || internalQueryCaption || _T('Click to show query');
+
+        """,datapath='.#parent.#parent',modifiers='Shift')
+        
+            #_internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
+            #tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption || _internalQueryCaption',
+            #_internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
 
         
     def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):

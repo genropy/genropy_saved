@@ -24,7 +24,6 @@ class Table(object):
         tbl.column('in_out', size='1', name_long='!!Message type', name_short='!!I/O',values='I:Input,O:Output')
         tbl.column('to_address',name_long='!!To',_sendback=True)
         tbl.column('from_address',name_long='!!From',_sendback=True)
-
         tbl.column('cc_address',name_long='!!Cc',_sendback=True)
         tbl.column('bcc_address',name_long='!!Bcc',_sendback=True)
         tbl.column('uid',name_long='!!UID')
@@ -45,6 +44,7 @@ class Table(object):
         tbl.column('sending_attempt','X', name_long='!!Sending attempt')
         tbl.column('email_bag',dtype='X',name_long='!!Email bag')
         tbl.column('extra_headers',dtype='X',name_long='!!Extra headers')
+        tbl.column('weak_attachments', name_long='!!Weak attachments')
         tbl.column('reply_message_id',size='22', group='_', name_long='!!Reply message id'
                     ).relation('email.message.id', relation_name='replies', mode='foreignkey', onDelete='setnull')
 
@@ -116,15 +116,17 @@ class Table(object):
     @public_method
     def newMessage(self, account_id=None,to_address=None,from_address=None,
                   subject=None, body=None, cc_address=None, 
-                  reply_to=None, bcc_address=None, attachments=None,
+                  reply_to=None, bcc_address=None, attachments=None,weak_attachments=None,
                  message_id=None,message_date=None,message_type=None,
-                 html=False,doCommit=False,moveAttachment=False,copyAttachment=None,
-                 headers_kwargs=None,**kwargs):
+                 html=False,doCommit=False,headers_kwargs=None,**kwargs):
         message_date=message_date or self.db.workdate
         extra_headers = Bag(dict(message_id=message_id,message_date=message_date,reply_to=reply_to))
         if headers_kwargs:
             extra_headers.update(headers_kwargs)
         account_id = account_id or self.db.application.getPreference('mail', pkg='adm')['email_account_id']
+        if weak_attachments and isinstance(weak_attachments,list):
+            site = self.db.application.site
+            weak_attachments = ','.join([site.storageNode(p).fullpath for p in weak_attachments])
         message_to_dispatch = self.newrecord(in_out='O',
                             account_id=account_id,
                             to_address=to_address,
@@ -134,6 +136,7 @@ class Table(object):
                             bcc_address=bcc_address,
                             extra_headers=extra_headers,
                             message_type=message_type,
+                            weak_attachments=weak_attachments,
                             html=html,**kwargs)
         message_atc = self.db.table('email.message_atc')
         with self.db.tempEnv(autoCommit=True):
@@ -148,7 +151,7 @@ class Table(object):
                                             origin_filepath=origin_filepath,
                                             mimetype=mimetype,
                                             destFolder=self.folderPath(message_to_dispatch),
-                                            moveFile=moveAttachment, copyFile=copyAttachment)
+                                            moveFile=False, copyFile=True)
         if doCommit:
             self.db.commit()
         return message_to_dispatch
@@ -181,6 +184,8 @@ class Table(object):
             bcc_address = message['bcc_address'] 
             attachments = self.db.table('email.message_atc').query(where='$maintable_id=:mid',mid=message['id']).fetch()
             attachments = [r['filepath'] for r in attachments]
+            if message['weak_attachments']:
+                attachments.extend(message['weak_attachments'].split(','))
             if mp['system_bcc']:
                 bcc_address = '%s,%s' %(bcc_address,mp['system_bcc']) if bcc_address else mp['system_bcc']
             try:

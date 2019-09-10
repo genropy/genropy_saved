@@ -7,7 +7,6 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
     _beforeCreation: function(attributes, sourceNode) {
         sourceNode.gnrwdg = objectUpdate({'gnr':this,'sourceNode':sourceNode},objectExtract(this,'gnrwdg_*',true));
         attributes = sourceNode.attr;
-        objectPop(attributes,'onCreating');
         sourceNode._saved_attributes = objectUpdate({},attributes);
         sourceNode.attr = {};
         sourceNode.attr.tag = objectPop(attributes,'tag');
@@ -2463,7 +2462,6 @@ dojo.declare("gnr.widgets.VideoPlayer", gnr.widgets.gnrwdg, {
              action:function(){
                 var kw = arguments[arguments.length-1]
                 var _video = genro.domById(kw._videoNodeId); 
-                genro.bp(true);
                 if(kw._playing){
                     _video.pause()
                 }else{
@@ -3662,6 +3660,47 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.DropUploaderGrid", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var uploaderPars = objectExtract(kw,'onUploadedMethod,onUploadingMethod');
+        var uploaderKw = objectExtract(kw,'uploadPath,filename,onResult,onError,onProgress,onAbort');
+        objectUpdate(uploaderPars,objectExtract(kw,'rpc_*'));
+        var nodeId = objectPop(kw,'nodeId') || 'uploader_'+genro.getCounter()
+        uploaderKw.uploadPath = uploaderKw.uploadPath || 'page:'+nodeId;
+        var label = objectPop(kw,'label');
+        var containerKw = objectExtract(kw,'position,top,left,right,bottom,height,width,border,rounded,_class,style,region');
+        var rootbc = sourceNode._('bordercontainer',containerKw);
+        
+        var grid = rootbc._('contentPane',{'region':'center'})._('quickGrid',{value:kw.storepath || '^gnr.uploadedFiles',
+                                        nodeId:nodeId,
+                                        dropTarget_grid:'Files',
+                                        dropTypes:'Files',
+                                        selfsubscribe_doUpload:function(){
+                                            
+                                            genro.rpc.uploadMultipartFiles(this.widget.storebag(),
+                                                                    {onResult:funcCreate(uploaderKw.onResult,'result',this),
+                                                                    uploadPath:uploaderKw.uploadPath,uploaderId:nodeId});
+                                        },
+                                        onDrop:function(dropInfo,files){
+                                            var filebag = this.widget.storebag();
+                                            files.forEach(function(f){
+                                                let row = {_name:f.name,_size:f.size,_type:f.type,_file:f,_uploaderId:nodeId};
+                                                let label = (f.name+'_'+f.size+'_'+f.type).replace(/\W/g,'_');
+                                                if(filebag.index(label)<0){
+                                                    filebag.addItem(label,new gnr.GnrBag(row));
+                                                }
+                                            });
+                                        }});
+        grid._('column',{name:_T('Filename'),field:'_name',width:'15em',edit:true});
+        grid._('column',{name:_T('Size'),field:'_size',width:'5em','dtype':'L'});
+        grid._('column',{name:_T('Type'),field:'_type',width:'10em'});
+        grid._('column',{name:_T('Status'),field:'_status',width:'10em'});
+        grid._('tools',{tools:'delrow',title:label || _T('Drop here files to upload')});
+
+        return rootbc;
+    }
+});
+
 dojo.declare("gnr.widgets.DropUploader", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var gnrwdg = sourceNode.gnrwdg;
@@ -4767,6 +4806,9 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             rootNode = tb._('comboArrow')._('tooltipPane',{placingId:textBoxId,onOpening:onOpening})._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
         }else{
             table_kw['tooltip']=objectPop(kw,'tooltip');
+            console.log('table_kw',table_kw);
+            objectExtract(originalKwargs,'table,values,cols,identifier,labelAttribute,popup') //belongs to cbtext
+            objectUpdate(table_kw,originalKwargs);
         }
         gnrwdg.rootNode = rootNode;
         if(!gnrwdg.hierarchical){
@@ -4981,14 +5023,19 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         if(!values){
             return;
         }
-        this.separator =  kw.separator ||  values.indexOf('\n')>=0? '\n':',';
-        var splitter = this.separator;
+        this.separator =  kw.separator || ',';
+        var splitter = values.indexOf('\n')>=0? '\n':',';
         var valuelist = splitStrip(values,splitter);
+        var cols = objectPop(kw,'cols');
+
+        if(valuelist[0][0]=='/'){
+            cols = valuelist.shift();
+            cols = parseInt(cols.slice(1)) || 1;
+        }
         var curr_row = tblNode._('tr',row_kw);
         var cell,cbpars,label,_code;
         var i = 1;
         var colspan;
-        var cols = objectPop(kw,'cols');
         var cell_kw = objectExtract(kw,'cell_*');
         var row_kw = objectExtract(kw,'row_*');
         var label_kw = objectExtract(kw,'label_*',null,true);
@@ -5729,6 +5776,8 @@ dojo.declare("gnr.stores._Collection",null,{
     deleteRows:function(pkeys,protectPkeys){
         return;
     },
+    duplicateRows:function(pkeys){},
+
     archiveRows:function(){
         console.error('archiveRows not implemented')
     },
@@ -5741,7 +5790,6 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         var dlg = genro.dlg.quickDialog('Alert',{_showParent:true,width:'280px'});
         var msg = count==1?'one':'many';
-        var master;
         dlg.center._('div',{innerHTML:_T(this.messages['archive_'+msg]).replace('$count',count), 
                             text_align:'center',_class:'alertBodyMessage'});
         var that = this;
@@ -6682,6 +6730,21 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             grid.sourceNode.publish('onExternalChanged');
         });
 
+    },
+
+    duplicateRows:function(pkeys){
+        var lockreason = this.storeNode.attr.nodeId+'_'+'deletingDbRows';
+        var that = this;
+        const n_records = pkeys.length;
+        genro.dlg.ask(_T('Duplicate rows'),_T("You are going to duplicate")+' '+n_records+' ' +_T('records'),null,{
+            confirm:function(){
+                genro.lockScreen(true,lockreason,{thermo:true});
+                genro.serverCall('app.duplicateDbRows',{pkeys:pkeys,table:that.storeNode.attr.table,
+                                                    _sourceNode:that.storeNode,timeout:0},function(result){
+                    genro.lockScreen(false,lockreason,'duplicatingRecords');
+                },null,'POST');
+           }
+        });
     },
 
     deleteRows:function(pkeys,protectPkeys){

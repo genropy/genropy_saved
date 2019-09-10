@@ -1,0 +1,21 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>Batch_assignment_16x16</title>
+  <path d="M12,5h2l-.8,1.1a.5.5,0,0,0-.1.7l.4.2h.3l2.3-2.4L13.9,2.1a.5.5,0,0,0-.7.7L14,4H12" fill="#3585c1"/>
+  <path d="M12,12h2l-.8,1.1a.5.5,0,0,0-.1.7l.4.2h.3l2.3-2.4L13.9,9.1a.5.5,0,0,0-.7.7L14,11H12Z" fill="#3585c1"/>
+  <g>
+    <rect x="0.5" y="1.5" width="4" height="5" fill="#fff"/>
+    <path d="M4,2V6H1V2H4M5,1H0V7H5V1Z" fill="#515151"/>
+  </g>
+  <g>
+    <rect x="2.5" y="4.5" width="4" height="5" fill="#fff"/>
+    <path d="M6,5V9H3V5H6M7,4H2v6H7V4Z" fill="#515151"/>
+  </g>
+  <g>
+    <rect x="4.5" y="7.5" width="4" height="5" fill="#fff"/>
+    <path d="M8,8v4H5V8H8M9,7H4v6H9V7Z" fill="#515151"/>
+  </g>
+  <g>
+    <rect x="6.5" y="10.5" width="4" height="5" fill="#fff"/>
+    <path d="M10,11v4H7V11h3m1-1H6v6h5V10Z" fill="#515151"/>
+  </g>
+</svg>

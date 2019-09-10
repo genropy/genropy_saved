@@ -242,7 +242,7 @@ class TableScriptRunner(TableScriptHandler):
 
     
     def table_script_controllers(self,page):
-        plugin_main = page.div(datapath='gnr.plugin.table_script_runner', nodeId='table_script_runner')
+        plugin_main = page.div(datapath='gnr.plugin.table_script_runner', nodeId='table_script_runner',context_dbstore='=.context_dbstore')
         plugin_main.dataController(""" var params = objectUpdate({},_subscription_kwargs);
                                        SET .res_type= objectPop(params,'res_type');
                                        SET .table =  objectPop(params,'table');
@@ -254,6 +254,7 @@ class TableScriptRunner(TableScriptHandler):
                                        SET .selectedRowidx =  copyArray(objectPop(params,'selectedRowidx') || []);
                                        SET .sortBy =  objectPop(params,'sortBy');
                                        SET .onCalling = objectPop(params,'onCalling');
+                                       SET .context_dbstore = objectPop(params,'context_dbstore');
                                        var pkey =  objectPop(params,'pkey');
                                        if (pkey){
                                             params.selectedPkeys = [pkey];

@@ -1,0 +1,10 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>Grid_options_16x16_02</title>
+  <g>
+    <line x1="5.5" x2="5.5" y2="16" fill="none" stroke="#5b5b5b" stroke-miterlimit="10"/>
+    <line x1="10.5" x2="10.5" y2="16" fill="none" stroke="#5b5b5b" stroke-miterlimit="10"/>
+    <line y1="10.5" x2="16" y2="10.5" fill="none" stroke="#5b5b5b" stroke-miterlimit="10"/>
+    <line y1="5.5" x2="16" y2="5.5" fill="none" stroke="#5b5b5b" stroke-miterlimit="10"/>
+    <path d="M15,1V15H1V1H15m1-1H0V16H16V0Z" fill="#5b5b5b"/>
+  </g>
+</svg>

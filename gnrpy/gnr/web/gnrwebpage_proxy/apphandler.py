@@ -1253,6 +1253,18 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result
 
     @public_method    
+    def duplicateDbRows(self, table, pkeys=None, unlinkfield=None,commit=True,protectPkeys=None,**kwargs):
+        if not self.page.checkTablePermission(table,'readonly,ins'):
+            raise self.page.exception('generic',description='Duplicate is not allowed in table % for user %s' %(table,self.user))
+        tblobj = self.db.table(table)
+        result_pkeys = []
+        for pkey in pkeys:
+            record = tblobj.duplicateRecord(pkey,**kwargs)
+            result_pkeys.append(record[tblobj.pkey])
+        self.db.commit()
+        return result_pkeys
+
+    @public_method    
     def deleteDbRows(self, table, pkeys=None, unlinkfield=None,commit=True,protectPkeys=None,**kwargs):
         """Method for deleting many records from a given table.
         

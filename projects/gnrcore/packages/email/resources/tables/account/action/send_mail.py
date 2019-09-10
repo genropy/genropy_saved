@@ -15,15 +15,22 @@ class Main(BaseResourceAction):
     batch_immediate = True
     
     def do(self):
-        message_tbl = self.db.table('email.message')
-        email_to_send = message_tbl.query(where='$in_out=:out AND $send_date IS NULL',
+        self.message_tbl = self.db.table('email.message')
+        accounts = self.tblobj.query(where='$save_output_message IS TRUE').fetch()
+        for account in accounts:
+            self.sendEmailsForAccount(account)
+    
+    def sendEmailsForAccount(self,account):
+        email_to_send = self.message_tbl.query(where='$in_out=:out AND $send_date IS NULL AND $account_id=:acid',
                                         out='O',order_by='$__ins_ts',
+                                        limit=account['send_limit'],
+                                        acid=account['id'],
                                         bagFields=True).fetch()
         print 'sending mail',len(email_to_send)
         for email in email_to_send:
             print '.',
-            message_tbl.sendMessage(pkey=email['id'])
-        print 'all mail sent'
+            self.message_tbl.sendMessage(pkey=email['id'])
+        print 'all mail sent for account',account['account_name']
 
     def table_script_parameters_pane(self, pane, **kwargs):
         pass

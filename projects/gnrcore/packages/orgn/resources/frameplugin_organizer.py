@@ -16,7 +16,7 @@ class PluginOrganizer(BaseComponent):
                                   formResource='ActionOutcomeForm',
                                   viewResource='ViewPlugin',
                                   liveUpdate=True,
-                                  dialog_noModal=False,
+                                  dialog_noModal=True,
                                   rowStatusColumn=False,
                                   condition='$plugin_assigment IS TRUE AND $done_ts IS NULL',
                                   view_store__onBuilt=True,

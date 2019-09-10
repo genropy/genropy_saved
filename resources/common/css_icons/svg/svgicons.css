@@ -1,0 +1,201 @@
+/* @group size16 */
+
+	.archive_record{
+		background: url(16/archive_record.svg) no-repeat center center;
+	}
+
+	.delete_row{
+		background: url(16/delete_row.svg) no-repeat center center;
+	}
+
+	.batch_assignment{
+		background: url(16/batch_assignment.svg) no-repeat center center;
+	}
+
+	.batch_scripts{
+		background: url(16/batch_scripts.svg) no-repeat center center;
+	}
+
+	.create_edit_html_template{
+		background: url(16/create_edit_html_template.svg) no-repeat center center;
+	}
+
+	.delete_record{
+		background: url(16/delete_record.svg) no-repeat center center;
+	}
+
+	.execute_current_query_green{
+		background: url(16/execute_current_query_green.svg) no-repeat center center;
+	}
+
+	.execute_current_query_grey{
+		background: url(16/execute_current_query_grey.svg) no-repeat center center;
+	}
+
+	.export_to_excel{
+		background: url(16/export_to_excel.svg) no-repeat center center;
+	}
+	.picker{
+		background: url(16/picker.svg) no-repeat center center;
+	}
+
+	.form_status_green{
+		background: url(16/form_status_green.svg) no-repeat center center;
+	}
+
+	.form_status_grey{
+		background: url(16/form_status_grey.svg) no-repeat center center;
+	}
+
+	.form_status_red{
+		background: url(16/form_status_red.svg) no-repeat center center;
+	}
+
+	.form_status_yellow{
+		background: url(16/form_status_yellow.svg) no-repeat center center;
+	}
+
+	.go_to_first_record{
+		background: url(16/go_to_first_record.svg) no-repeat center center;
+	}
+
+	.go_to_last_record{
+		background: url(16/go_to_last_record.svg) no-repeat center center;
+	}
+
+	.grid_options{
+		background: url(16/grid_options.svg) no-repeat center center;
+	}
+
+	.import_data_tool{
+		background: url(16/import_data_tool.svg) no-repeat center center;
+	}
+
+	.locked_padlock{
+		background: url(16/locked_padlock.svg) no-repeat center center;
+	}
+
+	.minus_square_grey{
+		background: url(16/minus_square_grey.svg) no-repeat center center;
+	}
+
+	.minus_square_red{
+		background: url(16/minus_square_red.svg) no-repeat center center;
+	}
+
+	.new_row{
+		background: url(16/new_row.svg) no-repeat center center;
+	}
+	
+	.new_record{
+		background: url(16/new_record.svg) no-repeat center center;
+	}
+
+	.new_set_column{
+		background: url(16/new_set_column.svg) no-repeat center center;
+	}
+
+	.next_record{
+		background: url(16/next_record.svg) no-repeat center center;
+	}
+
+	.plus_square_green{
+		background: url(16/plus_square_green.svg) no-repeat center center;
+	}
+
+	.plus_square_grey{
+		background: url(16/plus_square_grey.svg) no-repeat center center;
+	}
+
+	.previous_record{
+		background: url(16/previous_record.svg) no-repeat center center;
+	}
+
+	.print{
+		background: url(16/print.svg) no-repeat center center;
+	}
+
+	.read_only_status{
+		background: url(16/read_only_status.svg) no-repeat center center;
+	}
+
+	.reset_record{
+		background: url(16/reset_record.svg) no-repeat center center;
+	}
+
+	.search{
+		background: url(16/search.svg) no-repeat center center;
+	}
+
+	.save{
+		background: url(16/save.svg) no-repeat center center;
+	}
+
+	.select_query{
+		background: url(16/select_query.svg) no-repeat center center;
+	}
+
+	.select_view{
+		background: url(16/select_view.svg) no-repeat center center;
+	}
+
+	.selection_view{
+		background: url(16/selection_view.svg) no-repeat center center;
+	}
+
+	.send_email{
+		background: url(16/send_email.svg) no-repeat center center;
+	}
+
+	.statistica_tools{
+		background: url(16/statistica_tools.svg) no-repeat center center;
+	}
+
+	.unlocked_padlock{
+		background: url(16/unlocked_padlock.svg) no-repeat center center;
+	}
+/* @end */
+
+
+
+.formside_ok .fh_semaphore {
+	background: url(16/form_status_green.svg) no-repeat center center;
+}
+
+.formside_error .fh_semaphore{
+	background: url(16/form_status_red.svg) no-repeat center center;
+}
+
+.formside_changed .fh_semaphore{
+	background: url(16/form_status_yellow.svg) no-repeat center center;
+}
+
+.formside_readOnly .fh_semaphore{
+	background: url(16/read_only_status.svg) no-repeat center center;
+}
+
+.formside_noItem .fh_semaphore{
+    background: url(16/form_status_grey.svg) no-repeat center center;
+}
+
+
+.tundra .dijitButtonDisabled .iconbox{
+	opacity: .4;
+}
+
+.iconbox{
+	height:18px;
+	width: 22px;
+	cursor: pointer;
+	border-radius:2px;
+	margin-top:1px;
+	margin-bottom:1px;
+}
+.bordered_icons .iconbox{
+	border:1px solid silver;
+	background-color:#ddd !important;
+}
+
+.slotbar_toolbar .dijitButtonHover .iconbox, .slotbar_toolbar .iconbox:hover{
+	background-color:#bbb !important;	
+}

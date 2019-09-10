@@ -1471,7 +1471,7 @@ dojo.declare('gnr.GenroClient', null, {
         var dpath = kw.pathlist.slice(1).join('.');
         if(dpath in genro._debugPaths){
             var dkw = genro._debugPaths[dpath];
-            if(!dkw.condition || funcApply('return '+dkw.condition,{kw:kw})){
+            if(!dkw.condition || funcApply('return '+dkw.condition,kw)){
                 if(dkw.mode=='D'){
                     debugger;
                 }else{

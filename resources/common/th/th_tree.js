@@ -58,15 +58,15 @@ var THTree = {
         }
     },
 
-    fullPathByIdentifier:function(tree,pkey){
+    fullPathByIdentifier:function(tree,pkey,storeNode){
         var store = tree.storebag();
         var n = store.getNodeByAttr('treeIdentifier',pkey);
         if(n){
             return n.getFullpath(null, tree.model.store.rootData());
         }else{
-            var storeNode = store.getParentNode();
+            storeNode = storeNode || store.getParentNode();
             var inattr = storeNode.getInheritedAttributes();
-            return genro.serverCall('_table.'+inattr['table']+'.pathFromPkey',{pkey:pkey,dbstore:inattr['dbstore']});
+            return genro.serverCall('_table.'+inattr.table+'.pathFromPkey',{pkey:pkey,dbstore:inattr.dbstore});
         }
     },
 

@@ -368,7 +368,7 @@ class FormHandler(BaseComponent):
                                         }""",**dbselect_pars)
     
     @struct_method          
-    def fh_slotbar_form_add(self,pane,parentForm=None,disabled=None,defaults=None,**kwargs):
+    def fh_slotbar_form_add(self,pane,parentForm=None,disabled=None,defaults=None,doSave=False,label='!!Add',**kwargs):
         if self.fh_tableForbidden(pane,'ins'):
             return
         menupath = None
@@ -387,11 +387,15 @@ class FormHandler(BaseComponent):
             if menubag:
                 pane.data('.addrow_menu_store',menubag)
             menupath = '.addrow_menu_store'
-            pane.slotButton('!!Add',childname='addButton',action='this.form.newrecord($1.default_kw);',menupath=menupath,
-                        disabled=disabled,
+            pane.slotButton(label,childname='addButton',action="""if(doSave){
+                this.form.insertAndLoad($1.default_kw);
+            }else{
+                this.form.newrecord($1.default_kw);
+            }""",menupath=menupath,
+                        disabled=disabled,doSave=doSave,
                         iconClass="iconbox add_record",parentForm=parentForm,**kwargs)
         else:
-            pane.formButton('!!Add',childname='addButton',topic='navigationEvent',command='add',
+            pane.formButton(label,childname='addButton',topic='navigationEvent',command='add',
                         disabled=disabled,
                         iconClass="iconbox add_record",parentForm=parentForm,**kwargs)
 

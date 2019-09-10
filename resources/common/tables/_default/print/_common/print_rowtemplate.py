@@ -7,15 +7,15 @@
 from gnr.web.batch.btcprint import BaseResourcePrint
 
 tags='user'
-caption = '!!Print grid'
-description='!!Print grid with template...'
+caption = '!!Template row'
+description='!!Template row'
 
 class Main(BaseResourcePrint):
     batch_prefix = 'pr_rowtemplate'
     batch_cancellable = True
     batch_delay = 0.5
     batch_immediate = 'print'
-    batch_title = 'Print rows'
+    batch_title = 'Template row'
     print_mode = 'pdf'
     html_res = 'html_res/print_gridtemplate'
 
@@ -37,6 +37,7 @@ class Main(BaseResourcePrint):
         pkg,tbl= table.split('.')
         pane = pane.div(padding='10px',min_height='60px')        
         fb = pane.formbuilder(cols=1,fld_width='20em',border_spacing='4px')
-        fb.dbSelect(value='^.row_tpl', lbl='!!Row template',dbtable='adm.userobject',condition='$tbl=:mt AND $objtype=:ot AND $flags ILIKE :f',
+        fb.dbSelect(value='^.row_tpl', lbl='!!Row template',dbtable='adm.userobject',
+                        condition='$tbl=:mt AND $objtype=:ot AND $flags ILIKE :f',
                         condition_mt=table,condition_ot='template',condition_f='%%is_row%%',hasDownArrow=True)
         fb.dbSelect(dbtable='adm.htmltemplate', value='^.letterhead_id',lbl='!!Letterhead',hasDownArrow=True)

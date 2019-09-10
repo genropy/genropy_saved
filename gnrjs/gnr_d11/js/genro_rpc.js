@@ -908,7 +908,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     },
 
     uploadMultipartFiles: function(filebag, kw) {
-        var kw = kw || {};
+        kw = kw || {};
         var uploaderId = kw.uploaderId;
         var onFileUploaded = kw.onFileUploaded || function() {
             genro.publish(uploaderId + '_done', arguments);

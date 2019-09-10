@@ -80,6 +80,7 @@ class Form(BaseComponent):
         fb.field('smtp_timeout')
         fb.field('system_bcc')
         fb.field('save_output_message',html_label=True)
+        fb.field('send_limit')
         fb.field('debug_address')
 
     def account_messages(self,bottom):

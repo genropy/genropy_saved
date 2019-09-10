@@ -51,6 +51,7 @@ class View(BaseComponent):
             return dict(_customClasses=' '.join(_customClasses))
         selection.apply(cb)
 
+
 class ViewMixedComponent(View):
     def th_struct(self,struct):
         r = struct.view().rows()
@@ -142,7 +143,7 @@ class ViewAction(BaseComponent):
 
 class ViewPlugin(View):
     def th_hiddencolumns(self):
-        return '$linked_fkey'
+        return '$calculated_due_ts,$linked_fkey'
 
     def th_struct(self,struct):
         r = struct.view().rows()
@@ -155,23 +156,35 @@ class ViewPlugin(View):
     def th_top_custom(self,top):
         top.bar.replaceSlots('#','2,sections@action_type_id,5,searchOn,count,*',
                                 sections_action_type_id_multiButton=False,
-                                sections_action_type_id_multiValue=False,
+                                sections_action_type_id_multivalue=True,
                                 sections_action_type_id_lbl='!!Actions')
         
         top.slotToolbar('*,sections@priority,*',
                         childname='lower',
-                        _position='>bar',
-                        gradient_from='#999',gradient_to='#666')
+                        _position='>bar')
 
     def th_options(self):
-        return dict(liveUpdate=True)
+        return dict(liveUpdate=True,limit=1000)
         
     def th_order(self):
-        return '$annotation_ts'
+        return '$calculated_due_ts'
 
 
     def th_bottom_custom(self,bottom):
         bottom.slotToolbar('2,sections@entities,*,2')
+
+
+class ViewDashboard(ViewPlugin):
+    def th_bottom_custom(self,bottom):
+        bottom.slotToolbar('2,sections@priority,*,sections@action_type_id,2',
+                                sections_action_type_id_multiButton=False,
+                                sections_action_type_id_multivalue=False,
+                                sections_action_type_id_lbl='!!Actions')
+
+
+    def th_top_custom(self,top):
+        top.bar.replaceSlots('vtitle','sections@entities')
+    
 
 
 class ActionOutcomeForm(BaseComponent):
@@ -325,7 +338,7 @@ class Form(BaseComponent):
             action_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
             action_type_kwargs = dict(condition_restriction=linked_entity)
         topbc = bc.borderContainer(region='top',datapath='.record',height='55%')
-        fb = topbc.contentPane(region='top').div(margin_right='20px',margin='10px').formbuilder(cols=2, border_spacing='4px',
+        fb = topbc.contentPane(region='center').div(margin_right='20px',margin='10px').formbuilder(cols=2, border_spacing='4px',
                                                                                             fld_width='100%',
                                                                                             colswidth='auto',width='100%')
         fb.field('annotation_type_id',condition=annotation_type_condition,
@@ -335,7 +348,8 @@ class Form(BaseComponent):
         fb.field('description',tag='simpleTextArea',colspan=2)
         fb.field('annotation_date',width='7em')
         fb.field('annotation_time',width='7em')
-        topbc.contentPane(region='center').dynamicFieldsPane('annotation_fields',margin='2px')
+        fb.appendDynamicFields('annotation_fields')
+        #topbc.contentPane(region='center').dynamicFieldsPane('annotation_fields',margin='2px')
         def following_actions_struct(struct):
             r = struct.view().rows()
             r.cell('_date_due_from_pivot',calculated=True,hidden=True)
@@ -375,7 +389,7 @@ class Form(BaseComponent):
         if linked_entity:
             action_type_condition = "(CASE WHEN $restrictions IS NOT NULL THEN :restriction = ANY(string_to_array($restrictions,',')) ELSE TRUE END)"
             action_type_kwargs = dict(condition_restriction=linked_entity)
-        fb = bc.contentPane(region='top',datapath='.record').div(margin_right='20px',margin='10px').formbuilder(cols=2, border_spacing='4px',
+        fb = bc.contentPane(region='center',datapath='.record').div(margin_right='20px',margin='10px').formbuilder(cols=2, border_spacing='4px',
                                                                                             fld_width='100%',
                                                                                             colswidth='auto',width='100%')
         fb.field('action_type_id',condition=action_type_condition,
@@ -409,7 +423,7 @@ class Form(BaseComponent):
         fb.field('date_due',placeholder='^.$date_due_ghost')
         fb.field('time_due')
         fb.field('action_description',tag='simpleTextArea',colspan=2,width='420px',lbl='!!Description')
-        bc.contentPane(region='center').dynamicFieldsPane('action_fields',margin='2px')
+        fb.appendDynamicFields('action_fields')
 
 
     @public_method
@@ -432,12 +446,12 @@ class Form(BaseComponent):
         record['$allowed_user_pkeys'] = self.db.table('orgn.annotation').getAllowedActionUsers(record)
 
     def th_options(self):
-        return dict(dialog_height='300px', dialog_width='550px',readOnly=True)
+        return dict(dialog_height='350px', dialog_width='550px',readOnly=True)
 
 
 class FormMixedComponent(Form):
     def th_options(self):
-        return dict(dialog_height='300px', dialog_width='550px',modal=True)
+        return dict(dialog_height='350px', dialog_width='550px',modal=True)
 
     def th_form(self, form):
         linked_entity = form._current_options['linked_entity']
@@ -445,6 +459,23 @@ class FormMixedComponent(Form):
         sc = form.center.stackContainer(selectedPage='^.record.rec_type')
         self.orgn_annotationForm(sc.borderContainer(pageName='AN'),linked_entity=linked_entity,sub_action_default_kwargs=default_kwargs)
         self.orgn_actionForm(sc.borderContainer(pageName='AC'),linked_entity=linked_entity,default_kwargs=default_kwargs)
+
+
+class FormAction(Form):
+    #def th_options(self):
+       # anno
+       # entities =.getLinkedEntityDict()
+#
+       # print x
+       # return dict(dialog_height='350px', dialog_width='550px',modal=True,
+       #                     defaultPrompt=dict(title='!!New Action',
+       #                             fields=[dict(value='^.linked_entity',lbl='Entity',tag='filteringSelect',values=entities)]))
+#
+    def th_form(self, form):
+        linked_entity = '=#FORM.record.linked_entity'
+        default_kwargs = form.store.handler('load').attributes.get('default_kwargs')
+        self.orgn_actionForm(form.center.borderContainer(),linked_entity=linked_entity,default_kwargs=default_kwargs)
+
 
 
 class ViewActionComponent(BaseComponent):
