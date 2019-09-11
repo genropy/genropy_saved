@@ -29,12 +29,14 @@ class Public(BaseComponent):
                 bar.replaceSlots('avatar','multidb_selector,10,avatar')
 
     def _getMultiDbSelector(self):
+        if hasattr(self,'public_multidbSelector'):
+            return self.public_multidbSelector
         default_multidb_selector = None
         multidb_switch = self.getPreference('multidb_switch',pkg='multidb')
         multidb_switch_tag = self.getPreference('multidb_switch_tag',pkg='multidb') or 'user'
-        if not self.tblobj.attributes.get('multidb') and multidb_switch_tag:
+        if self.maintable and not self.tblobj.attributes.get('multidb') and multidb_switch_tag:
             default_multidb_selector = self.application.checkResourcePermission(multidb_switch_tag,self.userTags)
-        return getattr(self,'public_multidbSelector',default_multidb_selector)
+        return default_multidb_selector
 
     @struct_method
     def public_publicRoot_multidb_selector(self,pane, **kwargs): 
