@@ -373,13 +373,13 @@ class BagToHtml(object):
         return self.copies[self.copy]['currPage']
     
     def gridColumnsInfo(self):
-        return dict(columns=self.grid_columns,columnssets=self.grid_columnsets)
+        return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
         
     @property
     def columnsBag(self):
         gridName = self.currentGrid or '_main_'
         if gridName in self._gridsColumnsBag:
-            return self._gridsColumnsBag[gridName]
+            return self._gridsColumnsBag[gridName]['columns']
         info = self.gridColumnsInfo()
         columns = info['columns']
         columnsBag = Bag()
@@ -640,11 +640,49 @@ class BagToHtml(object):
 
     def _docBody(self, body):
         header_height = self.calcGridHeaderHeight()
-        grid = self.gridLayout(body)
-        if header_height:
-                
+        wrapper = body
+        if self.columnsets:
+            header_height = header_height/2
+            extlayout = body.layout(border_width=0,top=0,left=0,right=0,bottom=0,border_color='silver')
+            gp = self._gridLayoutParams()
+            colsetlayout = extlayout.row(height=header_height).cell().layout(left=gp.get('left'),right=gp.get('right'),top=0,bottom=0,
+                                                border_width=.3,border_color='transparent')
+            self.prepareColumnsets(colsetlayout.row())
+            wrapper = extlayout.row().cell()
+        grid = self.gridLayout(wrapper)
+        if header_height:    
             self.gridHeader(grid.row(height=header_height))
         self.copies[self.copy]['body_grid'] = grid
+    
+    def prepareColumnsets(self,row):
+        currentColsetCell = None
+        for colNode in self.columnsBag:
+            pars = colNode.attr
+            if pars.get('hidden'):
+                continue
+            if not pars.get('columnset'):
+                row.cell(width=pars.get('mm_width'))
+                currentColsetCell = None
+            elif currentColsetCell is not None:
+                if currentColsetCell.width:
+                    if pars.get('mm_width'):
+                        currentColsetCell.width += (pars.get('mm_width')+.3)
+                    else:
+                        currentColsetCell.attributes['extra_width'] = currentColsetCell.width
+                        currentColsetCell.width = 0
+                else:
+                    currentColsetCell.attributes['extra_width'] = currentColsetCell.attributes.get('extra_width') or 0
+                    currentColsetCell.attributes['extra_width']+=pars.get('mm_width')+.3
+            else:
+                colsetattr = dict(self.columnsets[pars['columnset']])
+                colsetattr.pop('tag',None)
+                colsetattr.pop('code',None)
+                name = colsetattr.pop('name','')
+                currentColsetCell = row.cell(self.toText(name), 
+                                            width=pars.get('mm_width'),
+                                            content_class=colsetattr.pop('_class',None) or 'gnrcolumnset',
+                                            **colsetattr)
+           
         
     def gridLayout(self, body):
         """Hook method. if you define a :ref:`print_layout_grid` in
@@ -652,13 +690,17 @@ class BagToHtml(object):
         define the layout of the grid
         
         :param grid: the :ref:`print_layout_grid`"""
-        defaultkw = dict(name='gridLayout',um='mm',border_color='gray',
-                            top=1,bottom=1,left=1,right=1,
+        return body.layout(**self._gridLayoutParams())  
+
+    def _gridLayoutParams(self):
+        top = 0 if self.columnsets else 1
+        defaultkw = dict(name='gridLayout',um='mm',border_color='silver',
+                            top=top,bottom=1,left=1,right=1,
                             border_width=.3,lbl_class='caption',
-                            font_size='10pt',text_align='left')
+                            font_size='9pt',text_align='left')
         customkw = self.gridLayoutParameters()
         defaultkw.update(customkw)
-        return body.layout(**defaultkw)     
+        return defaultkw
 
     def gridLayoutParameters(self):
         return dict()   
@@ -702,7 +744,10 @@ class BagToHtml(object):
         
     def calcGridHeaderHeight(self):
         """override for special needs"""
-        return self.grid_header_height
+        result = self.grid_header_height
+        if self.columnsets:
+            return result*2
+        return result
         
     def calcGridFooterHeight(self):
         """override for special needs"""
@@ -799,5 +844,16 @@ class BagToHtml(object):
                         }
                         .aligned_center{
                             text-align:center;
+                        }
+                        .gnrcolumnset{
+                            text-align:center;
+                            padding-top:.3mm;
+                            border:.3mm solid silver;
+                            background:#888; 
+                            color:white;
+                            border-bottom-width:0;
+                            font-size:8pt;
+                            border-top-left-radius:1mm;
+                            border-top-right-radius:1mm;
                         }
                          """)

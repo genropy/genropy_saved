@@ -271,7 +271,7 @@ class TableScriptToHtml(BagToHtml):
             caption = '%i/%i' % (progress, maximum)
         return caption
 
-    def gridColumns(self,gridname=None):
+    def gridColumnsInfo(self,gridname=None):
         if self.grid_columns:
             return self.grid_columns
         struct = self.page.newGridStruct(maintable=self.gridTable())
@@ -280,7 +280,9 @@ class TableScriptToHtml(BagToHtml):
                     columnsets=self.gridColumnsetsFromStruct(struct))
     
     def gridColumnsetsFromStruct(self,struct):
-        pass
+        if not struct['info.columnsets']: 
+            return dict()
+        return dict([(l[0],l[1]) for l in struct['info.columnsets'].digest('#k,#a')])
     
     def gridStruct(self,struct):
         pass
@@ -315,7 +317,8 @@ class TableScriptToHtml(BagToHtml):
             pars = dict(field=field,name=self.page.localize(attr.get('name')),field_getter=field_getter,
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),
-                        style=attr.get('style'),sqlcolumn=sqlcolumn,dtype=attr.get('dtype'))
+                        style=attr.get('style'),sqlcolumn=sqlcolumn,dtype=attr.get('dtype'),
+                        columnset=attr.get('columnset'))
             grid_columns.append(pars)
         return grid_columns
     
@@ -355,6 +358,9 @@ class TableScriptToHtml(BagToHtml):
         if condition:
             where.append(condition)
         columns = self.grid_sqlcolumns
+        hidden_columns = parameters.get('hidden_columns')
+        if hidden_columns:
+            columns = '%s,%s' %(hidden_columns,columns)
         rowtblobj = self.db.table(self.row_table)
         return rowtblobj.query(columns=columns,where= ' AND '.join(where),**parameters
                                 ).selection(_aggregateRows=True).output('grid',recordResolver=False)
