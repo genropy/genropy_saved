@@ -38,12 +38,15 @@ class ResourceLoader(object):
         self.site_path = self.site.site_path
         self.site_name = self.site.site_name
         self.gnr_config = self.site.gnr_config
-        self.gnrapp = self.site.gnrapp
         self.debug = self.site.debug
         self.gnr_static_handler = self.site.getStatic('gnr')
         self.page_factories = {}
         self.default_path = self.site.default_page and self.site.default_page.split('/')
-        
+    
+    @property
+    def gnrapp(self):
+        return self.site.gnrapp
+
     def find_webtools(self):
         """TODO"""
         def isgnrwebtool(cls):
@@ -244,6 +247,7 @@ class ResourceLoader(object):
         :param pkg: the :ref:`package <packages>` object"""
 
         if pkg:
+            currentAuxInstanceName = self.site.currentAuxInstanceName
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
             packageResourcePath =  os.path.join(self.gnrapp.packages[pkg].packageFolder, 'resources')
         else:

@@ -140,6 +140,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.extraFeatures = copy.deepcopy(self.site.extraFeatures)
         self.extraFeatures.update(dictExtract(request_kwargs,'_extrafeature_',pop=True))
         dbstore = request_kwargs.pop('temp_dbstore',None) or None
+        self.aux_instance =  request_kwargs.pop('_aux_instance',None) or None
         self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
         self.user_agent = request.user_agent.string or []
         self._environ = environ
@@ -493,26 +494,24 @@ class GnrWebPage(GnrBaseWebPage):
         if getattr(self,'_closed',False):
             self.site.register.drop_page(self.page_id, cascade=False)
         return result
-        
+    
+
     def _rpcDispatcher(self, *args, **kwargs):
         method = kwargs.pop('method',None)
         mode = kwargs.pop('mode','bag')
         _serverstore_changes = kwargs.pop('_serverstore_changes',None)
-
-        #parameters = self.site.parse_kwargs(kwargs, workdate=self.workdate)
-        parameters = kwargs
-        self._lastUserEventTs = parameters.pop('_lastUserEventTs', None)
-        self._lastRpc = parameters.pop('_lastRpc', None)
-        self._pageProfilers = parameters.pop('_pageProfilers', None)
-        #self.site.register.refresh(self.page_id,ts=self._lastUserEventTs,pageProfilers=self._pageProfilers)
+        kwargs.pop('aux_instance',None)
+        self._lastUserEventTs = kwargs.pop('_lastUserEventTs', None)
+        self._lastRpc = kwargs.pop('_lastRpc', None)
+        self._pageProfilers = kwargs.pop('_pageProfilers', None)
         if _serverstore_changes:
             self.site.register.set_serverstore_changes(self.page_id, _serverstore_changes)
         auth = AUTH_OK
         if method not in ('doLogin', 'onClosePage'):
-            auth = self._checkAuth(method=method, **parameters)
+            auth = self._checkAuth(method=method, **kwargs)
         try:
             self.db #init db property with env
-            result = self.rpc(method=method, _auth=auth, **parameters)
+            result = self.rpc(method=method, _auth=auth, **kwargs)
         except GnrSilentException as e:
             self.rpc.error = 'gnrsilent'
             result = Bag(topic=e.topic,parameters=e.parameters)

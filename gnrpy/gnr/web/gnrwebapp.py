@@ -48,6 +48,9 @@ class GnrWsgiWebApp(GnrApp):
         self._siteMenuDict = dict()
         super(GnrWsgiWebApp, self).__init__(*args, **kwargs)
         self.cache = WebApplicationCache(self)
+    
+    def createAuxInstance(self,instance_name):
+        return GnrWsgiWebApp(instance_name,site=self.site)
 
     def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
         if isinstance(recordOrPkey,list):
@@ -204,7 +207,7 @@ class GnrWsgiWebApp(GnrApp):
     siteMenu = property(_get_siteMenu)
 
 
-    def compileSiteMenu(self, menubag, basepath=None,level=None):
+    def compileSiteMenu(self, menubag, basepath=None,level=None,parent_aux_instance=None):
         basepath = basepath or []
         level = level or 0
         result = Bag()
@@ -213,6 +216,7 @@ class GnrWsgiWebApp(GnrApp):
             attributes = {}
             attributes.update(node.getAttr())
             currbasepath = basepath
+            aux_instance = attributes.setdefault('aux_instance',parent_aux_instance) 
             if 'pkg' in attributes:
                 if 'dir' in attributes:
                     url_info = self.site.getUrlInfo([attributes['pkg'], attributes['dir']])
@@ -221,7 +225,13 @@ class GnrWsgiWebApp(GnrApp):
                                                 include='*.py', exclude='__*,.*',dropext=True,readOnly=False)
                     currbasepath = [attributes['pkg'],attributes['dir']]
                 else:
-                    value = self.packages[attributes['pkg']].pkgMenu['#0']
+                    if aux_instance:
+                        pkgMenu = self.getAuxInstance(aux_instance).packages[attributes['pkg']].pkgMenu
+                    else:
+                        pkgMenu = self.packages[attributes['pkg']].pkgMenu
+                    value = pkgMenu
+                    if len(pkgMenu) == 1:
+                        value = pkgMenu['#0']
             else:
                 value = node.getStaticValue()
             if 'basepath' in attributes:
@@ -231,7 +241,7 @@ class GnrWsgiWebApp(GnrApp):
                 else:
                     currbasepath = basepath + [newbasepath]
             if isinstance(value, Bag):
-                value = self.compileSiteMenu(value, currbasepath,level=level+1)
+                value = self.compileSiteMenu(value, currbasepath,level=level+1,parent_aux_instance=aux_instance)
             elif not isinstance(value, DirectoryResolver):
                 value = None
                 filepath = attributes.get('file')

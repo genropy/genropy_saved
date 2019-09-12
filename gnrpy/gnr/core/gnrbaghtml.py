@@ -122,23 +122,7 @@ class BagToHtml(object):
         return 'temp.%s' % ext
         
     def onRecordLoaded(self):
-        """Hook method. Allow to define the query to be executed for the :ref:`print`
-        
-        Example::
-        
-            def onRecordLoaded(self):
-                where = '$date >= :begin_date AND $date <= :end_date AND doctor_id=:d_id'
-                columns ='''$doctor,$date,$hour,$patient,$performance,
-                            @convention_id.code AS convention_code,
-                            $amount,$cost,@invoice_id.number AS invoice'''
-                query = self.db.table(self.rows_table).query(columns=columns, where=where, 
-                                                             begin_data = self.getData('period.from'),
-                                                             end_data = self.getData('period.to'),
-                                                             d_id=self.record['id'])
-                selection = query.selection()
-                if not selection:
-                    return False
-                self.setData('rows',selection.output('grid'))"""
+        """Hook method."""
         pass
         
 
@@ -179,8 +163,6 @@ class BagToHtml(object):
         self.print_button = kwargs.pop('print_button', self.print_button)
         if self.onRecordLoaded() is False:
             return False
-        if self.getData(self.rows_path) is None:
-            self.setData(self.rows_path,self.gridData())
         if self.splittedPages:
             self.pages_folder = os.path.splitext(self.filepath)[0]
         self.showTemplate(hideTemplate is not True)
@@ -431,6 +413,8 @@ class BagToHtml(object):
         self.doc_height = self.copyHeight() #- self.page_header_height - self.page_footer_height
         self.grid_height = self.doc_height - self.calcDocHeaderHeight() - self.calcDocFooterHeight()
         self.grid_body_height = float(self.grid_height or 0) - float(self.grid_header_height or 0) - float(self.grid_footer_height or 0)
+        if self.getData(self.rows_path) is None:
+            self.setData(self.rows_path,self.gridData())
         for copy in range(self.copies_per_page):
             self.copies.append(dict(grid_body_used=self.grid_height, currPage=-1))
             

@@ -1477,17 +1477,20 @@ class GnrApp(object):
         :param name: the name of the auxiliary instance"""
         if not name:
             return self
-        if not name in self.aux_instances:
-            instance_name = self.config['aux_instances.%s?name' % name] 
-            remote_db = self.config['aux_instances.%s?remote_db' % name] 
-            if not check:
-                instance_name = instance_name or name
-            if not instance_name:
-                return
-            if remote_db:
-                instance_name = '%s@%s' %(instance_name,remote_db)
-            self.aux_instances[name] = GnrApp(instance_name)
+        if name in self.aux_instances:
+            return self.aux_instances[name]
+        instance_node = self.config.getNode('aux_instances.%s' % name)
+        if not instance_node:
+            raise Exception('aux_instance %s is not declared' %name)
+        instance_name = instance_node.getAttr('name') or name
+        remote_db = instance_node.getAttr('remote_db')
+        if remote_db:
+            instance_name = '%s@%s' %(instance_name,remote_db)
+        self.aux_instances[name] = self.createAuxInstance(instance_name)
         return self.aux_instances[name]
+    
+    def createAuxInstance(self,instance_name):
+        return GnrApp(instance_name)
 
     @property
     def hostedBy(self):
