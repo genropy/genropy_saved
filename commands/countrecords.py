@@ -33,7 +33,7 @@ def main(instance, packages):
             tbl = instance.db.table("%s.%s" % (p.name, t))
             try:
                 print "  %-40s : %d" % (t, tbl.query().count())
-            except Exception, e:
+            except Exception as e:
                 print "  %-40s : %s" % (t, str(e))
 
 if __name__ == "__main__":

@@ -43,7 +43,7 @@ def main(instance, operation, pkg_table, where=None, filename=None, replace=Fals
             for rec in data[pkg_table].values():
                 import_record(rec)
             instance.db.dbcommit()
-        except Exception, e:
+        except Exception as e:
             instance.db.rollback()
             logging.exception(e)
 
