@@ -30,7 +30,7 @@ class Table(object):
     for tablename, columns, attributes in tables.digest('#k,#v.columns,#a'):
         if pkg and tablename.startswith('%s_' %pkg):
             tablename = tablename[len(pkg)+1:]
-        f = file(os.path.join(path, '%s.py' % tablename), 'w')
+        f = open(os.path.join(path, '%s.py' % tablename), 'w')
         pkey = attributes.get('pkey')
         f.write(header % (tablename, pkey, tablename))
         for colName, colAttr in columns.digest('#k,#a'):

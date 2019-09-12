@@ -17,7 +17,7 @@ import md5
 
 def importRegione(db, filepath):
     tbl = db.table('glbl.regione')
-    f = file(filepath)
+    f = open(filepath)
     t = f.read()
     lines = t.split('\n')
     d = {}
@@ -37,7 +37,7 @@ def importRegione(db, filepath):
 
 def importLocalita(db, filepath):
     tbl = db.table('glbl.localita')
-    f = file(filepath)
+    f = open(filepath)
     t = f.read()
     lines = t.split('\n')
     for l in lines:
@@ -53,7 +53,7 @@ def importLocalita(db, filepath):
 
 def importProvincia(db, filepath, regdict):
     tbl = db.table('glbl.provincia')
-    f = file(filepath)
+    f = open(filepath)
     t = f.read()
     lines = t.split('\n')
     for l in lines:
@@ -68,7 +68,7 @@ def importProvincia(db, filepath, regdict):
 
 def importStradario(db, filepath):
     tbl = db.table('glbl.stradario_cap')
-    f = file(filepath)
+    f = open(filepath)
     t = f.read()
     lines = t.split('>\r\n<')
     lines[0] = lines[0][1:]

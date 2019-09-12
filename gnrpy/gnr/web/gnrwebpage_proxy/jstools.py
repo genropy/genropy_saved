@@ -22,11 +22,6 @@ def compress_js(jsfiles, site=None):
     jsurl = site.getStatic('site').url('_static', '_jslib', cpfile)
     rebuild = True
     if os.path.isfile(jspath):
-        #cpf = file(cppath, 'r')
-        #tsf = cpf.readline()
-        #cpf.close()
-        #if ts in tsf:
-        #    rebuild = False
         rebuild = False
     if rebuild:
         path = site.getStatic('site').path('_static', '_jslib')

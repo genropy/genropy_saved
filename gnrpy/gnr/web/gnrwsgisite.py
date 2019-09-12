@@ -825,7 +825,7 @@ class GnrWsgiSite(object):
             # return response(environ, start_response)
         request_kwargs = self.parse_kwargs(self.parse_request_params(request))
         self.currentAuxInstanceName = request_kwargs.get('aux_instance')
-        user_agent = request.user_agent or ''
+        user_agent = request.user_agent.string or ''
         isMobile = len(IS_MOBILE.findall(user_agent))>0
         if isMobile:
             request_kwargs['_mobile'] = True
@@ -1350,11 +1350,11 @@ class GnrWsgiSite(object):
 
     def _get_currentAuxInstanceName(self):
         """property currentAuxInstanceName it returns the page currently used in this thread"""
-        return self._currentAuxInstanceNames.get(thread.get_ident())
+        return self._currentAuxInstanceNames.get(_thread.get_ident())
 
     def _set_currentAuxInstanceName(self, auxInstance):
         """set currentAuxInstanceName for this thread"""
-        self._currentAuxInstanceNames[thread.get_ident()] = auxInstance
+        self._currentAuxInstanceNames[_thread.get_ident()] = auxInstance
 
     currentAuxInstanceName = property(_get_currentAuxInstanceName, _set_currentAuxInstanceName)
 

@@ -17,7 +17,7 @@ import md5
 
 def importSigleNaz(db, filepath):
     tbl = db.table('glbl.nazione')
-    f = file(filepath)
+    f = open(filepath)
     t = f.read()
     lines = t.split('\n')
     d = {}
@@ -34,7 +34,7 @@ def importSigleNaz(db, filepath):
 
 def importCodici(db, filepath, d):
     tbl = db.table('glbl.nazione')
-    f = file(filepath)
+    f = open(filepath)
     t = f.read()
     lines = t.split('\n')
     for l in lines:

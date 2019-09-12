@@ -813,7 +813,7 @@ class GnrBaseWebPage(GnrObject):
             dirname = os.path.dirname(path)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
-            outfile = file(path, 'w')
+            outfile = open(path, 'w')
             return outfile
             
     def createFileInStatic(self, *args):
@@ -823,7 +823,7 @@ class GnrBaseWebPage(GnrObject):
             dirname = os.path.dirname(path)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
-            outfile = file(path, 'w')
+            outfile = open(path, 'w')
             return outfile
             
     def createFolderInData(self, *args):

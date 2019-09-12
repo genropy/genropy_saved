@@ -33,6 +33,7 @@ parser.add_option('-i', '--implementation',
 parser.add_option('-p', '--package', dest='package', help='Do only these packages (comma separated)')
 parser.add_option('-P', '--project', dest='project', help='Add packages to this project')
 
+
 def structToPy(tables, path):
     #shutil.rmtree(path,True)
     #os.makedirs(path)
@@ -43,7 +44,7 @@ class Table(object):
         tbl =  pkg.table('%s', pkey='%s', name_long='%s')
 """
     for tablename, columns, attributes in tables.digest('#k,#v.columns,#a'):
-        f = file(os.path.join(path, '%s.py' % tablename), 'w')
+        f = open(os.path.join(path, '%s.py' % tablename), 'w')
         pkey = attributes.get('pkey')
         f.write(header % (tablename, pkey, tablename))
         for column in columns:
@@ -56,13 +57,14 @@ class Table(object):
             for k, v in list(colAttr.items()):
                 atlst.append("%s ='%s'" % (k, v))
             f.write("        tbl.column('%s', %s)" % (colName, ', '.join(atlst)))
-            value=column.value
+            value = column.value
             if hasattr(value, '_htraverse'):
-                relation_attr=column.value.getAttr('relation') or {}
+                relation_attr = column.value.getAttr('relation') or {}
                 if 'relation' in value and 'related_column' in relation_attr:
                     f.write(".relation('%s', mode='foreignkey')"%relation_attr['related_column'])
             f.write("\n")
         f.close()
+
 
 def parse_connection_string(connection_string):
     conn = dict()

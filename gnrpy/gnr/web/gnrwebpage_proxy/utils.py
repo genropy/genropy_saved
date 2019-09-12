@@ -143,7 +143,7 @@ class GnrWebUtils(GnrBaseProxy):
     def readFile(self, path):
         if not path.startswith('/'):
             path = self.abspath(path)
-        f = file(path, 'r')
+        f = open(path, 'r')
         result = f.read()
         f.close()
         return result
