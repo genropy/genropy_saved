@@ -271,12 +271,16 @@ class TableScriptToHtml(BagToHtml):
             caption = '%i/%i' % (progress, maximum)
         return caption
 
-    def gridColumns(self):
+    def gridColumns(self,gridname=None):
         if self.grid_columns:
             return self.grid_columns
         struct = self.page.newGridStruct(maintable=self.gridTable())
         self.gridStruct(struct)
-        return self.gridColumnsFromStruct(struct=struct,table=self.gridTable())
+        return dict(columns=self.gridColumnsFromStruct(struct=struct,table=self.gridTable()),
+                    columnsets=self.gridColumnsetsFromStruct(struct))
+    
+    def gridColumnsetsFromStruct(self,struct):
+        pass
     
     def gridStruct(self,struct):
         pass

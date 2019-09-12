@@ -51,6 +51,7 @@ class BagToHtml(object):
     grid_col_widths = None
     grid_style_cell = None
     grid_columns =  None
+    grid_columnsets = None
     grid_row_height = 5
     copies_per_page = 1
     copy_extra_height = 0
@@ -371,21 +372,28 @@ class BagToHtml(object):
     def current_page_number(self):
         return self.copies[self.copy]['currPage']
     
-    def gridColumns(self):
-        return self.grid_columns
+    def gridColumnsInfo(self):
+        return dict(columns=self.grid_columns,columnssets=self.grid_columnsets)
         
     @property
     def columnsBag(self):
         gridName = self.currentGrid or '_main_'
         if gridName in self._gridsColumnsBag:
             return self._gridsColumnsBag[gridName]
-        columns = self.gridColumns()
+        info = self.gridColumnsInfo()
+        columns = info['columns']
         columnsBag = Bag()
         for i,col in enumerate(columns):
             columnsBag.addItem('col_%02i' %i,None,_attributes=col)
-        self._gridsColumnsBag[gridName] = columnsBag
+        self._gridsColumnsBag[gridName] = Bag(dict(columns=columnsBag,columnsets=info['columnsets']))
         return columnsBag
-    
+
+    @property
+    def columnsets(self):
+        gridName = self.currentGrid or '_main_'
+        if gridName in self._gridsColumnsBag:
+            return self._gridsColumnsBag[gridName]['columnsets']
+
     def copyHeight(self):
         """TODO"""
         return (self.page_height - self.page_margin_top - self.page_margin_bottom -\
@@ -407,7 +415,7 @@ class BagToHtml(object):
         self.currGrid= None
         self.doc_height = self.copyHeight() #- self.page_header_height - self.page_footer_height
         self.grid_height = self.doc_height - self.calcDocHeaderHeight() - self.calcDocFooterHeight()
-        self.grid_body_height = float(self.grid_height or 0) - float(self.grid_header_height or 0) - float(self.grid_footer_height or 0)
+        self.grid_body_height = float(self.grid_height or 0) - float(self.calcGridHeaderHeight() or 0) - float(self.calcGridFooterHeight() or 0)
         if self.getData(self.rows_path) is None:
             self.setData(self.rows_path,self.gridData())
         for copy in range(self.copies_per_page):
@@ -634,6 +642,7 @@ class BagToHtml(object):
         header_height = self.calcGridHeaderHeight()
         grid = self.gridLayout(body)
         if header_height:
+                
             self.gridHeader(grid.row(height=header_height))
         self.copies[self.copy]['body_grid'] = grid
         
