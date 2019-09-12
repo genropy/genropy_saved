@@ -565,12 +565,13 @@ class GnrHtmlBuilder(object):
         :param attr: TODO
         :param row: TODO"""
         if row.elastic_cells:
+            elastic_cells_count = len(row.elastic_cells)
             if layout.width:
-                elastic_width = (layout.width - sum(
-                        [cell.width for cell in row.values() if cell.width]) - layout.border_width * (
-                len(row) - 1)) / len(row.elastic_cells)
+                fixed_width_sum = sum([(cell.width or 0)+cell.attributes.get('extra_width',0) for cell in row.values()])
+                free_space = layout.width - fixed_width_sum - layout.border_width * (len(row) - 1)
+                elastic_width =  free_space / elastic_cells_count
                 for cell in row.elastic_cells:
-                    cell.width = elastic_width
+                    cell.width = elastic_width+cell.attributes.get('extra_width',0)
             else:
                 raise GnrHtmlSrcError('No total width with elastic cells')
                 ## Possibile ricerca in profondità
