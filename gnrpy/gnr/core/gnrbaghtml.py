@@ -8,6 +8,7 @@
 
 import os
 from gnr.core.gnrstring import toText,templateReplace
+
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrclasses import GnrClassCatalog
@@ -53,6 +54,9 @@ class BagToHtml(object):
     grid_columns =  None
     grid_columnsets = None
     grid_row_height = 5
+    totalize_carry = False
+    totalize_mode = 'doc' #doc,page
+    grid_running_totals = dict()
     copies_per_page = 1
     copy_extra_height = 0
     starting_page_number = 0
@@ -413,9 +417,10 @@ class BagToHtml(object):
         self.defineStandardStyles()
         self.defineCustomStyles()
         self.currGrid= None
-        self.doc_height = self.copyHeight() #- self.page_header_height - self.page_footer_height
+        self.doc_height = self.copyHeight() 
         self.grid_height = self.doc_height - self.calcDocHeaderHeight() - self.calcDocFooterHeight()
-        self.grid_body_height = float(self.grid_height or 0) - float(self.calcGridHeaderHeight() or 0) - float(self.calcGridFooterHeight() or 0)
+        
+
         if self.getData(self.rows_path) is None:
             self.setData(self.rows_path,self.gridData())
         for copy in range(self.copies_per_page):
@@ -445,6 +450,8 @@ class BagToHtml(object):
                     rowheight = row_kw.pop('height',None) or self.calcRowHeight()
                     availableSpace = self.grid_height - self.copyValue('grid_body_used') -\
                                      self.calcGridHeaderHeight() - self.calcGridFooterHeight()
+                    availableSpace -= self.totalizeCarryHeight()
+                    availableSpace -= self.totalizeFooterHeight(lastPage=self.isLastRow)
                     if (rowheight+extra_row_height) > (availableSpace -self.grid_body_adjustment):
                         self._newPage()
                     if not self.rowData:
@@ -537,6 +544,7 @@ class BagToHtml(object):
             field_getter = cell_kw.pop('field_getter',None) or field
             value = self.rowData.get(field_getter)
             width = cell_kw.pop('mm_width')
+
             self.rowCell(value=value, default=cell_kw.pop('default',None), 
                 format=cell_kw.pop('format',None), mask=cell_kw.pop('mask',None), 
                 currency=cell_kw.pop('currency',None),style=self.getCellStyle(cell_kw.pop('style',None)),
@@ -544,7 +552,7 @@ class BagToHtml(object):
         
     def rowCell(self, field=None, value=None, default=None, locale=None,
                 format=None, mask=None, currency=None,white_space='nowrap',align_class=None,
-                content_class=None, **kwargs):
+                content_class=None, totalize=None,**kwargs):
                 
         """Allow to get data from record. You can use it in the :meth:`prepareRow` method
         
@@ -566,6 +574,10 @@ class BagToHtml(object):
             else:
                 value = self.rowField(field, default=default, locale=locale, format=format,
                                       mask=mask, currency=currency)
+        if totalize:
+            totfield = field or curr_attr.get('field')
+            self.grid_running_totals[totfield] = self.grid_running_totals.get(totfield) or 0
+            self.grid_running_totals[totfield] += value
         content_class = '%s %s' %(content_class,align_class) if content_class else align_class or self._guessAlign(value=value)
         value = self.toText(value, locale, format, mask, self.encoding, currency=currency)
         self.currRow.cell(value, width=curr_attr['mm_width'],overflow='hidden',
@@ -619,6 +631,12 @@ class BagToHtml(object):
         if lastPage:
             self.lastPage = True
         self.fillBodyGrid()
+        totalizeFooterHeight = self.totalizeFooterHeight(lastPage=self.lastPage)
+        if totalizeFooterHeight:
+            row = self.copyValue('body_grid').row(height=totalizeFooterHeight, _class='totalizer_row totalizer_footer')
+            self.currColumn = 0
+            self.currRow = row
+            self.fillTotalizeRow(row)
         footer_height = self.calcGridFooterHeight()
         if footer_height:
             row = self.copyValue('body_grid').row(height=footer_height)
@@ -652,6 +670,12 @@ class BagToHtml(object):
         grid = self.gridLayout(wrapper)
         if header_height:    
             self.gridHeader(grid.row(height=header_height))
+        totalizeCarryHeight = self.totalizeCarryHeight()
+        if totalizeCarryHeight:
+            row = self.copyValue('body_grid').row(height=totalizeCarryHeight, _class='totalizer_row totalizer_carry')
+            self.currColumn = 0
+            self.currRow = row
+            self.fillTotalizeRow(row)
         self.copies[self.copy]['body_grid'] = grid
     
     def prepareColumnsets(self,row):
@@ -682,7 +706,21 @@ class BagToHtml(object):
                                             width=pars.get('mm_width'),
                                             content_class=colsetattr.pop('_class',None) or 'gnrcolumnset',
                                             **colsetattr)
-           
+    def fillTotalizeRow(self,row):
+        currentFiller = None
+        for colNode in self.columnsBag:
+            pars = colNode.attr
+            if pars.get('hidden'):
+                continue
+            if pars.get('totalize'):
+                value = self.grid_running_totals[pars['field']]
+                value = self.toText(value, self.locale, pars.get('format'), currency=pars.get('currency'))
+                if currentFiller:
+                    currentFiller.attributes.pop('style',None)
+                row.cell(value,width=pars.get('mm_width'))
+                currentFiller = None
+            elif currentFiller is None:
+                currentFiller = row.cell(width=pars.get('mm_width'),style='border-right:0')
         
     def gridLayout(self, body):
         """Hook method. if you define a :ref:`print_layout_grid` in
@@ -722,7 +760,31 @@ class BagToHtml(object):
         
         :param row: the grid row"""
         return
-        
+
+    @property
+    def hasTotalizers(self):
+        if not hasattr(self,'_hasTotalizers'):
+            self._hasTotalizers = False
+            for colNode in self.columnsBag:
+                if colNode.attr.get('totalize'):
+                    self._hasTotalizers = True
+        return self._hasTotalizers
+
+    def totalizeFooterHeight(self,lastPage=None):
+        if not self.hasTotalizers:
+            return 0
+        if self.totalize_mode == 'page' or lastPage:
+            return self.calcRowHeight()
+        return 0
+
+    def totalizeCarryHeight(self):
+        if not self.hasTotalizers:
+            return 0
+        if self.totalize_carry and self.grid_running_totals:
+            return self.calcRowHeight()
+        return 0
+
+
     def fillBodyGrid(self):
         """TODO"""
         row = self.copyValue('body_grid').row()
@@ -855,5 +917,9 @@ class BagToHtml(object):
                             font-size:8pt;
                             border-top-left-radius:1mm;
                             border-top-right-radius:1mm;
+                        }
+                        .totalizer_row{
+                            background:whitesmoke;
+                            color:#444;
                         }
                          """)

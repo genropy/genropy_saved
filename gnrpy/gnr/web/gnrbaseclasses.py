@@ -318,7 +318,8 @@ class TableScriptToHtml(BagToHtml):
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),
                         style=attr.get('style'),sqlcolumn=sqlcolumn,dtype=attr.get('dtype'),
-                        columnset=attr.get('columnset'))
+                        columnset=attr.get('columnset'),
+                        totalize=attr.get('totalize'))
             grid_columns.append(pars)
         return grid_columns
     
