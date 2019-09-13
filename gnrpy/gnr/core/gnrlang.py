@@ -39,6 +39,11 @@ import time
 from gnr.core.gnrdecorator import deprecated,extract_kwargs # keep for compatibility
 from types import MethodType
 import six
+from io import IOBase
+try:
+    file_types = (file, IOBase)
+except NameError:
+    file_types = (IOBase,)
 
 thread_ws = dict()
 _mixincount = 0

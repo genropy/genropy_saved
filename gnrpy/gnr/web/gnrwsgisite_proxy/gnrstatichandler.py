@@ -8,6 +8,7 @@ from builtins import str
 from gnr.core.gnrbag import Bag
 from gnr.core import gnrstring
 from gnr.core.gnrlang import GnrDebugException
+from gnr.core.gnrlang import file_types
 import inspect
 import os
 import sys
@@ -22,6 +23,7 @@ from paste.httpheaders import ETAG
 import random
 import tempfile
 from gnr.core.gnrdecorator import callers
+
 
 class StaticHandlerManager(object):
     """ This class handles the StaticHandlers"""
@@ -107,7 +109,7 @@ class StaticHandler(object):
     def serve(self, f, environ, start_response, download=False, download_name=None, **kwargs):
         if isinstance(f,list):
             fullpath = self.path(*f[1:])
-        elif isinstance(f,file):
+        elif isinstance(f,file_types):
             fullpath = f.name
         else:
             fullpath = f

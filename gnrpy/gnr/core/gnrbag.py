@@ -73,6 +73,7 @@ import urllib.parse
 from gnr.core import gnrstring
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrlang import setCallable, GnrObject, GnrException
+from gnr.core.gnrlang import file_types
 import os.path
 import logging
 import sys
@@ -1790,7 +1791,7 @@ class Bag(GnrObject):
                              if ``True`` the Bag will be pickled in a binary format"""
         if not destination:
             return pickle.dumps(self, bin)
-        if isinstance(destination, file):
+        if isinstance(destination, file_types):
             pickle.dump(self, destination, bin)
         else:
             with open(destination, mode='wb') as destination:
