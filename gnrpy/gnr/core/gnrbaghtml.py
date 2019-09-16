@@ -166,7 +166,7 @@ class BagToHtml(object):
                 result = f.read()
             return result
         self.templates = kwargs.pop('templates', self.templates)
-        self.letterhead_id = kwargs.pop('', self.letterhead_id)
+        self.letterhead_id = kwargs.pop('letterhead_id', self.letterhead_id)
         self.print_button = kwargs.pop('print_button', self.print_button)
         self.grid_running_totals = defaultdict(int)
         if self.onRecordLoaded() is False:
