@@ -585,6 +585,7 @@ class BagToHtml(object):
             return
         colspan = pars.pop('colspan',1)
         mm_width = pars.pop('mm_width',0)
+        parentRow = parentRow or self.currRow
         if self._currSpanCell:
             self._currSpanCell.attributes['extra_width'] += mm_width
             self._currSpanCell.attributes['colspan_count'] -= 1
@@ -602,7 +603,6 @@ class BagToHtml(object):
         currency = pars.pop('currency',None)
         white_space = pars.pop('white_space',None) or 'nowrap'
         value = self.toText(value, locale, format, mask, self.encoding, currency=currency)
-        parentRow = parentRow or self.currRow
         cell = parentRow.cell(value, width=mm_width,overflow='hidden',
                             white_space=white_space,
                             content_class=content_class, **pars)

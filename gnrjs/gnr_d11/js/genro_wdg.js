@@ -1893,6 +1893,25 @@ dojo.declare("gnr.GridChangeManager", null, {
         var formula = this.formulaColumns[formulaKey];
         var result;
         var pars = this.grid.rowFromBagNode(rowNode,true);
+        if(formula.startsWith("+=") || formula.startsWith("%=")){
+            var masterField = formula.slice(2).trim();
+            var store = this.grid.collectionStore();
+            if(!masterField){
+                return;
+            }
+            if(formula.startsWith("+=")){
+                let idx = store.getIdxFromPkey(pars._pkey);
+                let prev_row_value = idx<=0? 0 : Math.round10((store.rowByIndex(idx-1)[formulaKey] || 0));
+                formula = prev_row_value+' + '+masterField;
+            }else if(formula.startsWith("%=")){
+                let masterTotal = store.sum(masterField);
+                if(masterTotal instanceof dojo.Deferred){
+                    //console.log('wait')
+                }else{
+                    formula = 'Math.round10('+masterField+'/'+masterTotal+' * 100)';
+                }
+            }
+        }
         var cellmap = this.grid.cellmap;
         for (var cl in cellmap){
             pars[cl] = pars[cl];

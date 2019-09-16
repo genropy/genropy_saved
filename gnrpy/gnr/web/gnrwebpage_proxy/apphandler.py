@@ -581,6 +581,23 @@ class GnrWebAppHandler(GnrBaseProxy):
         l = selection.output('dictlist')
         return [dict(pkey=r['pkey'],caption=r['caption_field']) if caption_field else r['pkey'] for r in l]
 
+    @public_method
+    def sumOnFreezedSelection(self,selectionName=None,where=None,table=None,sum_column=None,**kwargs):
+        """TODO
+        
+        ``sumOnFreezedSelection()`` method is decorated with the :meth:`public_method
+        <gnr.core.gnrdecorator.public_method>` decorator
+        
+        :param changelist: TODO
+        :param selectionName: TODO
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)"""
+        selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
+        if selection is None:
+            return 0
+        return selection.sum(sum_column)
     
     @public_method
     def checkFreezedSelection(self,changelist=None,selectionName=None,where=None,table=None,**kwargs):
