@@ -273,7 +273,7 @@ class TableScriptToHtml(BagToHtml):
 
     def gridColumnsInfo(self,gridname=None):
         if self.grid_columns:
-            return self.grid_columns
+            return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
         struct = self.page.newGridStruct(maintable=self.gridTable())
         self.gridStruct(struct)
         return dict(columns=self.gridColumnsFromStruct(struct=struct,table=self.gridTable()),
@@ -319,7 +319,7 @@ class TableScriptToHtml(BagToHtml):
                         white_space=attr.get('white_space','nowrap'),
                         style=attr.get('style'),sqlcolumn=sqlcolumn,dtype=attr.get('dtype'),
                         columnset=attr.get('columnset'),
-                        totalize=attr.get('totalize'),totalize_field=attr.get('totalize_field'))
+                        totalize=attr.get('totalize'),formula=attr.get('formula'))
             grid_columns.append(pars)
         return grid_columns
     

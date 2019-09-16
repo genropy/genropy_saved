@@ -15,8 +15,14 @@ from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrstring import flatten
+from gnr.core.gnrnumber import decimalRound
 from collections import defaultdict
 import tempfile
+
+try:
+    from simpleeval import simple_eval
+except ImportError:
+    simple_eval = False
 
 class BagToHtml(object):
     """A class that transforms a :ref:`bag` into HTML. It can be used to make a :ref:`print`"""
@@ -433,6 +439,7 @@ class BagToHtml(object):
             lines = Bag()
             lines.setItem('empty',Bag(self.empty_row),**self.empty_row)
         if lines:
+            self.currRowDataNode = None
             if isinstance(lines, Bag):
                 nodes = lines.getNodes()
             elif hasattr(lines, 'next'):
@@ -444,6 +451,7 @@ class BagToHtml(object):
                 nodes = self.thermo_wrapper(nodes, **self.thermo_kwargs)
             for rowDataNode in nodes:
                 self.isLastRow = rowDataNode is lastNode
+                self.prevDataNode = self.currRowDataNode
                 self.currRowDataNode = rowDataNode
                 for copy in range(self.copies_per_page):
                     extra_row_height = self.onNewRow() or 0
@@ -498,10 +506,10 @@ class BagToHtml(object):
                     result['%s_colspan' %lastspanfield] +=1
         return result
     
-    def gridRunningTotals(self,mode,lastPage=None):
+    def gridRunningTotals(self,lastPage=None):
         rowData = self.runningTotalsDefaults()
         rowData.update(self.grid_running_totals)
-        captions_kw = getattr(self,'totalize_%s' %mode,None)
+        captions_kw = getattr(self,'totalize_%s' %self.renderMode,None)
         if captions_kw is True:
             captions_kw = dict()
         elif isinstance(captions_kw,basestring):
@@ -515,11 +523,11 @@ class BagToHtml(object):
             rowData[self._caption_column] = caption
             for k,v in captions_kw.items():
                 rowData['%s_%s' %(self._caption_column,k)] = v
-        self.onRunningTotals(rowData=rowData,mode=mode,lastPage=lastPage)
+        self.onRunningTotals(rowData=rowData,lastPage=lastPage)
 
         return rowData
     
-    def onRunningTotals(self,rowData=None,mode=None,lastPage=None):
+    def onRunningTotals(self,rowData=None,lastPage=None):
         pass
 
     def _newPage(self):
@@ -533,16 +541,25 @@ class BagToHtml(object):
     def customizedRowData(self,rowData):
         return rowData
 
-    def _get_rowData(self):
-        if isinstance(self.currRowDataNode, dict) or isinstance(self.currRowDataNode,Bag):
-            rowData = self.currRowDataNode
+
+    def _rowDataCustomized(self,rowDataNode):
+        if not rowDataNode:
+            return dict()
+        if isinstance(rowDataNode, dict) or isinstance(rowDataNode,Bag):
+            rowData = rowDataNode
         elif self.row_mode == 'attribute':
-            rowData = self.currRowDataNode.attr
+            rowData = rowDataNode.attr
         else:
-            rowData = self.currRowDataNode.value
+            rowData = rowDataNode.value
         return self.customizedRowData(rowData)
+
+    @property
+    def rowData(self):
+        return self._rowDataCustomized(self.currRowDataNode)
             
-    rowData = property(_get_rowData)
+    @property
+    def previousRowData(self):
+        return self._rowDataCustomized(self.prevDataNode)
     
     def rowField(self, path=None, **kwargs):
         """TODO
@@ -571,6 +588,7 @@ class BagToHtml(object):
     
     def fillGridRow(self):
         rowData = self.rowData
+        self.renderMode = 'gridrow'
         self.updateRunningTotals(rowData=rowData)
         self.renderGridRow(rowData=rowData)
 
@@ -630,18 +648,54 @@ class BagToHtml(object):
         extra_kw.update(dictExtract(rowData,'%s_kw_' %field))
         result.update(extra_kw)
         return result
+    
+    def cellFormulaValue(self,col=None,rowData=None):
+        if not simple_eval:
+            return
+        variables = dict()
+        for k,v in rowData.items():
+            variables[k] = v
+        variables['previousRowData'] = self.previousRowData
+        variables['grid_running_totals'] = dict(self.grid_running_totals)
+        
+        variables['record'] = self.record
+
+        formula = col['formula']
+        if formula.startswith('+=') or formula.startswith('%='):
+            mainField = flatten(formula[2:].strip())
+            if formula.startswith('+='):
+                formula = '(previousRowData.get("%s") or 0) + %s' %(col['field'],mainField)
+                result = decimalRound(simple_eval(formula,names=variables))
+            else:
+                variables['mainFieldTotal'] = self.getColTotal(mainField)
+                formula = '%s/mainFieldTotal*100' %mainField
+                result = simple_eval(formula,names=variables)
+        else:
+            result = simple_eval(col['formula'],names=variables)
+        return result 
+
+    def getColTotal(self,field):
+        field = flatten(field)
+        colsTotals = self.getData('colsTotals') or Bag()
+        if field in colsTotals:
+            return colsTotals[field]
+        colsTotals[field] = self.getData(self.rows_path).sum('#a.%s' %field)
+        self.setData('colsTotals',colsTotals)
+        return colsTotals[field]
 
     def getGridCellValue(self,col=None,rowData=None):
         if isinstance(col,int):
             col = self.columnsBag.getAttr('#%i' %col)
         field = col['field']
         field_getter = col.get('field_getter')
-        if callable(field_getter):
-            return field_getter(rowData=rowData,col=field)
-        else:
-            if field_getter and not field_getter in rowData:
-                field_getter = None
-            return rowData.get(field_getter or field)
+        if self.renderMode == 'gridrow':
+            if callable(field_getter):
+                rowData[field] = field_getter(rowData=rowData,col=field)
+            elif col.get('formula'):
+                rowData[field_getter or field] = self.cellFormulaValue(col,rowData)  
+        if field_getter and not field_getter in rowData:
+            field_getter = None
+        return rowData.get(field_getter or field)
         
     def rowCell(self, field=None, value=None, default=None, locale=None,
                 format=None, mask=None, currency=None,white_space='nowrap',align_class=None,
@@ -725,7 +779,8 @@ class BagToHtml(object):
             row = self.copyValue('body_grid').row(height=totalizeFooterHeight, _class='totalizer_row totalizer_footer')
             self.currColumn = 0
             self.currRow = row
-            self.renderGridRow(self.gridRunningTotals('footer',lastPage=lastPage))
+            self.renderMode = 'footer'
+            self.renderGridRow(self.gridRunningTotals(lastPage=lastPage))
         footer_height = self.calcGridFooterHeight()
         if footer_height:
             row = self.copyValue('body_grid').row(height=footer_height)
@@ -764,7 +819,8 @@ class BagToHtml(object):
             row = grid.row(height=totalizeCarryHeight, _class='totalizer_row totalizer_carry')
             self.currColumn = 0
             self.currRow = row
-            self.renderGridRow(self.gridRunningTotals('carry',lastPage=self.lastPage))
+            self.renderMode = 'carry'
+            self.renderGridRow(self.gridRunningTotals(lastPage=self.lastPage))
         self.copies[self.copy]['body_grid'] = grid
     
     def prepareColumnsets(self,row):
