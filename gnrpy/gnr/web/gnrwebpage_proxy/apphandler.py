@@ -2004,7 +2004,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         record = self.db.table(table).record(pkey).output('bag')
         return self.page.rmlTemplate(path=template, record=record)
 
-    def rpc_includedViewAction(self, action=None, export_mode=None, respath=None, table=None, data=None,
+    @public_method
+    def includedViewAction(self, action=None, export_mode=None, respath=None, table=None, data=None,
                                selectionName=None, struct=None,datamode=None,localized_data=None, downloadAs=None,
                                selectedRowidx=None, **kwargs):
         """TODO
@@ -2034,7 +2035,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             data = self.page.getUserSelection(selectionName=selectionName,selectedRowidx=selectedRowidx).output('grid')
         return res_obj.gridcall(data=data, struct=struct, export_mode=export_mode,
                                     localized_data=localized_data, datamode=datamode,
-                                    selectedRowidx=selectedRowidx,filename=downloadAs)
+                                    selectedRowidx=selectedRowidx,filename=downloadAs,table=table)
 
 
 class BatchExecutor(object):

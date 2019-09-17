@@ -29,7 +29,9 @@ from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrstring import  splitAndStrip, slugify,templateReplace
 from gnr.core.gnrlang import GnrObject
+from gnr.core.gnrstring import flatten
 from gnr.core.gnrbag import Bag
+
 
 def page_mixin(func):
     """TODO
@@ -304,6 +306,11 @@ class TableScriptToHtml(BagToHtml):
             attr = n.attr
             field =  attr.get('field')
             field_getter = attr.get('field_getter') or field
+            if isinstance(field_getter,basestring):
+                field_getter = flatten(field_getter)
+            group_aggr = attr.get('group_aggr')
+            if group_aggr:
+                field_getter = '%s_%s' %(field_getter,group_aggr)
             pars = dict(field=field,name=self.page.localize(attr.get('name')),field_getter=field_getter,
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),

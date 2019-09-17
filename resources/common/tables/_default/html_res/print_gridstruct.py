@@ -49,4 +49,4 @@ class Main(TableScriptToHtml):
                     columnsets=self.gridColumnsetsFromStruct(struct))
 
     def outputDocName(self, ext=''):
-        return '%s.%s' %(self.getData('titolo'),ext)
+        return '%s.%s' %(self.getData('print_title') or self.row_table.replace('.','_'),ext)

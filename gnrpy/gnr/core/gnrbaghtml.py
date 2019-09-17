@@ -674,7 +674,7 @@ class BagToHtml(object):
                 result = decimalRound(simple_eval(formula,names=variables))
             else:
                 variables['mainFieldTotal'] = self.getColTotal(mainField)
-                formula = '%s/mainFieldTotal*100' %mainField
+                formula = '(%s or 0)/mainFieldTotal*100' %mainField
                 result = simple_eval(formula,names=variables)
         else:
             result = simple_eval(col['formula'],names=variables)
@@ -685,7 +685,7 @@ class BagToHtml(object):
         colsTotals = self.getData('colsTotals') or Bag()
         if field in colsTotals:
             return colsTotals[field]
-        colsTotals[field] = self.getData(self.rows_path).sum('#a.%s' %field)
+        colsTotals[field] = self.getData(self.rows_path).sum('#a.%s' %field) or 0
         self.setData('colsTotals',colsTotals)
         return colsTotals[field]
 
@@ -811,7 +811,7 @@ class BagToHtml(object):
         wrapper = body
         if self.columnsets:
             header_height = header_height/2
-            extlayout = body.layout(border_width=0,top=0,left=0,right=0,bottom=0,border_color='silver')
+            extlayout = body.layout(border_width=0,top=0,left=0,right=0,bottom=0)
             gp = self._gridLayoutParams()
             colsetlayout = extlayout.row(height=header_height).cell().layout(left=gp.get('left'),right=gp.get('right'),top=0,bottom=0,
                                                 border_width=.3,border_color='transparent')
@@ -838,7 +838,7 @@ class BagToHtml(object):
             if not pars.get('columnset'):
                 row.cell(width=pars.get('mm_width'))
                 currentColsetCell = None
-            elif currentColsetCell is not None:
+            elif currentColsetCell is not None and pars['columnset'] == currentColsetCell.columnset:
                 if currentColsetCell.width:
                     if pars.get('mm_width'):
                         currentColsetCell.width += (pars.get('mm_width')+.3)
@@ -857,6 +857,7 @@ class BagToHtml(object):
                                             width=pars.get('mm_width'),
                                             _class=colsetattr.pop('_class',None) or 'gnrcolumnset',
                                             **colsetattr)
+                currentColsetCell.columnset = pars['columnset']
         
     def gridLayout(self, body):
         """Hook method. if you define a :ref:`print_layout_grid` in
@@ -867,9 +868,8 @@ class BagToHtml(object):
         return body.layout(**self._gridLayoutParams())  
 
     def _gridLayoutParams(self):
-        top = 0 if self.columnsets else 1
         defaultkw = dict(name='gridLayout',um='mm',border_color='silver',
-                            top=top,bottom=1,left=1,right=1,
+                            top=.1,bottom=.1,left=.1,right=.1,
                             border_width=.3,lbl_class='caption',
                             font_size='9pt',text_align='left')
         customkw = self.gridLayoutParameters()
@@ -905,7 +905,7 @@ class BagToHtml(object):
 
     def updateRunningTotals(self,rowData):
         for col in self.totalizingColumns:
-            self.grid_running_totals[col.get('field_getter') or col['field']] += self.getGridCellValue(col,rowData)
+            self.grid_running_totals[col.get('field_getter') or col['field']] += (self.getGridCellValue(col,rowData) or 0)
 
     def totalizeFooterHeight(self):
         if not (self.totalizingColumns and self.totalize_footer):

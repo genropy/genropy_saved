@@ -903,6 +903,22 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         menu.setItem('#id',null,{caption:_T('Export XLS'),action:"$2.widget.serverAction({command:'export',allRows:true,opt:{export_mode:'xls',downloadAs:$2.attr.nodeId+'_export'}});"});
     },
 
+
+   // cm_plugin_print:function(sourceNode,menu){
+   //     menu.setItem('#id',null,{caption:_T('Print'),action:"$2.widget.serverAction({command:'print',allRows:true,opt:{rawData:true,downloadAs:$2.attr.nodeId+'_print',respath:'print/_common/print_gridstruct'}});"});
+   // },
+
+    cm_plugin_print:function(sourceNode,menu){
+        var action = function(item,gridNode){
+            var kw = {res_type:'print',table:gridNode.attr.table,
+                        resource:'_common/print_gridstruct',
+                        gridId:gridNode.attr.nodeId};
+            objectUpdate(kw,gridNode.widget.currentSelectionPars());
+            genro.publish('table_script_run',kw);
+        }
+        menu.setItem('#id',null,{caption:_T('Print'),action:action});
+    },
+
     cm_plugin_chartjs:function(sourceNode,menu){
         menu.setItem('#id',
             genro.dev.userObjectMenuData({'objtype':'chartjs',
@@ -924,7 +940,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     pluginContextMenuBag:function(sourceNode){
         var gridplugins = sourceNode.attr.gridplugins;
         if(!gridplugins){
-            gridplugins = 'chartjs,export_xls';
+            gridplugins = 'chartjs,export_xls,print';
             if(sourceNode.attr.configurable && genro.grid_configurator){
                 gridplugins = 'configurator,'+gridplugins;
             }
@@ -4143,13 +4159,33 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
                     },50);
             }, true);
             }
-            
-            
         }
         if(this.sortedBy){
             this._collectionStore.sortedBy = this.sortedBy;
         }
         return this._collectionStore;
+    },
+    mixin_currentSelectionPars:function(){
+        var kw = {};
+        var store = this.collectionStore();
+
+        if(store.storeType=='VirtualSelection'){
+            kw.selectionName = store.selectionName;
+        }else if(store.storeType=='Selection' && !store.storeNode.attr.groupByStore){
+            kw.selectedPkeys = this.getSelectedPkeys() || [];
+            if (kw.selectedPkeys.length==0){
+                kw.selectedPkeys = this.getAllPkeys();
+            }
+        }else{
+            kw.currentData = this.currentData(null,true);
+        }
+        if(this.cellmap._selected){
+            kw.selectedPkeys = this.sourceNode.getRelativeData('.sets._selected');
+        }else{
+            kw.selectedRowidx = this.getSelectedRowidx();
+        }
+        kw.selectionCount = store.len(true);
+        return kw;
     },
 
     mixin_createFiltered:function(currentFilterValue,filterColumn,colType){
