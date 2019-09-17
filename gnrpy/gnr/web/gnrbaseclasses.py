@@ -332,6 +332,8 @@ class TableScriptToHtml(BagToHtml):
             #legacy
             return self.row_table
         parameters = self.gridQueryParameters()
+        if not parameters:
+            return None
         self.row_table = parameters.get('table') or self._expandRowRelation(parameters['relation'])['table']
         return self.row_table
 
