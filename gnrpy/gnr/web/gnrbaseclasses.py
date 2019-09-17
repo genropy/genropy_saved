@@ -276,7 +276,7 @@ class TableScriptToHtml(BagToHtml):
             return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
         struct = self.page.newGridStruct(maintable=self.gridTable())
         self.gridStruct(struct)
-        return dict(columns=self.gridColumnsFromStruct(struct=struct,table=self.gridTable()),
+        return dict(columns=self.gridColumnsFromStruct(struct=struct),
                     columnsets=self.gridColumnsetsFromStruct(struct))
     
     def gridColumnsetsFromStruct(self,struct):
@@ -296,20 +296,18 @@ class TableScriptToHtml(BagToHtml):
         view.th_struct(structbag)
         return structbag
     
-    def gridColumnsFromStruct(self,struct=None,table=None):
+    def gridColumnsFromStruct(self,struct=None):
         grid_columns = []
-        tblobj = self.db.table(table)
         cells = struct['view_0.rows_0'].nodes
         columns = []
         for n in cells:
             attr = n.attr
             field =  attr.get('field')
             field_getter = attr.get('field_getter') or field
-            sqlcolumn = attr.get('sqlcolumn')
             pars = dict(field=field,name=self.page.localize(attr.get('name')),field_getter=field_getter,
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),
-                        style=attr.get('style'),sqlcolumn=sqlcolumn,dtype=attr.get('dtype'),
+                        style=attr.get('style'),sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
                         columnset=attr.get('columnset'),
                         totalize=attr.get('totalize'),formula=attr.get('formula'))
             grid_columns.append(pars)

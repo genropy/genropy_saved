@@ -45,7 +45,7 @@ class Main(TableScriptToHtml):
                 c['mm_width'] = 0
             else:
                 c['mm_width'] = int(c['q_width']*tot_width)
-        return dict(columns=self.gridColumnsFromStruct(struct=struct,table=self.gridTable()),
+        return dict(columns=self.gridColumnsFromStruct(struct=struct),
                     columnsets=self.gridColumnsetsFromStruct(struct))
 
     def outputDocName(self, ext=''):
