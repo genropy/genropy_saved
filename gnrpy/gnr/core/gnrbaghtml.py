@@ -448,6 +448,7 @@ class BagToHtml(object):
             lastNode = nodes[-1] 
             if hasattr(self, 'thermo_wrapper') and self.thermo_kwargs:
                 nodes = self.thermo_wrapper(nodes, **self.thermo_kwargs)
+            carry_height = self.totalizeCarryHeight()
             for rowDataNode in nodes:
                 self.isLastRow = rowDataNode is lastNode
                 self.prevDataNode = self.currRowDataNode
@@ -457,14 +458,15 @@ class BagToHtml(object):
                     self.copy = copy
                     row_kw = self.getRowAttrsFromData()
                     rowheight = row_kw.pop('height',None) or self.calcRowHeight()
-                    availableSpace = self.grid_height - self.copyValue('grid_body_used') -\
-                                     self.calcGridHeaderHeight() - self.calcGridFooterHeight() -\
-                                     self.totalizeCarryHeight() - self.totalizeFooterHeight()
-                    print 'grid_body_used',self.copyValue('grid_body_used'),'availableSpace',availableSpace,'self.grid_body_adjustment',self.grid_body_adjustment,'rowheight',rowheight,'extra_row_height',extra_row_height
-
-                    if (rowheight+extra_row_height) > (availableSpace -self.grid_body_adjustment):
+                    bodyUsed = self.copyValue('grid_body_used')
+                    
+                    gridNetHeight = self.grid_height - self.calcGridHeaderHeight() - self.calcGridFooterHeight() -\
+                                     carry_height - self.totalizeFooterHeight() - self.grid_row_height
+                                    
+                    availableSpace = gridNetHeight-bodyUsed-self.grid_body_adjustment
+                    if (rowheight+extra_row_height) > availableSpace:
                         self._newPage()
-                        print '**** NUOVA PAGINA ***',self.current_page_number,'grid_body_used',self.copyValue('grid_body_used')
+                        carry_height = self.totalizeCarryHeight()
                     if not self.rowData:
                         continue
                     row = self.copyValue('body_grid').row(height=rowheight, **row_kw)
