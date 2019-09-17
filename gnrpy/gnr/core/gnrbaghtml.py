@@ -433,7 +433,6 @@ class BagToHtml(object):
             self.setData(self.rows_path,self.gridData())
         for copy in range(self.copies_per_page):
             self.copies.append(dict(grid_body_used=self.grid_height, currPage=-1))
-        carry_height = self.totalizeCarryHeight()
         lines = self.getData(self.rows_path)
         if not lines and hasattr(self,'empty_row'):
             lines = Bag()
@@ -459,13 +458,13 @@ class BagToHtml(object):
                     row_kw = self.getRowAttrsFromData()
                     rowheight = row_kw.pop('height',None) or self.calcRowHeight()
                     availableSpace = self.grid_height - self.copyValue('grid_body_used') -\
-                                     self.calcGridHeaderHeight() - self.calcGridFooterHeight()
-                    availableSpace -= carry_height
-                    availableSpace -= self.totalizeFooterHeight(lastPage=self.isLastRow)
+                                     self.calcGridHeaderHeight() - self.calcGridFooterHeight() -\
+                                     self.totalizeCarryHeight() - self.totalizeFooterHeight()
+                    print 'grid_body_used',self.copyValue('grid_body_used'),'availableSpace',availableSpace,'self.grid_body_adjustment',self.grid_body_adjustment,'rowheight',rowheight,'extra_row_height',extra_row_height
+
                     if (rowheight+extra_row_height) > (availableSpace -self.grid_body_adjustment):
                         self._newPage()
-                        carry_height = self.totalizeCarryHeight()
-
+                        print '**** NUOVA PAGINA ***',self.current_page_number,'grid_body_used',self.copyValue('grid_body_used')
                     if not self.rowData:
                         continue
                     row = self.copyValue('body_grid').row(height=rowheight, **row_kw)
@@ -605,7 +604,12 @@ class BagToHtml(object):
         mm_width = pars.pop('mm_width',0)
         parentRow = parentRow or self.currRow
         if self._currSpanCell:
-            self._currSpanCell.attributes['extra_width'] += mm_width
+            if mm_width==0:
+                curr_total_width = self._currSpanCell.attributes['extra_width'] + self._currSpanCell.width
+                self._currSpanCell.attributes['extra_width'] = curr_total_width
+                self._currSpanCell.width = 0
+            else:
+                self._currSpanCell.attributes['extra_width'] += mm_width
             self._currSpanCell.attributes['colspan_count'] -= 1
             if not self._currSpanCell.attributes['colspan_count']: 
                 self._currSpanCell = None
@@ -637,7 +641,7 @@ class BagToHtml(object):
         columnset = col.get('columnset')
         result = dict()
         if columnset:
-            result.update(dictExtract(self.columnsets[columnset],'cell_'))
+            result.update(dictExtract(self.columnsets[columnset],'cells_'))
         result.update(col)
         anycell_kw = rowData.get('anycell_kw') or dict()
         result.update(anycell_kw)
@@ -774,7 +778,7 @@ class BagToHtml(object):
         if lastPage:
             self.lastPage = True
         self.fillBodyGrid()
-        totalizeFooterHeight = self.totalizeFooterHeight(lastPage=self.lastPage)
+        totalizeFooterHeight = self.totalizeFooterHeight()
         if totalizeFooterHeight:
             row = self.copyValue('body_grid').row(height=totalizeFooterHeight, _class='totalizer_row totalizer_footer')
             self.currColumn = 0
@@ -849,7 +853,7 @@ class BagToHtml(object):
                 name = colsetattr.pop('name','')
                 currentColsetCell = row.cell(self.toText(name), 
                                             width=pars.get('mm_width'),
-                                            content_class=colsetattr.pop('_class',None) or 'gnrcolumnset',
+                                            _class=colsetattr.pop('_class',None) or 'gnrcolumnset',
                                             **colsetattr)
         
     def gridLayout(self, body):
@@ -901,18 +905,20 @@ class BagToHtml(object):
         for col in self.totalizingColumns:
             self.grid_running_totals[col.get('field_getter') or col['field']] += self.getGridCellValue(col,rowData)
 
-    def totalizeFooterHeight(self,lastPage=None):
+    def totalizeFooterHeight(self):
         if not (self.totalizingColumns and self.totalize_footer):
             return 0
-        if self.totalize_mode == 'page' or lastPage:
-            return self.calcRowHeight()
+        if self.totalize_mode == 'page' or self.isLastRow or self.lastPage:
+            return self.grid_row_height
         return 0
 
     def totalizeCarryHeight(self):
         if not self.totalizingColumns:
             return 0
+        firstPage = self.current_page_number == 0
         if self.totalize_carry and self.grid_running_totals:
-            return self.calcRowHeight()
+            if self.totalize_mode == 'page' or firstPage:
+                return self.grid_row_height
         return 0
 
 
@@ -1041,14 +1047,12 @@ class BagToHtml(object):
                         }
                         .gnrcolumnset{
                             text-align:center;
-                            padding-top:.3mm;
-                            border:.3mm solid silver;
                             background:#888; 
                             color:white;
                             border-bottom-width:0;
                             font-size:8pt;
-                            border-top-left-radius:1mm;
-                            border-top-right-radius:1mm;
+                            border-top-left-radius:2mm;
+                            border-top-right-radius:2mm;
                         }
                         .totalizer_row{
                             background:whitesmoke;

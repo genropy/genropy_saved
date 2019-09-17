@@ -21,7 +21,7 @@ class Main(TableScriptToHtml):
     grid_footer_height = 0 
     grid_header_height = 4.3
     grid_col_widths=[0] #rowColWidth
-    grid_row_height=5.3
+    grid_row_height=5
     row_mode = 'attribute'
 
     def docHeader(self, header):
@@ -35,7 +35,7 @@ class Main(TableScriptToHtml):
     def gridData(self):
         return self.sourceSelectionData
     
-    def gridColumns(self):
+    def gridColumnsInfo(self):
         struct = self.sourceStruct
         tot_width = decimalRound(self.page_width-self.page_margin_left -self.page_margin_right-2)
         cells = struct['#0.#0'].digest('#a')
@@ -45,7 +45,8 @@ class Main(TableScriptToHtml):
                 c['mm_width'] = 0
             else:
                 c['mm_width'] = int(c['q_width']*tot_width)
-        return self.gridColumnsFromStruct(struct=struct,table=self.row_table)
+        return dict(columns=self.gridColumnsFromStruct(struct=struct,table=self.gridTable()),
+                    columnsets=self.gridColumnsetsFromStruct(struct))
 
     def outputDocName(self, ext=''):
         return '%s.%s' %(self.getData('titolo'),ext)

@@ -221,8 +221,6 @@ class GnrHtmlSrc(GnrStructData):
             cell.cell_border = row.cell_border
         else:
             cell.cell_border = cell_border
-        if not cell.width:
-            row.elastic_cells.append(cell)
         return cell
             
 class GnrHtmlBuilder(object):
@@ -564,6 +562,7 @@ class GnrHtmlBuilder(object):
         :param layout: TODO
         :param attr: TODO
         :param row: TODO"""
+        row.elastic_cells = [cell for cell in row.values() if not cell.width]
         if row.elastic_cells:
             elastic_cells_count = len(row.elastic_cells)
             if layout.width:
