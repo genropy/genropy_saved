@@ -325,14 +325,10 @@ class TableScriptToHtml(BagToHtml):
     
     def gridQueryParameters(self):
         #override
-        if self.getData(self.rows_path):
-            #data without querypars
-            return dict()
-        raise Exception('gridQueryParameters must be overridden')
+        return dict()
 
     def gridTable(self):
         if self.row_table:
-            #legacy
             return self.row_table
         parameters = self.gridQueryParameters()
         if not parameters:
@@ -350,6 +346,8 @@ class TableScriptToHtml(BagToHtml):
         #overridable
         self.row_mode = 'attribute'
         parameters = dict(self.gridQueryParameters())
+        if not parameters:
+            raise Exception('You must define gridQueryParameters or gridData')
         condition_kwargs = dictExtract(parameters,'condition_',pop=True)
         parameters.update(condition_kwargs)
         condition = parameters.pop('condition',None)
