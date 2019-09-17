@@ -650,8 +650,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         objectPopAll(attributes);
         objectUpdate(attributes, gridAttributes);
         attributes._identifier = identifier;
+        sourceNode.attr.showLineNumber = '^'+sourceNode.gridControllerPath +'.showLineNumber';
+        sourceNode.setRelativeData(sourceNode.attr.showLineNumber,attributes.showLineNumber);
         sourceNode.highlightExternalChanges = sourceNode.attr.highlightExternalChanges || true;
-
         if(sourceNode.attr.userSets){
             sourceNode.registerDynAttr('userSets');
             var userSets = new gnr.GnrBag();
@@ -954,6 +955,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 that['cm_plugin_'+cm_plugin](sourceNode,contextMenuBag);
             });
         }
+        contextMenuBag.setItem('r_'+contextMenuBag.len(),null,{caption:_T('Toggle line number'),
+                                checked:'^'+sourceNode.attr.showLineNumber,
+                                action:function(line,gridNode){gridNode.widget.toggleLineNumberColumn()}})
         return contextMenuBag;
     },
 
@@ -1600,6 +1604,19 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
                     //cellsnodes = rowBag.getNodes();
                     row = [];
+                    if(sourceNode.getAttributeFromDatasource('showLineNumber')){
+                        if(!rowBag.getNode('_linenumber')){
+                            rowBag.setItem('_linenumber',null,{'calculated':true,'dtype':'L','name':' ','width':'3em',
+                                'classes':'gnrgridlineno','field':'_linenumber','format':'#,###',
+                                '_customGetter':function(row,idx){
+                                    return idx+1;
+                                }
+                            },{_position:0});
+                        }
+                    }else{
+                        rowBag.popNode('_linenumber');
+                    }
+
                     if(sourceNode.attr.rowStatusColumn){
                         if(!rowBag.getNode('_protectionStatus')){
                             rowBag.setItem('_protectionStatus',null,{
@@ -3949,6 +3966,12 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
                 data.popNode('#'+idx,'autoRow');
             });
         }
+    },
+
+    mixin_toggleLineNumberColumn:function(kw) {
+        let currShow = this.sourceNode.getAttributeFromDatasource('showLineNumber');
+        this.sourceNode.setAttributeInDatasource('showLineNumber',!currShow);
+        this.setStructpath();
     },
 
     mixin_addNewSetColumn:function(kw) {

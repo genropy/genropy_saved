@@ -449,7 +449,8 @@ class BagToHtml(object):
             if hasattr(self, 'thermo_wrapper') and self.thermo_kwargs:
                 nodes = self.thermo_wrapper(nodes, **self.thermo_kwargs)
             carry_height = self.totalizeCarryHeight()
-            for rowDataNode in nodes:
+            for lineno,rowDataNode in enumerate(nodes):
+                self.lineno = lineno
                 self.isLastRow = rowDataNode is lastNode
                 self.prevDataNode = self.currRowDataNode
                 self.currRowDataNode = rowDataNode
@@ -694,8 +695,11 @@ class BagToHtml(object):
             col = self.columnsBag.getAttr('#%i' %col)
         field = col['field']
         field_getter = col.get('field_getter')
+        
         if self.renderMode == 'gridrow':
-            if callable(field_getter):
+            if field=='_linenumber':
+                rowData[field] = self.lineno+1
+            elif callable(field_getter):
                 rowData[field] = field_getter(rowData=rowData,col=field)
             elif col.get('formula'):
                 rowData[field_getter or field] = self.cellFormulaValue(col,rowData)  

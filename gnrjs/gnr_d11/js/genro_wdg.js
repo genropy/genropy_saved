@@ -1893,6 +1893,7 @@ dojo.declare("gnr.GridChangeManager", null, {
         var formula = this.formulaColumns[formulaKey];
         var result;
         var pars = this.grid.rowFromBagNode(rowNode,true);
+
         if(formula.startsWith("+=") || formula.startsWith("%=")){
             var masterField = formula.slice(2).trim();
             var store = this.grid.collectionStore();
@@ -1926,12 +1927,16 @@ dojo.declare("gnr.GridChangeManager", null, {
        // }
         dynPars = this.sourceNode.evaluateOnNode(dynPars);
         objectUpdate(pars,dynPars);
-        try{
-            result = funcApply('return '+formula,pars,this.sourceNode);
-        }catch(e){
-            result = null;
-        }
         var values = {};
+        if(formula=='#'){
+            result = rowNode.attr.rowidx || this.grid.currRenderedRowIndex;
+        }else{
+            try{
+                result = funcApply('return '+formula,pars,this.sourceNode);
+            }catch(e){
+                result = null;
+            }
+        }
         values[formulaKey] = result;
         this.grid.collectionStore().updateRowNode(rowNode,values);
         //rowNode.setAttribute(formulaKey,result,true);
