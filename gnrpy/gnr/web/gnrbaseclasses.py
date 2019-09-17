@@ -305,7 +305,7 @@ class TableScriptToHtml(BagToHtml):
         for n in cells:
             attr = n.attr
             field =  attr.get('field')
-            field_getter = attr.get('field_getter') or field
+            field_getter = attr.get('field_getter') or attr.get('caption_field') or field
             if isinstance(field_getter,basestring):
                 field_getter = flatten(field_getter)
             group_aggr = attr.get('group_aggr')

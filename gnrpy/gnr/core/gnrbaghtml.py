@@ -767,7 +767,7 @@ class BagToHtml(object):
         return page.layout(**defaultkw)
     
     def mainLayoutParamiters(self):
-        return dict()
+        return dict(font_family='Arial Narrow',font_size='11pt')
         
     def _openPage(self):
         #if self.page_header_height:
@@ -868,10 +868,10 @@ class BagToHtml(object):
         return body.layout(**self._gridLayoutParams())  
 
     def _gridLayoutParams(self):
-        defaultkw = dict(name='gridLayout',um='mm',border_color='silver',
+        defaultkw = dict(name='gridLayout',um='mm',border_color='#e0e0e0',
                             top=.1,bottom=.1,left=.1,right=.1,
                             border_width=.3,lbl_class='caption',
-                            font_size='9pt',text_align='left')
+                            text_align='left')
         customkw = self.gridLayoutParameters()
         defaultkw.update(customkw)
         return defaultkw
