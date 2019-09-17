@@ -304,16 +304,8 @@ class TableScriptToHtml(BagToHtml):
         for n in cells:
             attr = n.attr
             field =  attr.get('field')
-            field_getter = attr.get('caption_field') or field
-            sqlcolumn = None
-            if field_getter.startswith('@'):
-                original_field = field_getter
-                field_getter = field_getter.replace('.','_').replace('@','_')
-                sqlcolumn = '%s AS %s' %(original_field,field_getter)
-            else:
-                columnobj = tblobj.column(field_getter)
-                if columnobj is not None:
-                    sqlcolumn = '$%s' %field_getter
+            field_getter = attr.get('field_getter') or field
+            sqlcolumn = attr.get('sqlcolumn')
             pars = dict(field=field,name=self.page.localize(attr.get('name')),field_getter=field_getter,
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),
