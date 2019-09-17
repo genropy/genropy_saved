@@ -325,6 +325,9 @@ class TableScriptToHtml(BagToHtml):
     
     def gridQueryParameters(self):
         #override
+        if self.getData(self.rows_path):
+            #data without querypars
+            return dict()
         raise Exception('gridQueryParameters must be overridden')
 
     def gridTable(self):
