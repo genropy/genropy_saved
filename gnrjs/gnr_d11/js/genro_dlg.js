@@ -735,6 +735,28 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         };
         return dlg;
     },
+
+    multiUploaderDialog:function(title,kw,sourceNode) {
+        var uploaderKw = objectExtract(kw,'nodeId,height,width,uploadPath,onUploadedMethod,onUploadingMethod,onResult');
+        kw.closable = true;
+        var dlg = this.quickDialog(title,kw,sourceNode);
+        uploaderKw.height = uploaderKw.height || '300px';
+        uploaderKw.width =uploaderKw.width || '500px';
+        uploaderKw.nodeId =uploaderKw.nodeId || 'uploaderDialog_'+genro.getCounter();
+        var onResult = objectPop(uploaderKw,'onResult') || function(result){};
+        uploaderKw.onResult = function(result){
+            funcApply(onResult,{result:result},this);
+            dlg.close_action();
+        };
+        dlg.center._('DropUploaderGrid',uploaderKw);
+        dlg.show_action();
+        var actionCb = function(){
+            genro.nodeById(uploaderKw.nodeId).publish('doUpload');
+        };
+        dlg.bottom._('button','confirm',{float:'right',action:actionCb,label:_T('Upload files')});
+        return dlg;
+    },
+
     
     zoomPaletteFromSourceNode:function(sourceNode,evt){
         var zoomAttr =sourceNode.evaluateOnNode(sourceNode.attr._zoomKw);
@@ -942,7 +964,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                     });
                 }
                 if(sizeFromContent && !wdg._size_from_cache){
-                    wdg.setBoxAttributes({height:palette_height,width:palette_width});
+                    wdg.setBoxAttributes({height:palette_height || default_height,width:palette_width || default_width});
                 }
 
             }}).getParentNode();         
@@ -959,12 +981,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
 
     _prepareThIframeUrl:function(kw){
         var prefix = kw.lookup? '/sys/lookuptables/':'/sys/thpage/';
+        var zoomUrl = kw.zoomUrl || prefix+kw.table.replace('.','/');
         var dbstore = genro.getData('gnr.dbstore');
         if(dbstore){
-            prefix = '/'+dbstore+'/'+prefix;
+            zoomUrl = '/'+dbstore+zoomUrl;
         }
-
-        var zoomUrl = kw.zoomUrl || prefix+kw.table.replace('.','/');
         var urlKw = objectExtract(kw,'url_*');
         urlKw.th_public = objectPop(kw,'public') || false;
         if(kw.pkey){

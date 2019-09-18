@@ -16,7 +16,7 @@ class Table(object):
         tbl.column('tags', name_long='!!Tags')
         tbl.column('summary', name_long='!!Summary')
         tbl.column('ts_import',dtype='DH')
-        tbl.column('page_id').relation('menu_page.id',mode='foreignkey',relation_name='links')
+        tbl.column('page_id',size='22').relation('menu_page.id',mode='foreignkey',relation_name='links')
         tbl.aliasColumn('page_label',relation_path='@page_id.label')
         tbl.aliasColumn('page_filepath',relation_path='@page_id.filepath')
         tbl.aliasColumn('page_tbl',relation_path='@page_id.tbl')

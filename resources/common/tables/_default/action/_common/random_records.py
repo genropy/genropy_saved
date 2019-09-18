@@ -215,7 +215,9 @@ class Main(BaseResourceAction):
                     continue
                 field_pars['values'] = self.getDatesList(how_many,dtype,field_pars['min_value'],field_pars['max_value'])
                 if field_pars['sorted']:
-                    field_pars['values']=field_pars['values'].sort()
+                    print 'SORTED'
+                    field_pars['values'].sort()
+                    print field_pars['values']
                 continue
                 
             related_tbl= self.tblobj.columns[field].relatedTable()

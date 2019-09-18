@@ -350,7 +350,7 @@
 <webpages><app_preference path="webpages/app_preference.py" ext="py"><en_preference_panel fr="panneau de préférence" de="Fenster zu" en="Preference panel" it="Pannello Preferenze" base="Preference panel"></en_preference_panel>
 <en_zoom fr="Zoom" de="Zoom" en="Zoom" it="Zoom" base="Zoom"></en_zoom>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
-<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Annulla" base="Cancel"></en_cancel>
 <en_build_startup_data base="Build Startup Data"></en_build_startup_data>
 <en_load_startup_data base="Load Startup Data"></en_load_startup_data>
 <en_refresh_preview base="Refresh preview"></en_refresh_preview></app_preference>
@@ -374,4 +374,4 @@
 <en_email fr="Email" de="E-Mail-" en="Email" it="Email" base="Email"></en_email></user_page>
 <user_preference path="webpages/user_preference.py" ext="py"><en_preference_panel fr="panneau de préférence" de="Fenster zu" en="Preference panel" it="Pannello Preferenze" base="Preference panel"></en_preference_panel>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save>
-<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel></user_preference></webpages></GenRoBag>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Annulla" base="Cancel"></en_cancel></user_preference></webpages></GenRoBag>

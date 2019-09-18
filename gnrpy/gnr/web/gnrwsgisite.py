@@ -193,6 +193,7 @@ class GnrWsgiSite(object):
         GNRSITE = self
         counter = int(counter or '0')
         self.pathfile_cache = {}
+        self._currentAuxInstanceNames = {}
         self._currentPages = {}
         self._currentRequests = {}
         self._currentMaintenances = {}
@@ -253,10 +254,9 @@ class GnrWsgiSite(object):
             self.site_static_dir = os.path.normpath(os.path.join(self.site_path, self.site_static_dir))
         self.find_gnrjs_and_dojo()
         self._remote_edit = options.remote_edit if options else None
-        self.gnrapp = self.build_gnrapp(options=options)
+        self._main_gnrapp = self.build_gnrapp(options=options)
         self.server_locale = self.gnrapp.locale
         self.wsgiapp = self.build_wsgiapp(options=options)
-        self.db = self.gnrapp.db
         self.dbstores = self.db.dbstores
         self.resource_loader = ResourceLoader(self)
         self.page_factory_lock = RLock()
@@ -275,6 +275,15 @@ class GnrWsgiSite(object):
         self.connection_max_age = int(cleanup.get('connection_max_age')or 600)
         self.db.closeConnection()
 
+    @property
+    def db(self):
+        return self.gnrapp.db
+    
+    @property
+    def gnrapp(self):
+        if self.currentAuxInstanceName:
+            return self._main_gnrapp.getAuxInstance(self.currentAuxInstanceName)
+        return self._main_gnrapp
 
     @property
     def services_handler(self):
@@ -813,6 +822,7 @@ class GnrWsgiSite(object):
             self.log_print('', code='FAVICON')
             # return response(environ, start_response)
         request_kwargs = self.parse_kwargs(self.parse_request_params(request.params))
+        self.currentAuxInstanceName = request_kwargs.get('aux_instance')
         user_agent = request.user_agent or ''
         isMobile = len(IS_MOBILE.findall(user_agent))>0
         if isMobile:
@@ -1326,6 +1336,16 @@ class GnrWsgiSite(object):
 
     currentPage = property(_get_currentPage, _set_currentPage)
 
+    def _get_currentAuxInstanceName(self):
+        """property currentAuxInstanceName it returns the page currently used in this thread"""
+        return self._currentAuxInstanceNames.get(thread.get_ident())
+
+    def _set_currentAuxInstanceName(self, auxInstance):
+        """set currentAuxInstanceName for this thread"""
+        self._currentAuxInstanceNames[thread.get_ident()] = auxInstance
+
+    currentAuxInstanceName = property(_get_currentAuxInstanceName, _set_currentAuxInstanceName)
+
 
     def _get_currentMaintenance(self):
         """property currentPage it returns the page currently used in this thread"""
@@ -1507,26 +1527,27 @@ class GnrWsgiSite(object):
         with zipresult.open(mode='wb') as zipresult:
             zip_archive = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED,allowZip64=True)
             for fpath in file_list:
-                if os.path.isdir(fpath):
-                    self._zipDirectory(fpath,zip_archive)
-                    continue
                 newname = None
                 if isinstance(fpath,tuple):
                     fpath,newname = fpath
                 fpath = self.storageNode(fpath)
+                if fpath.isdir:
+                    self._zipDirectory(fpath,zip_archive)
+                    continue
                 if not newname:
-                    newname = os.path.basename(fpath.basename)
+                    newname = fpath.basename
                 with fpath.local_path(mode='r') as local_path:
                     zip_archive.write(local_path, newname)
             zip_archive.close()
 
     def _zipDirectory(self,path, zip_archive):
+        from gnr.lib.services.storage import StorageResolver
         def cb(n):
             if n.attr.get('file_ext')!='directory':
                 fpath = self.storageNode(n.attr['abs_path'])
                 with fpath.local_path(mode='r') as local_path:
                     zip_archive.write(local_path,n.attr['rel_path'])
-        dirres = DirectoryResolver(path)
+        dirres = StorageResolver(path)
         dirres().walk(cb,_mode='')
 
         

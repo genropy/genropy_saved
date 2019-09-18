@@ -17,7 +17,6 @@ class Table(object):
         tbl.column('username',size=':80',name_long='!!Username')
         tbl.column('password',size=':80',name_long='!!Password')
         tbl.column('last_uid',name_long='!!Last UID')
-
         tbl.column('smtp_host',name_long='!!SMTP host')
         tbl.column('smtp_from_address',name_long='!!From address')
         tbl.column('smtp_username',name_long='!!Smtp username')
@@ -26,7 +25,7 @@ class Table(object):
         tbl.column('smtp_timeout',name_long='!!Smtp timeout',dtype='L')
         tbl.column('smtp_tls',name_long='!!Smtp tls',dtype='B')
         tbl.column('smtp_ssl',name_long='!!Smtp ssl',dtype='B')
-
+        tbl.column('send_limit', dtype='L', name_long='!!Sending limit')
         tbl.column('system_bcc',name_long='!!System bcc')
 
         tbl.column('schedulable',dtype='B',name_long='!!Schedulable',name_short='Sched')

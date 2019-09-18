@@ -105,7 +105,7 @@ class GnrSqlDb(GnrObject):
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
                  main_schema=None, debugger=None, application=None,
-                 read_only=None,islegacy=None,**kwargs):
+                 read_only=None,**kwargs):
         """
         This is the constructor method of the GnrSqlDb class.
         
@@ -135,7 +135,6 @@ class GnrSqlDb(GnrObject):
         if main_schema is None:
             main_schema = self.adapter.defaultMainSchema()
         self.main_schema = main_schema
-        self.islegacy = boolean(islegacy)
         self._connections = {}
         self.started = False
         self._currentEnv = {}
@@ -399,6 +398,9 @@ class GnrSqlDb(GnrObject):
         connection = thread_connections.get(connectionTuple)
         if not connection:
             connection = self.adapter.connect(storename)
+            connection.storename = storename
+            connection.committed = False
+            connection.connectionName = connectionTuple[1]
             thread_connections[connectionTuple] = connection
         return connection
     
@@ -471,12 +473,14 @@ class GnrSqlDb(GnrObject):
                     else:
                         cursor = self.adapter.cursor(self.connection)
                 if isinstance(cursor, list):
-                    for c in cursor:
-                        c.execute(sql, sqlargs)
+                    self._multiCursorExecute(cursor,sql,sqlargs)
+                    #for c in cursor:
+                    #    c.execute(sql.replace("_STORENAME_" ,c.connection.storename), sqlargs)
                 else:
                     #if sql.startswith('INSERT') or sql.startswith('UPDATE') or sql.startswith('DELETE'):
                     #    print sql.split(' ',1)[0],storename,self.currentEnv.get('connectionName'),'dbtable',dbtable
                     cursor.execute(sql, sqlargs)
+                    cursor.connection.committed = False
                 if self.debugger:
                     self.debugger(sql=sql, sqlargs=sqlargs, dbtable=dbtable,delta_time=time()-t_0)
             
@@ -489,9 +493,21 @@ class GnrSqlDb(GnrObject):
                 str(e), sql, unicode(sqlargs).encode('ascii', 'ignore')))
                 self.rollback()
                 raise
+        
             if autocommit:
                 self.commit()
+            
         return cursor
+
+    def _multiCursorExecute(self, cursor_list, sql, sqlargs):
+        from multiprocessing.pool import ThreadPool
+        p = ThreadPool(4)
+        def _executeOnThread(cursor):
+            cursor.execute(sql.replace("_STORENAME_" ,cursor.connection.storename),sqlargs)
+        
+        #for c in cursor_list:
+        #    _executeOnThread(c)
+        p.map(_executeOnThread, cursor_list)
 
     def notifyDbEvent(self,tblobj,**kwargs):
         pass
@@ -592,16 +608,17 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_releaseCounters(record)
 
     def commit(self):
-        """Commit a transaction"""
-        self.onCommitting()
-        thread_connections = self._connections.get(thread.get_ident(), {})
-        currentConnectionName = self.currentConnectionName
-        currentStorename = self.currentStorename
-        liveconn = thread_connections.items()
-        for c,conn in liveconn:
-            storename,connectionName = c
-            if connectionName == currentConnectionName:
-                conn.commit()
+        trconns = self._connections.get(thread.get_ident(), {})
+        while True:
+            connections = filter(lambda c: not c.committed and c.connectionName==self.currentConnectionName,
+                                trconns.values())
+            if not connections:
+                break
+            connection = connections[0]
+            with self.tempEnv(storename=connection.storename):
+                self.onCommitting()
+            connection.commit()
+            connection.committed = True
         self.onDbCommitted()
 
     def onCommitting(self):
@@ -688,11 +705,14 @@ class GnrSqlDb(GnrObject):
             
     packages = property(_get_packages)
 
-    def tablesMasterIndex(self,hard=False,filterCb=None):
+    def tablesMasterIndex(self,hard=False,filterCb=None,filterPackages=None):
         packages = self.packages.keys()
+        filterPackages = filterPackages or packages
         toImport = []
         dependencies = dict()
         for k,pkg in enumerate(packages):
+            if pkg not in filterPackages:
+                continue
             pkgobj = self.package(pkg)
             tables = pkgobj.tables.values()
             if filterCb:
@@ -701,7 +721,10 @@ class GnrSqlDb(GnrObject):
             for tbl in tables:
                 dset = set()
                 for d,isdeferred in tbl.dependencies:
-                    if not isdeferred and (packages.index(d.split('.')[0])<=k or hard):
+                    dpkg = d.split('.')[0]
+                    if dpkg not in filterPackages:
+                        continue
+                    if not isdeferred and (packages.index(dpkg)<=k or hard):
                         dset.add(d)
                 dependencies[tbl.fullname] = dset
         imported = set()

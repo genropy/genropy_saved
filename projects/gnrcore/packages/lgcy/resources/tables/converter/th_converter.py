@@ -29,7 +29,7 @@ class ConverterEditorView(BaseComponent):
 
     def th_top_custom(self,top):
         top.bar.replaceSlots('vtitle','sections@convertedtables')
-        bar = top.bar.replaceSlots('addrow','addrow,importConversion')
+        bar = top.bar.replaceSlots('addrow','addrow,importConversion,export,2')
         importer_structure = dict(mandatories='legacy')
 
         bar.importConversion.paletteImporter(paletteCode='importConverter',

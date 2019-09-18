@@ -266,6 +266,15 @@ class Table(object):
                 result.extend(colobj.attributes['linked_entity'].split(','))
         return ','.join(result)
 
+    def getLinkedEntityDict(self):
+        result = dict()
+        for colname,colobj in self.columns.items():
+            if colobj.attributes.get('linked_entity'):
+                for entity in colobj.attributes['linked_entity'].split(','):
+                    code,caption = entity.split(':')
+                    result[code] = dict(table=colobj.relatedTable().fullname,caption=caption)
+        return result
+
     def linkedEntityName(self,tblobj):
         joiner = tblobj.relations.getNode('@annotations').attr['joiner']
         pkg,tbl,fkey = joiner['many_relation'].split('.')

@@ -1,0 +1,7 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>Send_email_16x16</title>
+  <rect y="3" width="16" height="13" rx="1.7" ry="1.7" fill="#515151"/>
+  <polyline points="2 6 8 11 14 6" fill="none" stroke="#f4f4f4" stroke-miterlimit="10"/>
+  <line x1="2" y1="14" x2="5" y2="11" fill="none" stroke="#f4f4f4" stroke-miterlimit="10"/>
+  <line x1="14" y1="14" x2="11" y2="11" fill="none" stroke="#f4f4f4" stroke-miterlimit="10"/>
+</svg>

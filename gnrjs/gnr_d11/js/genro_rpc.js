@@ -267,7 +267,10 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var kw = objectUpdate({}, xhrKwargs);
         kw.start_time = new Date();
         kw.url = kw.url || this.pageIndexUrl();
-
+        if(genro.startArgs.aux_instance){
+            content.aux_instance = genro.startArgs.aux_instance;
+        }
+        
         if(sourceNode){
             var req_dbstore = sourceNode.inheritedAttribute('context_dbstore');
             if (req_dbstore){
@@ -635,18 +638,25 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         return dojo.io.argsFromMap(objectUpdate(genro.rpc.getURLParams(source), params, true));
     },
     getRpcUrlArgs:function(method, kwargs, sourceNode, avoidCache) {
-        var avoidCache = avoidCache === false ? false : true;
+        avoidCache = avoidCache === false ? false : true;
         var currParams = {};
-        currParams['page_id'] = this.application.page_id;
-        currParams['method'] = method;
-        currParams['mode'] = 'text';
+        currParams.page_id = this.application.page_id;
+        currParams.method = method;
+        currParams.mode = 'text';
         if (avoidCache != false) {
-            currParams['_no_cache_'] = genro.getCounter();
+            currParams._no_cache_ = genro.getCounter();
+        }
+        if(sourceNode){
+            var req_dbstore = sourceNode.inheritedAttribute('context_dbstore');
+            if (req_dbstore){
+                currParams.temp_dbstore = req_dbstore;
+            }
         }
         return objectUpdate(currParams, this.serializeParameters(genro.src.dynamicParameters(kwargs, sourceNode)));
-    }
-    ,
+    },
+
     rpcUrl:function(method, kwargs, sourceNode, avoidCache) {
+        
         var urlargs = genro.rpc.getRpcUrlArgs(method, kwargs, sourceNode, avoidCache);
         var url =  genro.absoluteUrl(null, urlargs, avoidCache);
         return url;
@@ -901,7 +911,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     },
 
     uploadMultipartFiles: function(filebag, kw) {
-        var kw = kw || {};
+        kw = kw || {};
         var uploaderId = kw.uploaderId;
         var onFileUploaded = kw.onFileUploaded || function() {
             genro.publish(uploaderId + '_done', arguments);

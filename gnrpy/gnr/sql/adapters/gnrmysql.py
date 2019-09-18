@@ -55,7 +55,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                     'X': 'text', 'P': 'text', 'Z': 'text',
                     'B': 'boolean', 'D': 'date', 'H': 'time', 'DH': 'datetime',
                     'I': 'int', 'L': 'bigint', 'R': 'real','N':'decimal',
-                    'serial': 'serial8', 'O': 'longblob'}
+                    'serial': 'serial', 'O': 'longblob'}
 
     def defaultMainSchema(self):
         return ''
@@ -409,10 +409,10 @@ class GnrDictCursor(DictCursor):
 #        return res
             
 class GnrWhereTranslator(GnrWhereTranslator_base):
-    def op_startswith(self, column, value, dtype, sqlArgs):
+    def op_startswith(self, column, value, dtype, sqlArgs,tblobj):
         "Starts with"
         return '%s LIKE :%s' % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
             
-    def op_contains(self, column, value, dtype, sqlArgs):
+    def op_contains(self, column, value, dtype, sqlArgs,tblobj):
         "Contains"
         return '%s LIKE :%s' % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))

@@ -101,6 +101,7 @@ class GnrTaskWorker(object):
     def runTask(self, task_execution):
         page = self.site.dummyPage
         self.site.currentPage = page
+        page._db = None
         page.db
         log_record = Bag()
         start_time = datetime.now()
@@ -116,10 +117,8 @@ class GnrTaskWorker(object):
     def start(self):
         while True:
             for te_pkey in self.taskToExecute():
-                print 'got task exec',te_pkey
                 with self.tblobj.recordToUpdate(te_pkey,for_update='SKIP LOCKED',
                                                 virtual_columns='$task_table,$task_name.$task_parameters,$task_command') as task_execution:
-                    print 'running task exec',te_pkey
                     self.runTask(task_execution)
                     task_execution['end_ts'] = datetime.now()
                 self.db.commit()

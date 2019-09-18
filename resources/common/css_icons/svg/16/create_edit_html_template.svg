@@ -1,0 +1,11 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>Create_Edit_html_template_16x16</title>
+  <g>
+    <path d="M2.7,15.5a1.2,1.2,0,0,1-1.2-1.2V1.7A1.2,1.2,0,0,1,2.7.5h8.1l3.7,3.7V14.3a1.2,1.2,0,0,1-1.2,1.2Z" fill="#fff"/>
+    <path d="M10.6,1,14,4.4v9.9a.7.7,0,0,1-.7.7H2.7a.7.7,0,0,1-.7-.7V1.7A.7.7,0,0,1,2.7,1h7.9M11,0H2.7A1.7,1.7,0,0,0,1,1.7V14.3A1.7,1.7,0,0,0,2.7,16H13.3A1.7,1.7,0,0,0,15,14.3V4L11,0Z" fill="#515151"/>
+  </g>
+  <rect x="1" y="6" width="13" height="7" rx="0.1" ry="0.1" fill="#1b4d7f"/>
+  <polyline points="4.5 11.5 2.5 9.5 4.5 7.5" fill="none" stroke="#fff" stroke-linecap="round" stroke-miterlimit="10"/>
+  <polyline points="9.5 7.5 11.5 9.5 9.5 11.5" fill="none" stroke="#fff" stroke-linecap="round" stroke-miterlimit="10"/>
+  <line x1="6" y1="11.5" x2="8" y2="8" fill="none" stroke="#fff" stroke-linecap="round" stroke-miterlimit="10"/>
+</svg>

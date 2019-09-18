@@ -26,6 +26,7 @@
 import os,sys
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrstring import  splitAndStrip, slugify,templateReplace
 from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrbag import Bag
@@ -175,7 +176,7 @@ class TableScriptToHtml(BagToHtml):
     cached = None
     css_requires = 'print_stylesheet'
     client_locale = False
-
+    row_relation = None
 
     def __init__(self, page=None, resource_table=None, **kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
@@ -269,17 +270,28 @@ class TableScriptToHtml(BagToHtml):
         else:
             caption = '%i/%i' % (progress, maximum)
         return caption
+
+    def gridColumns(self):
+        if self.grid_columns:
+            return self.grid_columns
+        struct = self.page.newGridStruct(maintable=self.gridTable())
+        self.gridStruct(struct)
+        return self.gridColumnsFromStruct(struct=struct,table=self.gridTable())
     
-    def gridColumnsFromResource(self,viewResource=None,table=None):
+    def gridStruct(self,struct):
+        pass
+    
+    def structFromResource(self,viewResource=None,table=None):
         table = table or self.rows_table or self.tblobj.fullname
+        if not ':' in viewResource:
+            viewResource = 'th_%s:%s' %(table.split('.')[1],viewResource)
         view = self.site.virtualPage(table=table,table_resources=viewResource)
         structbag = view.newGridStruct(maintable=table)
         view.th_struct(structbag)
-        self.gridColumnsFromStruct(struct=structbag,table=table)
-        return self.grid_columns
+        return structbag
     
     def gridColumnsFromStruct(self,struct=None,table=None):
-        self.grid_columns = []
+        grid_columns = []
         tblobj = self.db.table(table)
         cells = struct['view_0.rows_0'].nodes
         columns = []
@@ -296,16 +308,56 @@ class TableScriptToHtml(BagToHtml):
                 columnobj = tblobj.column(field_getter)
                 if columnobj is not None:
                     sqlcolumn = '$%s' %field_getter
-            pars = dict(field=field,name=attr.get('name'),field_getter=field_getter,
+            pars = dict(field=field,name=self.page.localize(attr.get('name')),field_getter=field_getter,
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),
                         style=attr.get('style'),sqlcolumn=sqlcolumn,dtype=attr.get('dtype'))
-            self.grid_columns.append(pars)
+            grid_columns.append(pars)
+        return grid_columns
+    
+    def gridQueryParameters(self):
+        #override
+        raise Exception('gridQueryParameters must be overridden')
+
+    def gridTable(self):
+        if self.row_table:
+            #legacy
+            return self.row_table
+        parameters = self.gridQueryParameters()
+        self.row_table = parameters.get('table') or self._expandRowRelation(parameters['relation'])['table']
+        return self.row_table
+
+    def _expandRowRelation(self,relation):
+        relation_attr = self.tblobj.model.relations.getAttr(relation, 'joiner')
+        many = relation_attr['many_relation'].split('.')
+        fkey = many.pop()
+        return dict(table=str('.'.join(many)),condition='$%s=:_fkey' %fkey,condition__fkey=self.record[self.tblobj.pkey])
+
+    def gridData(self):
+        #overridable
+        self.row_mode = 'attribute'
+        parameters = dict(self.gridQueryParameters())
+        condition_kwargs = dictExtract(parameters,'condition_',pop=True)
+        parameters.update(condition_kwargs)
+        condition = parameters.pop('condition',None)
+        row_table = self.gridTable()
+        relation = parameters.pop('relation',None)
+        where = []
+        if relation:
+            relkw = self._expandRowRelation(relation)
+            self.row_table = relkw.pop('table')
+            where.append(relkw.pop('condition'))
+            parameters.update(dictExtract(relkw,'condition_'))
+        if condition:
+            where.append(condition)
+        columns = self.grid_sqlcolumns
+        rowtblobj = self.db.table(self.row_table)
+        return rowtblobj.query(columns=columns,where= ' AND '.join(where),**parameters
+                                ).selection(_aggregateRows=True).output('grid',recordResolver=False)
 
     @property
     def grid_sqlcolumns(self):
-        return ','.join([d['sqlcolumn'] for d in self.grid_columns if d.get('sqlcolumn')])
-
+        return ','.join([c for c in self.columnsBag.digest('#a.sqlcolumn') if c])
                 
     def getHtmlPath(self, *args, **kwargs):
         """TODO"""

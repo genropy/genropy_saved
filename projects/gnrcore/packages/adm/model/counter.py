@@ -265,9 +265,15 @@ class Table(object):
         return output
 
     def getCounter(self,tblobj=None,field=None,record=None,update=False):
+        counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
+        if counter_pars.get('rootstore'):
+            with self.db.tempEnv(storename=self.db.rootstore):
+                return self._getCounter(tblobj=tblobj,field=field,record=record,update=update,counter_pars=counter_pars)
+        return self._getCounter(tblobj=tblobj,field=field,record=record,update=update,counter_pars=counter_pars)
+
+    def _getCounter(self,tblobj,field=None,record=None,update=None,counter_pars=None):
         counterInfo = dict()
         codekey = self.getCounterPkey(tblobj=tblobj,field=field,record=record)
-        counter_pars = getattr(tblobj,'counter_%s' %field)(record=record)
         date_field = counter_pars.get('date_field')
         recycle = counter_pars.get('recycle') if date_field else False
         date = None
@@ -295,7 +301,7 @@ class Table(object):
                     counterInfo.update(recycled=True,cnt=counter)
                     break
         if counter is None:
-            counter = (counter_record['counter'] or 0) + 1
+            counter = (counter_record['counter'] or counter_pars.get('starting_value') or  0) + 1
             counter_record['last_used'] = date
             counter_record['counter'] = counter
             if date and  last_used and date< last_used:

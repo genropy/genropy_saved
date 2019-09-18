@@ -217,8 +217,7 @@ class DbModel(object):
         except Exception,e:
             if self.debug:
                 raise
-            print e
-            logger.warning('The relation %s - %s cannot be added', str('.'.join(many_relation_tuple)), str(oneColumn))
+            logger.error('The relation %s - %s cannot be added', str('.'.join(many_relation_tuple)), str(oneColumn))
             #print 'The relation %s - %s cannot be added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
             
     def checkRelationIndex(self, pkg, table, column):
@@ -258,8 +257,6 @@ class DbModel(object):
         Save the sql statements that makes the database compatible with the model.
         
         :param applyChanges: boolean. If ``True``, apply the changes. Default value is ``False``"""
-        if self.db.islegacy:
-            return False
         checker = SqlModelChecker(self.db)
         self.modelChanges = checker.checkDb()
         self.modelBagChanges = checker.bagChanges
@@ -618,9 +615,8 @@ class DbModelObj(GnrStructObj):
     adapter = property(_get_adapter)
         
     def _get_sqlname(self):
-        if self.db.islegacy:
-            return self.attributes.get('legacy_name') or self.attributes.get('sqlname', self.name)
         return self.attributes.get('sqlname', self.name)
+
     sqlname = property(_get_sqlname)
 
     @property
@@ -791,23 +787,14 @@ class DbTableObj(DbModelObj):
         
     def _get_sqlname(self):
         """property. Returns the table's sqlname"""
-        if self.db.islegacy:
-            return self.attributes.get('legacy_name')
         sqlname = self.attributes.get('sqlname')
         if not sqlname:
             sqlname = self.pkg.tableSqlName(self)
         return sqlname
-
-    @property
-    def adapted_sqlname(self):
-        return self.adapter.adaptSqlName(self.sqlname)
-        
     sqlname = property(_get_sqlname)
         
     def _get_sqlfullname(self):
         """property. Returns the table's sqlfullname"""
-        if self.db.islegacy:
-            return self.adapted_sqlname
         return '%s.%s' % (self.sqlschema, self.adapted_sqlname)
         
     sqlfullname = property(_get_sqlfullname)

@@ -10,7 +10,7 @@ class Table(object):
         tbl = pkg.table('user_config', pkey='ruleid', name_long='!!User config', name_plural='!!User config')
         self.sysFields(tbl,id=False)
         tbl.column('ruleid',size=':80')
-        tbl.column('user_group',name_long='!!Group').relation('group.code',relation_name='custom_info',mode='foreignkey')
+        tbl.column('user_group',size=':15',name_long='!!Group').relation('group.code',relation_name='custom_info',mode='foreignkey')
         tbl.column('username',size=':32' ,group='_',name_long='!!User').relation('user.username',relation_name='custom_info',
                                                                               onDelete='cascade')
         tbl.column('pkgid' ,size=':30',name_long='!!Pkg').relation('pkginfo.pkgid',relation_name='rules',mode='foreignkey')

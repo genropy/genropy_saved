@@ -41,7 +41,7 @@ class TableHandlerView(BaseComponent):
         kwargs['grid_selfsubscribe_batchAssign'] = """
             if(this.widget.gridEditor){
                 //inlinetablehandler
-                this.gridEditor.batchAssign();
+                this.widget.gridEditor.batchAssign();
             }else{
                 FIRE .#parent.th_batch_run = {resource:'_common/assign_values',res_type:'action'};
             }
@@ -184,7 +184,7 @@ class TableHandlerView(BaseComponent):
                 base_slots = extendedQuery.split(',')
         elif not virtualStore:
             if root_tablehandler:
-                base_slots = ['5','searchOn','5','count','viewsMenu','5','menuUserSets','*','export','5',statsSlot,'advancedTools','10',pageHooksSelector,'5','resourcePrints','resourceMails','resourceActions','10']
+                base_slots = ['5','searchOn','5','count','viewsMenu','5','menuUserSets','*','export','5',statsSlot,'advancedTools','10',pageHooksSelector,'5','resourcePrints','resourceMails','resourceActions',batchAssign,'10']
                 if searchOn is False:
                     base_slots.remove('searchOn')
             else:
@@ -375,7 +375,7 @@ class TableHandlerView(BaseComponent):
                             _tags=tags,
                             _tablePermissions=dict(table=table,permissions='ins,upd,import'),
                             match_values= ','.join(self.db.table(table).model.columns.keys()) if not matchColumns else None,
-                            dockButton_iconClass='iconbox inbox',title='!!Importer',**kwargs)
+                            dockButton_iconClass='iconbox import_data_tool inbox',title='!!Importer',**kwargs)
 
     @struct_method
     def th_slotbar_sum(self,pane,label=None,format=None,width=None,**kwargs):
@@ -422,66 +422,125 @@ class TableHandlerView(BaseComponent):
         return s
 
 
+    @public_method
+    def _th_remoteSectionsDispatcher(self,remotehandler=None,th_root=None,**kwargs):
+        m = self.getPublicMethod('remote',remotehandler)
+        sectionslist = m(**kwargs)
+        meta = dict(kwargs)
+        sectionsBag = self._th_buildSectionsBag(sectionslist,meta=meta)
+        result = Bag()
+        result['sectionsBag'] = sectionsBag
+        result['dflt'] = None if not sectionsBag else meta.get('dflt') or sectionsBag.getNode('#0').label
+        return result
+
+
+    def _th_sectionsMetadata(self,m=None,original_kwargs=None):
+        remote = original_kwargs.pop('remote',None)
+        m = m or remote
+        if m:
+            result = dict(
+                dflt = getattr(m,'default',None),
+                multivalue=getattr(m,'multivalue',False),
+                isMain = getattr(m,'isMain',False),
+                variable_struct = getattr(m,'variable_struct',False),
+                mandatory=getattr(m,'mandatory',True),
+                multiButton = getattr(m,'multiButton',original_kwargs.get('multiButton')),
+                lbl = original_kwargs.get('lbl') or getattr(m,'lbl',None),
+                lbl_kwargs = original_kwargs.get('lbl_kwargs') or dictExtract(dict(m.__dict__),'lbl_',slice_prefix=False),
+                depending_condition = getattr(m,'_if',False),
+                depending_condition_kwargs = dictExtract(dict(m.__dict__),'_if_'),
+                exclude_fields = getattr(m,'exclude_fields',None),
+                remote = remote,
+                remotepars = dictExtract(dict(m.__dict__),'remote_')
+            )
+        else:
+            result = dict(
+                dflt = original_kwargs.get('dflt'),
+                multivalue =original_kwargs.get('multivalue',True),
+                variable_struct = original_kwargs.get('variable_struct',False),
+                isMain = original_kwargs.get('isMain',False),
+                mandatory = original_kwargs.get('mandatory',None),
+                depending_condition = original_kwargs.get('depending_condition',False),
+                depending_condition_kwargs = original_kwargs.get('depending_condition_kwargs',dict()),
+                exclude_fields = original_kwargs.get('exclude_fields',None)
+            )
+        return result
+
+    def _th_buildSectionsBag(self,sectionslist=None,meta=None):
+        sectionslist = sectionslist or []
+        sectionsBag = Bag()
+        for i,kw in enumerate(sectionslist):
+            code = kw.get('code') or 'r_%i' %i
+            if kw.get('isDefault'):
+                meta.setdefault('dflt',code)
+            sectionsBag.setItem(code,None,**kw)
+        return sectionsBag
+
     @extract_kwargs(condition=True,lbl=dict(slice_prefix=False))
     @struct_method
     def th_slotbar_sections(self,parent,sections=None,condition=None,condition_kwargs=None,
-                            all_begin=None,all_end=None,multivalue=None,include_inherited=False,multiButton=None,
-                            lbl=None,lbl_kwargs=None,**kwargs):
+                            all_begin=None,all_end=None,include_inherited=False,
+                            **kwargs):
+        inattr = parent.getInheritedAttributes()
+        th_root = inattr['th_root']
+        pane = parent.div(datapath='.sections.%s' %sections)
+        tblobj = self.db.table(inattr['table'])
+        m = self._th_hook('sections_%s' %sections,mangler=th_root,defaultCb=False)
+        sectionslist = None
+        meta = self._th_sectionsMetadata(m,original_kwargs=kwargs)
+        remote = meta.get('remote')
+        if remote:
+            parent.dataRpc(None,self._th_remoteSectionsDispatcher,
+            _onResult="""
+                if(!result){
+                    return result;
+                }
+                PUT .%s.data = null;
+                SET .%s.data = result.getItem('sectionsBag');
+                genro.wdgById(kwargs.th_root+'_grid').setStoreBlocked('building_section_'+kwargs._sectionname,false);
+                SET .%s.current = result.getItem('dflt');
+            """ %(sections,sections,sections),
+                _onCalling="""
+                    genro.wdgById(th_root+'_grid').setStoreBlocked('building_section_'+_sectionname,true);
+                    PUT .%s.current = null;
+                """ %sections,
+                th_root=th_root,datapath='.sections',_sectionname=sections,
+                _onBuilt=True,remotehandler=remote,**meta.get('remotepars'))
+        elif m:
+            sectionslist = m()
+        elif sections in  tblobj.model.columns and (tblobj.column(sections).relatedTable() is not None or 
+                                                tblobj.column(sections).attributes.get('values')):
+            sectionslist = self._th_section_from_type(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,
+                                                    all_begin=all_begin,all_end=all_end,include_inherited=include_inherited)
+        sectionsBag = self._th_buildSectionsBag(sectionslist,meta=meta)
+        pars = dict(kwargs)
+        pars.update(meta)
+        self._th_buildSectionsGui(pane,parent=parent,sectionsBag=sectionsBag,sections=sections,th_root=th_root,**pars)
+    
+    def _th_buildSectionsGui(self,pane,parent=None,multiButton=None,sectionsBag=None,
+                            multivalue=None,mandatory=None,
+                            extra_section_kwargs=None,lbl=None,lbl_kwargs=None,
+                            exclude_fields=None,sections=None,
+                            isMain=None,th_root=None,depending_condition=None,
+                            depending_condition_kwargs=None,dflt=None,variable_struct=None,**kwargs):
+        
         inattr = parent.getInheritedAttributes()
         sections_dict=inattr['_sections_dict']
         extra_section_kwargs = dictExtract(sections_dict,'ALL_')
         extra_section_kwargs.update(dictExtract(sections_dict,'%s_' %sections))
         extra_section_kwargs.update(kwargs)
-
         th_root = inattr['th_root']
         channel = extra_section_kwargs.pop('channel',None) or th_root
-
-        pane = parent.div(datapath='.sections.%s' %sections)
-        tblobj = self.db.table(inattr['table'])
-        m = self._th_hook('sections_%s' %sections,mangler=th_root,defaultCb=False)
-        sectionslist = None
-        if m:
-            sectionslist = m()
-            dflt = getattr(m,'default',None)
-            multivalue=getattr(m,'multivalue',False)
-            isMain = getattr(m,'isMain',False)
-            variable_struct = getattr(m,'variable_struct',False)
-            mandatory=getattr(m,'mandatory',True)
-            multiButton = getattr(m,'multiButton',multiButton)
-            lbl = lbl or getattr(m,'lbl',None)
-            lbl_kwargs = lbl_kwargs or dictExtract(dict(m.__dict__),'lbl_',slice_prefix=False)
-            depending_condition = getattr(m,'_if',False)
-            depending_condition_kwargs = dictExtract(dict(m.__dict__),'_if_')
-            exclude_fields = getattr(m,'exclude_fields',None)
-
-        elif sections in  tblobj.model.columns and (tblobj.column(sections).relatedTable() is not None or 
-                                                tblobj.column(sections).attributes.get('values')):
-            sectionslist = self._th_section_from_type(tblobj,sections,condition=condition,condition_kwargs=condition_kwargs,
-                                                    all_begin=all_begin,all_end=all_end,include_inherited=include_inherited)
-            dflt = None
-            multivalue = True if multivalue is None else multivalue
-            variable_struct = False
-            isMain = False
-            mandatory = None
-            depending_condition = False
-            depending_condition_kwargs = dict()
-            exclude_fields = None
-        if not sectionslist:
-            return
-        sectionsBag = Bag()
-        for i,kw in enumerate(sectionslist):
-            code = kw.get('code') or 'r_%i' %i
-            if kw.get('isDefault'):
-                dflt = dflt or code
-            sectionsBag.setItem(code,None,**kw)
         pane.data('.data',sectionsBag)
-        if not dflt:
-
-            dflt = sectionsBag.getNode('#0').label
-        pane.data('.current',dflt)
         pane.data('.variable_struct',variable_struct)
+        if sectionsBag:
+            if not dflt:
+                dflt = sectionsBag.getNode('#0').label
+            pane.data('.current',dflt)
+
         if multivalue and variable_struct:
             raise Exception('multivalue cannot be set with variable_struct')
+
         multiButton = multiButton is True or multiButton is None or multiButton and len(sectionsBag)<=multiButton
         if multiButton:
             mb = pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,
@@ -531,9 +590,10 @@ class TableHandlerView(BaseComponent):
                                         **depending_condition_kwargs)
         pane.dataController("genro.publish(channel+'_changed_section',{section:sectionname,value:current})",
                             channel=channel,current='^.current',sectionname=sections)
-        pane.dataController("""if(section==mysection){
+        pane.dataController("""if(section==mysection && data.getNode(value)){
             SET .current = value;
-        }""",mysection=sections,**{'subscribe_%s_changed_section' %channel:True})
+        }""",mysection=sections,data='=.data',
+        **{'subscribe_%s_changed_section' %channel:True})
         
         pane.dataController("""
             genro.dom.toggleVisible(__mb,enabled && !excluded);
@@ -548,7 +608,7 @@ class TableHandlerView(BaseComponent):
             } 
             FIRE .#parent.#parent.sections_changed;
             """ %sections
-            ,isMain=isMain,_onBuilt=True,
+            ,isMain=isMain,_onBuilt=True if sectionsBag else False,
             currentSection='^.current',sectionbag='=.data',
             _delay=1,
             th_root=th_root)
@@ -567,7 +627,7 @@ class TableHandlerView(BaseComponent):
 
     @struct_method
     def th_slotbar_stats(self,pane,**kwargs):
-        pane.slotButton(label='Group By',iconClass='iconbox sum',
+        pane.slotButton(label='Group By',iconClass='iconbox statistica_tools sum',
                         action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools";')
 
 
@@ -580,6 +640,7 @@ class TableHandlerView(BaseComponent):
                         if(currentQuery=='__querybysample__'){
                             SET .query.currentQuery = '__basequery__';
                         }
+                        SET .query.currentQuery = $1.fullpath;
                         SET .query.queryEditor=true; 
                         SET .query.queryAttributes.extended = true;
                     }else{
@@ -592,14 +653,16 @@ class TableHandlerView(BaseComponent):
     def th_default_find_duplicates(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
         pkeys = tblobj.findDuplicates()
         query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
-        return query.selection(sortedBy=sortedBy, _aggregateRows=True) 
+        selection= query.selection(sortedBy=None, _aggregateRows=True) 
+        selection.forcedOrderBy='$_duplicate_finder,$__mod_ts'
+        return selection
 
-    @public_method
-    @metadata(prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')
-    def th_default_find_duplicates_to_del(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
-        pkeys = tblobj.findDuplicates(allrecords=False)
-        query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
-        return query.selection(sortedBy=sortedBy, _aggregateRows=True) 
+    #@public_method
+    #@metadata(prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')
+    #def th_default_find_duplicates_to_del(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
+    #    pkeys = tblobj.findDuplicates(allrecords=False)
+    #    query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
+    #    return query.selection(sortedBy=sortedBy, _aggregateRows=True) 
 
     def _th_menu_sources(self,pane,extendedQuery=None,bySample=None):
         inattr = pane.getInheritedAttributes()
@@ -622,7 +685,7 @@ class TableHandlerView(BaseComponent):
         if self.db.table(table).column('_duplicate_finder') is not None and \
                 self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
             pyqueries['default_duplicate_finder'] = self.th_default_find_duplicates
-            pyqueries['default_duplicate_finder_to_del'] = self.th_default_find_duplicates_to_del
+            #pyqueries['default_duplicate_finder_to_del'] = self.th_default_find_duplicates_to_del
         for k,v in pyqueries.items():
             pars = dictExtract(dict(v.__dict__),'query_')
             code = pars.get('code')
@@ -693,7 +756,7 @@ class TableHandlerView(BaseComponent):
         
     @struct_method
     def th_slotbar_resourceActions(self,pane,**kwargs):
-        pane.menudiv(iconClass='iconbox gear',storepath='.resources.action.menu',
+        pane.menudiv(iconClass='iconbox gear batch_scripts',storepath='.resources.action.menu',
                             _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
                                                         permissions='action'),action="""
                             FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};
@@ -740,14 +803,14 @@ class TableHandlerView(BaseComponent):
         if self.getPreference('print.enable_pdfform',pkg='sys') and self.site.getService('pdfform'):
             self.mixinComponent("services/pdfform/pdftk/component:PalettePdfFormEditor")
             pdfPaletteCode = '%(thlist_root)s_pdf_template_manager' %inattr
-            templatemenu = pane.menudiv(iconClass='iconbox document',tip='!!Template menu')
+            templatemenu = pane.menudiv(iconClass='iconbox create_edit_html_template',tip='!!Template menu')
             #costruiscimenu
             templatemenu.menuline(label='!!Html Template',action="PUBLISH %s_show"%htmlPaletteCode)
             templatemenu.menuline(label='!!Pdf Template',action="PUBLISH %s_show"%pdfPaletteCode)
             pane.paletteTemplateEditor(maintable=table,paletteCode=htmlPaletteCode,dockTo='dummyDock')
             pane.pdfFormEditorPalette(maintable=table, paletteCode=pdfPaletteCode,dockTo='dummyDock')
         else:
-            pane.paletteTemplateEditor(maintable=table,paletteCode=htmlPaletteCode,dockButton_iconClass='iconbox document')
+            pane.paletteTemplateEditor(maintable=table,paletteCode=htmlPaletteCode,dockButton_iconClass='iconbox create_edit_html_template')
 
     @struct_method
     def th_slotbar_pageHooksSelector(self,pane,**kwargs):
@@ -788,13 +851,18 @@ class TableHandlerView(BaseComponent):
         hardQueryLimit = options.get('hardQueryLimit') or self.application.config['db?hardQueryLimit']
         allowLogicalDelete = store_kwargs.pop('allowLogicalDelete',None) or options.get('allowLogicalDelete')
         frame.data('.hardQueryLimit',int(hardQueryLimit) if hardQueryLimit else None)
-        frame.dataFormula('.title','(custom_title || name_plural || name_long)+sub_title',
+        frame.dataController("""
+                            if(_node && _node.label!='current'){
+                                return;
+                            }
+                            var sub_title = _sections?th_sections_manager.getSectionTitle(_sections):"";
+                            SET .title = (custom_title || name_plural || name_long)+sub_title;
+                        """,
                         custom_title=title or options.get('title') or False,
                         name_plural='=.table?name_plural',
                         name_long='=.table?name_long',
                         #view_title='=.title',
                         _sections='^.sections',
-                        sub_title='==_sections?th_sections_manager.getSectionTitle(_sections):"";',
                         _onBuilt=True,_init=True)
         condPars = {}
         if isinstance(condition,dict):
@@ -839,6 +907,11 @@ class TableHandlerView(BaseComponent):
         _else = None
         if _if:
             _else = "this.store.clear();"
+        frame.dataController("""
+            console.log('multiStores',multiStores)
+            grid.attr.multiStores = multiStores;
+            grid.widget.setStructpath();
+        """,multiStores='^.query.multiStores',grid=frame.grid)
         frame.dataFormula('.sum_columns',"sum_columns_source && sum_columns_source.len()?sum_columns_source.keys().join(','):null",
                                         sum_columns_source='=.sum_columns_source',_onBuilt=True)
         frame.dataController("""
@@ -901,7 +974,10 @@ class TableHandlerView(BaseComponent):
                                    kwargs.excludeLogicalDeleted = 'mark';
                                }
                                if(_sections){
-                                    th_sections_manager.onCalling(_sections,kwargs);
+                                    if(th_sections_manager.onCalling(_sections,kwargs)===false){
+                                        console.log('waiting quindi non parte rpc');
+                                        return false;
+                                    }
                                }
                                if(kwargs['where'] && kwargs['where'] instanceof gnr.GnrBag){
                                     var newwhere = kwargs['where'].deepCopy();
@@ -1081,12 +1157,27 @@ class TableHandlerView(BaseComponent):
                          _op='^.c_0?op', _class='helperField')
 
 
-        querybox_stack.div("==_internalQueryCaption || _caption",_caption='^.#parent.queryAttributes.caption',
+        extendedQueryButton = querybox_stack.lightbutton("==_internalQueryCaption || _caption",
+                        _caption='^.#parent.queryAttributes.caption',
                         _internalQueryCaption='^.#parent.#parent.internalQuery.caption', 
+                        action="""if(!_querybysample){
+                            SET .#parent.#parent.query.queryEditor=true;
+                        }""",
                         _class='th_querybox_extended',
-                        tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption',
-                                    _internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
-                                    hidden='^.#parent.queryAttributes.extended?=!#v',min_width='20em')
+                        _querybysample = '=.#parent.#parent.query.currentQuery?=#v=="__querybysample__"',
+                        hidden='^.#parent.queryAttributes.extended?=!#v',min_width='20em')
+        extendedQueryButton.tooltip(callback="""
+            var internalQueryTooltip = this.getRelativeData('.internalQuery.tooltip');
+            var internalQueryCaption = this.getRelativeData('.internalQuery.caption');
+            var whereAsPlainText = this.getRelativeData('.store?whereAsPlainText');
+            var currentQuery = this.getRelativeData('.query.currentQuery');
+            return internalQueryTooltip || whereAsPlainText || internalQueryCaption || _T('Click to show query');
+
+        """,datapath='.#parent.#parent',modifiers='Shift')
+        
+            #_internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
+            #tooltip='==_internalQueryTooltip || _internalQueryCaption || _caption || _internalQueryCaption',
+            #_internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
 
         
     def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):

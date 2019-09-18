@@ -148,9 +148,13 @@ class FrameGridTools(BaseComponent):
     def fgr_slotbar_filterset(self,parent,filterset=None,cb=None,cb_kwargs=None,
                             all_begin=None,all_end=None,include_inherited=False,
                             multiButton=None,multivalue=None,mandatory=None,lbl=None,lbl_kwargs=None,
-                            frameCode=None,**kwargs):
+                            frameCode=None, filterlistCb=None, **kwargs):
+
         pane = parent.div(datapath='.grid.filterset.%s' %filterset)
-        m = self.mangledHook('filterset_%s' %filterset,mangler=frameCode,defaultCb=False)
+        if filterlistCb:
+            m = filterlistCb
+        else:
+            m = self.mangledHook('filterset_%s' %filterset,mangler=frameCode,defaultCb=False)
         filterlist = None
         if m:
             filterlist = m()

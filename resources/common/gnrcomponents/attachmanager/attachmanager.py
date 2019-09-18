@@ -148,12 +148,12 @@ class AttachManager(BaseComponent):
         bc = pane.borderContainer(design)
         design = design or 'sidebar'
         d = dict(sidebar=dict(region='left',width='400px'),headline=dict(region='top',height='300px'))
+        kwargs.setdefault('grid_selfDragRows',True)
+        kwargs.setdefault('autoSave',True)
         th = bc.contentPane(splitter=True,**d[design]).inlineTableHandler(relation='@atc_attachments',
                                         viewResource=viewResource or 'gnrcomponents/attachmanager/attachmanager:AttachManagerView',
-                                        hider=True,autoSave=True,statusColumn=True,
+                                        hider=True,statusColumn=True,
                                         addrow=False,pbl_classes=pbl_classes,
-                                        autoSelect=True,
-
                                      semaphore=False, searchOn=False,datapath=datapath,**kwargs)
         th.view.grid.attributes.update(dropTarget_grid='Files',onDrop='AttachManager.onDropFiles(this,files);',
                                         dropTypes='Files',_uploader_fkey='=#FORM.pkey',

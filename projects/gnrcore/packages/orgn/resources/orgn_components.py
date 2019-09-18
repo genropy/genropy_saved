@@ -88,3 +88,4 @@ class OrganizerComponent(BaseComponent):
                                         region='center',lockable=True,**kwargs)
         bc.dataController("form.newrecord(default_kw)",form=th.form.js_form,subscribe_newAnnotation=True)
 
+

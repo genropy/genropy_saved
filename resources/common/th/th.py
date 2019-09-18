@@ -304,7 +304,8 @@ class TableHandler(BaseComponent):
     @extract_kwargs(widget=True,default=True,form=True)
     @struct_method
     def th_stackTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,widget_kwargs=None,default_kwargs=None,readOnly=False,form_kwargs=None,**kwargs):
+                            formInIframe=False,widget_kwargs=None,default_kwargs=None,
+                            readOnly=False,form_kwargs=None,toggleParentToolbar=False,**kwargs):
         kwargs['tag'] = 'StackContainer'
         kwargs['selectedPage'] = '^.selectedPage'
         form_kwargs.setdefault('form_locked',True)
@@ -312,9 +313,22 @@ class TableHandler(BaseComponent):
                                         viewResource=viewResource,formInIframe=formInIframe,default_kwargs=default_kwargs,
                                         pageName='view',readOnly=readOnly,handlerType='stack',
                                         form_kwargs=form_kwargs,**kwargs)
-        wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,pageName='form',formResource=formResource,
+        form = wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,pageName='form',formResource=formResource,
                         store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',default_kwargs=default_kwargs,
                         formInIframe=formInIframe,**form_kwargs)    
+        if toggleParentToolbar:
+            form.dataController("""
+            var parentForm = this.form.getParentForm();
+            if(parentForm && parentForm.sourceNode.widget._top){
+                parentForm.sourceNode.widget.setRegionVisible('top',false);
+            }
+            """, formsubscribe_onLoading=True)
+            form.dataController("""
+            var parentForm = this.form.getParentForm();
+            if(parentForm && parentForm.sourceNode.widget._top){
+                parentForm.sourceNode.widget.setRegionVisible('top',true);
+            }
+            """, formsubscribe_onDismissed=True)
         return wdg
         
     @extract_kwargs(default=True,page=True,form=True)

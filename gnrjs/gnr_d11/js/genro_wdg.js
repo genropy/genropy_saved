@@ -257,21 +257,20 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         attributes = attributes || {};
         var newobj, domnode,domtag;
         var handler = this.getHandler(tag);
-        var onCreating = objectPop(attributes,'onCreating');
-        if (onCreating) {
-            funcCreate(onCreating).call(sourceNode, attributes,handler);
-        }
-
-        var zoomToFit = objectPop(attributes,'zoomToFit')
-
         genro.assert(handler,'missing handler for tag:'+tag);
         if (handler._beforeCreation) {
             var goOn = handler._beforeCreation(attributes,sourceNode);
             if (goOn === false) {
                 return false;
             }
-            domtag =objectPop(attributes,'domtag')
+            console.warn('should never happen _beforeCreation not returning false');
+            domtag =objectPop(attributes,'domtag');
         }
+        var onCreating = objectPop(attributes,'onCreating');
+        if (onCreating) {
+            funcCreate(onCreating).call(sourceNode, attributes,handler);
+        }
+        var zoomToFit = objectPop(attributes,'zoomToFit')
         domtag = domtag || handler._domtag || tag;
         if (ind == 'replace') {
             domnode = destination;
@@ -1807,12 +1806,26 @@ dojo.declare("gnr.GridChangeManager", null, {
     },
 
     calculateFilteredTotals:function(){
-        var filteredStore = this.grid.storebag(true);
+        var filteredStore;
+        var selectedIdx =this.grid.getSelectedRowidx();
+        if(selectedIdx.length>1){
+            filteredStore = new gnr.GnrBag();
+            this.grid.getSelectedNodes().forEach(function(n){
+                filteredStore.setItem(n.label,n._value,n.attr);
+            });
+        }else if(this.grid.isFiltered()){
+            filteredStore = this.grid.storebag(true);
+        }else{
+            this.sourceNode.setRelativeData('.filtered_totalize',null);
+            return
+        }
+        var filtered_totalize = new gnr.GnrBag();
         for(let k in this.totalizeColumns){
             //this.updateTotalizer(k);
             var totvalue = filteredStore.sum(this.grid.datamode=='bag'?k:'#a.'+k);
-            this.sourceNode.setRelativeData('.filtered_totalize.'+k,totvalue);
+            filtered_totalize.setItem(k,totvalue);
         }
+        this.sourceNode.setRelativeData('.filtered_totalize',filtered_totalize);
     },
 
     updateTotalizer:function(k){
@@ -1824,6 +1837,7 @@ dojo.declare("gnr.GridChangeManager", null, {
             return;
         }
         var totvalue = this.grid.storebag().sum(this.grid.datamode=='bag'?k:'#a.'+k);
+        totvalue = Math.round10(totvalue);
         this.sourceNode.setRelativeData(this.grid.cellmap[k].totalize,totvalue);
         this.sourceNode.publish('onUpdateTotalize',{'column':k,'value':totvalue});
     },

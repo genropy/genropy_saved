@@ -293,6 +293,11 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }else if(lookup_manager){
             url = this.lookup_url+(lookup_manager=='*'?'':('/'+lookup_manager.replace('.','/')));
         }
+        else if(this.dbstore && url && url.indexOf('/')===0){
+            if(url.slice(1).split('/')[0]!=this.dbstore){
+                url = '/'+this.dbstore+url;
+            }
+        }
         if(kw.formResource){
             urlPars['th_formResource'] = kw.formResource;
         }
@@ -301,6 +306,10 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }
         if(kw.workInProgress){
             urlPars.workInProgress = true;
+        }
+        if(kw.aux_instance){
+            urlPars.aux_instance = kw.aux_instance;
+            objectPop(urlPars,'th_from_package');
         }
         objectUpdate(urlPars,objectExtract(kw,'url_*'));
         kw.url = genro.addParamsToUrl(url,urlPars);

@@ -197,7 +197,7 @@ class GridCustomizer(BaseComponent):
     def customizePrint(self,printInstance,viewResource=None,md_mode=None,customizerBag=None,table=None):
         table = table or printInstance.rows_table or printInstance.tblobj.fullname
         default_struct = self.gc_customizerStructures(table=table,resource=viewResource)['struct_print'][md_mode]
-        printInstance.gridColumnsFromStruct(struct=default_struct,table=table)
+        printInstance.grid_columns = printInstance.gridColumnsFromStruct(struct=default_struct,table=table)
         tblobj = self.db.table(table)
         if customizerBag:
             filtered_grid_columns = []

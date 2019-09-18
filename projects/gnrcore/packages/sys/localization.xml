@@ -80,8 +80,8 @@
 <resources><gnrcomponents><batch_handler><batch_handler path="resources/gnrcomponents/batch_handler/batch_handler.py" ext="py"><en_schedule fr="Calendrier" de="Zeitplan" en="Schedule" it="Programma" base="Schedule"></en_schedule></batch_handler></batch_handler></gnrcomponents>
 <package_editor><model_editor path="resources/package_editor/model_editor.py" ext="py"><en_table_from_csv_xls base="Table from csv/xls"></en_table_from_csv_xls></model_editor>
 <thresource_editor path="resources/package_editor/thresource_editor.py" ext="py"><en_new_viewresource base="New ViewResource"></en_new_viewresource>
-<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
-<en_confirm fr="Confirmer" de="Bestätigen" en="Confirm" it="Ok" base="Confirm"></en_confirm></thresource_editor></package_editor>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Annulla" base="Cancel"></en_cancel>
+<en_confirm fr="Confirmer" en="Confirm" de="Bestätigen" it="Conferma" base="Confirm"></en_confirm></thresource_editor></package_editor>
 <preference path="resources/preference.py" ext="py"><en_12px_small_13px_medium_14px_large_15px_extra_large fr="12px: Petit, 13px: Medium, 14px: Grande 15px: Extra Large" de="12px: Klein, 13px: Medium, 14px: Grosses, 15px: Extra Large" en="12px:Small,13px:Medium,14px:Large,15px:Extra Large" it="12px: Piccolo, 13px: Medium, 14px: Grande, 15px: Extra Large" base="12px:Small,13px:Medium,14px:Large,15px:Extra Large"></en_12px_small_13px_medium_14px_large_15px_extra_large>
 <en_site_config fr="config du site" de="Site Config" en="Site config" it="Config del sito" base="Site config"></en_site_config>
 <en_12px_default_12px_small_13px_medium_14px_large_15px_extra_large fr="12px: Par défaut, 12px: Petit, 13px: Medium, 14px: Grande 15px: Extra Large" de="12px: Standard, 12px: Klein, 13px: Medium, 14px: Grosses, 15px: Extra Large" en="12px:Default,12px:Small,13px:Medium,14px:Large,15px:Extra Large" it="12px: Default 12px: Piccolo, 13px: Medium, 14px: Grande, 15px: Extra Large" base="12px:Default,12px:Small,13px:Medium,14px:Large,15px:Extra Large"></en_12px_default_12px_small_13px_medium_14px_large_15px_extra_large></preference>
@@ -112,7 +112,7 @@
 <en_tables fr="Tableaux" de="Tische" en="Tables" it="Tabelle" base="Tables"></en_tables>
 <en_select_a_table_from_the_popup_menu fr="Sélectionnez une table dans le menu contextuel" de="Wählen Sie eine Tabelle aus dem Kontextmenü" en="Select a table from the popup menu" it="Selezionare una tabella dal menu a comparsa" base="Select a table from the popup menu"></en_select_a_table_from_the_popup_menu>
 <en_revert fr="Revenir" en="Revert" de="Zurückkehren" it="Annulla modifiche" base="Revert"></en_revert>
-<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Esci" base="Cancel"></en_cancel>
+<en_cancel fr="Annuler" en="Cancel" de="Stornieren" it="Annulla" base="Cancel"></en_cancel>
 <en_save fr="Sauvegarder" de="Speichern" en="Save" it="Salva" base="Save"></en_save></lookuptables>
 <memcached_stats path="webpages/memcached_stats.py" ext="py"><en_mem_stats fr="Mem Statistiques" de="Mem Stats" en="Mem Stats" it="Mem Statistiche" base="Mem Stats"></en_mem_stats></memcached_stats>
 <message path="webpages/message.py" ext="py"><en_message fr="Message" de="Nachricht" en="Message" it="Messaggio" base="Message"></en_message></message>

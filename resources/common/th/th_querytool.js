@@ -190,10 +190,10 @@ dojo.declare("gnr.QueryManager", null, {
                 sourceNode.setRelativeData(path + '?op_caption',
                         genro.getDataNode('gnr.qb.sqlop.op.' + default_op).attr.caption);
             }
+            sourceNode.setRelativeData(path, '');
+            sourceNode.setRelativeData(path+'?value_caption', '');
         }
         sourceNode.setRelativeData(path + '?_owner_package', column_attr._owner_package);
-        sourceNode.setRelativeData(path, '');
-        sourceNode.setRelativeData(path+'?value_caption', '');
     },
 
     queryEditor:function(queryEditor){
@@ -201,13 +201,15 @@ dojo.declare("gnr.QueryManager", null, {
         var currentQuery = this.sourceNode.getRelativeData('.query.currentQuery');
         var palette = genro.wdgById(this.th_root+'_queryEditor_floating');
         if(!queryEditor){
-            if(currentQuery=='__basequery__' || currentQuery=='__newquery__'){
-                var where = this.sourceNode.getRelativeData('.query.where');
-                where.keys().slice(1).forEach(function(label){
-                    where.popNode(label);//fix in a better way. __extendedQuery__
-                });
-                this.buildQueryPane();
-                this.sourceNode.setRelativeData('.query.queryAttributes.extended',false);
+            if(['__basequery__','__newquery__','__queryeditor__'].indexOf(currentQuery)>=0){
+                let where = this.sourceNode.getRelativeData('.query.where');
+                if(where.len()==1){
+                    if(currentQuery=='__queryeditor__'){
+                        this.sourceNode.setRelativeData('.query.currentQuery','__basequery__',{},false,false);
+                    }
+                    this.sourceNode.setRelativeData('.query.queryAttributes.caption',_T('Plain query'));
+                    this.sourceNode.setRelativeData('.query.queryAttributes.extended',false);
+                }
             }
             if(palette){
                 palette.hide();

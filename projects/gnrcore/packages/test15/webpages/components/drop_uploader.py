@@ -188,3 +188,5 @@ class GnrCustomWebPage(object):
     
         
         
+    def test_99_multifileDlg(self, pane):
+        pane.button('test',action="genro.dlg.multiUploaderDialog('Carica fatture elettroniche',{uploadPath:uploadPath,onResult:function(res){genro.bp(true)}});",uploadPath='site:testupload')

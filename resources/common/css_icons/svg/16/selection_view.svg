@@ -1,0 +1,21 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>selection_view_16x16</title>
+  <g>
+    <g>
+      <path d="M10.1,14a1.5,1.5,0,0,1-1-.3L5.7,10.8,9.1,7.4A1.5,1.5,0,0,1,11.5,9H14V2H0V14.5a.5.5,0,0,0,.5.5H8.7A1.5,1.5,0,0,1,10.1,14Z" fill="#fff"/>
+      <path d="M10.1,14H1V3H13V9h1V2H0V14.5a.5.5,0,0,0,.5.5H8.7A1.5,1.5,0,0,1,10.1,14Z" fill="#5b5b5b"/>
+    </g>
+    <rect x="4" y="2" width="1" height="13" fill="#5b5b5b"/>
+    <path d="M10,7V2H9V7.5h.1A1.5,1.5,0,0,1,10,7Z" fill="#5b5b5b"/>
+    <g>
+      <rect width="14" height="3" rx="0.7" ry="0.7" fill="#1b4d7f"/>
+      <path d="M13,1V2H1V1H13m.3-1H.7A.7.7,0,0,0,0,.7V2.3A.7.7,0,0,0,.7,3H13.3a.7.7,0,0,0,.7-.7V.7a.7.7,0,0,0-.7-.7Z" fill="#1b4d7f"/>
+    </g>
+    <rect y="5" width="13" height="1" fill="#5b5b5b"/>
+    <path d="M11.5,9H13V8H11.5A1.5,1.5,0,0,1,11.5,9Z" fill="#5b5b5b"/>
+    <polygon points="0 8 0 9 7.5 9 8.5 8 0 8" fill="#5b5b5b"/>
+    <polygon points="0 11 0 12 7.2 12 6 11 0 11" fill="#5b5b5b"/>
+    <rect x="1" y="2" width="13" height="1" fill="#1b4d7f"/>
+  </g>
+  <path d="M13.1,10H10l.9-1.1a.5.5,0,0,0-.7-.7L7.6,10.7l2.6,2.2h.3l.4-.2a.5.5,0,0,0-.1-.7L10,11h3.1A1.9,1.9,0,0,1,15,12.9v.2A1.9,1.9,0,0,1,13.1,15h-3a.5.5,0,0,0,0,1h3A2.9,2.9,0,0,0,16,13.1v-.2A2.9,2.9,0,0,0,13.1,10Z" fill="#3585c1"/>
+</svg>

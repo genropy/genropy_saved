@@ -97,8 +97,14 @@
 .orgn_form_tpl .orgn_action_template{
     border:0px solid silver;
     border-radius: 0;
-    padding-right: 10px;
-    background: transparent;
+    background: rgba(255, 255, 128, 0.2);
+    position:absolute;
+    top:2px;
+    right:2px;
+    left:2px;
+    bottom:2px;
+    overflow:auto;
+    padding:5px;
 }
 
 .orgn_form_tpl .priority_cell{

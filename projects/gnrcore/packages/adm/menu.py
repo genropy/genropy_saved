@@ -36,5 +36,4 @@ def config(root,application=None):
     unused = administration.branch('!!Unused',tags='_DEV_')
     unused.thpage(u"!!Menu Manager", table="adm.menu")
     unused.thpage(u"!!Menu Pages", table="adm.menu_page")
-    unused.thpage(u"!!Datacatalog", table="adm.datacatalog")
     unused.thpage(u"!!Sent email", table="adm.sent_email")
