@@ -645,13 +645,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             attributes.autoHeight=true;
         }
         attributes.style=objectAsStyle(styleDict);
-        attributesToKeep = attributesToKeep + 'style,scaleX,scaleY,datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,editorSaveMethod,autoInsert,autoDelete';
+        attributesToKeep = attributesToKeep + 'style,scaleX,scaleY,datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,editorSaveMethod,autoInsert,autoDelete,showLineNumber';
         var gridAttributes = objectExtract(attributes, attributesToKeep);
         objectPopAll(attributes);
         objectUpdate(attributes, gridAttributes);
         attributes._identifier = identifier;
-        sourceNode.attr.showLineNumber = '^'+sourceNode.gridControllerPath +'.showLineNumber';
-        sourceNode.setRelativeData(sourceNode.attr.showLineNumber,attributes.showLineNumber);
         sourceNode.highlightExternalChanges = sourceNode.attr.highlightExternalChanges || true;
         if(sourceNode.attr.userSets){
             sourceNode.registerDynAttr('userSets');
@@ -708,6 +706,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             widget.gridEditor = new gnr.GridEditor(widget);
         }
         var menuNode = gridContent.getNodeByAttr('tag', 'menu',true);
+        sourceNode.attr.lineNumberPath = sourceNode.attr.structpath +'.info.showLineNumber';
+        if(savedAttrs.showLineNumber){
+            sourceNode.setRelativeData(sourceNode.attr.lineNumberPath,savedAttrs.showLineNumber);
+        }
         if(!menuNode && sourceNode.attr.gridplugins!==false){
             sourceNode.setRelativeData('.contextMenu',this.pluginContextMenuBag(sourceNode));
             sourceNode._('menu','contextMenu',{storepath:'.contextMenu',_class:'smallmenu'},{doTrigger:false});
@@ -956,7 +958,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             });
         }
         contextMenuBag.setItem('r_'+contextMenuBag.len(),null,{caption:_T('Toggle line number'),
-                                checked:'^'+sourceNode.attr.showLineNumber,
+                                checked:'^'+sourceNode.attr.lineNumberPath,
                                 action:function(line,gridNode){gridNode.widget.toggleLineNumberColumn()}})
         return contextMenuBag;
     },
@@ -1604,7 +1606,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
                     //cellsnodes = rowBag.getNodes();
                     row = [];
-                    if(sourceNode.getAttributeFromDatasource('showLineNumber')){
+                    if(sourceNode.getRelativeData(sourceNode.attr.lineNumberPath)){
                         if(!rowBag.getNode('_linenumber')){
                             rowBag.setItem('_linenumber',null,{'calculated':true,'dtype':'L','name':' ','width':'3em',
                                 'classes':'gnrgridlineno','field':'_linenumber','format':'#,###',
@@ -3969,9 +3971,8 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
 
     mixin_toggleLineNumberColumn:function(kw) {
-        let currShow = this.sourceNode.getAttributeFromDatasource('showLineNumber');
-        this.sourceNode.setAttributeInDatasource('showLineNumber',!currShow);
-        this.setStructpath();
+        let currShow = this.sourceNode.getRelativeData(this.sourceNode.attr.lineNumberPath);
+        this.sourceNode.setRelativeData(this.sourceNode.attr.lineNumberPath,!currShow);
     },
 
     mixin_addNewSetColumn:function(kw) {
