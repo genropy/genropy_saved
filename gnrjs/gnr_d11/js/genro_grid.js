@@ -706,9 +706,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             widget.gridEditor = new gnr.GridEditor(widget);
         }
         var menuNode = gridContent.getNodeByAttr('tag', 'menu',true);
-        sourceNode.attr.lineNumberPath = sourceNode.attr.structpath +'.info.showLineNumber';
         if(savedAttrs.showLineNumber){
-            sourceNode.setRelativeData(sourceNode.attr.lineNumberPath,savedAttrs.showLineNumber);
+            sourceNode.setRelativeData(sourceNode.attr.structpath+'.info.showLineNumber',savedAttrs.showLineNumber);
         }
         if(!menuNode && sourceNode.attr.gridplugins!==false){
             sourceNode.setRelativeData('.contextMenu',this.pluginContextMenuBag(sourceNode));
@@ -958,7 +957,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             });
         }
         contextMenuBag.setItem('r_'+contextMenuBag.len(),null,{caption:_T('Toggle line number'),
-                                checked:'^'+sourceNode.attr.lineNumberPath,
+                                checked:'^'+sourceNode.attr.structpath+'.info.showLineNumber',
                                 action:function(line,gridNode){gridNode.widget.toggleLineNumberColumn()}})
         return contextMenuBag;
     },
@@ -1606,7 +1605,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
                     //cellsnodes = rowBag.getNodes();
                     row = [];
-                    if(sourceNode.getRelativeData(sourceNode.attr.lineNumberPath)){
+                    if(sourceNode.getRelativeData(sourceNode.attr.structpath+'.info.showLineNumber')){
                         if(!rowBag.getNode('_linenumber')){
                             rowBag.setItem('_linenumber',null,{'calculated':true,'dtype':'L','name':' ','width':'3em',
                                 'classes':'gnrgridlineno','field':'_linenumber','format':'#,###',
@@ -3971,8 +3970,8 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
 
     mixin_toggleLineNumberColumn:function(kw) {
-        let currShow = this.sourceNode.getRelativeData(this.sourceNode.attr.lineNumberPath);
-        this.sourceNode.setRelativeData(this.sourceNode.attr.lineNumberPath,!currShow);
+        let currShow = this.sourceNode.getRelativeData(this.sourceNode.attr.structpath+'.info.showLineNumber');
+        this.sourceNode.setRelativeData(this.sourceNode.attr.structpath+'.info.showLineNumber',!currShow);
     },
 
     mixin_addNewSetColumn:function(kw) {
