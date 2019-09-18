@@ -5894,6 +5894,9 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         return this.getItems().length || 0;
     },
+    sum:function(field){
+        
+    },
     
     indexByCb:function(cb,backward){
         var n = this.len(true);
@@ -6228,7 +6231,11 @@ dojo.declare("gnr.stores.ValuesBagRows",gnr.stores.BagRows,{
         data.sort(sl);
     },
 
-    onCounterChanges:function(counterField,changes){}
+    onCounterChanges:function(counterField,changes){},
+
+    sum:function(field){
+        return this.getData().sum('#v.'+field); 
+    }
 
 });
 
@@ -6269,8 +6276,11 @@ dojo.declare("gnr.stores.AttributesBagRows",gnr.stores.BagRows,{
         });
         sl = sl.join(',');
         data.sort(sl);
+    },
+
+    sum:function(field){
+       return this.getData().sum('#a.'+field); 
     }
-    
 });
 
 dojo.declare("gnr.stores.RpcBase",gnr.stores.AttributesBagRows,{
@@ -6319,7 +6329,8 @@ dojo.declare("gnr.stores.RpcBase",gnr.stores.AttributesBagRows,{
         genro.serverCall(rpcdelete,{files:files},function(result){
             that.onDeletedRows(files);
         },null,'POST');
-    }
+    },
+
 });
 
 
@@ -6612,13 +6623,10 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             grid._saved_selections = grid.selectionKeeper('save');
         });
         var changedRows = {};
-        var wasInSelection;
-        var changed = false;
        
         var that = this;
         var toUpdate = false;
-        var isExternalChange;
-        var pkeys,wasInSelection,wasInSelectionNode,willBeInSelectionNode,pkey;
+        var wasInSelectionNode,willBeInSelectionNode,pkey;
         this.externalChangedKeys = this.externalChangedKeys || {};
         var wasInSelectionCb = function(pkeys){
             var result = {};
@@ -6852,7 +6860,6 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         }
         return result;
     },
-
     
     onExternalChangeResult:function(changelist){
         if(changelist.length>0){
@@ -6929,7 +6936,6 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                                              return result || [];
                                           });
     },
-
     
     clearBagCache:function() {
         var data = this.getData();
@@ -7023,6 +7029,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             return;
         }
     },
+
     onChunkLoaded:function(result,pageIdx){
         var data = result.getValue();
         this.getData().setItem('P_' + pageIdx, data,{pageIdx:pageIdx},{'doTrigger':false});
@@ -7097,9 +7104,31 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         }
         return -1;
     },
+
     filteredRowsIndex:function(){
         console.error('filteredRowsIndex not implemented in virtualstore');
         return [];
+    },
+    
+    sum:function(field){
+        var storeattr = this.getData().getParentNode().attr;
+        if('sum_'+field in storeattr){
+            return storeattr['sum_'+field];
+        }else{
+            var sum_columns = this.getSumColumns();
+            sum_columns = sum_columns?sum_columns.split(','): [];
+            arrayPushNoDup(sum_columns,field);
+            this.storeNode.setRelativeData('.sum_columns',sum_columns.join(','));
+            var rpc_attr = {'selectionName':this.selectionName,sum_column:field};
+            rpc_attr.sum_column = field; 
+            storeattr['sum_'+field] = genro.rpc.remoteCall('app.sumOnFreezedSelection', 
+                                                rpc_attr,
+                                                null,null,null,
+                                            function(result){
+                                                storeattr['sum_'+field] = result;
+                                            });
+            return storeattr['sum_'+field];
+        }
     }
     
 });

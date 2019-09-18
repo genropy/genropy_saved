@@ -29,7 +29,7 @@ class BaseResourcePrint(BaseResourceBatch):
         if batch_print_modes:
             self.batch_print_modes = batch_print_modes.split(',')
         if self.html_res:
-            self.htmlMaker = self.page.site.loadTableScript(page=self.page, table=self.maintable,
+            self.htmlMaker = self.page.site.loadTableScript(page=self.page, table=getattr(self,'maintable',None),
                                                         respath=self.html_res, class_name='Main')
         else:
             self.htmlMaker = None

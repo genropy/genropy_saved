@@ -26,3 +26,4 @@ supervisor
 futures
 lxml
 psutil
+simpleeval
