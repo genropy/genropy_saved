@@ -292,6 +292,7 @@ class TableHandlerView(BaseComponent):
             b.rowchild(label='-')
             b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration("%s");' %table)
         b.rowchild(label='!!Configure grid',action="genro.nodeById('%s').publish('configuratorPalette');" %rootNodeId)
+        b.rowchild(label='!!Print rows',action="genro.nodeById('%s').publish('printRows');" %rootNodeId)
         b.rowchild(label='-')
         if statsEnabled:
             b.rowchild(label='!!Group by',action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools";')
