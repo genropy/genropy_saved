@@ -184,11 +184,17 @@ class BagToHtml(object):
 
     def newBuilder(self):
         self.builder = GnrHtmlBuilder(page_width=self.page_width, page_height=self.page_height,
-                                      page_margin_top=self.page_margin_top, page_margin_bottom=self.page_margin_bottom,
-                                      page_margin_left=self.page_margin_left, page_margin_right=self.page_margin_right,
-                                      page_debug=self.page_debug, print_button=self.print_button,
-                                      htmlTemplate=self.htmlTemplate, css_requires=self.get_css_requires(),
-                                      showTemplateContent=self.showTemplateContent,parent=self)
+                                    page_margin_top=self.page_margin_top, page_margin_bottom=self.page_margin_bottom,
+                                    page_margin_left=self.page_margin_left, page_margin_right=self.page_margin_right,
+                                    page_debug=self.page_debug, print_button=self.print_button,
+                                    htmlTemplate=self.htmlTemplate, css_requires=self.get_css_requires(),
+                                    showTemplateContent=self.showTemplateContent,parent=self)
+        self.builder.initializeSrc(body_attributes=self.body_attributes)
+        self.builder.styleForLayout()
+
+    @property
+    def body(self):
+        return self.builder.body
 
     def get_css_requires(self):
         """Get the :ref:`"css_requires" webpage variable <css_requires>` in its string format
@@ -242,7 +248,6 @@ class BagToHtml(object):
         
         :param filepath: the path where html will be saved"""
         #filepath = filepath or self.filepath
-        self.initializeBuilder(body_attributes=body_attributes)
         self.main()
         if not self.splittedPages:
             self.builder.toHtml(filepath=filepath)
@@ -270,16 +275,8 @@ class BagToHtml(object):
         :param templates: TODO"""
         return self.templates
 
-    def initializeBuilder(self, body_attributes=None):
-        """TODO"""
-        self.builder.initializeSrc(body_attributes=body_attributes)
-        self.body = self.builder.body
-        self.getNewPage = self.builder.newPage
-        self.builder.styleForLayout()
-
     def getNewPage(self):
-        pass
-
+        return self.builder.newPage()
         
     def getData(self, path, default=None):
         """Make a :meth:`getItem() <gnr.core.gnrbag.Bag.getItem>` on data if
@@ -808,7 +805,6 @@ class BagToHtml(object):
                 pages_path = os.path.join(self.pages_folder,'pages_%04i.html'%currPage)
                 self.builder.toHtml(filepath=pages_path)
                 self.newBuilder()
-                self.initializeBuilder(body_attributes=self.body_attributes)
 
 
     def _docBody(self, body):

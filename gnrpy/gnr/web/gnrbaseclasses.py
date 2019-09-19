@@ -278,6 +278,7 @@ class TableScriptToHtml(BagToHtml):
             return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
         struct = self.page.newGridStruct(maintable=self.gridTable())
         self.gridStruct(struct)
+        #self.structAnalyze(struct)
         return dict(columns=self.gridColumnsFromStruct(struct=struct),
                     columnsets=self.gridColumnsetsFromStruct(struct))
     
@@ -288,6 +289,21 @@ class TableScriptToHtml(BagToHtml):
     
     def gridStruct(self,struct):
         pass
+
+    def structAnalyze(self,struct,grid_width=None,grid_border_width=None):
+        columns = struct['view_0.row_0'].digest('#a')
+        elastic_columns = [col for col in columns if not col.get('mm_width')]
+        if elastic_columns:
+            elastic_columns_count = len(elastic_columns)
+            if grid_width:
+                fixed_width_sum = sum([(col.get('mm_width') or 0) for col in columns])
+                free_space = grid_width - fixed_width_sum - grid_border_width * (len(columns) - 1)
+                elastic_width =  free_space / elastic_columns_count
+                for col in elastic_columns:
+                    if col.get('mm_min_width') and elastic_width<col['mm_min_width']: 
+                        print 'da splittare'
+                    else:
+                        col['calc_mm_width'] = elastic_width
     
     def structFromResource(self,viewResource=None,table=None):
         table = table or self.rows_table or self.tblobj.fullname
