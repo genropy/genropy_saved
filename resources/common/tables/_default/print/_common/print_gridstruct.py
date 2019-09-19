@@ -41,11 +41,11 @@ class Main(BaseResourcePrint):
         pane = pane.div(padding='10px',min_height='60px')        
         fb = pane.formbuilder(cols=1,fld_width='20em',border_spacing='4px')
         fb.textbox(value='^.print_title',lbl='!!Title')
-        fb.filteringSelect(value='^.orientation',lbl='!!Orientation',values='H:Horizontal,V:Vertical',default='H')
+        fb.filteringSelect(value='^.orientation',lbl='!!Orientation',values='H:Horizontal,V:Vertical',default='V')
         fb.dbSelect(dbtable='adm.htmltemplate', value='^.letterhead_id',lbl='!!Letterhead',hasDownArrow=True)
         fb.filteringSelect(value='^.totalize_mode', lbl='!!Totalize',values='doc:Document,page:Page')
-        fb.textbox(value='^.totalize_footer',lbl='!!Footer',hidden='^.totalize_mode?=!#v')
         fb.textbox(value='^.totalize_carry',lbl='!!Carry',hidden='^.totalize_mode?=#v!="page"')
+        fb.textbox(value='^.totalize_footer',lbl='!!Footer',hidden='^.totalize_mode?=!#v')
         fb.checkbox(value='^.allrows',label='!!Print all rows')
         fb.dataController("""
                         var grid = genro.wdgById(gridId);

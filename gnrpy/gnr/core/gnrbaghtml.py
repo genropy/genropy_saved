@@ -875,6 +875,7 @@ class BagToHtml(object):
     def _gridLayoutParams(self):
         defaultkw = dict(name='gridLayout',um='mm',border_color='#e0e0e0',
                             top=.1,bottom=.1,left=.1,right=.1,
+                            font_size='9pt',
                             border_width=.3,lbl_class='caption',
                             text_align='left')
         customkw = self.gridLayoutParameters()
