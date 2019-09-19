@@ -45,7 +45,7 @@ class TableHandler(BaseComponent):
                             picker=None,addrow=True,addrowmenu=None,
                             delrow=True,
                             archive=False,
-                            export=False,title=None,
+                            export=False,printRows=False,title=None,
                             addrowmenu_kwargs=None,
                             export_kwargs=None,
                             liveUpdate=None,
@@ -107,6 +107,8 @@ class TableHandler(BaseComponent):
             picker = False
         if export:
             top_slots.append('export')
+        if printRows:
+            top_slots.append('printRows')
         if archive:
             top_slots.append('archive')
             

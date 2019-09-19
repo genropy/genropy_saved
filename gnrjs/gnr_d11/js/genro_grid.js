@@ -750,6 +750,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 this.serverAction(kw);
             }
         });
+        sourceNode.registerSubscription(nodeId + '_printRows',widget,function(kw){
+            if(this.printRows){
+                this.printRows(kw);
+            }
+        });
         sourceNode.subscribe('pluginCommand',function(kw){
             kw.grid = this.widget;
             genro.pluginCommand(kw);
@@ -911,14 +916,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
    // },
 
     cm_plugin_print:function(sourceNode,menu){
-        var action = function(item,gridNode){
-            var kw = {res_type:'print',table:gridNode.attr.table,
-                        resource:'_common/print_gridstruct',
-                        gridId:gridNode.attr.nodeId};
-            objectUpdate(kw,gridNode.widget.currentSelectionPars());
-            genro.publish('table_script_run',kw);
-        }
-        menu.setItem('#id',null,{caption:_T('Print'),action:action});
+        menu.setItem('#id',null,{caption:_T('Print'),action:'$2.publish("printRows");'});
     },
 
     cm_plugin_chartjs:function(sourceNode,menu){
@@ -960,6 +958,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                                 checked:'^'+sourceNode.attr.structpath+'.info.showLineNumber',
                                 action:function(line,gridNode){gridNode.widget.toggleLineNumberColumn()}})
         return contextMenuBag;
+    },
+
+    mixin_printRows:function(){
+        var kw = {res_type:'print',table:this.sourceNode.attr.table,
+                    resource:'_common/print_gridstruct',
+                    gridId:this.sourceNode.attr.nodeId};
+        objectUpdate(kw,this.currentSelectionPars());
+        genro.publish('table_script_run',kw);
     },
 
     mixin_setAutoInsert:function(autoInsert){
@@ -4191,7 +4197,6 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_currentSelectionPars:function(){
         var kw = {};
         var store = this.collectionStore();
-
         if(store.storeType=='VirtualSelection'){
             kw.selectionName = store.selectionName;
         }else if(store.storeType=='Selection' && !store.storeNode.attr.groupByStore){
