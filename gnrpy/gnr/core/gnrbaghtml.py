@@ -144,7 +144,7 @@ class BagToHtml(object):
             return 'Portrait'
             
     def __call__(self, record=None, filepath=None, folder=None, filename=None, hideTemplate=False, rebuild=True,
-                 htmlContent=None,page_debug=None, is_draft=None, **kwargs):
+                 htmlContent=None,page_debug=None, is_draft=None,orientation=None, **kwargs):
         """Return the html corresponding to a given record. The html can be loaded from
         a cached document or created as new if still doesn't exist"""
         if record is None:
@@ -167,6 +167,7 @@ class BagToHtml(object):
             return result
         self.templates = kwargs.pop('templates', self.templates)
         self.letterhead_id = kwargs.pop('letterhead_id', self.letterhead_id)
+        self.page_orientation = orientation or self.page_orientation
         self.print_button = kwargs.pop('print_button', self.print_button)
         self.grid_running_totals = defaultdict(int)
         if self.onRecordLoaded() is False:
