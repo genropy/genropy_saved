@@ -33,7 +33,13 @@ class Main(TableScriptToHtml):
         row.cell(self.getData('print_title'),content_class='caption')
 
     def gridData(self):
-        return self.sourceSelectionData
+        if self.getData('extra_parameters.currentData'):
+            if self.getData('grid_datamode')=='bag':
+                self.row_mode = 'value'
+            return self.getData('extra_parameters.currentData')
+        columns = self.grid_sqlcolumns if self.callingBatch.selectedPkeys else None
+        return self.callingBatch.get_selection(columns=columns).output('grid')
+        
     
     def gridColumnsInfo(self):
         struct = self.sourceStruct
@@ -49,4 +55,4 @@ class Main(TableScriptToHtml):
                     columnsets=self.gridColumnsetsFromStruct(struct))
 
     def outputDocName(self, ext=''):
-        return '%s.%s' %(self.getData('print_title') or self.row_table.replace('.','_'),ext)
+        return '%s.%s' %(self.getData('print_title') or self.getData('extra_parameters.gridId') ,ext)

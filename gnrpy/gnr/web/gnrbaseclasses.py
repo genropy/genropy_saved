@@ -187,7 +187,7 @@ class TableScriptToHtml(BagToHtml):
         self.db = page.db
         self.locale = self.page.locale if self.client_locale else self.site.server_locale
         self.tblobj = resource_table
-        self.maintable = resource_table.fullname
+        self.maintable = resource_table.fullname if resource_table else None
         self.templateLoader = self.db.table('adm.htmltemplate').getTemplate
         self.thermo_wrapper = self.page.btc.thermo_wrapper
         self.print_handler = self.page.getService('htmltopdf')
