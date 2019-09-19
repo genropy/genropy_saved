@@ -33,11 +33,21 @@ class Main(TableScriptToHtml):
         row.cell(self.getData('print_title'),content_class='caption')
 
     def gridData(self):
-        if self.getData('extra_parameters.currentData'):
+        allrows = self.getData('allrows')
+        extra_parameters = self.getData('extra_parameters')
+        if extra_parameters['currentData']:
             if self.getData('grid_datamode')=='bag':
                 self.row_mode = 'value'
-            return self.getData('extra_parameters.currentData')
+            if allrows and extra_parameters['allGridData']:
+                return extra_parameters['allGridData']
+            return extra_parameters['currentData']
         columns = self.grid_sqlcolumns if self.callingBatch.selectedPkeys else None
+        allSelectionPkeys = extra_parameters['allSelectionPkeys']
+        if allrows:
+            if allSelectionPkeys:
+                self.callingBatch.selectedPkeys = allSelectionPkeys
+            else:
+                self.callingBatch.selectedRowidx = []
         return self.callingBatch.get_selection(columns=columns).output('grid')
         
     

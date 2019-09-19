@@ -965,6 +965,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     resource:'_common/print_gridstruct',
                     gridId:this.sourceNode.attr.nodeId};
         objectUpdate(kw,this.currentSelectionPars());
+        if(kw.selectedPkeys){
+            kw.allSelectionPkeys = this.getAllPkeys();
+        }
         genro.publish('table_script_run',kw);
     },
 
@@ -4206,6 +4209,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             }
         }else{
             kw.currentData = this.currentData(null,true);
+            if(this.getSelectedRowidx()){
+                kw.allGridData = this.storebag().deepCopy();
+            }
         }
         if(this.cellmap._selected){
             kw.selectedPkeys = this.sourceNode.getRelativeData('.sets._selected');

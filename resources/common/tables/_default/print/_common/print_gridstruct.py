@@ -46,6 +46,7 @@ class Main(BaseResourcePrint):
         fb.filteringSelect(value='^.totalize_mode', lbl='!!Totalize',values='doc:Document,page:Page')
         fb.textbox(value='^.totalize_footer',lbl='!!Footer',hidden='^.totalize_mode?=!#v')
         fb.textbox(value='^.totalize_carry',lbl='!!Carry',hidden='^.totalize_mode?=#v!="page"')
+        fb.checkbox(value='^.allrows',label='!!Print all rows')
         fb.dataController("""
                         var grid = genro.wdgById(gridId);
                         SET .grid_datamode = grid.datamode;
