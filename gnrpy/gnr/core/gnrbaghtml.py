@@ -647,7 +647,7 @@ class BagToHtml(object):
         field = col['field']
         columnset = col.get('columnset')
         result = dict()
-        if columnset:
+        if columnset and self.columnsets:
             result.update(dictExtract(self.columnsets[columnset],'cells_'))
         result.update(col)
         anycell_kw = rowData.get('anycell_kw') or dict()

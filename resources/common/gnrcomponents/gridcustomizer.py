@@ -210,4 +210,5 @@ class GridCustomizer(BaseComponent):
                     d['hidden'] = True
                 filtered_grid_columns.append(d)
             printInstance.grid_columns = filtered_grid_columns
+            printInstance.grid_columnsets = dict()
         return printInstance.grid_columns
