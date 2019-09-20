@@ -589,11 +589,14 @@ class BagToHtml(object):
         #overridable
         self.fillGridRow()
     
+    
     def fillGridRow(self):
         rowData = self.rowData
         self.renderMode = 'gridrow'
         self.updateRunningTotals(rowData=rowData)
         self.renderGridRow(rowData=rowData)
+    
+    fillRow = fillGridRow
 
     def renderGridRow(self,rowData=None):
         self._currSpanCell = None
