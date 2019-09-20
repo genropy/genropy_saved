@@ -454,8 +454,7 @@ class TableHandler(BaseComponent):
             src = '%s/sys/thpage/%s?main_call=main_form&th_formResource=%s' %(src,table.replace('.','/'),formResource)
         else:
             src = '/sys/thpage/%s?aux_instance=%s&main_call=main_form&th_formResource=%s' %(table.replace('.','/'),aux_instance,formResource)
-        iframe = pane.htmliframe(src='%s/sys/thpage/%s?main_call=main_form&th_formResource=%s' %(src,table.replace('.','/'),formResource),
-                                    height='100%',width='100%',border=0)
+        iframe = pane.htmliframe(src=src,height='100%',width='100%',border=0)
         pane.dataController("""
                             if(myiframe.domNode && myiframe.domNode.contentWindow){
                                 myiframe.domNode.contentWindow.postMessage({topic:'main_form_open',pkey:pkey},'*')
