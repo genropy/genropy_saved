@@ -69,6 +69,8 @@ class BagToHtml(object):
     copy_extra_height = 0
     starting_page_number = 0
     body_attributes = None
+    sheets_counter = 1
+    currentSheet = 0
     splittedPages = 0
     watermark_draft_class = 'document_draft'
 
@@ -80,11 +82,11 @@ class BagToHtml(object):
         return dict(height=280,width=200)
 
     @property
-    def sheetHeight(self):
+    def paperHeight(self):
         return self.page_height or self.currentPageFormat['height']
 
     @property
-    def sheetWidth(self):
+    def paperWidth(self):
         return self.page_width or self.currentPageFormat['width']
 
     def __init__(self, locale='en', encoding='utf-8', templates=None, templateLoader=None, **kwargs):
@@ -214,14 +216,14 @@ class BagToHtml(object):
                 self.htmlTemplate.walk(self.fillLetterheadSourceData)
                 top_layer =  self.htmlTemplate['#%i' %(len(self.htmlTemplate)-1)]
         d = self.__dict__
-        sheet_height = float(d.get('page_height') or top_layer['main.page.height'] or self.sheetHeight)
-        sheet_width = float(d.get('page_width') or top_layer['main.page.width'] or self.sheetWidth)
+        paper_height = float(d.get('page_height') or top_layer['main.page.height'] or self.paperHeight)
+        paper_width = float(d.get('page_width') or top_layer['main.page.width'] or self.paperWidth)
         if self.page_orientation=='V': 
-            self.page_height = sheet_height
-            self.page_width = sheet_width
+            self.page_height = paper_height
+            self.page_width = paper_width
         else:
-            self.page_width = sheet_height
-            self.page_height = sheet_width
+            self.page_width = paper_height
+            self.page_height = paper_width
         self.page_margin_top = float(d.get('page_margin_top') or top_layer['main.page.top'] or self.page_margin_top)
         self.page_margin_left = float(d.get('page_margin_left')or top_layer['main.page.left'] or self.page_margin_left)
         self.page_margin_right = float(d.get('page_margin_right')or top_layer['main.page.right'] or self.page_margin_right)
@@ -384,25 +386,41 @@ class BagToHtml(object):
     
     def gridColumnsInfo(self):
         return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
+
         
     @property
     def columnsBag(self):
         gridName = self.currentGrid or '_main_'
-        if gridName in self._gridsColumnsBag:
-            return self._gridsColumnsBag[gridName]['columns']
+        if gridName not in self._gridsColumnsBag:
+            self._gridsColumnsBag[gridName] = self._gridSheetsBag(gridName)
+        return self._gridsColumnsBag[gridName][self._sheetKey(self.currentSheet)]['columns']
+
+    def _gridSheetsBag(self,gridName):
+        result = Bag()
         info = self.gridColumnsInfo()
         columns = info['columns']
-        columnsBag = Bag()
-        for i,col in enumerate(columns):
-            columnsBag.addItem('col_%02i' %i,None,_attributes=col)
-        self._gridsColumnsBag[gridName] = Bag(dict(columns=columnsBag,columnsets=info['columnsets']))
-        return columnsBag
+        columnsets = info['columnsets']
+        for s in range(self.sheets_counter):
+            sheet_columnsBag = Bag()
+            sheet_columnsets = {}
+            filtertuple = ('*',s)
+            for i,col in enumerate(columns):
+                if col.get('sheet','*') in filtertuple:
+                    sheet_columnsBag.addItem('col_%02i' %i,None,_attributes=col)
+            for key,colset in columnsets.items():
+                if colset.get('sheet','*') in filtertuple:
+                    sheet_columnsets[key] = colset
+            result[self._sheetKey(s)] = Bag(dict(columns=sheet_columnsBag,columnsets=sheet_columnsets))
+        return result
+    
+    def _sheetKey(self,sheetNumber):
+        return 's_%02i' %sheetNumber
 
     @property
     def columnsets(self):
         gridName = self.currentGrid or '_main_'
         if gridName in self._gridsColumnsBag:
-            return self._gridsColumnsBag[gridName]['columnsets']
+            return self._gridsColumnsBag[gridName][self._sheetKey(self.currentSheet)]['columnsets']
 
     def copyHeight(self):
         """TODO"""

@@ -23,7 +23,7 @@
 #Created by Giovanni Porcari on 2007-03-24.
 #Copyright (c) 2007 Softwell. All rights reserved.
 
-import os,sys
+import os,sys,math
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrdict import dictExtract
@@ -278,7 +278,7 @@ class TableScriptToHtml(BagToHtml):
             return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
         struct = self.page.newGridStruct(maintable=self.gridTable())
         self.gridStruct(struct)
-        #self.structAnalyze(struct)
+        self.structAnalyze(struct)
         return dict(columns=self.gridColumnsFromStruct(struct=struct),
                     columnsets=self.gridColumnsetsFromStruct(struct))
     
@@ -291,19 +291,38 @@ class TableScriptToHtml(BagToHtml):
         pass
 
     def structAnalyze(self,struct,grid_width=None,grid_border_width=None):
-        columns = struct['view_0.row_0'].digest('#a')
-        elastic_columns = [col for col in columns if not col.get('mm_width')]
-        if elastic_columns:
-            elastic_columns_count = len(elastic_columns)
-            if grid_width:
-                fixed_width_sum = sum([(col.get('mm_width') or 0) for col in columns])
-                free_space = grid_width - fixed_width_sum - grid_border_width * (len(columns) - 1)
-                elastic_width =  free_space / elastic_columns_count
-                for col in elastic_columns:
-                    if col.get('mm_min_width') and elastic_width<col['mm_min_width']: 
-                        print 'da splittare'
-                    else:
-                        col['calc_mm_width'] = elastic_width
+        columns = struct['view_0.rows_0'].digest('#a')
+        min_grid_width =  sum([(col.get('mm_width') or col.get('mm_min_width') or  20) for col in columns])
+        extra_space = grid_width-min_grid_width
+        if extra_space>=0:
+            return
+        head_col_total_width = sum([(col.get('mm_width') or col.get('mm_min_width') or  20) for col in columns if col.get('headColumn')]) 
+        grid_free_width = grid_width-head_col_total_width
+        net_min_grid_width = min_grid_width-head_col_total_width
+        sheet_count = int(math.ceil(float(net_min_grid_width)/grid_free_width))
+        sheet_delta = 0
+        while sheet_delta<3 and not self._structAnalyze_step(columns,net_min_grid_width,sheet_count+sheet_delta):
+            sheet_delta+=1
+        print x
+    
+    def _structAnalyze_step(self,columns,net_min_grid_width,sheet_count):
+        sheet_space_available = float(net_min_grid_width)/ sheet_count
+        s = -1
+        tw = 0
+        for col in columns:
+            if not col.get('headColumn'): 
+                tw -= col['mm_width']
+                if tw<=0:
+                    tw += sheet_space_available
+                    s+=1
+                if s>sheet_count:
+                    return False
+                col['sheet'] = s
+        return True
+
+
+
+
     
     def structFromResource(self,viewResource=None,table=None):
         table = table or self.rows_table or self.tblobj.fullname
