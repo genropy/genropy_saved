@@ -6362,6 +6362,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
         this._editingForm = false;
         this.loadInvisible = this.storeNode.getAttributeFromDatasource('loadInvisible');
         this.liveUpdateDelay = this.storeNode.getAttributeFromDatasource('liveUpdateDelay');
+        this.externalLiveUpdateDelay = this.storeNode.getAttributeFromDatasource('externalLiveUpdateDelay');
         this.liveUpdateUnattended = this.storeNode.getAttributeFromDatasource('liveUpdateUnattended');
         var cb = function(){
             that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,
@@ -6396,8 +6397,8 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
                     if(that.storeNode.form && that.storeNode.form.opStatus){
                         return false;
                     }
-                    var liveUpdateDelay = that.liveUpdateDelay;
-                    var doUpdate = liveUpdateDelay?(new Date()-that.lastLiveUpdate)/1000>liveUpdateDelay:true;
+                    var currDelay = isExternal?that.externalLiveUpdateDelay:that.liveUpdateDelay;
+                    var doUpdate = currDelay && that.lastLiveUpdate?(new Date()-that.lastLiveUpdate)/1000>currDelay:true;
                     if(doUpdate && !that.liveUpdateUnattended){
                         doUpdate = (genro._lastUserEventTs > that.lastLiveUpdate) || ((new Date()-that.lastLiveUpdate)/1000)>60;
                     }

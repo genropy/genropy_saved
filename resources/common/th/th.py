@@ -448,10 +448,13 @@ class TableHandler(BaseComponent):
         return iframe
 
     @struct_method
-    def th_externalThForm(self,pane,src=None,table=None,pkeyField=None,formResource='Form',**kwargs):
+    def th_externalThForm(self,pane,src=None,aux_instance=None,table=None,pkeyField=None,formResource='Form',**kwargs):
         pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
-        iframe = pane.htmliframe(src='%s/sys/thpage/%s?main_call=main_form&th_formResource=%s' %(src,table.replace('.','/'),formResource),
-                                    height='100%',width='100%',border=0)
+        if src:
+            src = '%s/sys/thpage/%s?main_call=main_form&th_formResource=%s' %(src,table.replace('.','/'),formResource)
+        else:
+            src = '/sys/thpage/%s?aux_instance=%s&main_call=main_form&th_formResource=%s' %(table.replace('.','/'),aux_instance,formResource)
+        iframe = pane.htmliframe(src=src,height='100%',width='100%',border=0)
         pane.dataController("""
                             if(myiframe.domNode && myiframe.domNode.contentWindow){
                                 myiframe.domNode.contentWindow.postMessage({topic:'main_form_open',pkey:pkey},'*')

@@ -278,6 +278,7 @@ class TableScriptToHtml(BagToHtml):
             return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
         struct = self.page.newGridStruct(maintable=self.gridTable())
         self.gridStruct(struct)
+        self.sql
         self.structAnalyze(struct)
         return dict(columns=self.gridColumnsFromStruct(struct=struct),
                     columnsets=self.gridColumnsetsFromStruct(struct))
@@ -291,6 +292,12 @@ class TableScriptToHtml(BagToHtml):
         pass
 
     def structAnalyze(self,struct,grid_width=None,grid_border_width=None):
+        layoutPars = self.mainLayoutParamiters()
+        gridPars = self.gridLayoutParameters()
+        calcGridWidth =  self.copyWidth() - \
+                        layoutPars.get('left',0)-layoutPars.get('right',0) -\
+                        gridPars.get('left',0) - gridPars.get('right',0)
+        grid_width = grid_width or gridPars.get('width') or calcGridWidth
         columns = struct['view_0.rows_0'].digest('#a')
         min_grid_width =  sum([(col.get('mm_width') or col.get('mm_min_width') or  20) for col in columns])
         extra_space = grid_width-min_grid_width
@@ -303,7 +310,6 @@ class TableScriptToHtml(BagToHtml):
         sheet_delta = 0
         while sheet_delta<3 and not self._structAnalyze_step(columns,net_min_grid_width,sheet_count+sheet_delta):
             sheet_delta+=1
-        print x
     
     def _structAnalyze_step(self,columns,net_min_grid_width,sheet_count):
         sheet_space_available = float(net_min_grid_width)/ sheet_count
@@ -319,10 +325,6 @@ class TableScriptToHtml(BagToHtml):
                     return False
                 col['sheet'] = s
         return True
-
-
-
-
     
     def structFromResource(self,viewResource=None,table=None):
         table = table or self.rows_table or self.tblobj.fullname
