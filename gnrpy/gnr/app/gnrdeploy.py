@@ -286,15 +286,17 @@ def createVirtualEnv(name=None, copy_genropy=False, copy_projects=None,
     gitrepos_path = os.path.join(venv_path, 'gitrepos')
     if not os.path.exists(gitrepos_path):
         os.makedirs(gitrepos_path)
+    base_path_resolver = PathResolver()
+    base_gnr_config = getGnrConfig()
     activateVirtualEnv(name)
     if copy_projects:
         projects_path = os.path.join(gitrepos_path, 'genropy_projects')
         if not os.path.exists(projects_path):
             os.makedirs(projects_path)
         projects = copy_projects.split(',')
-        path_resolver = PathResolver()
+        #path_resolver = PathResolver()
         for project in projects:
-            prj_path = path_resolver.project_name_to_path(project)
+            prj_path = base_path_resolver.project_name_to_path(project)
             if prj_path:
                 destpath = os.path.join(projects_path, project)
                 print('Copying project %s from %s to %s'%(project, prj_path, destpath))
@@ -304,15 +306,15 @@ def createVirtualEnv(name=None, copy_genropy=False, copy_projects=None,
                     print(e)
     if copy_genropy:
         newgenropy_path = os.path.join(gitrepos_path, 'genropy')
-        gnr_config = getGnrConfig()
-        genropy_path = gnr_config['gnr.environment_xml.environment.gnrhome?value']
+        
+        genropy_path = base_gnr_config['gnr.environment_xml.environment.gnrhome?value']
         if genropy_path:
             print('Copying genropy from %s to %s'%(genropy_path,newgenropy_path))
             shutil.copytree(genropy_path,newgenropy_path)
+            import subprocess
             if branch:
                 curr_cwd = os.getcwd()
                 os.chdir(newgenropy_path)
-                import subprocess
                 print('Switching to branch %s'%branch)
                 subprocess.check_call(['git', 'stash'])
                 subprocess.check_call(['git', 'fetch'])
