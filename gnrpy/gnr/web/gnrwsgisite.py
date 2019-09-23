@@ -850,7 +850,7 @@ class GnrWsgiSite(object):
             return response(environ, start_response)
 
         #static elements that doesn't have .py extension in self.root_static
-        if  self.root_static and path_list and not path_list[0].startswith('_') and '.' in path_list[-1]:
+        if  self.root_static and path_list and not path_list[0].startswith('_') and '.' in path_list[-1] and not (':' in path_list[0]):
             if path_list[-1].split('.')[-1]!='py':
                 path_list = self.root_static.split('/')+path_list
         
