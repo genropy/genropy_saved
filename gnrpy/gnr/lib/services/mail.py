@@ -26,8 +26,8 @@ from builtins import chr
 from builtins import str
 from past.builtins import basestring
 import smtplib
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from six.moves.email_mime_multipart import MIMEMultipart
 from email.mime.image import MIMEImage
 from email.mime.application import MIMEApplication
 from email.utils import formatdate
