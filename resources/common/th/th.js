@@ -26,24 +26,9 @@ var th_unifyrecord = function(kw){
 
 var th_view_batch_caller = function(kw){
     var grid = genro.wdgById(kw.gridId);
-    var store = grid.collectionStore();
-    if(store.storeType=='VirtualSelection'){
-        kw['selectionName'] = store.selectionName;
-    }else{
-        kw['selectedPkeys'] = grid.getSelectedPkeys() || [];
-        if (kw['selectedPkeys'].length==0){
-            kw['selectedPkeys'] = grid.getAllPkeys();
-        }
-        
-    }
-    if(grid.cellmap._selected){
-        kw['selectedPkeys'] = grid.sourceNode.getRelativeData('.sets._selected');
-    }else{
-        kw['selectedRowidx'] = grid.getSelectedRowidx();
-    }
-    kw.selectionCount = store.len(true);
+    objectUpdate(kw,grid.currentSelectionPars());
     genro.publish("table_script_run",kw);
-}
+};
 
 var th_usersettings = function(th){
     var attr = th.attr;

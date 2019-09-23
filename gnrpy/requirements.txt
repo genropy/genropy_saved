@@ -24,5 +24,7 @@ supervisor
 futures
 lxml
 psutil
+simpleeval
 webob
 werkzeug
+webob

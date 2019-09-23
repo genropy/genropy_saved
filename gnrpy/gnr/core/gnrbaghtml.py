@@ -13,12 +13,21 @@ from builtins import range
 from past.utils import old_div
 import os
 from gnr.core.gnrstring import toText,templateReplace
+
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrdict import dictExtract
+from gnr.core.gnrstring import flatten
+from gnr.core.gnrnumber import decimalRound
+from collections import defaultdict
 import tempfile
+
+try:
+    from simpleeval import simple_eval
+except ImportError:
+    simple_eval = False
 
 class BagToHtml(object):
     """A class that transforms a :ref:`bag` into HTML. It can be used to make a :ref:`print`"""
@@ -56,7 +65,11 @@ class BagToHtml(object):
     grid_col_widths = None
     grid_style_cell = None
     grid_columns =  None
+    grid_columnsets = None
     grid_row_height = 5
+    totalize_carry = False
+    totalize_footer = False
+    totalize_mode = 'doc' #doc,page
     copies_per_page = 1
     copy_extra_height = 0
     starting_page_number = 0
@@ -136,7 +149,7 @@ class BagToHtml(object):
             return 'Portrait'
             
     def __call__(self, record=None, filepath=None, folder=None, filename=None, hideTemplate=False, rebuild=True,
-                 htmlContent=None,page_debug=None, is_draft=None, **kwargs):
+                 htmlContent=None,page_debug=None, is_draft=None,orientation=None, **kwargs):
         """Return the html corresponding to a given record. The html can be loaded from
         a cached document or created as new if still doesn't exist"""
         if record is None:
@@ -157,10 +170,11 @@ class BagToHtml(object):
             with open(self.filepath, 'r') as f:
                 result = f.read()
             return result
-            
         self.templates = kwargs.pop('templates', self.templates)
         self.letterhead_id = kwargs.pop('letterhead_id', self.letterhead_id)
+        self.page_orientation = orientation or self.page_orientation
         self.print_button = kwargs.pop('print_button', self.print_button)
+        self.grid_running_totals = defaultdict(int)
         if self.onRecordLoaded() is False:
             return False
         if self.splittedPages:
@@ -376,21 +390,28 @@ class BagToHtml(object):
     def current_page_number(self):
         return self.copies[self.copy]['currPage']
     
-    def gridColumns(self):
-        return self.grid_columns
+    def gridColumnsInfo(self):
+        return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
         
     @property
     def columnsBag(self):
         gridName = self.currentGrid or '_main_'
         if gridName in self._gridsColumnsBag:
-            return self._gridsColumnsBag[gridName]
-        columns = self.gridColumns()
+            return self._gridsColumnsBag[gridName]['columns']
+        info = self.gridColumnsInfo()
+        columns = info['columns']
         columnsBag = Bag()
         for i,col in enumerate(columns):
             columnsBag.addItem('col_%02i' %i,None,_attributes=col)
-        self._gridsColumnsBag[gridName] = columnsBag
+        self._gridsColumnsBag[gridName] = Bag(dict(columns=columnsBag,columnsets=info['columnsets']))
         return columnsBag
-    
+
+    @property
+    def columnsets(self):
+        gridName = self.currentGrid or '_main_'
+        if gridName in self._gridsColumnsBag:
+            return self._gridsColumnsBag[gridName]['columnsets']
+
     def copyHeight(self):
         """TODO"""
         return old_div((self.page_height - self.page_margin_top - self.page_margin_bottom -\
@@ -410,19 +431,20 @@ class BagToHtml(object):
         self.defineStandardStyles()
         self.defineCustomStyles()
         self.currGrid= None
-        self.doc_height = self.copyHeight() #- self.page_header_height - self.page_footer_height
+        self.doc_height = self.copyHeight() 
         self.grid_height = self.doc_height - self.calcDocHeaderHeight() - self.calcDocFooterHeight()
-        self.grid_body_height = float(self.grid_height or 0) - float(self.grid_header_height or 0) - float(self.grid_footer_height or 0)
+        
+
         if self.getData(self.rows_path) is None:
             self.setData(self.rows_path,self.gridData())
         for copy in range(self.copies_per_page):
             self.copies.append(dict(grid_body_used=self.grid_height, currPage=-1))
-            
         lines = self.getData(self.rows_path)
         if not lines and hasattr(self,'empty_row'):
             lines = Bag()
             lines.setItem('empty',Bag(self.empty_row),**self.empty_row)
         if lines:
+            self.currRowDataNode = None
             if isinstance(lines, Bag):
                 nodes = lines.getNodes()
             elif hasattr(lines, 'next'):
@@ -432,18 +454,26 @@ class BagToHtml(object):
             lastNode = nodes[-1] 
             if hasattr(self, 'thermo_wrapper') and self.thermo_kwargs:
                 nodes = self.thermo_wrapper(nodes, **self.thermo_kwargs)
-            for rowDataNode in nodes:
+            carry_height = self.totalizeCarryHeight()
+            for lineno,rowDataNode in enumerate(nodes):
+                self.lineno = lineno
                 self.isLastRow = rowDataNode is lastNode
+                self.prevDataNode = self.currRowDataNode
                 self.currRowDataNode = rowDataNode
                 for copy in range(self.copies_per_page):
                     extra_row_height = self.onNewRow() or 0
                     self.copy = copy
                     row_kw = self.getRowAttrsFromData()
                     rowheight = row_kw.pop('height',None) or self.calcRowHeight()
-                    availableSpace = self.grid_height - self.copyValue('grid_body_used') -\
-                                     self.calcGridHeaderHeight() - self.calcGridFooterHeight()
-                    if (rowheight+extra_row_height) > (availableSpace -self.grid_body_adjustment):
+                    bodyUsed = self.copyValue('grid_body_used')
+                    
+                    gridNetHeight = self.grid_height - self.calcGridHeaderHeight() - self.calcGridFooterHeight() -\
+                                     carry_height - self.totalizeFooterHeight() - self.grid_row_height
+                                    
+                    availableSpace = gridNetHeight-bodyUsed-self.grid_body_adjustment
+                    if (rowheight+extra_row_height) > availableSpace:
                         self._newPage()
+                        carry_height = self.totalizeCarryHeight()
                     if not self.rowData:
                         continue
                     row = self.copyValue('body_grid').row(height=rowheight, **row_kw)
@@ -463,10 +493,51 @@ class BagToHtml(object):
     def gridData(self):
         pass
     
-    
     def onNewRow(self):
         pass
-                
+
+    def runningTotalsDefaults(self):
+        result = dict()
+        lastspanfield = None
+        self._caption_column = None
+        for col in self.columnsBag:
+            colattr = col.attr
+            field = flatten(colattr.get('field'))
+            if colattr.get('totalize'):
+                lastspanfield = None
+            else:
+                if not lastspanfield:
+                    lastspanfield = field
+                    self._caption_column = self._caption_column or field
+                    result['%s_colspan' %field] = 0
+                else:
+                    result['%s_colspan' %lastspanfield] +=1
+        return result
+    
+    def gridRunningTotals(self,lastPage=None):
+        rowData = self.runningTotalsDefaults()
+        rowData.update(self.grid_running_totals)
+        captions_kw = getattr(self,'totalize_%s' %self.renderMode,None)
+        if captions_kw is True:
+            captions_kw = dict()
+        elif isinstance(captions_kw,basestring):
+            captions_kw = dict(caption=captions_kw,content_class='totalize_caption')
+        elif isinstance(captions_kw,dict):
+            captions_kw = dict(captions_kw)
+        else:
+            captions_kw = None
+        if captions_kw:
+            caption = captions_kw.pop('caption')
+            rowData[self._caption_column] = caption
+            for k,v in captions_kw.items():
+                rowData['%s_%s' %(self._caption_column,k)] = v
+        self.onRunningTotals(rowData=rowData,lastPage=lastPage)
+
+        return rowData
+    
+    def onRunningTotals(self,rowData=None,lastPage=None):
+        pass
+
     def _newPage(self):
         if self.copyValue('currPage') >= 0:
             self._closePage()
@@ -475,20 +546,28 @@ class BagToHtml(object):
         self._createPage()
         self._openPage()
 
-    def customizeRowData(self,rowData):
-        pass
-
-    def _get_rowData(self):
-        if isinstance(self.currRowDataNode, dict) or isinstance(self.currRowDataNode,Bag):
-            rowData = self.currRowDataNode
-        elif self.row_mode == 'attribute':
-            rowData = self.currRowDataNode.attr
-        else:
-            rowData = self.currRowDataNode.value
-        self.customizeRowData(rowData)
+    def customizedRowData(self,rowData):
         return rowData
+
+
+    def _rowDataCustomized(self,rowDataNode):
+        if not rowDataNode:
+            return dict()
+        if isinstance(rowDataNode, dict) or isinstance(rowDataNode,Bag):
+            rowData = rowDataNode
+        elif self.row_mode == 'attribute':
+            rowData = rowDataNode.attr
+        else:
+            rowData = rowDataNode.value
+        return self.customizedRowData(rowData)
+
+    @property
+    def rowData(self):
+        return self._rowDataCustomized(self.currRowDataNode)
             
-    rowData = property(_get_rowData)
+    @property
+    def previousRowData(self):
+        return self._rowDataCustomized(self.prevDataNode)
     
     def rowField(self, path=None, **kwargs):
         """TODO
@@ -513,35 +592,133 @@ class BagToHtml(object):
 
     def prepareRow(self,row):
         #overridable
-        self.fillRow()
+        self.fillGridRow()
     
-    def fillRow(self):
+    
+    def fillGridRow(self):
+        rowData = self.rowData
+        self.renderMode = 'gridrow'
+        self.updateRunningTotals(rowData=rowData)
+        self.renderGridRow(rowData=rowData)
+    
+    fillRow = fillGridRow
+
+    def renderGridRow(self,rowData=None):
+        self._currSpanCell = None
         for colNode in self.columnsBag:
-            cell_kw = dict(colNode.attr)
-            field = cell_kw.pop('field',None)
-            
-            anycell_kw = self.rowData.get('anycell_kw') or dict()
-            anycell_kw.update(dictExtract(self.rowData,'anycell_kw_'))
-            cell_kw.update(anycell_kw)
+            self.renderGridCell(col=colNode.attr,rowData=rowData)
+        
+    def renderGridCell(self,col=None,rowData=None,parentRow=None):
+        pars = self.getGridCellPars(col,rowData)
+        if pars.get('hidden'):
+            return
+        colspan = pars.pop('colspan',1)
+        mm_width = pars.pop('mm_width',0)
+        parentRow = parentRow or self.currRow
+        if self._currSpanCell:
+            if mm_width==0:
+                curr_total_width = self._currSpanCell.attributes['extra_width'] + self._currSpanCell.width
+                self._currSpanCell.attributes['extra_width'] = curr_total_width
+                self._currSpanCell.width = 0
+            else:
+                self._currSpanCell.attributes['extra_width'] += mm_width
+            self._currSpanCell.attributes['colspan_count'] -= 1
+            if not self._currSpanCell.attributes['colspan_count']: 
+                self._currSpanCell = None
+            return
+        value = self.getGridCellValue(col,rowData)
+        content_class = pars.pop('content_class',None)
+        align_class = pars.pop('align_class',None)
+        align_class = align_class or self._guessAlign(value=value)
+        content_class = '%s %s' %(content_class,align_class) if content_class else align_class
+        locale = pars.pop('locale',None) or self.locale
+        format = pars.pop('format',None)
+        mask = pars.pop('mask',None)
+        currency = pars.pop('currency',None)
+        white_space = pars.pop('white_space',None) or 'nowrap'
+        value = self.toText(value, locale, format, mask, self.encoding, currency=currency)
+        cell = parentRow.cell(value, width=mm_width,overflow='hidden',
+                            white_space=white_space,
+                            content_class=content_class, **pars)
+        if colspan>1:
+            self._currSpanCell = cell
+            cell.attributes['extra_width'] = 0
+            cell.attributes['colspan_count'] = colspan
 
-            extra_kw = self.rowData.get('%s_kw' %field) or dict()
-            extra_kw.update(dictExtract(self.rowData,'%s_kw_' %field))
-            cell_kw.update(extra_kw)
+    def getGridCellPars(self,col=None,rowData=None):
+        rowData = rowData or dict()
+        if isinstance(col,int):
+            col = self.columnsBag.getAttr('#%i' %col)
+        field = col['field']
+        columnset = col.get('columnset')
+        result = dict()
+        if columnset and self.columnsets:
+            result.update(dictExtract(self.columnsets[columnset],'cells_'))
+        result.update(col)
+        anycell_kw = rowData.get('anycell_kw') or dict()
+        result.update(anycell_kw)
+        flattenkey = flatten(field)
+        extra_kw = rowData.get('%s_kw' %flattenkey) or dict()
+        extra_kw.update(dictExtract(rowData,'%s_' %flattenkey))
+    
+        extra_kw.update(dictExtract(rowData,'%s_kw_' %field))
+        result.update(extra_kw)
+        return result
+    
+    def cellFormulaValue(self,col=None,rowData=None):
+        if not simple_eval:
+            return
+        variables = dict()
+        for k,v in rowData.items():
+            variables[k] = v
+        variables['previousRowData'] = self.previousRowData
+        variables['grid_running_totals'] = dict(self.grid_running_totals)
+        
+        variables['record'] = self.record
 
-            dtype = cell_kw.get('dtype')
-            if not cell_kw.get('align_class') and dtype:
-                cell_kw['align_class'] = self._guessAlign(dtype=dtype)
-            field_getter = cell_kw.pop('field_getter',None) or field
-            value = self.rowData.get(field_getter)
-            width = cell_kw.pop('mm_width')
-            self.rowCell(value=value, default=cell_kw.pop('default',None), 
-                format=cell_kw.pop('format',None), mask=cell_kw.pop('mask',None), 
-                currency=cell_kw.pop('currency',None),style=self.getCellStyle(cell_kw.pop('style',None)),
-                hidden=cell_kw.pop('hidden',None),**cell_kw)
+        formula = col['formula']
+        if formula.startswith('+=') or formula.startswith('%='):
+            mainField = flatten(formula[2:].strip())
+            if formula.startswith('+='):
+                formula = '(previousRowData.get("%s") or 0) + %s' %(col['field'],mainField)
+                result = decimalRound(simple_eval(formula,names=variables))
+            else:
+                variables['mainFieldTotal'] = self.getColTotal(mainField)
+                formula = '(%s or 0)/mainFieldTotal*100' %mainField
+                result = simple_eval(formula,names=variables)
+        else:
+            result = simple_eval(col['formula'],names=variables)
+        return result 
+
+    def getColTotal(self,field):
+        field = flatten(field)
+        colsTotals = self.getData('colsTotals') or Bag()
+        if field in colsTotals:
+            return colsTotals[field]
+        colsTotals[field] = self.getData(self.rows_path).sum('#a.%s' %field) or 0
+        self.setData('colsTotals',colsTotals)
+        return colsTotals[field]
+
+    def getGridCellValue(self,col=None,rowData=None):
+        if isinstance(col,int):
+            col = self.columnsBag.getAttr('#%i' %col)
+        field = col['field']
+        field_getter = col.get('field_getter')
+        
+        if self.renderMode == 'gridrow':
+            if field=='_linenumber':
+                rowData[field] = self.lineno+1
+            elif callable(field_getter):
+                rowData[field] = field_getter(rowData=rowData,col=field)
+            elif col.get('formula'):
+                rowData[field_getter or field] = self.cellFormulaValue(col,rowData)  
+        if field_getter and not field_getter in rowData:
+            field_getter = None
+        return rowData.get(field_getter or field)
         
     def rowCell(self, field=None, value=None, default=None, locale=None,
                 format=None, mask=None, currency=None,white_space='nowrap',align_class=None,
-                content_class=None, **kwargs):
+                content_class=None, totalize=None,**kwargs):
                 
         """Allow to get data from record. You can use it in the :meth:`prepareRow` method
         
@@ -603,7 +780,7 @@ class BagToHtml(object):
         return page.layout(**defaultkw)
     
     def mainLayoutParamiters(self):
-        return dict()
+        return dict(font_family='Arial Narrow',font_size='11pt')
         
     def _openPage(self):
         #if self.page_header_height:
@@ -616,6 +793,13 @@ class BagToHtml(object):
         if lastPage:
             self.lastPage = True
         self.fillBodyGrid()
+        totalizeFooterHeight = self.totalizeFooterHeight()
+        if totalizeFooterHeight:
+            row = self.copyValue('body_grid').row(height=totalizeFooterHeight, _class='totalizer_row totalizer_footer')
+            self.currColumn = 0
+            self.currRow = row
+            self.renderMode = 'footer'
+            self.renderGridRow(self.gridRunningTotals(lastPage=lastPage))
         footer_height = self.calcGridFooterHeight()
         if footer_height:
             row = self.copyValue('body_grid').row(height=footer_height)
@@ -637,10 +821,56 @@ class BagToHtml(object):
 
     def _docBody(self, body):
         header_height = self.calcGridHeaderHeight()
-        grid = self.gridLayout(body)
-        if header_height:
+        wrapper = body
+        if self.columnsets:
+            header_height = header_height/2
+            extlayout = body.layout(border_width=0,top=0,left=0,right=0,bottom=0)
+            gp = self._gridLayoutParams()
+            colsetlayout = extlayout.row(height=header_height).cell().layout(left=gp.get('left'),right=gp.get('right'),top=0,bottom=0,
+                                                border_width=.3,border_color='transparent')
+            self.prepareColumnsets(colsetlayout.row())
+            wrapper = extlayout.row().cell()
+        grid = self.gridLayout(wrapper)
+        if header_height:    
             self.gridHeader(grid.row(height=header_height))
+        totalizeCarryHeight = self.totalizeCarryHeight()
+        if totalizeCarryHeight:
+            row = grid.row(height=totalizeCarryHeight, _class='totalizer_row totalizer_carry')
+            self.currColumn = 0
+            self.currRow = row
+            self.renderMode = 'carry'
+            self.renderGridRow(self.gridRunningTotals(lastPage=self.lastPage))
         self.copies[self.copy]['body_grid'] = grid
+    
+    def prepareColumnsets(self,row):
+        currentColsetCell = None
+        for colNode in self.columnsBag:
+            pars = colNode.attr
+            if pars.get('hidden'):
+                continue
+            if not pars.get('columnset'):
+                row.cell(width=pars.get('mm_width'))
+                currentColsetCell = None
+            elif currentColsetCell is not None and pars['columnset'] == currentColsetCell.columnset:
+                if currentColsetCell.width:
+                    if pars.get('mm_width'):
+                        currentColsetCell.width += (pars.get('mm_width')+.3)
+                    else:
+                        currentColsetCell.attributes['extra_width'] = currentColsetCell.width
+                        currentColsetCell.width = 0
+                else:
+                    currentColsetCell.attributes['extra_width'] = currentColsetCell.attributes.get('extra_width') or 0
+                    currentColsetCell.attributes['extra_width']+=pars.get('mm_width')+.3
+            else:
+                colsetattr = dict(self.columnsets[pars['columnset']])
+                colsetattr.pop('tag',None)
+                colsetattr.pop('code',None)
+                name = colsetattr.pop('name','')
+                currentColsetCell = row.cell(self.toText(name), 
+                                            width=pars.get('mm_width'),
+                                            _class=colsetattr.pop('_class',None) or 'gnrcolumnset',
+                                            **colsetattr)
+                currentColsetCell.columnset = pars['columnset']
         
     def gridLayout(self, body):
         """Hook method. if you define a :ref:`print_layout_grid` in
@@ -648,13 +878,17 @@ class BagToHtml(object):
         define the layout of the grid
         
         :param grid: the :ref:`print_layout_grid`"""
-        defaultkw = dict(name='gridLayout',um='mm',border_color='gray',
-                            top=1,bottom=1,left=1,right=1,
+        return body.layout(**self._gridLayoutParams())  
+
+    def _gridLayoutParams(self):
+        defaultkw = dict(name='gridLayout',um='mm',border_color='#e0e0e0',
+                            top=.1,bottom=.1,left=.1,right=.1,
+                            font_size='9pt',
                             border_width=.3,lbl_class='caption',
-                            font_size='10pt',text_align='left')
+                            text_align='left')
         customkw = self.gridLayoutParameters()
         defaultkw.update(customkw)
-        return body.layout(**defaultkw)     
+        return defaultkw
 
     def gridLayoutParameters(self):
         return dict()   
@@ -676,7 +910,35 @@ class BagToHtml(object):
         
         :param row: the grid row"""
         return
-        
+
+    @property
+    def totalizingColumns(self):
+        if not hasattr(self,'_totalizingColumns'):
+            self._totalizingColumns = [colNode.attr for colNode in self.columnsBag if colNode.attr.get('totalize')]
+        return self._totalizingColumns
+
+    def updateRunningTotals(self,rowData):
+        for col in self.totalizingColumns:
+            self.grid_running_totals[col.get('field_getter') or col['field']] += (self.getGridCellValue(col,rowData) or 0)
+
+    def totalizeFooterHeight(self):
+        if not (self.totalizingColumns and self.totalize_footer):
+            return 0
+        if self.totalize_mode == 'page' or self.isLastRow or self.lastPage:
+            return self.grid_row_height
+        return 0
+
+    def totalizeCarryHeight(self):
+        if not self.totalizingColumns:
+            return 0
+        firstPage = self.current_page_number == 0
+        if self.totalize_carry and self.grid_running_totals:
+            if self.totalize_mode == 'page' or firstPage:
+                return self.grid_row_height
+        return 0
+
+
+
     def fillBodyGrid(self):
         """TODO"""
         row = self.copyValue('body_grid').row()
@@ -698,7 +960,10 @@ class BagToHtml(object):
         
     def calcGridHeaderHeight(self):
         """override for special needs"""
-        return self.grid_header_height
+        result = self.grid_header_height
+        if self.columnsets:
+            return result*2
+        return result
         
     def calcGridFooterHeight(self):
         """override for special needs"""
@@ -796,4 +1061,24 @@ class BagToHtml(object):
                         .aligned_center{
                             text-align:center;
                         }
+                        .gnrcolumnset{
+                            text-align:center;
+                            background:#888; 
+                            color:white;
+                            border-bottom-width:0;
+                            font-size:8pt;
+                            border-top-left-radius:2mm;
+                            border-top-right-radius:2mm;
+                        }
+                        .totalizer_row{
+                            background:whitesmoke;
+                            color:#444;
+                        }
+                        .totalize_caption{
+                            text-align:right;
+                            padding-right:2mm;
+                            font-weight: normal;
+                            font-style:italic;
+                        }
+
                          """)

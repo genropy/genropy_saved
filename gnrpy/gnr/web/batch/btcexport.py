@@ -64,7 +64,7 @@ class BaseResourceExport(BaseResourceBatch):
         self.data = None
 
     def gridcall(self, data=None, struct=None, export_mode=None, datamode=None,selectedRowidx=None,filename=None,
-                    localized_data=None):
+                    localized_data=None,**kwargs):
         self.batch_parameters = dict(export_mode=export_mode, filename=filename,localized_data=localized_data)
         self.prepareFromStruct(struct)
         self.data = self.rowFromValue(data) if datamode == 'bag' else self.rowFromAttr(data)

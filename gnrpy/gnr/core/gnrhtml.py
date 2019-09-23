@@ -224,8 +224,6 @@ class GnrHtmlSrc(GnrStructData):
             cell.cell_border = row.cell_border
         else:
             cell.cell_border = cell_border
-        if not cell.width:
-            row.elastic_cells.append(cell)
         return cell
             
 class GnrHtmlBuilder(object):
@@ -567,6 +565,7 @@ class GnrHtmlBuilder(object):
         :param layout: TODO
         :param attr: TODO
         :param row: TODO"""
+        row.elastic_cells = [cell for cell in row.values() if not cell.width]
         if row.elastic_cells:
             elastic_cells_count = len(row.elastic_cells)
             if layout.width:
@@ -574,7 +573,7 @@ class GnrHtmlBuilder(object):
                 free_space = layout.width - fixed_width_sum - layout.border_width * (len(row) - 1)
                 elastic_width =  free_space / elastic_cells_count
                 for cell in row.elastic_cells:
-                    cell.width = elastic_width+cell.attributes.get('extra_width',0)
+                    cell.width = elastic_width
             else:
                 raise GnrHtmlSrcError('No total width with elastic cells')
                 ## Possibile ricerca in profondità
@@ -598,7 +597,8 @@ class GnrHtmlBuilder(object):
         :param attr: TODO
         :param cell: TODO"""
         cell.height = row.height
-        width = cell.width
+        width = cell.width + attr.get('extra_width',0)
+        cell.width = width
         if cell.lbl:
             self.setLabel(cell, attr)
         bottom_border_width = row.layout.border_width if row.row_border else 0

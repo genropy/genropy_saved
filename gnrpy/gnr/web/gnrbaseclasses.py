@@ -31,7 +31,9 @@ from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrstring import  splitAndStrip, slugify,templateReplace
 from gnr.core.gnrlang import GnrObject
+from gnr.core.gnrstring import flatten
 from gnr.core.gnrbag import Bag
+
 
 def page_mixin(func):
     """TODO
@@ -187,7 +189,7 @@ class TableScriptToHtml(BagToHtml):
         self.db = page.db
         self.locale = self.page.locale if self.client_locale else self.site.server_locale
         self.tblobj = resource_table
-        self.maintable = resource_table.fullname
+        self.maintable = resource_table.fullname if resource_table else None
         self.templateLoader = self.db.table('adm.htmltemplate').getTemplate
         self.thermo_wrapper = self.page.btc.thermo_wrapper
         self.print_handler = self.page.getService('htmltopdf')
@@ -273,12 +275,18 @@ class TableScriptToHtml(BagToHtml):
             caption = '%i/%i' % (progress, maximum)
         return caption
 
-    def gridColumns(self):
+    def gridColumnsInfo(self,gridname=None):
         if self.grid_columns:
-            return self.grid_columns
+            return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
         struct = self.page.newGridStruct(maintable=self.gridTable())
         self.gridStruct(struct)
-        return self.gridColumnsFromStruct(struct=struct,table=self.gridTable())
+        return dict(columns=self.gridColumnsFromStruct(struct=struct),
+                    columnsets=self.gridColumnsetsFromStruct(struct))
+    
+    def gridColumnsetsFromStruct(self,struct):
+        if not struct['info.columnsets']: 
+            return dict()
+        return dict([(l[0],l[1]) for l in struct['info.columnsets'].digest('#k,#a')])
     
     def gridStruct(self,struct):
         pass
@@ -292,40 +300,38 @@ class TableScriptToHtml(BagToHtml):
         view.th_struct(structbag)
         return structbag
     
-    def gridColumnsFromStruct(self,struct=None,table=None):
+    def gridColumnsFromStruct(self,struct=None):
         grid_columns = []
-        tblobj = self.db.table(table)
         cells = struct['view_0.rows_0'].nodes
         columns = []
         for n in cells:
             attr = n.attr
             field =  attr.get('field')
-            field_getter = attr.get('caption_field') or field
-            sqlcolumn = None
-            if field_getter.startswith('@'):
-                original_field = field_getter
-                field_getter = field_getter.replace('.','_').replace('@','_')
-                sqlcolumn = '%s AS %s' %(original_field,field_getter)
-            else:
-                columnobj = tblobj.column(field_getter)
-                if columnobj is not None:
-                    sqlcolumn = '$%s' %field_getter
+            field_getter = attr.get('field_getter') or attr.get('caption_field') or field
+            if isinstance(field_getter,basestring):
+                field_getter = flatten(field_getter)
+            group_aggr = attr.get('group_aggr')
+            if group_aggr:
+                field_getter = '%s_%s' %(field_getter,group_aggr)
             pars = dict(field=field,name=self.page.localize(attr.get('name')),field_getter=field_getter,
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),
-                        style=attr.get('style'),sqlcolumn=sqlcolumn,dtype=attr.get('dtype'))
+                        style=attr.get('style'),sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
+                        columnset=attr.get('columnset'),
+                        totalize=attr.get('totalize'),formula=attr.get('formula'))
             grid_columns.append(pars)
         return grid_columns
     
     def gridQueryParameters(self):
         #override
-        raise Exception('gridQueryParameters must be overridden')
+        return dict()
 
     def gridTable(self):
         if self.row_table:
-            #legacy
             return self.row_table
         parameters = self.gridQueryParameters()
+        if not parameters:
+            return None
         self.row_table = parameters.get('table') or self._expandRowRelation(parameters['relation'])['table']
         return self.row_table
 
@@ -339,6 +345,8 @@ class TableScriptToHtml(BagToHtml):
         #overridable
         self.row_mode = 'attribute'
         parameters = dict(self.gridQueryParameters())
+        if not parameters:
+            raise Exception('You must define gridQueryParameters or gridData')
         condition_kwargs = dictExtract(parameters,'condition_',pop=True)
         parameters.update(condition_kwargs)
         condition = parameters.pop('condition',None)
@@ -353,6 +361,9 @@ class TableScriptToHtml(BagToHtml):
         if condition:
             where.append(condition)
         columns = self.grid_sqlcolumns
+        hidden_columns = parameters.get('hidden_columns')
+        if hidden_columns:
+            columns = '%s,%s' %(hidden_columns,columns)
         rowtblobj = self.db.table(self.row_table)
         return rowtblobj.query(columns=columns,where= ' AND '.join(where),**parameters
                                 ).selection(_aggregateRows=True).output('grid',recordResolver=False)

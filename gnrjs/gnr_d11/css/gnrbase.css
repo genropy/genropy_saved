@@ -5750,3 +5750,9 @@ div[disabled='true'], div[disabled='disabled']{
     text-align: justify;
     padding:5px;
 }
+._common_d11.tundra .dojoxGrid-row .gnrgridlineno.dojoxGrid-cell{
+    color:rgba(64, 128, 180, 1.00);
+}
+
+.gnrgridlineno .cellContent{
+}

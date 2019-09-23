@@ -645,13 +645,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             attributes.autoHeight=true;
         }
         attributes.style=objectAsStyle(styleDict);
-        attributesToKeep = attributesToKeep + 'style,scaleX,scaleY,datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,editorSaveMethod,autoInsert,autoDelete';
+        attributesToKeep = attributesToKeep + 'style,scaleX,scaleY,datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,editorSaveMethod,autoInsert,autoDelete,showLineNumber';
         var gridAttributes = objectExtract(attributes, attributesToKeep);
         objectPopAll(attributes);
         objectUpdate(attributes, gridAttributes);
         attributes._identifier = identifier;
         sourceNode.highlightExternalChanges = sourceNode.attr.highlightExternalChanges || true;
-
         if(sourceNode.attr.userSets){
             sourceNode.registerDynAttr('userSets');
             var userSets = new gnr.GnrBag();
@@ -707,6 +706,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             widget.gridEditor = new gnr.GridEditor(widget);
         }
         var menuNode = gridContent.getNodeByAttr('tag', 'menu',true);
+        if(savedAttrs.showLineNumber){
+            sourceNode.setRelativeData(sourceNode.attr.structpath+'.info.showLineNumber',savedAttrs.showLineNumber);
+        }
         if(!menuNode && sourceNode.attr.gridplugins!==false){
             sourceNode.setRelativeData('.contextMenu',this.pluginContextMenuBag(sourceNode));
             sourceNode._('menu','contextMenu',{storepath:'.contextMenu',_class:'smallmenu'},{doTrigger:false});
@@ -746,6 +748,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         sourceNode.registerSubscription(nodeId + '_serverAction',widget,function(kw){
             if(this.serverAction){
                 this.serverAction(kw);
+            }
+        });
+        sourceNode.registerSubscription(nodeId + '_printRows',widget,function(kw){
+            if(this.printRows){
+                this.printRows(kw);
             }
         });
         sourceNode.subscribe('pluginCommand',function(kw){
@@ -903,6 +910,15 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         menu.setItem('#id',null,{caption:_T('Export XLS'),action:"$2.widget.serverAction({command:'export',allRows:true,opt:{export_mode:'xls',downloadAs:$2.attr.nodeId+'_export'}});"});
     },
 
+
+   // cm_plugin_print:function(sourceNode,menu){
+   //     menu.setItem('#id',null,{caption:_T('Print'),action:"$2.widget.serverAction({command:'print',allRows:true,opt:{rawData:true,downloadAs:$2.attr.nodeId+'_print',respath:'print/_common/print_gridstruct'}});"});
+   // },
+
+    cm_plugin_print:function(sourceNode,menu){
+        menu.setItem('#id',null,{caption:_T('Print'),action:'$2.publish("printRows");'});
+    },
+
     cm_plugin_chartjs:function(sourceNode,menu){
         menu.setItem('#id',
             genro.dev.userObjectMenuData({'objtype':'chartjs',
@@ -924,7 +940,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     pluginContextMenuBag:function(sourceNode){
         var gridplugins = sourceNode.attr.gridplugins;
         if(!gridplugins){
-            gridplugins = 'chartjs,export_xls';
+            gridplugins = 'chartjs,export_xls,print';
             if(sourceNode.attr.configurable && genro.grid_configurator){
                 gridplugins = 'configurator,'+gridplugins;
             }
@@ -938,7 +954,21 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 that['cm_plugin_'+cm_plugin](sourceNode,contextMenuBag);
             });
         }
+        contextMenuBag.setItem('r_'+contextMenuBag.len(),null,{caption:_T('Toggle line number'),
+                                checked:'^'+sourceNode.attr.structpath+'.info.showLineNumber',
+                                action:function(line,gridNode){gridNode.widget.toggleLineNumberColumn()}})
         return contextMenuBag;
+    },
+
+    mixin_printRows:function(){
+        var kw = {res_type:'print',table:this.sourceNode.attr.table,
+                    resource:'_common/print_gridstruct',
+                    gridId:this.sourceNode.attr.nodeId};
+        objectUpdate(kw,this.currentSelectionPars());
+        if(kw.selectedPkeys){
+            kw.allSelectionPkeys = this.getAllPkeys();
+        }
+        genro.publish('table_script_run',kw);
     },
 
     mixin_setAutoInsert:function(autoInsert){
@@ -1584,6 +1614,19 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
                     //cellsnodes = rowBag.getNodes();
                     row = [];
+                    if(sourceNode.getRelativeData(sourceNode.attr.structpath+'.info.showLineNumber')){
+                        if(!rowBag.getNode('_linenumber')){
+                            rowBag.setItem('_linenumber',null,{'calculated':true,'dtype':'L','name':' ','width':'3em',
+                                'classes':'gnrgridlineno','field':'_linenumber','format':'#,###',
+                                '_customGetter':function(row,idx){
+                                    return idx+1;
+                                }
+                            },{_position:0});
+                        }
+                    }else{
+                        rowBag.popNode('_linenumber');
+                    }
+
                     if(sourceNode.attr.rowStatusColumn){
                         if(!rowBag.getNode('_protectionStatus')){
                             rowBag.setItem('_protectionStatus',null,{
@@ -3935,6 +3978,11 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         }
     },
 
+    mixin_toggleLineNumberColumn:function(kw) {
+        let currShow = this.sourceNode.getRelativeData(this.sourceNode.attr.structpath+'.info.showLineNumber');
+        this.sourceNode.setRelativeData(this.sourceNode.attr.structpath+'.info.showLineNumber',!currShow);
+    },
+
     mixin_addNewSetColumn:function(kw) {
         this.gnr.addNewSetColumn(this.sourceNode,kw);;
     },
@@ -4143,13 +4191,35 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
                     },50);
             }, true);
             }
-            
-            
         }
         if(this.sortedBy){
             this._collectionStore.sortedBy = this.sortedBy;
         }
         return this._collectionStore;
+    },
+    mixin_currentSelectionPars:function(){
+        var kw = {};
+        var store = this.collectionStore();
+        if(store.storeType=='VirtualSelection'){
+            kw.selectionName = store.selectionName;
+        }else if(store.storeType=='Selection' && !store.storeNode.attr.groupByStore){
+            kw.selectedPkeys = this.getSelectedPkeys() || [];
+            if (kw.selectedPkeys.length==0){
+                kw.selectedPkeys = this.getAllPkeys();
+            }
+        }else{
+            kw.currentData = this.currentData(null,true);
+            if(this.getSelectedRowidx()){
+                kw.allGridData = this.storebag().deepCopy();
+            }
+        }
+        if(this.cellmap._selected){
+            kw.selectedPkeys = this.sourceNode.getRelativeData('.sets._selected');
+        }else{
+            kw.selectedRowidx = this.getSelectedRowidx();
+        }
+        kw.selectionCount = store.len(true);
+        return kw;
     },
 
     mixin_createFiltered:function(currentFilterValue,filterColumn,colType){

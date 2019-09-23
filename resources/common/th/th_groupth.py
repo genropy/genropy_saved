@@ -113,7 +113,7 @@ class TableHandlerGroupBy(BaseComponent):
                 structrow.popNode('_grp_count');
             }
             """,structrow='=.struct.#0.#0',showCounterCol='^.showCounterCol',_if='structrow')
-            frame.stackedView = self._thg_stackedView(gridstack,title=title,grid=frame.grid,frameCode=frameCode,linkedTo=linkedTo)
+            frame.stackedView = self._thg_stackedView(gridstack,title=title,grid=frame.grid,frameCode=frameCode,linkedTo=linkedTo,table=table)
             frame.treeView = self._thg_treeview(sc,title=title,grid=frame.grid,treeRoot=treeRoot,linkedTo=linkedTo)
             frame.dataController("""
                 grid.collectionStore().loadInvisible = always || genro.dom.isVisible(sc);
@@ -203,9 +203,9 @@ class TableHandlerGroupBy(BaseComponent):
 
 
 
-    def _thg_stackedView(self,parentStack,title=None, grid=None,frameCode=None,linkedTo=None,**kwargs):
+    def _thg_stackedView(self,parentStack,title=None, grid=None,frameCode=None,linkedTo=None,table=None,**kwargs):
         frame = parentStack.bagGrid(frameCode='%s_stacked' %frameCode,title='!!Stacked',pageName='stackedview',
-                                    datapath='.stacked',
+                                    datapath='.stacked',table=table,
                                     storepath='.store',addrow=False,delrow=False,
                                     datamode='attr')
         bar = frame.top.bar.replaceSlots('#','5,ctitle,stackButtons,10,groupByModeSelector,*,searchOn,export,5,dashboardsMenu',
