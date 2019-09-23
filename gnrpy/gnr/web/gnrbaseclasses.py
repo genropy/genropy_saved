@@ -278,7 +278,6 @@ class TableScriptToHtml(BagToHtml):
             return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
         struct = self.page.newGridStruct(maintable=self.gridTable())
         self.gridStruct(struct)
-        self.sql
         self.structAnalyze(struct)
         return dict(columns=self.gridColumnsFromStruct(struct=struct),
                     columnsets=self.gridColumnsetsFromStruct(struct))
@@ -310,6 +309,7 @@ class TableScriptToHtml(BagToHtml):
         sheet_delta = 0
         while sheet_delta<3 and not self._structAnalyze_step(columns,net_min_grid_width,sheet_count+sheet_delta):
             sheet_delta+=1
+        self.sheets_counter = sheet_count+1
     
     def _structAnalyze_step(self,columns,net_min_grid_width,sheet_count):
         sheet_space_available = float(net_min_grid_width)/ sheet_count
@@ -405,7 +405,7 @@ class TableScriptToHtml(BagToHtml):
 
     @property
     def grid_sqlcolumns(self):
-        return ','.join([c for c in self.columnsBag.digest('#a.sqlcolumn') if c])
+        return ','.join([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')])
                 
     def getHtmlPath(self, *args, **kwargs):
         """TODO"""
