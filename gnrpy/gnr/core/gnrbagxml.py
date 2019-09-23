@@ -347,12 +347,12 @@ class BagToXml(object):
             result = result + self.bagToXmlBlock(bag,namespaces=[])
         else:
             result = result + self.buildTag('GenRoBag', self.bagToXmlBlock(bag,namespaces=[]), xmlMode=True, localize=False)
-        result = str(result).encode(encoding, 'replace')
         if pretty:
             from xml.dom.minidom import parseString
             result = parseString(result)
             result = result.toprettyxml()
             result = result.replace('\t\n','').replace('\t\n','')
+        result = six.ensure_binary(result, encoding, 'replace')
         if filename:
             if hasattr(filename,'write'):
                 filename.write(result)
@@ -362,9 +362,11 @@ class BagToXml(object):
                     if dirname and not os.path.exists(dirname):
                         os.makedirs(dirname)
                 with open(filename, 'wb') as output:
-                    output.write(result.encode('utf-8'))
+                    out_result = result
+                    
+                    output.write(out_result)
         if six.PY2:
-            result = result.decode()
+            result = result.decode(encoding)
         return result
         
     def buildTag(self, tagName, value, attributes=None, cls='', xmlMode=False,localize=True,namespaces=None):
