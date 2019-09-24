@@ -23,7 +23,7 @@
 #Created by Giovanni Porcari on 2007-03-24.
 #Copyright (c) 2007 Softwell. All rights reserved.
 
-import os,sys
+import os,sys,math
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrdict import dictExtract
@@ -278,6 +278,7 @@ class TableScriptToHtml(BagToHtml):
             return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
         struct = self.page.newGridStruct(maintable=self.gridTable())
         self.gridStruct(struct)
+        self.structAnalyze(struct)
         return dict(columns=self.gridColumnsFromStruct(struct=struct),
                     columnsets=self.gridColumnsetsFromStruct(struct))
     
@@ -288,6 +289,42 @@ class TableScriptToHtml(BagToHtml):
     
     def gridStruct(self,struct):
         pass
+
+    def structAnalyze(self,struct,grid_width=None,grid_border_width=None):
+        layoutPars = self.mainLayoutParamiters()
+        gridPars = self.gridLayoutParameters()
+        calcGridWidth =  self.copyWidth() - \
+                        layoutPars.get('left',0)-layoutPars.get('right',0) -\
+                        gridPars.get('left',0) - gridPars.get('right',0)
+        grid_width = grid_width or gridPars.get('width') or calcGridWidth
+        columns = struct['view_0.rows_0'].digest('#a')
+        min_grid_width =  sum([(col.get('mm_width') or col.get('mm_min_width') or  20) for col in columns])
+        extra_space = grid_width-min_grid_width
+        if extra_space>=0:
+            return
+        head_col_total_width = sum([(col.get('mm_width') or col.get('mm_min_width') or  20) for col in columns if col.get('headColumn')]) 
+        grid_free_width = grid_width-head_col_total_width
+        net_min_grid_width = min_grid_width-head_col_total_width
+        sheet_count = int(math.ceil(float(net_min_grid_width)/grid_free_width))
+        sheet_delta = 0
+        while sheet_delta<3 and not self._structAnalyze_step(columns,net_min_grid_width,sheet_count+sheet_delta):
+            sheet_delta+=1
+        self.sheets_counter = sheet_count+1
+    
+    def _structAnalyze_step(self,columns,net_min_grid_width,sheet_count):
+        sheet_space_available = float(net_min_grid_width)/ sheet_count
+        s = -1
+        tw = 0
+        for col in columns:
+            if not col.get('headColumn'): 
+                tw -= col['mm_width']
+                if tw<=0:
+                    tw += sheet_space_available
+                    s+=1
+                if s>sheet_count:
+                    return False
+                col['sheet'] = s
+        return True
     
     def structFromResource(self,viewResource=None,table=None):
         table = table or self.rows_table or self.tblobj.fullname
@@ -315,7 +352,7 @@ class TableScriptToHtml(BagToHtml):
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),
                         style=attr.get('style'),sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
-                        columnset=attr.get('columnset'),
+                        columnset=attr.get('columnset'),sheet=attr.get('sheet','*'),
                         totalize=attr.get('totalize'),formula=attr.get('formula'))
             grid_columns.append(pars)
         return grid_columns
@@ -368,7 +405,7 @@ class TableScriptToHtml(BagToHtml):
 
     @property
     def grid_sqlcolumns(self):
-        return ','.join([c for c in self.columnsBag.digest('#a.sqlcolumn') if c])
+        return ','.join([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')])
                 
     def getHtmlPath(self, *args, **kwargs):
         """TODO"""
