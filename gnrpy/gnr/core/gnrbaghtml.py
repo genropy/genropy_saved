@@ -87,6 +87,9 @@ class BagToHtml(object):
     def sheetWidth(self):
         return self.page_width or self.currentPageFormat['width']
 
+    def defaultKwargs(self):
+        return dict(border_color = '#e0e0e0',border_width = .3)
+
     def __init__(self, locale='en', encoding='utf-8', templates=None, templateLoader=None, **kwargs):
         self.locale = locale
         self.encoding = encoding
@@ -188,7 +191,9 @@ class BagToHtml(object):
                                       page_margin_left=self.page_margin_left, page_margin_right=self.page_margin_right,
                                       page_debug=self.page_debug, print_button=self.print_button,
                                       htmlTemplate=self.htmlTemplate, css_requires=self.get_css_requires(),
-                                      showTemplateContent=self.showTemplateContent,parent=self)
+                                      showTemplateContent=self.showTemplateContent,
+                                      default_kwargs=self.defaultKwargs(),
+                                      parent=self)
 
     def get_css_requires(self):
         """Get the :ref:`"css_requires" webpage variable <css_requires>` in its string format
