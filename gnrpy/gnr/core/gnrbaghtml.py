@@ -59,8 +59,8 @@ class BagToHtml(object):
     grid_col_headers_height = 4
     grid_col_widths = None
     grid_style_cell = None
-    grid_columns =  None
-    grid_columnsets = None
+    grid_columns =  []
+    grid_columnsets = {}
     grid_row_height = 5
     renderMode = None
     totalize_carry = False
