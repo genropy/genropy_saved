@@ -114,7 +114,7 @@ class Table(object):
                         if mergeUpdate:
                             updater = {}
                             for k,v in data_record.items(): 
-                                if (v!=old_record[k]) and (old_record[k] != master_old_record[k]):
+                                if (v!=old_record.get(k)) and (old_record.get(k) != master_old_record.get(k)):
                                     continue
                                 updater[k] = v
                         tblobj.update(updater,old_record=old_record)
