@@ -498,8 +498,6 @@ class BagToHtml(object):
             gridNetHeight = self.grid_height - self.calcGridHeaderHeight() - self.calcGridFooterHeight() -\
                             carry_height - self.totalizeFooterHeight() - self.grid_row_height
             availableSpace = gridNetHeight-bodyUsed-self.grid_body_adjustment
-            if not self.rowData:
-                continue
             doNewPage =  (rowheight+extra_row_height) > availableSpace
             if doNewPage:
                 carry_height = self.totalizeCarryHeight()
@@ -507,6 +505,8 @@ class BagToHtml(object):
                 self.sheet = sheet
                 if doNewPage:
                     self._newPage()
+                if not self.rowData:
+                    continue
                 row = self.copyValue('body_grid').row(height=rowheight, **row_kw)
                 self.copies[self.copykey]['grid_body_used'] = self.copyValue('grid_body_used') + rowheight+extra_row_height
                 self.currColumn = 0
