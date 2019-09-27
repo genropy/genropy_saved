@@ -21,7 +21,7 @@ class Main(TableScriptToHtml):
     grid_footer_height = 0 
     grid_header_height = 4.3
     grid_col_widths=[0] #rowColWidth
-    grid_row_height=5.3
+    grid_row_height=5
     row_mode = 'attribute'
 
     def docHeader(self, header):
@@ -33,9 +33,25 @@ class Main(TableScriptToHtml):
         row.cell(self.getData('print_title'),content_class='caption')
 
     def gridData(self):
-        return self.sourceSelectionData
+        allrows = self.getData('allrows')
+        extra_parameters = self.getData('extra_parameters')
+        if extra_parameters['currentData']:
+            if self.getData('grid_datamode')=='bag':
+                self.row_mode = 'value'
+            if allrows and extra_parameters['allGridData']:
+                return extra_parameters['allGridData']
+            return extra_parameters['currentData']
+        columns = self.grid_sqlcolumns if self.callingBatch.selectedPkeys else None
+        allSelectionPkeys = extra_parameters['allSelectionPkeys']
+        if allrows:
+            if allSelectionPkeys:
+                self.callingBatch.selectedPkeys = allSelectionPkeys
+            else:
+                self.callingBatch.selectedRowidx = []
+        return self.callingBatch.get_selection(columns=columns).output('grid')
+        
     
-    def gridColumns(self):
+    def gridColumnsInfo(self):
         struct = self.sourceStruct
         tot_width = decimalRound(self.page_width-self.page_margin_left -self.page_margin_right-2)
         cells = struct['#0.#0'].digest('#a')
@@ -45,7 +61,8 @@ class Main(TableScriptToHtml):
                 c['mm_width'] = 0
             else:
                 c['mm_width'] = int(c['q_width']*tot_width)
-        return self.gridColumnsFromStruct(struct=struct,table=self.row_table)
+        return dict(columns=self.gridColumnsFromStruct(struct=struct),
+                    columnsets=self.gridColumnsetsFromStruct(struct))
 
     def outputDocName(self, ext=''):
-        return '%s.%s' %(self.getData('titolo'),ext)
+        return '%s.%s' %(self.getData('print_title') or self.getData('extra_parameters.gridId') ,ext)

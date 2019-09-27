@@ -1477,6 +1477,8 @@ class GnrApp(object):
             return self.aux_instances[name]
         instance_node = self.config.getNode('aux_instances.%s' % name)
         if not instance_node:
+            if check:
+                return
             raise Exception('aux_instance %s is not declared' %name)
         instance_name = instance_node.getAttr('name') or name
         remote_db = instance_node.getAttr('remote_db')

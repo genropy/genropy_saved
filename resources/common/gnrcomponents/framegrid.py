@@ -34,6 +34,10 @@ class FrameGridTools(BaseComponent):
                                                 dict(name='opt_localized_data',wdg='checkbox',label='Localized data')]),
                                 **kwargs) 
 
+    @struct_method
+    def fgr_slotbar_printRows(self,pane,_class='iconbox print',**kwargs):
+        pane.slotButton('!!Print grid',iconClass=_class,
+                        publish='printRows',**kwargs)
 
     @struct_method
     def fgr_slotbar_batchAssign(self,pane,**kwargs):
@@ -241,7 +245,7 @@ class FrameGrid(BaseComponent):
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,viewResource=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
                     footer_kwargs=None,columnset_kwargs=None,footer=None,columnset=None,fillDown=None,
-                    _newGrid=None,selectedPage=None,configurable=None,**kwargs):
+                    _newGrid=None,selectedPage=None,configurable=None,printRows=None,**kwargs):
         pane.attributes.update(overflow='hidden')
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         frame.center.stackContainer(selectedPage=selectedPage)
@@ -289,7 +293,8 @@ class FrameGrid(BaseComponent):
                     autoToolbar=True,semaphore=None,
                     datamode=None,
                     store_kwargs=True,parentForm=None,
-                    table=None,viewResource=None,struct=None,**kwargs):
+                    table=None,viewResource=None,struct=None,
+                    printRows=None,**kwargs):
         if pbl_classes:
             _custclass = kwargs.get('_class','')
             kwargs['_class'] = 'pbl_roundedGroup %s' %_custclass
@@ -322,6 +327,8 @@ class FrameGrid(BaseComponent):
             default_slots.append('*')
             if export:
                 default_slots.append('export')
+            if printRows:
+                default_slots.append('printRows')
             if delrow:
                 default_slots.append('delrow')
             if addrow:

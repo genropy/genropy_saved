@@ -201,7 +201,7 @@ class TableHandlerView(BaseComponent):
             top_kwargs['slots']= base_slots
         #top_kwargs['height'] = top_kwargs.get('height','20px')
         top_kwargs['_class'] = 'th_view_toolbar'
-        grid_kwargs.setdefault('gridplugins', 'configurator,chartjs,stats' if virtualStore else 'configurator,chartjs')
+        grid_kwargs.setdefault('gridplugins', 'configurator,chartjs,print' if virtualStore else 'configurator,chartjs,export_xls,print')
         grid_kwargs['item_name_singular'] = self.db.table(table).name_long
         grid_kwargs['item_name_plural'] = self.db.table(table).name_plural or grid_kwargs['item_name']
         grid_kwargs.setdefault('loadingHider',loadingHider)
@@ -292,6 +292,7 @@ class TableHandlerView(BaseComponent):
             b.rowchild(label='-')
             b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration("%s");' %table)
         b.rowchild(label='!!Configure grid',action="genro.nodeById('%s').publish('configuratorPalette');" %rootNodeId)
+        b.rowchild(label='!!Print rows',action="genro.nodeById('%s').publish('printRows');" %rootNodeId)
         b.rowchild(label='-')
         if statsEnabled:
             b.rowchild(label='!!Group by',action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools";')
@@ -845,8 +846,13 @@ class TableHandlerView(BaseComponent):
         pageOptions = self.pageOptions or dict()
         #liveUpdate: 'NO','LOCAL','PAGE'
         liveUpdate = liveUpdate or options.get('liveUpdate') or pageOptions.get('liveUpdate') or self.site.config['options?liveUpdate'] or 'LOCAL'
+        externalLiveUpdateDelay = 5
         if liveUpdate == '*':
             liveUpdate = True
+        elif isinstance(liveUpdate,basestring) and liveUpdate.isdigit():
+            externalLiveUpdateDelay = int(liveUpdate)
+            liveUpdate = True
+        store_kwargs.setdefault('externalLiveUpdateDelay', externalLiveUpdateDelay)
         store_kwargs.setdefault('liveUpdate',liveUpdate)
         hardQueryLimit = options.get('hardQueryLimit') or self.application.config['db?hardQueryLimit']
         allowLogicalDelete = store_kwargs.pop('allowLogicalDelete',None) or options.get('allowLogicalDelete')

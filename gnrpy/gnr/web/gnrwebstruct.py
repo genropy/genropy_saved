@@ -125,6 +125,19 @@ def cellFromField(field,tableobj,checkPermissions=None):
                 externalStore(tableobj,field,joiner,fkey,ext_fldname,kwargs)
             elif '_storename' in joiner:
                 externalStore(tableobj,field,joiner,fkey,ext_fldname,kwargs)
+    
+    field_getter = kwargs.get('caption_field') or field
+    sqlcolumn = None
+    if field_getter.startswith('@'):
+        original_field = field_getter
+        field_getter = field_getter.replace('.','_').replace('@','_')
+        sqlcolumn = '%s AS %s' %(original_field,field_getter)
+    else:
+        columnobj = tableobj.column(field_getter)
+        if columnobj is not None:
+            sqlcolumn = '$%s' %field_getter
+    kwargs['field_getter'] = field_getter
+    kwargs['sqlcolumn'] = sqlcolumn
     return kwargs
 
 
