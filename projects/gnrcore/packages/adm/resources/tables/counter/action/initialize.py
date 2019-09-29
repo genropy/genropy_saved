@@ -40,6 +40,8 @@ class Main(BaseResourceAction):
             if attr.get('_syspackage'):
                 continue
             pkgtables = Bag()
+            if not pkg['tables']:
+                continue
             for t in pkg['tables'].values():
                 t = t.dbtable
                 if t.counterColumns():
