@@ -32,7 +32,10 @@ class Service(AdmMailService):
                                                         headers_kwargs=headers_kwargs,**kwargs)
         else:
             if account_id:
-                kwargs.update(self.get_account_params(account_id))
+                account_parameters = self.get_account_params(account_id)
+                for k,v in account_parameters.items():
+                    if not kwargs.get(k,None):
+                        kwargs[k]=v
             kwargs['headers_kwargs'] = headers_kwargs
             return super(Service, self).sendmail(attachments=attachments,**kwargs)
 
