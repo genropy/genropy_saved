@@ -1475,7 +1475,7 @@ dojo.declare("gnr.GridEditor", null, {
                 }
                 var dlgkw = objectExtract(fldDict.attr,'dlg_*',true,true);
                 objectUpdate(promptkw,dlgkw);
-                genro.dlg.prompt(attr.original_name || attr.field,promptkw)
+                genro.dlg.prompt(attr.original_name || attr.field,promptkw, grid.sourceNode);
             }else{
                 var rowpath = this.widgetRootNode.absDatapath('.' + rowLabel);
                 genro.dlg.quickTooltipPane({datapath:rowpath,fields:attr.fields,domNode:cellNode,modal:attr.modal},
