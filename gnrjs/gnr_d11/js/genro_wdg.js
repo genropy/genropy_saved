@@ -1455,8 +1455,13 @@ dojo.declare("gnr.GridEditor", null, {
                 fields = funcApply(fields,{rowDataNode:rowDataNode,grid:grid},this);
             }
             if(attr.mode=='dialog' || remote){
+                var currdata;
+                if (attr.rowEdit == true){
+                    currdata = rowData.deepCopy();
+                }else{
+                    currdata = rowDataNode.getValue().getItem(attr.field);
+                }
                 var that = this;
-                var currdata = rowDataNode.getValue().getItem(attr.field);
                 var promptkw = {widget:attr.contentCb || attr.fields,
                     dflt:currdata?currdata.deepCopy():null,
                     mandatory:attr.validate_notnull,
