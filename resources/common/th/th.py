@@ -859,7 +859,7 @@ class ThLinker(BaseComponent):
             footer = frame.bottom.slotBar('*,linker_edit',height='20px')
             footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='iconbox pencil',
                                             action='linker.publish("loadrecord");',linker=linker,
-                                            forbudden_dbstore=forbudden_dbstore,
+                                            forbudden_dbstore=forbudden_dbstore,hidden=forbudden_dbstore,
                                             visible=currpkey,parentForm=True)
         return frame
 

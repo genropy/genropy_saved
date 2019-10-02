@@ -275,6 +275,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             var req_dbstore = sourceNode.inheritedAttribute('context_dbstore');
             if (req_dbstore){
                 kw.url = '/'+req_dbstore+kw.url;
+            }else if(req_dbstore===false){
+                content.temp_dbstore = '_main_db';
             }
         }
         if (genro.startArgs._avoid_module_cache){
