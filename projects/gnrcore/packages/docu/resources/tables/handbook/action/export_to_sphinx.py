@@ -101,9 +101,9 @@ class Main(BaseResourceBatch):
         self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
 
 
-    def post_process(self):
-        self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
-        self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
+    #def post_process(self):
+    #    self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
+    #    self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
         
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./:-]+)")
