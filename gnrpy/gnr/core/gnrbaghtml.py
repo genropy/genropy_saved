@@ -68,6 +68,8 @@ class BagToHtml(object):
     totalize_mode = 'doc' #doc,page
     copies_per_page = 1
     copy_extra_height = 0
+    copy = 0
+    sheet = 0
     starting_page_number = 0
     body_attributes = None
     sheets_counter = 1
@@ -458,7 +460,6 @@ class BagToHtml(object):
 
     def mainLoop(self):
         """TODO"""
-        self.copies = {}
         self._paperPages = {}
         self.copy = 0
         self.sheet = 0
@@ -466,15 +467,8 @@ class BagToHtml(object):
         self.defineStandardStyles()
         self.defineCustomStyles()
         self.currGrid= None
-        self.doc_height = self.copyHeight() 
-        self.grid_height = self.doc_height - self.calcDocHeaderHeight() - self.calcDocFooterHeight()
-        
-
         if self.getData(self.rows_path) is None:
             self.setData(self.rows_path,self.gridData())
-        for copy in range(self.copies_per_page):
-            for sheet in range(self.sheets_counter):
-                self.copies['%02i_%02i' %(sheet,copy)] = dict(grid_body_used=self.grid_height, currPage=-1)
         lines = self.getData(self.rows_path)
         if not lines and hasattr(self,'empty_row'):
             lines = Bag()
@@ -985,6 +979,21 @@ class BagToHtml(object):
         
         :param valuename: the name of the value to copy"""
         return self.copies[self.copykey][valuename]
+
+    @property
+    def grid_height(self):
+        if not hasattr(self,'_grid_height'):
+            self._grid_height = self.copyHeight() - self.calcDocHeaderHeight() - self.calcDocFooterHeight()
+        return self._grid_height
+
+    @property
+    def copies(self):
+        if not hasattr(self,'_copies'):
+            self._copies = {}
+            for copy in range(self.copies_per_page):
+                for sheet in range(self.sheets_counter):
+                    self._copies['%02i_%02i' %(sheet,copy)] = dict(grid_body_used=self.grid_height, currPage=-1)
+        return self._copies
 
     @property
     def copykey(self):
