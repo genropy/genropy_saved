@@ -157,6 +157,7 @@ class BagToHtml(object):
         if record is None:
             record = Bag()
         self.htmlContent = htmlContent
+        self._paperPages = {}
         self._data = Bag()
         self._gridsColumnsBag = Bag()
         self.is_draft = is_draft
@@ -460,7 +461,6 @@ class BagToHtml(object):
 
     def mainLoop(self):
         """TODO"""
-        self._paperPages = {}
         self.copy = 0
         self.sheet = 0
         self.lastPage = False
@@ -980,23 +980,34 @@ class BagToHtml(object):
         :param valuename: the name of the value to copy"""
         return self.copies[self.copykey][valuename]
 
-    @property
-    def grid_height(self):
+    def _get_grid_height(self):
         if not hasattr(self,'_grid_height'):
             self._grid_height = self.copyHeight() - self.calcDocHeaderHeight() - self.calcDocFooterHeight()
         return self._grid_height
 
-    @property
-    def copies(self):
+    def _set_grid_height(self,height):
+        self._grid_height = height #legacyprint compatibility
+
+    grid_height = property(_get_grid_height, _set_grid_height)
+
+    def _get_copies(self):
         if not hasattr(self,'_copies'):
             self._copies = {}
             for copy in range(self.copies_per_page):
                 for sheet in range(self.sheets_counter):
                     self._copies['%02i_%02i' %(sheet,copy)] = dict(grid_body_used=self.grid_height, currPage=-1)
         return self._copies
+       
+    def _set_copies(self, copies):
+        self._copies = copies #legacyprint compatibility
+
+    copies = property(_get_copies, _set_copies)
 
     @property
     def copykey(self):
+        if isinstance(self.copies,list):
+            #legacymode
+            return self.copy 
         return '%02i_%02i' %(self.sheet,self.copy)
         
     def calcRowHeight(self):
