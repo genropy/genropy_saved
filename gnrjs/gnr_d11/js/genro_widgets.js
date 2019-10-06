@@ -4006,7 +4006,7 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
         for(var k in sw){
             var ks = k.split('_');
             if(ks.length==1){
-                switches[k] = {'search':new RegExp(sw[k])};
+                switches[k] = {'search':new RegExp('^'+sw[k])};
                 objectUpdate(switches[k],objectExtract(sourceNode.attr,'switch_'+k+'_*',true));
                 if(switches[k].action){
                     switches[k].action = funcCreate(switches[k].action,'match',sourceNode);
