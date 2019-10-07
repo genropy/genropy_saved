@@ -1810,7 +1810,10 @@ class Bag(GnrObject):
     def _unpickle(self, source, fromFile):
         if fromFile:
             with open(source, mode='rb') as f:
-                result = pickle.load(f)
+                try:
+                    result = pickle.load(f)
+                except UnicodeDecodeError:
+                    result = pickle.load(f, encoding='bytes')
         else:
             result = pickle.loads(source)
         return result
