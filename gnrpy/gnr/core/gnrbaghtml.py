@@ -621,6 +621,7 @@ class BagToHtml(object):
         self.fillGridRow()
     
     
+
     def fillGridRow(self):
         rowData = self.rowData
         self.renderMode = None
@@ -680,6 +681,7 @@ class BagToHtml(object):
         if columnset and self.columnsets:
             result.update(dictExtract(self.columnsets[columnset],'cells_'))
         result.update(col)
+        result['style'] = self.getCellStyle(result.pop('style',None)) #backward compatibility
         anycell_kw = rowData.get('anycell_kw') or dict()
         result.update(anycell_kw)
         flattenkey = flatten(field)
