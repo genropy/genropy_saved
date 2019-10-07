@@ -123,9 +123,10 @@ class Main(BaseResourceBatch):
             self.hierarchical_name = record['hierarchical_name']
             if n.attr['child_count']>0:
                 result.append('%s/%s.rst' % (name,name))
-                toc_elements=self.prepare(v, pathlist+toc_elements)
-                self.curr_pathlist = pathlist+[name]
-                tocstring = self.createToc(elements=toc_elements,
+                if v:
+                    toc_elements=self.prepare(v, pathlist+toc_elements)
+                    self.curr_pathlist = pathlist+[name]
+                    tocstring = self.createToc(elements=toc_elements,
                             hidden=not record['sphinx_toc'],
                             titlesonly=True,
                             maxdepth=1)
