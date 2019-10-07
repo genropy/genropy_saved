@@ -1813,7 +1813,8 @@ class Bag(GnrObject):
                 try:
                     result = pickle.load(f)
                 except UnicodeDecodeError:
-                    result = pickle.load(f, encoding='bytes')
+                    #pickle made in python 2.x
+                    result = pickle.load(f, encoding='latin1')
         else:
             result = pickle.loads(source)
         return result
