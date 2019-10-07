@@ -423,6 +423,7 @@ class BagToHtml(object):
     
     @property
     def columnsets(self):
+        self.columnsBag #fix
         gridName = self.currentGrid or '_main_'
         if gridName in self._gridsColumnsBag:
             return self._gridsColumnsBag[gridName][self._sheetKey(self.sheet)]['columnsets']
