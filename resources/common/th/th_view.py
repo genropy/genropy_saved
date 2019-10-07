@@ -850,7 +850,7 @@ class TableHandlerView(BaseComponent):
         externalLiveUpdateDelay = 5
         if liveUpdate == '*':
             liveUpdate = True
-        elif isinstance(liveUpdate,basestring) and liveUpdate.isdigit():
+        elif isinstance(liveUpdate,str) and liveUpdate.isdigit():
             externalLiveUpdateDelay = int(liveUpdate)
             liveUpdate = True
         store_kwargs.setdefault('externalLiveUpdateDelay', externalLiveUpdateDelay)
