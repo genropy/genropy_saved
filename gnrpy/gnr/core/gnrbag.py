@@ -1809,11 +1809,12 @@ class Bag(GnrObject):
             
     def _unpickle(self, source, fromFile):
         if fromFile:
-            with open(source, mode='rb') as f:
-                try:
+            try:
+                with open(source, mode='rb') as f:
                     result = pickle.load(f)
-                except UnicodeDecodeError:
-                    #pickle made in python 2.x
+            except UnicodeDecodeError:
+                #pickle made in python 2.x
+                with open(source, mode='rb') as f:
                     result = pickle.load(f, encoding='latin1')
         else:
             result = pickle.loads(source)
