@@ -29,7 +29,6 @@ from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrstring import  splitAndStrip, slugify,templateReplace
 from gnr.core.gnrlang import GnrObject
-from gnr.core.gnrstring import flatten
 from gnr.core.gnrbag import Bag
 
 
@@ -344,13 +343,13 @@ class TableScriptToHtml(BagToHtml):
             field =  attr.get('field')
             field_getter = attr.get('field_getter') or attr.get('caption_field') or field
             if isinstance(field_getter,basestring):
-                field_getter = flatten(field_getter)
+                field_getter = self._flattenField(field_getter)
             group_aggr = attr.get('group_aggr')
             if group_aggr:
                 field_getter = '%s_%s' %(field_getter,group_aggr)
             pars = dict(field=field,name=self.page.localize(attr.get('name')),field_getter=field_getter,
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
-                        white_space=attr.get('white_space','nowrap'),
+                        white_space=attr.get('white_space','nowrap'),subtotal=attr.get('subtotal'),
                         style=attr.get('style'),sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
                         columnset=attr.get('columnset'),sheet=attr.get('sheet','*'),
                         totalize=attr.get('totalize'),formula=attr.get('formula'))

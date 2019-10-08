@@ -14,7 +14,6 @@ from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrdict import dictExtract
-from gnr.core.gnrstring import flatten
 from gnr.core.gnrnumber import decimalRound
 from collections import defaultdict
 import tempfile
@@ -75,6 +74,9 @@ class BagToHtml(object):
     sheets_counter = 1
     splittedPages = 0
     watermark_draft_class = 'document_draft'
+
+    def _flattenField(self,field):
+        return field.replace('.','_').replace('@','_')
 
     @property
     def currentPageFormat(self):
@@ -529,7 +531,7 @@ class BagToHtml(object):
         self._caption_column = None
         for col in self.columnsBag:
             colattr = col.attr
-            field = flatten(colattr.get('field'))
+            field = self._flattenField(colattr.get('field'))
             if colattr.get('totalize'):
                 lastspanfield = None
             else:
@@ -685,7 +687,7 @@ class BagToHtml(object):
         result['style'] = self.getCellStyle(result.pop('style',None)) #backward compatibility
         anycell_kw = rowData.get('anycell_kw') or dict()
         result.update(anycell_kw)
-        flattenkey = flatten(field)
+        flattenkey = self._flattenField(field)
         extra_kw = rowData.get('%s_kw' %flattenkey) or dict()
         extra_kw.update(dictExtract(rowData,'%s_' %flattenkey))
     
@@ -706,7 +708,7 @@ class BagToHtml(object):
 
         formula = col['formula']
         if formula.startswith('+=') or formula.startswith('%='):
-            mainField = flatten(formula[2:].strip())
+            mainField = self._flattenField(formula[2:].strip())
             if formula.startswith('+='):
                 prevValue = self.previousRowData.get(col['field'],self.grid_prev_running_totals[mainField])
                 result = prevValue + rowData[mainField]
@@ -719,7 +721,7 @@ class BagToHtml(object):
         return result 
 
     def getColTotal(self,field):
-        field = flatten(field)
+        field = self._flattenField(field)
         colsTotals = self.getData('colsTotals') or Bag()
         if field in colsTotals:
             return colsTotals[field]
@@ -732,7 +734,6 @@ class BagToHtml(object):
             col = self.columnsBag.getAttr('#%i' %col)
         field = col['field']
         field_getter = col.get('field_getter')
-        
         if not self.renderMode:
             if field=='_linenumber':
                 rowData[field] = self.lineno+1
