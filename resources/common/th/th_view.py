@@ -638,6 +638,10 @@ class TableHandlerView(BaseComponent):
                     action="""
                     if($1.fullpath=='__queryeditor__'){
                         var currentQuery = GET .query.currentQuery;
+                        if(currentQuery && !currentQuery.startsWith('__')){
+                            SET .query.queryEditor=true;
+                            return;
+                        }
                         if(currentQuery=='__querybysample__'){
                             SET .query.currentQuery = '__basequery__';
                         }
@@ -645,6 +649,9 @@ class TableHandlerView(BaseComponent):
                         SET .query.queryEditor=true; 
                         SET .query.queryAttributes.extended = true;
                     }else{
+                        if($1.fullpath=='__basequery__'){
+                            SET .query.queryEditor=false;
+                        }
                         SET .query.currentQuery = $1.fullpath;
                         SET .query.menu.__queryeditor__?disabled=$1.filteringPkeys!=null;
                     }""")
