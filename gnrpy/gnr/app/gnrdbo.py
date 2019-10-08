@@ -217,7 +217,7 @@ class GnrDboPackage(object):
                 queryPars = dict(addPkeyColumn=False,bagFields=True)
                 if qp_handler:
                     queryPars.update(qp_handler())
-                f = tblobj.dbtable.query(**queryPars).fetch()
+                f = tblobj.dbtable.query(**queryPars).selection().output('dictlist')
             s[tname] = f
         s['preferences'] = self.db.table('adm.preference').loadPreference()['data'][self.name]
         s.toXml('%s.xml' %bagpath)
