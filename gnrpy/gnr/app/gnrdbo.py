@@ -140,13 +140,13 @@ class GnrDboPackage(object):
 
     def _loadStartupData_do(self,basepath=None,btc=None,empty_before=True):
         bagpath = basepath or os.path.join(self.db.application.packages[self.name].packageFolder,'startup_data')
-        if not os.path.isfile('%s.pik' %bagpath):
+        if not os.path.isfile('%s.xml' %bagpath):
             import gzip
             with gzip.open('%s.gz' %bagpath,'rb') as gzfile:
-                with open('%s.pik' %bagpath,'wb') as f:
+                with open('%s.xml' %bagpath,'wb') as f:
                     f.write(gzfile.read())
         db = self.db
-        s = Bag('%s.pik' %bagpath)
+        s = Bag('%s.xml' %bagpath)
         tables = s['tables']
         rev_tables =  list(tables)
         rev_tables.reverse()
@@ -183,8 +183,7 @@ class GnrDboPackage(object):
 
         self.db.table('adm.preference').initPkgPref(self.name,s['preferences'])
         db.commit()
-        
-        os.remove('%s.pik' %bagpath)
+        os.remove('%s.xml' %bagpath)
 
 
     def startupData_tables(self):
@@ -221,14 +220,13 @@ class GnrDboPackage(object):
                 f = tblobj.dbtable.query(**queryPars).fetch()
             s[tname] = f
         s['preferences'] = self.db.table('adm.preference').loadPreference()['data'][self.name]
-        s.makePicklable()
-        s.pickle('%s.pik' %bagpath)
+        s.toXml('%s.xml' %bagpath)
         import gzip
         zipPath = '%s.gz' %bagpath
-        with open('%s.pik' %bagpath,'rb') as sfile:
+        with open('%s.xml' %bagpath,'rb') as sfile:
             with gzip.open(zipPath, 'wb') as f_out:
                 f_out.writelines(sfile)
-        os.remove('%s.pik' %bagpath)
+        os.remove('%s.xml' %bagpath)
         if os.path.isdir(bagpath):
             os.removedirs(bagpath)
         
