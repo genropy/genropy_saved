@@ -126,7 +126,7 @@ def build_instanceconfig_xml(path=None):
 def build_siteconfig_xml(path=None, gnrdaemon_password=None, gnrdaemon_port=None):
     siteconfig_bag = Bag()
     siteconfig_bag.setItem('wsgi', None, dict(debug=True, reload=True, port='8080'))
-    siteconfig_bag.setItem('gui', None, dict(css_theme='ludo'))
+    siteconfig_bag.setItem('gui', None, dict(css_theme='modern'))
     siteconfig_bag.setItem('jslib', None, dict(dojo_version='11', gnr_version='11'))
     siteconfig_bag.setItem('resources.common', None)
     siteconfig_bag.setItem('resources.js_libs', None)
