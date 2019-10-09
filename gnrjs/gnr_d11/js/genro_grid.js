@@ -4303,7 +4303,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             }
             nodes.forEach(function(n,idx){
                 if(filtered.length == 0 || filtered.indexOf(idx)>=0){
-                    result.setItem(n.label,n);
+                    result.addItem(n.label,n);
                 }
             });
         }else{
@@ -4321,7 +4321,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
                 cell_idx = i%col_length;
                 cell_attrs[col_names[cell_idx]]=cell.childNodes[0].innerHTML.replace('&nbsp;','');
                 if ((i+1)%col_length==0){
-                    result.setItem('r_'+curr_row, null, cell_attrs);
+                    result.addItem('r_'+curr_row, null, cell_attrs);
                     cell_attrs = {};
                     curr_row += 1;
                 }
