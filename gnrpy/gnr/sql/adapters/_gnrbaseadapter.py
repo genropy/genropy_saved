@@ -759,7 +759,7 @@ class GnrWhereTranslator(object):
             if not self.checkValueIsField(value):
                 value, op = self.decodeDates(value, op, 'D')
             if dtype=='DH' or dtype=='DHZ':
-                column = 'CAST (%s AS date)' % column
+                column = 'date(%s)' % column
         if not dtype in ('A', 'T') and op in (
         'contains', 'notcontains', 'startswith', 'endswith', 'regex', 'wordstart'):
             value = str(value)
