@@ -159,6 +159,8 @@ class BagToHtml(object):
         if record is None:
             record = Bag()
         self.htmlContent = htmlContent
+        self.copies = None
+        self.grid_height = None
         self._paperPages = {}
         self._data = Bag()
         self._gridsColumnsBag = Bag()
@@ -985,7 +987,7 @@ class BagToHtml(object):
         return self.copies[self.copykey][valuename]
 
     def _get_grid_height(self):
-        if not hasattr(self,'_grid_height'):
+        if self._grid_height is None:
             self._grid_height = self.copyHeight() - self.calcDocHeaderHeight() - self.calcDocFooterHeight()
         return self._grid_height
 
@@ -995,7 +997,7 @@ class BagToHtml(object):
     grid_height = property(_get_grid_height, _set_grid_height)
 
     def _get_copies(self):
-        if not hasattr(self,'_copies'):
+        if self._copies is None:
             self._copies = {}
             for copy in range(self.copies_per_page):
                 for sheet in range(self.sheets_counter):
