@@ -3,13 +3,9 @@
 
 
 from gnr.lib.services.pdf import PdfService
-from gnr.lib.services.storage import StorageNode
 
 try:
-    import warnings
-
-    warnings.filterwarnings(category=DeprecationWarning, module='pyPdf', action='ignore')
-    from pyPdf import PdfFileWriter, PdfFileReader
+    from PyPDF2 import PdfFileWriter, PdfFileReader
     from io import StringIO
 
     HAS_PYPDF = True
