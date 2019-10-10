@@ -43,7 +43,6 @@ class Table(object):
 
     def expandTransaction(self, transaction):
         trargs = {'id': transaction['id'], 'execution_start': datetime.now()}
-        print transaction['id']
         
 
         try:
