@@ -520,7 +520,7 @@ class GnrWsgiSite(object):
 
         :param message: TODO"""
         localizerKw=None
-        if self.currentPage:
+        if self.currentPage and hasattr(self.currentPage, 'localizerKw'):
             localizerKw = self.currentPage.localizerKw
         return  GnrSiteException(message=message,localizerKw=localizerKw)
 
