@@ -274,13 +274,59 @@ def moduleDict(module, proplist):
                                                                     None) == module.__name__]
         result.update(dict([(getattr(x, prop).lower(), x) for x in modulelist]))
     return result
+
+def gnrImport_PY3(source, importAs=None, avoidDup=False, silent=True,avoid_module_cache=None):
+    import importlib
+    modkey = source
+    path_sep = os.path.sep
+    if path_sep in source:
+        if avoidDup and not importAs:
+            importAs = os.path.splitext(source)[0].replace(path_sep, '_').replace('.', '_')
+        modkey = importAs or os.path.splitext(os.path.basename(source))[0]
+    else:
+        module = importlib.import_module(source)
+        if importAs:
+            sys.modules[importAs] = module
+        return module
+    if not avoid_module_cache:
+        try:
+            m = sys.modules[modkey]
+            return m
+        except KeyError:
+            pass
+    silent =False
+    spec = importlib.util.spec_from_file_location(modkey, source)
+    if not spec:
+        return
+    try:
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)    
+    except SyntaxError:
+        raise
+    except ImportError:
+        raise
+    except Exception:
+        if not silent:
+            raise
+        module = None
+    sys.modules[modkey] = module
+    return module
     
+  
 def gnrImport(source, importAs=None, avoidDup=False, silent=True,avoid_module_cache=None):
     """TODO
     
     :param source: TODO
     :param importAs: TODO
     :param avoidDup: if ``True``, allow to avoid duplicates"""
+    if six.PY3:
+        return gnrImport_PY3(source, importAs=importAs, avoidDup=avoidDup, silent=silent,
+            avoid_module_cache=avoid_module_cache)
+    else:
+        return gnrImport_PY2(source, importAs=importAs, avoidDup=avoidDup, silent=silent,
+            avoid_module_cache=avoid_module_cache)
+
+def gnrImport_PY2(source, importAs=None, avoidDup=False, silent=True,avoid_module_cache=None):
     modkey = source
     path_sep = os.path.sep
     if path_sep in source:
@@ -302,10 +348,10 @@ def gnrImport(source, importAs=None, avoidDup=False, silent=True,avoid_module_ca
     for segment in segments:
         module_file = None
         try:
-            imp.acquire_lock()
+            #imp.acquire_lock()
             module_file, module_path, module_description = imp.find_module(segment, path)
         except ImportError:
-            imp.release_lock()
+            #imp.release_lock()
             return None
         if importAs and segment == segments[-1]:
             segment = importAs
@@ -320,13 +366,13 @@ def gnrImport(source, importAs=None, avoidDup=False, silent=True,avoid_module_ca
             if not silent:
                 raise
             module = None
-            error = e
         finally:
             if module_file:
                 module_file.close()
             if imp.lock_held():
                 imp.release_lock()
     return module
+
     
 class GnrException(Exception):
     """Standard Gnr Exception"""
@@ -812,7 +858,7 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
             modulename, clsname = source_class.split(':')
         else:
             modulename, clsname = source_class, '*'
-        modulename = '%s%s'%(drive, source_class)
+        modulename = '%s%s'%(drive, modulename)
         m = gnrImport(modulename, avoidDup=True)
         if m is None:
             raise GnrException('cannot import module: %s' % modulename)

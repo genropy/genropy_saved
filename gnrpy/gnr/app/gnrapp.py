@@ -111,9 +111,11 @@ class GnrModuleFinder(object):
         
         :param fullname: TODO
         :param path: TODO"""
-        path = path or self.path_entry
         splitted=fullname.split('.')
-        if splitted[0] == 'gnrpkg' and len(splitted)==1:
+        if splitted[0] != 'gnrpkg':
+            return
+        n_segments = len(splitted)
+        if n_segments==1:
             if 'gnrpkg' in sys.modules:
                 pkg_module=sys.modules['gnrpkg']
             else:
@@ -125,12 +127,12 @@ class GnrModuleFinder(object):
                 pkg_module.__loader__ = self
                 pkg_module.__package__ = 'gnrpkg'
             return NullLoader()
-        elif splitted[0] == 'gnrpkg' and len(splitted)==2:
+        elif n_segments==2:
             pkg = splitted[1]
             pkg_module = self._get_gnrpkg_module(pkg)
             if pkg_module:
                 return NullLoader()
-        elif splitted[0] == 'gnrpkg' and len(splitted)>2:
+        elif n_segments>2:
             pkg = splitted[1]
             mod_fullname='.'.join(splitted[2:])
             if self.pkg_in_app_list(pkg):
@@ -174,13 +176,18 @@ class GnrModuleLoader(object):
 
     def load_module(self, fullname):
         """TODO"""
+        print(self.pathname)
+        print(fullname)
         if fullname in sys.modules:
             mod = sys.modules[fullname]
         else:
             try:
+                imp.acquire_lock()
                 mod = imp.load_module(fullname,self.file, self.pathname, self.description)
                 sys.modules[fullname]=mod
             finally:
+                if imp.lock_held():
+                    imp.release_lock()
                 if self.file:
                     self.file.close()
         return mod
