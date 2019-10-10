@@ -1455,8 +1455,13 @@ dojo.declare("gnr.GridEditor", null, {
                 fields = funcApply(fields,{rowDataNode:rowDataNode,grid:grid},this);
             }
             if(attr.mode=='dialog' || remote){
+                var currdata;
+                if (attr.rowEdit == true){
+                    currdata = rowData.deepCopy();
+                }else{
+                    currdata = rowDataNode.getValue().getItem(attr.field);
+                }
                 var that = this;
-                var currdata = rowDataNode.getValue().getItem(attr.field);
                 var promptkw = {widget:attr.contentCb || attr.fields,
                     dflt:currdata?currdata.deepCopy():null,
                     mandatory:attr.validate_notnull,
@@ -1475,7 +1480,7 @@ dojo.declare("gnr.GridEditor", null, {
                 }
                 var dlgkw = objectExtract(fldDict.attr,'dlg_*',true,true);
                 objectUpdate(promptkw,dlgkw);
-                genro.dlg.prompt(attr.original_name || attr.field,promptkw)
+                genro.dlg.prompt(attr.original_name || attr.field,promptkw, grid.sourceNode);
             }else{
                 var rowpath = this.widgetRootNode.absDatapath('.' + rowLabel);
                 genro.dlg.quickTooltipPane({datapath:rowpath,fields:attr.fields,domNode:cellNode,modal:attr.modal},

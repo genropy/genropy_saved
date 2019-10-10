@@ -763,6 +763,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.formErrors.popNode(errorcode);
         }else{
             this.formErrors.setItem(errorcode,message);
+            this.publish('message',{message:message,sound:'$error',messageType:'error'});
         }
         this.updateStatus();
     },

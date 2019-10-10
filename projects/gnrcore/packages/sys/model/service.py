@@ -59,7 +59,7 @@ class Table(object):
         site = getattr(self.db.application,'site',None)
         if site:
             with site.register.globalStore() as gs:
-                gs.setItem('globalServices_lastTS.%(service_identifier)s' %record,datetime.now())
+                gs.setItem('globalServices_lastChangedConfigTS.%(service_identifier)s' %record,datetime.now())
 
     def trigger_onUpdated(self,record,old_record=None):
         self.serviceExpiredTs(record)

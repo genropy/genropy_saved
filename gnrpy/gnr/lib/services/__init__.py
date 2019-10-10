@@ -106,6 +106,7 @@ class BaseServiceType(object):
         service = service_factory(self.site,**service_conf)
         service.service_name = service_name
         service.service_implementation = implementation
+        service._service_creation_ts = datetime.now()
         self.service_instances[service_name] = service
         return service
 
@@ -200,14 +201,10 @@ class BaseServiceType(object):
         service_name = service_name or self.default_service_name
         service = self.service_instances.get(service_name)
         gs = self.site.register.globalStore()
-        cache_key = 'globalServices_lastTS.%s_%s' %(self.service_type,service_name)
-        lastTS = gs.getItem(cache_key)
-        if service is None or (lastTS and service._service_creation_ts<lastTS):
+        cache_key = 'globalServices_lastChangedConfigTS.%s_%s' %(self.service_type,service_name)
+        lastChangedConfigurationTS = gs.getItem(cache_key)
+        if service is None or (lastChangedConfigurationTS and service._service_creation_ts<lastChangedConfigurationTS):
             service = self.addService(service_name, **kwargs)
-            if service:
-                service._service_creation_ts = datetime.now()
-                with self.site.register.globalStore() as gs:
-                    gs.setItem(cache_key,service._service_creation_ts)
         return service
 
 

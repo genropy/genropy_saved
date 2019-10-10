@@ -383,17 +383,17 @@ class FormHandler(BaseComponent):
             else:
                 menubag = Bag()
                 for i,(caption,default_kw) in enumerate(defaults):
-                    menubag.setItem('r_%i' %i,None,caption=caption,default_kw=default_kw)
+                    menubag.setItem('r_%i' %i,None,caption=caption,default_kw=default_kw,doSave=doSave)
             if menubag:
                 pane.data('.addrow_menu_store',menubag)
             menupath = '.addrow_menu_store'
-            pane.slotButton(label,childname='addButton',action="""if(doSave){
+            pane.slotButton(label,childname='addButton',action="""
+            if($1.doSave){
                 this.form.insertAndLoad($1.default_kw);
             }else{
                 this.form.newrecord($1.default_kw);
-            }""",menupath=menupath,
-                        disabled=disabled,doSave=doSave,
-                        iconClass="iconbox add_record",parentForm=parentForm,**kwargs)
+            }""",menupath=menupath,disabled=disabled,
+                iconClass="iconbox add_record",parentForm=parentForm,**kwargs)
         else:
             pane.formButton(label,childname='addButton',topic='navigationEvent',command='add',
                         disabled=disabled,

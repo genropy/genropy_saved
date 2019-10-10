@@ -14,6 +14,7 @@ from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core.gnrsys import expandpath
 from gnr.core.gnrprinthandler import PrintHandler
+from gnr.core.gnrdecorator import extract_kwargs
 
 import sys
 
@@ -62,7 +63,10 @@ class GnrHtmlSrc(GnrStructData):
             
         else:
             raise AttributeError(func_name)
-            
+
+    def defaultKwargs(self):
+        return getattr(self.root,'default_kwargs',{})
+
     def style(self, style='', **kwargs):
         """Creates a ``<style>`` tag"""
         self.root.builder.head.child('style', content=style, **kwargs)
@@ -101,7 +105,7 @@ class GnrHtmlSrc(GnrStructData):
         return super(GnrHtmlSrc, self).child(tag, *args, **kwargs)
         
     def layout(self, name='l1', um='mm', top=0, left=0, bottom=0, right=0, width=0, height=0,
-               border_width=0.3, border_color='grey', border_style='solid', row_border=True, cell_border=True,
+               border_width=None,border_color=None, border_style='solid', row_border=True, cell_border=True,
                lbl_height=3, lbl_class='lbl_base', content_class='content_base',
                hasBorderTop=None, hasBorderLeft=None, hasBorderRight=None, hasBorderBottom=None,
                **kwargs):
@@ -130,6 +134,13 @@ class GnrHtmlSrc(GnrStructData):
         :param \*\*kwargs: you can pass:
         
             * *style*: a string with css style"""
+        default_kwargs = self.defaultKwargs()
+        if border_width is None:
+            border_width = default_kwargs.get('layout_border_width') or default_kwargs.get('border_width',0)
+        border_color = border_color or default_kwargs.get('layout_border_color') or default_kwargs.get('border_color','silver')
+        border_style = border_style or default_kwargs.get('layout_border_style') or default_kwargs.get('border_style','solid')
+        lbl_class = lbl_class or default_kwargs.get('lbl_class','lbl_base')
+        content_class = content_class or default_kwargs.get('content_class','content_base')
         self.style(".%s_layout{border:%s%s %s %s;position:absolute;}" % (
         name, border_width, um, border_style, border_color))
             
@@ -233,12 +244,12 @@ class GnrHtmlBuilder(object):
                       'z_index', 'border', 'position', 'padding', 'margin',
                       'color', 'white_space', 'vertical_align', 'background', 'text',
                       'font'];
-                      
+    @extract_kwargs(default=True)
     def __init__(self, page_height=None, page_width=None, page_margin_top=None,
                  page_margin_left=None, page_margin_right=None, page_margin_bottom=None,
                  showTemplateContent=None,
                  htmlTemplate=None, page_debug=False, srcfactory=None, css_requires=None,
-                 print_button=None, bodyAttributes=None,parent=None):
+                 print_button=None, bodyAttributes=None,parent=None,default_kwargs=None,**kwargs):
         self.srcfactory = srcfactory or GnrHtmlSrc
         self.htmlTemplate = htmlTemplate or Bag()
         top_layer = Bag()
@@ -256,12 +267,14 @@ class GnrHtmlBuilder(object):
         self.css_requires = css_requires or []
         self.showTemplateContent = showTemplateContent
         self.parent = parent
+        self.default_kwargs = default_kwargs
 
     def initializeSrc(self, body_attributes=None,**kwargs):
         """TODO"""
         body_attributes = body_attributes or {}
         body_attributes.update(kwargs)
         self.root = self.srcfactory.makeRoot()
+        self.root.default_kwargs = self.default_kwargs
         self.root.builder = self
         self.htmlBag = self.root.html()
         self.head = self.htmlBag.head()

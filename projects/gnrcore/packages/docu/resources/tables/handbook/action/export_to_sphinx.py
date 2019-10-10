@@ -101,9 +101,9 @@ class Main(BaseResourceBatch):
         self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
 
 
-    def post_process(self):
-        self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
-        self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
+    #def post_process(self):
+    #    self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
+    #    self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
         
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./:-]+)")
@@ -112,6 +112,8 @@ class Main(BaseResourceBatch):
         TOCFINDER = re.compile(r"_TOC?(\w*)")
         EXAMPLE_FINDER = re.compile(r"`([^`]*)<javascript:localIframe\('version:([\w_]+)'\)>`_")
         result=[]
+        if not data:
+            return result
         for n in data:
             v = n.value
             record = self.doctable.record(n.label).output('dict')
@@ -123,9 +125,10 @@ class Main(BaseResourceBatch):
             self.hierarchical_name = record['hierarchical_name']
             if n.attr['child_count']>0:
                 result.append('%s/%s.rst' % (name,name))
-                toc_elements=self.prepare(v, pathlist+toc_elements)
-                self.curr_pathlist = pathlist+[name]
-                tocstring = self.createToc(elements=toc_elements,
+                if v:
+                    toc_elements=self.prepare(v, pathlist+toc_elements)
+                    self.curr_pathlist = pathlist+[name]
+                    tocstring = self.createToc(elements=toc_elements,
                             hidden=not record['sphinx_toc'],
                             titlesonly=True,
                             maxdepth=1)

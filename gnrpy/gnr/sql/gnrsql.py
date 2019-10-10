@@ -108,6 +108,7 @@ class GnrSqlDb(GnrObject):
     """
     rootstore = '_main_db'
     
+    
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
                  main_schema=None, debugger=None, application=None,
@@ -309,6 +310,7 @@ class GnrSqlDb(GnrObject):
             for conn_name in list(connections_dict.keys()):
                 conn = connections_dict.pop(conn_name)
                 try:
+                    conn.rollback()
                     conn.close()
                 except Exception:
                     conn = None

@@ -35,12 +35,14 @@ class Main(BaseResourceAction):
         fb = pane.formbuilder(cols=1,border_spacing='10px')
         packages = Bag()
         tables = Bag()
-        for pkg in list(self.db.packages.values()):
+        for pkg in self.db.packages.values():
             attr = pkg.attributes
             if attr.get('_syspackage'):
                 continue
             pkgtables = Bag()
-            for t in list(pkg['tables'].values()):
+            if not pkg['tables']:
+                continue
+            for t in pkg['tables'].values():
                 t = t.dbtable
                 if t.counterColumns():
                     pkgtables.setItem(t.name,Bag(code=t.fullname,description=t.name_long))
