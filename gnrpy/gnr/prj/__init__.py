@@ -36,7 +36,7 @@ class GnrProjectMeta(object):
         
  
 
-sys.meta_path = [GnrProjectMeta()]
+sys.meta_path = sys.meta_path+[GnrProjectMeta()]
 
 class GnrPrjImporter(object):
     
