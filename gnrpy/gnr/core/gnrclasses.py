@@ -289,8 +289,6 @@ class GnrClassCatalog(object):
         """
         obj_type = type(o)
         typegetter = self.typegetters.get(obj_type)
-        print(typegetter)
-        print(obj_type)
         if typegetter:
             return typegetter(o)
         return self.names.get(obj_type, fallback)
