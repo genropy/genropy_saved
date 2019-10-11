@@ -179,6 +179,7 @@ class TableScriptToHtml(BagToHtml):
     client_locale = False
     row_relation = None
 
+
     def __init__(self, page=None, resource_table=None, **kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
         self.page = page
@@ -191,7 +192,6 @@ class TableScriptToHtml(BagToHtml):
         self.thermo_wrapper = self.page.btc.thermo_wrapper
         self.print_handler = self.page.getService('htmltopdf')
         self.pdf_handler = self.page.getService('pdf')
-
         self.letterhead_sourcedata = None
         self.record = None
         
@@ -200,13 +200,13 @@ class TableScriptToHtml(BagToHtml):
             return
         self.thermo_kwargs = thermo
         self.record_idx = record_idx
+        self.subtotal_caption_prefix = self.page.localize('!!Totals')
         if record=='*':
             record = None
         else:
             record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
         html_folder = self.getHtmlPath(autocreate=True)
         result = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
-        
         if not result:
             return False
         if not pdf:

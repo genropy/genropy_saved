@@ -22,7 +22,6 @@ class Main(TableScriptToHtml):
     grid_header_height = 4.3
     grid_col_widths=[0] #rowColWidth
     grid_row_height=5
-    row_mode = 'attribute'
 
     def docHeader(self, header):
         layout = header.layout(name='doc_header',um='mm',
@@ -32,12 +31,24 @@ class Main(TableScriptToHtml):
         row = layout.row()
         row.cell(self.getData('print_title'),content_class='caption')
 
+
     def gridData(self):
+        if self.getData('grid_datamode')=='bag':
+            self.row_mode = 'value'
+        else:
+            self.row_mode = 'attribute'
+        result = self._getSourceData()
+        if self.subtotals_breakers:
+            sortlist = self.subtotals_breakers
+            if self.row_mode == 'attribute':
+                sortlist = ['#a.{}'.format(col.get('field_getter') or col.get('field')) for col in self.subtotals_breakers]
+            result = result.sort(','.join(sortlist))
+        return result 
+
+    def _getSourceData(self):
         allrows = self.getData('allrows')
         extra_parameters = self.getData('extra_parameters')
         if extra_parameters['currentData']:
-            if self.getData('grid_datamode')=='bag':
-                self.row_mode = 'value'
             if allrows and extra_parameters['allGridData']:
                 return extra_parameters['allGridData']
             return extra_parameters['currentData']
