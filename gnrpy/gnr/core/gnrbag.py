@@ -78,6 +78,7 @@ import os.path
 import logging
 import sys
 import re
+import six
 gnrlogger = logging.getLogger(__name__)
 
 
@@ -1943,7 +1944,8 @@ class Bag(GnrObject):
         pickled bag. In any of this cases the method sets the value of the flag
         "mode" to xml, vcard or pickle and returns it with \"source\" and \"fromFile\""""
         originalsource = source
-        if source.startswith('<') or '<?xml' in source:
+        source = six.ensure_binary(source, 'utf-8', 'replace')
+        if source.startswith(b'<') or b'<?xml' in source:
             return source, False, 'xml'
         if len(source) > 300:
             #if source is longer than 300 chars it cannot be a path or an URI
@@ -1967,7 +1969,7 @@ class Bag(GnrObject):
                     else:
                         with open(source, mode='rb') as f:
                             sourcestart = f.read(30)
-                        if sourcestart.startswith('<') or '<?xml' in sourcestart:
+                        if sourcestart.startswith(b'<') or b'<?xml' in sourcestart:
                             return source, True, 'xml' #file xml with unknown extension
                         else:
                             return source, True, 'unknown' #unidentified file
