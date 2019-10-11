@@ -63,9 +63,10 @@ class GnrClassCatalog(object):
         self.serializers = {'asText': {}, 'asRepr': {}}
         self.align = {}
         self.empty = {}
+        self.typegetters = {}
         self.standardClasses()
         
-    def addClass(self, cls, key, aliases=None, altcls=None, align='L', empty=None):
+    def addClass(self, cls, key, aliases=None, altcls=None, align='L', empty=None, typegetter=None):
         """Add a python class to the list of objects known by the Catalog.
             
         :param cls: the class itself by reference
@@ -80,6 +81,8 @@ class GnrClassCatalog(object):
         self.classes[key] = cls
         self.align[key] = align
         self.empty[key] = empty
+        if typegetter:
+            self.typegetters[cls]=typegetter
         if aliases:
             for n in aliases:
                 self.classes[n] = cls
@@ -257,7 +260,7 @@ class GnrClassCatalog(object):
         :param translate_cb: TODO. 
         :returns: TODO
         """
-        t = self.names.get(type(o), 'T')
+        t = self.getType(o, fallback='T')
         if t == 'T':
             result = self.asText(o, translate_cb=translate_cb,jsmode=jsmode)
         else:
@@ -273,19 +276,26 @@ class GnrClassCatalog(object):
         :param translate_cb: TODO. 
         :returns: TODO
         """
-        c = self.names.get(type(o))
+        c = self.getType(o)
         if c:
             return (self.asText(o, translate_cb=translate_cb), c)
         return self.asTextAndType(repr(o))
         
-    def getType(self, o):
+    def getType(self, o, fallback=None):
         """Add???
             
         :param o: TODO
         :returns: TODO
         """
-        return self.names.get(type(o))
-        
+        obj_type = type(o)
+        typegetter = self.typegetters.get(obj_type)
+        print(typegetter)
+        print(obj_type)
+        if typegetter:
+            return typegetter(o)
+        return self.names.get(obj_type, fallback)
+    
+
     def standardClasses(self):
         """TODO
         """
@@ -306,7 +316,7 @@ class GnrClassCatalog(object):
         self.addClass(cls=datetime.date, key='D', aliases=['DATE'], empty=None)
         self.addParser(datetime.date, self.parse_date)
         
-        self.addClass(cls=datetime.datetime, key='DH', aliases=['DATETIME', 'DT','DHZ'], empty=None)
+        self.addClass(cls=datetime.datetime, key='DH', aliases=['DATETIME', 'DT','DHZ'], empty=None, typegetter=self.typegetter_datetime)
         self.addParser(datetime.datetime, self.parse_datetime)
         self.addSerializer("asText", datetime.datetime, self.serialize_datetime)
 
@@ -395,7 +405,12 @@ class GnrClassCatalog(object):
         """
         if txt.lower() != 'inf':
             return float(txt)
-            
+    
+    def typegetter_datetime(self, ts):
+        if ts.tzinfo:
+            return 'DHZ'
+        return 'DH'
+
     def parse_datetime(self, txt, workdate=None):
         """Add???
             
