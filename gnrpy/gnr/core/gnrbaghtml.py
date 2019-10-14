@@ -231,12 +231,14 @@ class BagToHtml(object):
         d = self.__dict__
         paper_height = float(d.get('page_height') or top_layer['main.page.height'] or self.paperHeight)
         paper_width = float(d.get('page_width') or top_layer['main.page.width'] or self.paperWidth)
+        
+        short_side,long_side = sorted((paper_height,paper_width))
         if self.page_orientation=='V': 
-            self.page_height = paper_height
-            self.page_width = paper_width
+            self.page_height = long_side
+            self.page_width = short_side
         else:
-            self.page_width = paper_height
-            self.page_height = paper_width
+            self.page_width = long_side
+            self.page_height = short_side
         self.page_margin_top = float(d.get('page_margin_top') or top_layer['main.page.top'] or self.page_margin_top)
         self.page_margin_left = float(d.get('page_margin_left')or top_layer['main.page.left'] or self.page_margin_left)
         self.page_margin_right = float(d.get('page_margin_right')or top_layer['main.page.right'] or self.page_margin_right)
