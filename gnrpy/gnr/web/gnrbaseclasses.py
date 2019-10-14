@@ -178,6 +178,7 @@ class TableScriptToHtml(BagToHtml):
     css_requires = 'print_stylesheet'
     client_locale = False
     row_relation = None
+    subtotal_caption_prefix = '!!Totals'
 
 
     def __init__(self, page=None, resource_table=None, **kwargs):
@@ -194,13 +195,13 @@ class TableScriptToHtml(BagToHtml):
         self.pdf_handler = self.page.getService('pdf')
         self.letterhead_sourcedata = None
         self.record = None
-        
+
+
     def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, **kwargs):
         if not record:
             return
         self.thermo_kwargs = thermo
         self.record_idx = record_idx
-        self.subtotal_caption_prefix = self.page.localize('!!Totals')
         if record=='*':
             record = None
         else:
@@ -406,6 +407,13 @@ class TableScriptToHtml(BagToHtml):
     def grid_sqlcolumns(self):
         return ','.join([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')])
                 
+    def subtotalCaption(self,col_breaker,breaker_value):
+        return dict(caption='{} {} {}'.format(self.page.localize(self.subtotal_caption_prefix),
+                                                    col_breaker.get('name'),
+                                                    breaker_value),
+                    content_class='totalize_caption')
+        
+        
     def getHtmlPath(self, *args, **kwargs):
         """TODO"""
         return self.site.getStaticPath(self.html_folder, *args, **kwargs)

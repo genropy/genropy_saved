@@ -583,10 +583,7 @@ class BagToHtml(object):
         self.currColumn = 0
         self.currRow = row
         self.renderMode = 'subtotal'
-        captions_kw = dict(caption='{} {} {}'.format(self.subtotal_caption_prefix,
-                                                    col_breaker.get('name'),
-                                                    breaker_value),
-                          content_class='totalize_caption')
+        captions_kw = self.subtotalCaption(col_breaker,breaker_value)
         rowData = self._gridCommonTotals(totals=breaker_totals,captions_kw=captions_kw)
         self.renderGridRow(rowData)
         
@@ -600,6 +597,12 @@ class BagToHtml(object):
             for k,v in captions_kw.items():
                 rowData['%s_%s' %(self._caption_column,k)] = v
         return rowData
+
+    def subtotalCaption(self,col_breaker,breaker_value):
+        return dict(caption='{} {} {}'.format(self.subtotal_caption_prefix,
+                                                    col_breaker.get('name'),
+                                                    breaker_value),
+                    content_class='totalize_caption')
     
     def onRunningTotals(self,rowData=None,lastPage=None):
         pass

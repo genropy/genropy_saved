@@ -527,7 +527,7 @@ class ResourceLoader(object):
                 resource_class = self._loadTableScript_getclass(modPathList,class_name)
                 return resource_class,None
             else:
-                raise GnrWebServerError('Cannot import component %s' % respath)
+                raise GnrWebServerError('Cannot import component {}'.format(respath))
         tablename = table.name
         pkgname = table.pkg.name
         table_modPathList = self.getResourceList(self.package_resourceDirs(table.pkg.name), 
@@ -544,7 +544,7 @@ class ResourceLoader(object):
         elif table_modPathList:
             resource_class =  self._loadTableScript_getclass(table_modPathList,class_name)
         else:
-            raise GnrWebServerError('Cannot import component %s %s' % respath,table.fullname)
+            raise GnrWebServerError('Cannot import component {} {}'.format(respath,table.fullname))
         py_extends = resource_class.py_extends
         if py_extends =='*':
             py_extends = respath
