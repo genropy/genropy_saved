@@ -703,11 +703,11 @@ class BagToHtml(object):
         align_class = align_class or self._guessAlign(value=value)
         content_class = '%s %s' %(content_class,align_class) if content_class else align_class
         locale = pars.pop('locale',None) or self.locale
-        format = pars.pop('format',None)
+        format_cell = pars.pop('format',None)
         mask = pars.pop('mask',None)
         currency = pars.pop('currency',None)
         white_space = pars.pop('white_space',None) or 'nowrap'
-        value = self.toText(value, locale, format, mask, self.encoding, currency=currency)
+        value = self.toText(value, locale, format_cell, mask, self.encoding, currency=currency)
         cell = parentRow.cell(value, width=mm_width,overflow='hidden',
                             white_space=white_space,
                             content_class=content_class, **pars)
