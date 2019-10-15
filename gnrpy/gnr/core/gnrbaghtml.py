@@ -529,8 +529,8 @@ class BagToHtml(object):
                 self.currColumn = 0
                 self.currRow = row
                 self.prepareRow(row)
-                for sr in subtotal_rows:
-                    self.prepareSubTotalRow(*sr)
+                for i,sr in enumerate(subtotal_rows):
+                    self.prepareSubTotalRow(*sr,level=i)
                 
         for copy in range(self.copies_per_page):
             self.copy = copy
@@ -579,9 +579,10 @@ class BagToHtml(object):
         self.onRunningTotals(rowData=rowData,lastPage=lastPage)
         return rowData
 
-    def prepareSubTotalRow(self,col_breaker,breaker_value,breaker_totals):
+    def prepareSubTotalRow(self,col_breaker,breaker_value,breaker_totals,level=None):
         field_breaker = col_breaker.get('field_getter') or col_breaker['field']
-        row = self.copyValue('body_grid').row(height=self.grid_row_height, _class='totalizer_row totalizer_footer')
+        row = self.copyValue('body_grid').row(height=self.grid_row_height, 
+                            _class='totalizer_row subtotal_row subtotal_{:02d}'.format(level))
         self.currColumn = 0
         self.currRow = row
         self.renderMode = 'subtotal'
