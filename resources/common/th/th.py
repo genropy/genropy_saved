@@ -79,16 +79,19 @@ class TableHandler(BaseComponent):
             archive = self.application.checkResourcePermission(archive, self.userTags)
         tableCode = table.replace('.','_')
         th_root = self._th_mangler(pane,table,nodeId=nodeId)
-        viewCode='V_%s' %th_root
-        formCode='F_%s' %th_root
+        if nodeId is None and th_root in self._register_nodeId:
+            th_root = '{}_{}'.format(th_root,id(pane))
+            datapath = datapath or '.{}'.format(th_root)
+        viewCode='V_{}'.format(th_root)
+        formCode='F_{}'.format(th_root)
 
-        defaultModule = 'th_%s' %tableCode
+        defaultModule = 'th_{}'.format(tableCode)
         
         unlinkdict = kwargs.pop('store_unlinkdict',None)
 
         if pane.attributes.get('tag') == 'ContentPane':
             pane.attributes['overflow'] = 'hidden'
-        wdg = pane.child(tag=tag,datapath=datapath or '.%s'%tableCode,
+        wdg = pane.child(tag=tag,datapath=datapath or '.{}'.format(tableCode),
                         thlist_root=viewCode,
                         thform_root=formCode,
                         th_viewResource=self._th_getResourceName(viewResource,defaultClass='View',defaultModule=defaultModule),
