@@ -79,6 +79,7 @@ class BagToHtml(object):
     sheets_counter = 1
     splittedPages = 0
     watermark_draft_class = 'document_draft'
+    subtotal_caption_prefix = 'Totals'
 
     def _flattenField(self,field):
         return field.replace('.','_').replace('@','_')
@@ -188,6 +189,7 @@ class BagToHtml(object):
         self.print_button = kwargs.pop('print_button', self.print_button)
         self.grid_prev_running_totals = defaultdict(int)
         self.grid_running_totals = defaultdict(int)
+        
         if self.onRecordLoaded() is False:
             return False
         if self.splittedPages:
@@ -234,12 +236,14 @@ class BagToHtml(object):
         d = self.__dict__
         paper_height = float(d.get('page_height') or top_layer['main.page.height'] or self.paperHeight)
         paper_width = float(d.get('page_width') or top_layer['main.page.width'] or self.paperWidth)
+        
+        short_side,long_side = sorted((paper_height,paper_width))
         if self.page_orientation=='V': 
-            self.page_height = paper_height
-            self.page_width = paper_width
+            self.page_height = long_side
+            self.page_width = short_side
         else:
-            self.page_width = paper_height
-            self.page_height = paper_width
+            self.page_width = long_side
+            self.page_height = short_side
         self.page_margin_top = float(d.get('page_margin_top') or top_layer['main.page.top'] or self.page_margin_top)
         self.page_margin_left = float(d.get('page_margin_left')or top_layer['main.page.left'] or self.page_margin_left)
         self.page_margin_right = float(d.get('page_margin_right')or top_layer['main.page.right'] or self.page_margin_right)
@@ -462,12 +466,25 @@ class BagToHtml(object):
             extra_row_height = self.onNewRow() or 0
             row_kw = self.getRowAttrsFromData()
             self.updateRunningTotals(rowData=self.rowData)
+            subtotal_rows = self.checkSubtotals(self._rowDataCustomized(nodes[lineno+1]) if not self.isLastRow else {})
             rowheight = row_kw.pop('height',None) or self.calcRowHeight()
             for copy in range(self.copies_per_page):
                 self.copy = copy
-                yield (lineno,rowDataNode,rowheight,row_kw,extra_row_height)
+                yield (lineno,rowDataNode,rowheight,row_kw,extra_row_height,subtotal_rows)
         self.updateRunningTotals(rowData=None)
-
+    
+    def checkSubtotals(self,nextRowData):
+        result = []
+        for col in reversed(self.subtotals_breakers):
+            f = col.get('field_getter') or col['field']
+            val = self.rowData.get(f)
+            newVal = nextRowData.get(f)
+            if val == newVal:
+                break
+            subtotal_row = (col,val,dict(self.subtotals_dict[f]))
+            result.append(subtotal_row)
+            self.subtotals_dict[f] = defaultdict(int)
+        return result
 
     def mainLoop(self):
         """TODO"""
@@ -496,13 +513,14 @@ class BagToHtml(object):
             nodes = self.thermo_wrapper(nodes, **self.thermo_kwargs)
         carry_height = self.totalizeCarryHeight()
 
-        for lineno,rowDataNode,rowheight,row_kw,extra_row_height in self.lineIterator(nodes):
+        for lineno,rowDataNode,rowheight,row_kw,extra_row_height,subtotal_rows in self.lineIterator(nodes):
             bodyUsed = self.copyValue('grid_body_used')
 
             gridNetHeight = self.grid_height - self.calcGridHeaderHeight() - self.calcGridFooterHeight() -\
                             carry_height - self.totalizeFooterHeight() - self.grid_row_height
             availableSpace = gridNetHeight-bodyUsed-self.grid_body_adjustment
-            doNewPage =  (rowheight+extra_row_height) > availableSpace
+            rowTotalHeight = rowheight + extra_row_height + len(subtotal_rows)*rowheight
+            doNewPage =   rowTotalHeight > availableSpace
             if doNewPage:
                 carry_height = self.totalizeCarryHeight()
             for sheet in range(self.sheets_counter):
@@ -512,10 +530,12 @@ class BagToHtml(object):
                 if not self.rowData:
                     continue
                 row = self.copyValue('body_grid').row(height=rowheight, **row_kw)
-                self.copies[self.copykey]['grid_body_used'] = self.copyValue('grid_body_used') + rowheight+extra_row_height
+                self.copies[self.copykey]['grid_body_used'] = self.copyValue('grid_body_used') + rowTotalHeight
                 self.currColumn = 0
                 self.currRow = row
                 self.prepareRow(row)
+                for i,sr in enumerate(subtotal_rows):
+                    self.prepareSubTotalRow(*sr,level=i)
                 
         for copy in range(self.copies_per_page):
             self.copy = copy
@@ -551,8 +571,6 @@ class BagToHtml(object):
         return result
     
     def gridRunningTotals(self,lastPage=None):
-        rowData = self.runningTotalsDefaults()
-        rowData.update(self.grid_prev_running_totals)
         captions_kw = getattr(self,'totalize_%s' %self.renderMode,None) if self.renderMode else {}
         if captions_kw is True:
             captions_kw = dict()
@@ -562,14 +580,37 @@ class BagToHtml(object):
             captions_kw = dict(captions_kw)
         else:
             captions_kw = None
+        rowData = self._gridCommonTotals(totals=self.grid_prev_running_totals,captions_kw=captions_kw)
+        self.onRunningTotals(rowData=rowData,lastPage=lastPage)
+        return rowData
+
+    def prepareSubTotalRow(self,col_breaker,breaker_value,breaker_totals,level=None):
+        field_breaker = col_breaker.get('field_getter') or col_breaker['field']
+        row = self.copyValue('body_grid').row(height=self.grid_row_height, 
+                            _class='totalizer_row subtotal_row subtotal_{:02d}'.format(level))
+        self.currColumn = 0
+        self.currRow = row
+        self.renderMode = 'subtotal'
+        captions_kw = self.subtotalCaption(col_breaker,breaker_value)
+        rowData = self._gridCommonTotals(totals=breaker_totals,captions_kw=captions_kw)
+        self.renderGridRow(rowData)
+        
+    def _gridCommonTotals(self,totals=None,captions_kw=None):
+        rowData = self.runningTotalsDefaults()
+        rowData.update(totals)
         sheetTotalizers = filter(lambda t: t, [tot for tot in self.columnsBag.digest('#a.totalize')])
         if captions_kw and sheetTotalizers:
             caption = captions_kw.pop('caption')
             rowData[self._caption_column] = caption
             for k,v in captions_kw.items():
                 rowData['%s_%s' %(self._caption_column,k)] = v
-        self.onRunningTotals(rowData=rowData,lastPage=lastPage)
         return rowData
+
+    def subtotalCaption(self,col_breaker,breaker_value):
+        return dict(caption='{} {} {}'.format(self.subtotal_caption_prefix,
+                                                    col_breaker.get('name'),
+                                                    breaker_value),
+                    content_class='totalize_caption')
     
     def onRunningTotals(self,rowData=None,lastPage=None):
         pass
@@ -626,11 +667,11 @@ class BagToHtml(object):
             self._grid_style_cell_list = self.grid_style_cell.split(';') if self.grid_style_cell else []
         return self._grid_style_cell_list 
 
+    
     def prepareRow(self,row):
         #overridable
         self.fillGridRow()
-    
-    
+
 
     def fillGridRow(self):
         rowData = self.rowData
@@ -668,11 +709,11 @@ class BagToHtml(object):
         align_class = align_class or self._guessAlign(value=value)
         content_class = '%s %s' %(content_class,align_class) if content_class else align_class
         locale = pars.pop('locale',None) or self.locale
-        format = pars.pop('format',None)
+        format_cell = pars.pop('format',None)
         mask = pars.pop('mask',None)
         currency = pars.pop('currency',None)
         white_space = pars.pop('white_space',None) or 'nowrap'
-        value = self.toText(value, locale, format, mask, self.encoding, currency=currency)
+        value = self.toText(value, locale, format_cell, mask, self.encoding, currency=currency)
         cell = parentRow.cell(value, width=mm_width,overflow='hidden',
                             white_space=white_space,
                             content_class=content_class, **pars)
@@ -957,7 +998,12 @@ class BagToHtml(object):
         if not rowData:
             return
         for col in self.totalizingColumns:
-            self.grid_running_totals[col.get('field_getter') or col['field']] += (self.getGridCellValue(col,rowData) or 0)
+            value_to_add = self.getGridCellValue(col,rowData) or 0
+            totalized_field = col.get('field_getter') or col['field']
+            self.grid_running_totals[totalized_field] += value_to_add
+            for breaker_field,running_total_dict in self.subtotals_dict.items():
+                running_total_dict[totalized_field]+=value_to_add
+
 
     def totalizeFooterHeight(self):
         if not (self.totalizingColumns and self.totalize_footer):
@@ -975,6 +1021,20 @@ class BagToHtml(object):
                 return self.grid_row_height
         return 0
 
+    @property
+    def subtotals_breakers(self):
+        if not hasattr(self,'_subtotals_breakers'):
+            self._subtotals_breakers = [col for col in self.gridColumnsInfo()['columns'] \
+                                        if col.get('subtotal')]
+        return self._subtotals_breakers
+
+    @property
+    def subtotals_dict(self):
+        if not hasattr(self,'_subtotals_dict'):
+            self._subtotals_dict ={}
+            for col in self.subtotals_breakers:
+                self._subtotals_dict[col.get('field_getter') or col.get('field')] = defaultdict(int)
+        return self._subtotals_dict
 
     def fillBodyGrid(self):
         """TODO"""

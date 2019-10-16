@@ -179,6 +179,8 @@ class TableScriptToHtml(BagToHtml):
     css_requires = 'print_stylesheet'
     client_locale = False
     row_relation = None
+    subtotal_caption_prefix = '!!Totals'
+
 
     def __init__(self, page=None, resource_table=None, **kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
@@ -192,10 +194,10 @@ class TableScriptToHtml(BagToHtml):
         self.thermo_wrapper = self.page.btc.thermo_wrapper
         self.print_handler = self.page.getService('htmltopdf')
         self.pdf_handler = self.page.getService('pdf')
-
         self.letterhead_sourcedata = None
         self.record = None
-        
+
+
     def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, **kwargs):
         if not record:
             return
@@ -207,7 +209,6 @@ class TableScriptToHtml(BagToHtml):
             record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
         html_folder = self.getHtmlPath(autocreate=True)
         result = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
-        
         if not result:
             return False
         if not pdf:
@@ -307,23 +308,50 @@ class TableScriptToHtml(BagToHtml):
         net_min_grid_width = min_grid_width-head_col_total_width
         sheet_count = int(math.ceil(float(net_min_grid_width)/grid_free_width))
         sheet_delta = 0
-        while sheet_delta<3 and not self._structAnalyze_step(columns,net_min_grid_width,sheet_count+sheet_delta):
+        while sheet_delta<3 and not self._structAnalyze_step(columns,net_min_grid_width,sheet_count+sheet_delta,grid_width):
             sheet_delta+=1
-        self.sheets_counter = sheet_count
+            #print('========== aumento delta {}'.format(sheet_delta))
+        self.sheets_counter = sheet_count+sheet_delta
     
-    def _structAnalyze_step(self,columns,net_min_grid_width,sheet_count):
-        sheet_space_available = float(net_min_grid_width)/ sheet_count
+    def _structAnalyze_step(self,columns,net_min_grid_width,sheet_count,grid_width):
+        sheet_space_available = grid_width-float(net_min_grid_width)/ sheet_count
         s = -1
         tw = 0
-        for col in columns:
-            if not col.get('headColumn'): 
-                tw -= col['mm_width']
-                if tw<=0:
-                    tw += sheet_space_available
-                    s+=1
-                if s>sheet_count:
+        max_ncol = len(columns)-1
+        ncol = -1
+        while ncol<max_ncol:
+            ncol+=1
+            col = columns[ncol]
+            if  col.get('headColumn'):
+                continue
+            columnset = col.get('columnset')
+            k = ncol
+            mm_width = 0
+            grouped_cols = []
+            nextcol = True
+            while nextcol:
+                col = columns[k]
+                grouped_cols.append(col)
+                mm_width += col['mm_width']
+                if not columnset:
+                    nextcol = False
+                else:
+                    k+=1
+                    if k>max_ncol or columns[k].get('columnset')!=columnset:
+                        nextcol = False
+                        k-=1
+            colonne = ','.join([c['name'] for c in grouped_cols])
+            dd = dict(numero=ncol,titolo=columns[ncol]['name'],colset=columnset,mm_width=mm_width,colonne=colonne)
+            #print (dd)
+            ncol = k
+            tw -= mm_width
+            if tw<=0:
+                tw += sheet_space_available
+                s += 1
+                if s>=sheet_count:
                     return False
-                col['sheet'] = s
+            for c in grouped_cols:
+                c['sheet'] = s
         return True
     
     def structFromResource(self,viewResource=None,table=None):
@@ -407,6 +435,13 @@ class TableScriptToHtml(BagToHtml):
     def grid_sqlcolumns(self):
         return ','.join([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')])
                 
+    def subtotalCaption(self,col_breaker,breaker_value):
+        return dict(caption='{} {} {}'.format(self.page.localize(self.subtotal_caption_prefix),
+                                                    col_breaker.get('name'),
+                                                    breaker_value),
+                    content_class='totalize_caption')
+        
+        
     def getHtmlPath(self, *args, **kwargs):
         """TODO"""
         return self.site.getStaticPath(self.html_folder, *args, **kwargs)

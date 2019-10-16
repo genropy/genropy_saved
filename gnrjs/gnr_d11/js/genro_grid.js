@@ -645,7 +645,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             attributes.autoHeight=true;
         }
         attributes.style=objectAsStyle(styleDict);
-        attributesToKeep = attributesToKeep + 'style,scaleX,scaleY,datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,editorSaveMethod,autoInsert,autoDelete,showLineNumber';
+        attributesToKeep = attributesToKeep + 'style,scaleX,scaleY,datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,editorSaveMethod,autoInsert,autoDelete';
         var gridAttributes = objectExtract(attributes, attributesToKeep);
         objectPopAll(attributes);
         objectUpdate(attributes, gridAttributes);
@@ -706,9 +706,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             widget.gridEditor = new gnr.GridEditor(widget);
         }
         var menuNode = gridContent.getNodeByAttr('tag', 'menu',true);
-        if(savedAttrs.showLineNumber){
-            sourceNode.setRelativeData(sourceNode.attr.structpath+'.info.showLineNumber',savedAttrs.showLineNumber);
-        }
         if(!menuNode && sourceNode.attr.gridplugins!==false){
             sourceNode.setRelativeData('.contextMenu',this.pluginContextMenuBag(sourceNode));
             sourceNode._('menu','contextMenu',{storepath:'.contextMenu',_class:'smallmenu'},{doTrigger:false});
@@ -1614,7 +1611,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
                     //cellsnodes = rowBag.getNodes();
                     row = [];
-                    if(sourceNode.getRelativeData(sourceNode.attr.structpath+'.info.showLineNumber')){
+                    var showLineNumber = sourceNode.getRelativeData(sourceNode.attr.structpath+'.info.showLineNumber');
+                    if (isNullOrBlank(showLineNumber)){
+                        showLineNumber = sourceNode.attr.showLineNumber;
+                    }
+                    if(showLineNumber){
                         if(!rowBag.getNode('_linenumber')){
                             rowBag.setItem('_linenumber',null,{'calculated':true,'dtype':'L','name':' ','width':'3em',
                                 'classes':'gnrgridlineno','field':'_linenumber','format':'#,###',
