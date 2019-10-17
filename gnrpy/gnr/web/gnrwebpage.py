@@ -890,7 +890,7 @@ class GnrWebPage(GnrBaseWebPage):
         except:
             raise GnrWebPageException("No template %s found in %s" % (tpl, str(self.tpldirectories)))
         self.htmlHeaders()
-        return mytemplate.render(mainpage=self, **arg_dict)
+        return mytemplate.render(mainpage=self, **arg_dict).decode()
         
     def rpc_changeLocale(self, locale):
         """TODO

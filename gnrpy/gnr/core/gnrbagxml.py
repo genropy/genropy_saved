@@ -363,11 +363,8 @@ class BagToXml(object):
                         os.makedirs(dirname)
                 with open(filename, 'wb') as output:
                     out_result = result
-                    
                     output.write(out_result)
-        if six.PY2:
-            result = result.decode(encoding)
-        return result
+        return result.decode(encoding)
         
     def buildTag(self, tagName, value, attributes=None, cls='', xmlMode=False,localize=True,namespaces=None):
         """TODO Return the XML tag that represent self BagNode

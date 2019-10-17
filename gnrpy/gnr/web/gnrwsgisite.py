@@ -978,10 +978,12 @@ class GnrWsgiSite(object):
                 else:
                     v=str(v)
                 response.headers['X-%s' %k] = v
-        if six.PY2 and isinstance(result, unicode):
-            response.data=result
-        elif isinstance(result, str):
-            response.mimetype = kwargs.get('mimetype') or 'text/plain'
+        #if six.PY2 and isinstance(result, unicode):
+        #    response.data=result
+        if isinstance(result, str):
+            #response.mimetype = kwargs.get('mimetype') or 'text/plain'
+            #print(f'response mimetipe {response.mimetype} content_type {response.content_type}')
+            response.mimetype = kwargs.get('mimetype') or response.mimetype or 'text/plain'
             response.data=result # PendingDeprecationWarning: .unicode_body is deprecated in favour of Response.text
         
         elif isinstance(result, basestring):
