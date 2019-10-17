@@ -387,7 +387,7 @@ pysqlite.register_converter("time", convert_time)
 # ------------------------------------------------------------------------------------------------------- Add support for decimal fields to sqlite3 module
 
 pysqlite.register_adapter(decimal.Decimal, lambda x: float(x))
-pysqlite.register_converter('numeric', lambda x: decimal.Decimal(str(x)))
+pysqlite.register_converter('numeric', lambda x: decimal.Decimal(x.decode()))
 
 # ------------------------------------------------------------------------------------------------------- Fix issues with datetimes and dates
 

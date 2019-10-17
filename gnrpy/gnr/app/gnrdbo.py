@@ -140,13 +140,13 @@ class GnrDboPackage(object):
 
     def _loadStartupData_do(self,basepath=None,btc=None,empty_before=True):
         bagpath = basepath or os.path.join(self.db.application.packages[self.name].packageFolder,'startup_data')
-        if not os.path.isfile('%s.xml' %bagpath):
+        if not os.path.isfile('%s.pik' %bagpath):
             import gzip
             with gzip.open('%s.gz' %bagpath,'rb') as gzfile:
-                with open('%s.xml' %bagpath,'wb') as f:
+                with open('%s.pik' %bagpath,'wb') as f:
                     f.write(gzfile.read())
         db = self.db
-        s = Bag('%s.xml' %bagpath)
+        s = Bag('%s.pik' %bagpath)
         tables = s['tables']
         rev_tables =  list(tables)
         rev_tables.reverse()
@@ -170,7 +170,7 @@ class GnrDboPackage(object):
             pkeyField = tblobj.pkey
             hasSysCode = tblobj.column('__syscode') is not None
             if hasSysCode:
-                currentSysCodes = [r['__syscode'] for r in list(currentRecords.values()) if r['__syscode']]
+                currentSysCodes = [r['__syscode'] for r in currentRecords.values() if r['__syscode']]
             for r in records:
                 if r[pkeyField] in currentRecords:
                     continue
@@ -183,8 +183,42 @@ class GnrDboPackage(object):
 
         self.db.table('adm.preference').initPkgPref(self.name,s['preferences'])
         db.commit()
-        os.remove('%s.xml' %bagpath)
+        
+        os.remove('%s.pik' %bagpath)
 
+
+    def _createStartupData_do(self,basepath=None,btc=None):
+        pkgapp = self.db.application.packages[self.name]
+        tables = self.startupData_tables()
+        if not tables:
+            return
+        bagpath = basepath or os.path.join(pkgapp.packageFolder,'startup_data')
+        s = Bag()
+        s['tables'] = tables
+        tables = btc.thermo_wrapper(tables,'tables',message='Table') if btc else tables
+        for tname in tables:
+            tblobj = self.tables[tname]
+            handler = getattr(tblobj.dbtable,'startupData',None)
+            if handler:
+                f = handler()
+            else:
+                qp_handler = getattr(tblobj.dbtable,'startupDataQueryPars',None)
+                queryPars = dict(addPkeyColumn=False,bagFields=True)
+                if qp_handler:
+                    queryPars.update(qp_handler())
+                f = tblobj.dbtable.query(**queryPars).fetch()
+            s[tname] = f
+        s['preferences'] = self.db.table('adm.preference').loadPreference()['data'][self.name]
+        s.makePicklable()
+        s.pickle('%s.pik' %bagpath)
+        import gzip
+        zipPath = '%s.gz' %bagpath
+        with open('%s.pik' %bagpath,'rb') as sfile:
+            with gzip.open(zipPath, 'wb') as f_out:
+                f_out.writelines(sfile)
+        os.remove('%s.pik' %bagpath)
+        if os.path.isdir(bagpath):
+            os.removedirs(bagpath)
 
     def startupData_tables(self):
         return  [tbl for tbl in list(self.db.tablesMasterIndex()[self.name].keys()) if self.table(tbl).dbtable.isInStartupData()]
@@ -217,16 +251,17 @@ class GnrDboPackage(object):
                 queryPars = dict(addPkeyColumn=False,bagFields=True)
                 if qp_handler:
                     queryPars.update(qp_handler())
-                f = tblobj.dbtable.query(**queryPars).selection().output('dictlist')
+                f = tblobj.dbtable.query(**queryPars).fetch()
             s[tname] = f
         s['preferences'] = self.db.table('adm.preference').loadPreference()['data'][self.name]
-        s.toXml('%s.xml' %bagpath)
+        s.makePicklable()
+        s.pickle('%s.pik' %bagpath)
         import gzip
         zipPath = '%s.gz' %bagpath
-        with open('%s.xml' %bagpath,'rb') as sfile:
+        with open('%s.pik' %bagpath,'rb') as sfile:
             with gzip.open(zipPath, 'wb') as f_out:
                 f_out.writelines(sfile)
-        os.remove('%s.xml' %bagpath)
+        os.remove('%s.pik' %bagpath)
         if os.path.isdir(bagpath):
             os.removedirs(bagpath)
         
