@@ -96,7 +96,7 @@ class RstDocumentationHandler(BaseComponent):
         th.view.grid.attributes.update(onDrag_rstimage="""
                                     var rowset = dragValues.gridrow.rowset;
                                     var result = [];
-                                    var url = document.location.protocol+'//'+document.location.host+dragValues.gridrow.rowdata.fileurl;
+                                    var url = dragValues.gridrow.rowdata.fileurl;
                                     var ext = url.slice(url.lastIndexOf('.'));
                                     var tpl;
                                     if(!['.jpg','.jpag','.png','.svg','.tiff'].includes(ext)){
@@ -107,6 +107,9 @@ class RstDocumentationHandler(BaseComponent):
                                     tpl = dragInfo.sourceNode.attr[tpl];
                                     rowset.forEach(function(row){
                                         if(row.fileurl){
+                                            if(tpl=='_tpl_iframedoc'){
+                                                row.fileurl = document.location.protocol+'//'+document.location.host+row.fileurl;
+                                            }
                                             result.push(dataTemplate(tpl,row));
                                         }
                                     });
