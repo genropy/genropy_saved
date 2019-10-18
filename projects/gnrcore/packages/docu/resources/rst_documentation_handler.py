@@ -91,7 +91,7 @@ class RstDocumentationHandler(BaseComponent):
 
     $description"""
         iframesrc = """<iframez onload="this.contentDocument.body.firstChild.style.whiteSpace='pre';" style='border:1px solid silver;background:lightyellow;resize:auto;' width="560" height="315" src="$fileurl" frameborder="0"></iframe>"""
-        template_iframedoc = """.. raw::\n\n{iframesrc}""".format(iframesrc=iframesrc)
+        template_iframedoc = """.. raw:: html\n\n {iframesrc}""".format(iframesrc=iframesrc)
         template_link= """ `$description <$fileurl ?download=1>`_"""
         th.view.grid.attributes.update(onDrag_rstimage="""
                                     var rowset = dragValues.gridrow.rowset;
