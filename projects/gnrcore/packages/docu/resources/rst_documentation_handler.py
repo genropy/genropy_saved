@@ -90,7 +90,8 @@ class RstDocumentationHandler(BaseComponent):
     :figclass: align-center
 
     $description"""
-    
+        iframesrc = """<iframez onload="this.contentDocument.body.firstChild.style.whiteSpace='pre';" style='border:1px solid silver;background:lightyellow;resize:auto;' width="560" height="315" src="$fileurl" frameborder="0"></iframe>"""
+        template_iframedoc = """.. raw::\n\n{iframesrc}""".format(iframesrc=iframesrc)
         template_link= """ `$description <$fileurl ?download=1>`_"""
         th.view.grid.attributes.update(onDrag_rstimage="""
                                     var rowset = dragValues.gridrow.rowset;
@@ -100,6 +101,8 @@ class RstDocumentationHandler(BaseComponent):
                                     var tpl;
                                     if(!['.jpg','.jpag','.png','.svg','.tiff'].includes(ext)){
                                         tpl = '_tpl_link';
+                                    }else if(['.txt','.py','.xml'].includes(ext)){
+                                        tpl = _tpl_iframedoc;
                                     }else{
                                         tpl = dragInfo.modifier=='Shift' ? '_tpl_figure':'_tpl_image';
                                     }
@@ -110,7 +113,9 @@ class RstDocumentationHandler(BaseComponent):
                                         }
                                     });
                                     dragValues['text/plain'] = result.join(_lf+_lf)
-                                """ ,_tpl_image=template_image,_tpl_link=template_link,
+                                """ ,_tpl_image=template_image,
+                                    _tpl_link=template_link,
+                                    _tpl_iframedoc=template_iframedoc,
                                     _tpl_figure=template_figure)
 
 
