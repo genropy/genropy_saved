@@ -98,13 +98,13 @@ class RstDocumentationHandler(BaseComponent):
                                     var result = [];
                                     var url = dragValues.gridrow.rowdata.fileurl;
                                     var ext = url.slice(url.lastIndexOf('.'));
-                                    var tpl;
+                                    var tpl,tplname;
                                     if(!['.jpg','.jpag','.png','.svg','.tiff'].includes(ext)){
-                                        tpl = dragInfo.modifier=='Shift' ?'_tpl_link':'_tpl_iframedoc';
+                                        tplname = dragInfo.modifier=='Shift' ?'_tpl_link':'_tpl_iframedoc';
                                     }else{
-                                        tpl = dragInfo.modifier=='Shift' ? '_tpl_figure':'_tpl_image';
+                                        tplname = dragInfo.modifier=='Shift' ? '_tpl_figure':'_tpl_image';
                                     }
-                                    tpl = dragInfo.sourceNode.attr[tpl];
+                                    tpl = dragInfo.sourceNode.attr[tplname];
                                     rowset.forEach(function(row){
                                         if(row.fileurl){
                                             if(tpl=='_tpl_iframedoc'){
