@@ -96,7 +96,7 @@ class RstDocumentationHandler(BaseComponent):
         th.view.grid.attributes.update(onDrag_rstimage="""
                                     var rowset = dragValues.gridrow.rowset;
                                     var result = [];
-                                    var url = dragValues.gridrow.rowdata.fileurl;
+                                    var url = document.location.host+dragValues.gridrow.rowdata.fileurl;
                                     var ext = url.slice(url.lastIndexOf('.'));
                                     var tpl;
                                     if(!['.jpg','.jpag','.png','.svg','.tiff'].includes(ext)){
