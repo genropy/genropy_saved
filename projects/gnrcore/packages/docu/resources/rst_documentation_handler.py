@@ -100,9 +100,7 @@ class RstDocumentationHandler(BaseComponent):
                                     var ext = url.slice(url.lastIndexOf('.'));
                                     var tpl;
                                     if(!['.jpg','.jpag','.png','.svg','.tiff'].includes(ext)){
-                                        tpl = '_tpl_link';
-                                    }else if(['.txt','.py','.xml'].includes(ext)){
-                                        tpl = _tpl_iframedoc;
+                                        tpl = dragInfo.modifier=='Shift' ?'_tpl_link':'_tpl_iframedoc';
                                     }else{
                                         tpl = dragInfo.modifier=='Shift' ? '_tpl_figure':'_tpl_image';
                                     }
