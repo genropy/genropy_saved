@@ -11,6 +11,9 @@ from gnr.core.gnrbag import DirectoryResolver
 
 class PlainIndex(BaseComponent):
     def main(self,root,**kwargs):
+        self.plainIndex(root,**kwargs)
+
+    def plainIndex(self,root,**kwargs):
         currdir = os.path.dirname(self.filepath)
         folder = DirectoryResolver(currdir,cacheTime=10,
                             include='*.py', 
@@ -19,7 +22,7 @@ class PlainIndex(BaseComponent):
         root.div('Package:%s' % self.package.name,margin='20px',font_size='18px',color='#145698')
         box = root.div(margin='20px',border='2px solid #AFCBEC',rounded=6,
                                 padding='10px',color='#444',font_weight='bold',_class='treecont')
-        if not list(folder.keys()):
+        if not folder.keys():
             box.div('No pages in this package: create one in folder "webpages"')
         else:
             root.style('.treecont .dijitTreeLabel{cursor:pointer;} .treecont .dijitTreeLabel:hover{text-decoration:underline} ')
