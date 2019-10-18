@@ -107,7 +107,7 @@ class RstDocumentationHandler(BaseComponent):
                                     tpl = dragInfo.sourceNode.attr[tplname];
                                     rowset.forEach(function(row){
                                         if(row.fileurl){
-                                            if(tpl=='_tpl_iframedoc'){
+                                            if(tplname=='_tpl_iframedoc'){
                                                 row.fileurl = document.location.protocol+'//'+document.location.host+row.fileurl;
                                             }
                                             result.push(dataTemplate(tpl,row));
