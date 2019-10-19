@@ -14,6 +14,11 @@ import botocore
 import os
 import tempfile
 import mimetypes
+from datetime import datetime
+import warnings
+import six
+if six.PY3:
+    warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
 
 
 class S3LocalFile(object):
@@ -206,11 +211,14 @@ class Service(StorageService):
 
     @property
     def _session(self):
-        return boto3.Session(
-            aws_access_key_id=self.aws_access_key_id,
-            aws_session_token=self.aws_session_token,
-            aws_secret_access_key= self.aws_secret_access_key,
-            region_name= self.region_name)
+        if not hasattr(self, '_boto_session') or (hasattr(self,'_boto_session_ts') and (datetime.now()-self._boto_session_ts).seconds>120):
+            self._boto_session = boto3.Session(
+                aws_access_key_id=self.aws_access_key_id,
+                aws_session_token=self.aws_session_token,
+                aws_secret_access_key= self.aws_secret_access_key,
+                region_name= self.region_name)
+            self._boto_session_ts = datetime.now()
+        return self._boto_session
 
     def _s3_copy(self, source_bucket=None, source_key=None,
         dest_bucket=None, dest_key=None):
@@ -222,7 +230,10 @@ class Service(StorageService):
 
     @property
     def _client(self):
-        return self._session.client('s3', config= boto3.session.Config(signature_version='s3v4'))
+        if not hasattr(self, '_boto_client') or (hasattr(self,'_boto_client_ts') and (datetime.now()-self._boto_client_ts).seconds>120):
+            self._boto_client = self._session.client('s3', config= boto3.session.Config(signature_version='s3v4'))
+            self._boto_client_ts = datetime.now()
+        return self._boto_client
 
     def delete_file(self, *args):
         self._client.delete_object(Bucket=self.bucket, Key=self.internal_path(*args))
@@ -277,10 +288,11 @@ class Service(StorageService):
             ExpiresIn=expiration)
 
     def open(self, *args, **kwargs):
-        from smart_open import smart_open
-        smart_open.DEFAULT_BUFFER_SIZE = 1024 * 1024
-        return smart_open("s3://%s/%s"%(self.bucket,self.internal_path(*args)),
-            s3_session=self._session, **kwargs)
+        kwargs['mode'] = kwargs.get('mode', 'rb')
+        from smart_open import open
+        open.DEFAULT_BUFFER_SIZE = 1024 * 1024
+        return open("s3://%s/%s"%(self.bucket,self.internal_path(*args)),
+            transport_params={'session':self._session}, **kwargs)
 
 
     def duplicateNode(self, sourceNode=None, destNode=None): # will work only in the same bucket
