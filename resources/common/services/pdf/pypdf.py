@@ -6,7 +6,7 @@ from gnr.lib.services.pdf import PdfService
 
 try:
     from PyPDF2 import PdfFileWriter, PdfFileReader
-    from io import StringIO
+    from io import BytesIO
 
     HAS_PYPDF = True
 except ImportError:
@@ -31,7 +31,7 @@ class Service(PdfService):
         for input_path in pdf_list:
             input_node = self.parent.storageNode(input_path)
             with input_node.open() as input_file:
-                memory_file = StringIO(input_file.read())
+                memory_file = BytesIO(input_file.read())
                 open_files.append(memory_file)
             input_pdf = PdfFileReader(memory_file)
             for page in input_pdf.pages:
