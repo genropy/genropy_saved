@@ -906,7 +906,7 @@ class SiteRegister(BaseRemoteObject):
         if isinstance(change_value, basestring):
             try:
                 v = self.catalog.fromTypedText(change_value)
-                if isinstance(v, basestring):
+                if isinstance(v, basestring) and hasattr(v, 'decode'):
                     v = v.decode('utf-8')
                 return v
             except Exception as e:
