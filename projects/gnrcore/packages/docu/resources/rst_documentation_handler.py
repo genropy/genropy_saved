@@ -90,27 +90,33 @@ class RstDocumentationHandler(BaseComponent):
     :figclass: align-center
 
     $description"""
-    
+        iframesrc = """<iframez onload="this.contentDocument.body.firstChild.style.whiteSpace='pre';" style='border:1px solid silver;background:lightyellow;resize:auto;' width="560" height="315" src="$fileurl" frameborder="0"></iframe>"""
+        template_iframedoc = """.. raw:: html\n\n {iframesrc}""".format(iframesrc=iframesrc)
         template_link= """ `$description <$fileurl ?download=1>`_"""
         th.view.grid.attributes.update(onDrag_rstimage="""
                                     var rowset = dragValues.gridrow.rowset;
                                     var result = [];
                                     var url = dragValues.gridrow.rowdata.fileurl;
                                     var ext = url.slice(url.lastIndexOf('.'));
-                                    var tpl;
+                                    var tpl,tplname;
                                     if(!['.jpg','.jpag','.png','.svg','.tiff'].includes(ext)){
-                                        tpl = '_tpl_link';
+                                        tplname = dragInfo.modifier=='Shift' ?'_tpl_link':'_tpl_iframedoc';
                                     }else{
-                                        tpl = dragInfo.modifier=='Shift' ? '_tpl_figure':'_tpl_image';
+                                        tplname = dragInfo.modifier=='Shift' ? '_tpl_figure':'_tpl_image';
                                     }
-                                    tpl = dragInfo.sourceNode.attr[tpl];
+                                    tpl = dragInfo.sourceNode.attr[tplname];
                                     rowset.forEach(function(row){
                                         if(row.fileurl){
+                                            if(tplname=='_tpl_iframedoc'){
+                                                row.fileurl = document.location.protocol+'//'+document.location.host+row.fileurl;
+                                            }
                                             result.push(dataTemplate(tpl,row));
                                         }
                                     });
                                     dragValues['text/plain'] = result.join(_lf+_lf)
-                                """ ,_tpl_image=template_image,_tpl_link=template_link,
+                                """ ,_tpl_image=template_image,
+                                    _tpl_link=template_link,
+                                    _tpl_iframedoc=template_iframedoc,
                                     _tpl_figure=template_figure)
 
 

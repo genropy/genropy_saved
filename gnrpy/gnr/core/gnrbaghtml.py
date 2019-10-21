@@ -238,9 +238,9 @@ class BagToHtml(object):
         d = self.__dict__
         paper_height = float(d.get('page_height') or top_layer['main.page.height'] or self.paperHeight)
         paper_width = float(d.get('page_width') or top_layer['main.page.width'] or self.paperWidth)
+        short_side,long_side = sorted((paper_height,paper_width))
         if not self.page_orientation:
             self.page_orientation = 'V' if paper_height>paper_width else 'H'
-        short_side,long_side = sorted((paper_height,paper_width))
         if self.page_orientation=='V': 
             self.page_height = long_side
             self.page_width = short_side

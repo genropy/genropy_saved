@@ -226,6 +226,8 @@ class GnrWsgiSite(object):
                 pass
         if self.default_uri[-1] != '/':
             self.default_uri += '/'
+       
+
         self.default_page = self.config['wsgi?default_page']
         self.root_static = self.config['wsgi?root_static']
         self.websockets= boolean(self.config['wsgi?websockets'])
@@ -291,6 +293,10 @@ class GnrWsgiSite(object):
     def mainpackage(self):
         return self.config['wsgi?mainpackage'] or self.gnrapp.packages.keys()[-1]
 
+
+    @property
+    def mainpackage(self):
+        return self.config['wsgi?mainpackage'] or self.gnrapp.packages.keys()[-1]
 
     def siteConfigPath(self):
         siteConfigPath = os.path.join(self.site_path,'siteconfig.xml')
