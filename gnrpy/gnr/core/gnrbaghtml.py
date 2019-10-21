@@ -41,7 +41,7 @@ class BagToHtml(object):
     page_format = 'A4'
     page_height = None
     page_width = None
-    page_orientation = 'V'
+    page_orientation = None
     page_margin_top = 0
     page_margin_left = 0
     page_margin_right = 0
@@ -186,6 +186,7 @@ class BagToHtml(object):
             return result
         self.templates = kwargs.pop('templates', self.templates)
         self.letterhead_id = kwargs.pop('letterhead_id', self.letterhead_id)
+
         self.page_orientation = orientation or self.page_orientation
         self.print_button = kwargs.pop('print_button', self.print_button)
         self.grid_prev_running_totals = defaultdict(int)
@@ -237,7 +238,8 @@ class BagToHtml(object):
         d = self.__dict__
         paper_height = float(d.get('page_height') or top_layer['main.page.height'] or self.paperHeight)
         paper_width = float(d.get('page_width') or top_layer['main.page.width'] or self.paperWidth)
-        
+        if not self.page_orientation:
+            self.page_orientation = 'V' if paper_height>paper_width else 'H'
         short_side,long_side = sorted((paper_height,paper_width))
         if self.page_orientation=='V': 
             self.page_height = long_side
