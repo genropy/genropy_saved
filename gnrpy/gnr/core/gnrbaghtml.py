@@ -474,8 +474,8 @@ class BagToHtml(object):
         result = []
         for col in reversed(self.subtotals_breakers):
             f = col.get('field_getter') or col['field']
-            val = self.rowData.get(f)
-            newVal = nextRowData.get(f)
+            val = self.getGridCellValue(col,self.rowData)
+            newVal =self.getGridCellValue(col,nextRowData)
             if val == newVal:
                 break
             subtotal_row = (col,val,dict(self.subtotals_dict[f]))
@@ -786,6 +786,8 @@ class BagToHtml(object):
                 rowData[field] = field_getter(rowData=rowData,col=field)
             elif col.get('formula'):
                 rowData[field_getter or field] = self.cellFormulaValue(col,rowData)  
+            elif col.get('subpath') and rowData.get(col['bagfield']):
+                rowData[field_getter or field] = rowData[col['bagfield']].getItem(col['subpath'])
         if field_getter and not field_getter in rowData:
             field_getter = None
         return rowData.get(field_getter or field)
