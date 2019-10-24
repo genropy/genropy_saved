@@ -899,7 +899,7 @@ function convertFromText(value, t, fromLocale) {
         var k = value.lastIndexOf('::');
         if(k>=0){
             t = value.slice(k).slice(2);
-            if(['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','P','X'].indexOf(t)>=0){
+            if(['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','DHZ','P','X'].indexOf(t)>=0){
                 value = value.slice(0,k);
             }
         }
@@ -931,9 +931,9 @@ function convertFromText(value, t, fromLocale) {
     else if (t == 'B') {
         return (value.toLowerCase() == 'true');
     }
-    else if ((t == 'D') || (t == 'DH')) {
+    else if ((t == 'D') || (t == 'DH') || (t == 'DHZ')) {
         if (fromLocale) {
-            var selector = (t == 'DH') ? 'datetime' : 'date';
+            var selector = (t == 'DH' || t == 'DHZ') ? 'datetime' : 'date';
             result = dojo.date.locale.parse(value, {selector:selector});
         } else {
             if(t=='D'){
@@ -1361,6 +1361,9 @@ function convertToText(value, params) {
             dtype = value._gnrdtype || (value.toString().indexOf('Thu Dec 31 1970') == 0 ? 'H' : 'D');
         }
         var opt = {'selector':selectors[dtype]};
+        if(dtype=='DHZ'){
+            return ['DHZ',value.toISOString()]
+        }
         if (forXml) {
             opt.timePattern = 'HH:mm:ss';
             opt.datePattern = 'yyyy-MM-dd';
