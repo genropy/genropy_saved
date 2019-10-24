@@ -35,7 +35,7 @@ class BagToHtml(object):
     page_format = 'A4'
     page_height = None
     page_width = None
-    page_orientation = 'V'
+    page_orientation = None
     page_margin_top = 0
     page_margin_left = 0
     page_margin_right = 0
@@ -233,6 +233,8 @@ class BagToHtml(object):
         paper_width = float(d.get('page_width') or top_layer['main.page.width'] or self.paperWidth)
         
         short_side,long_side = sorted((paper_height,paper_width))
+        if not self.page_orientation:
+            self.page_orientation = 'V' if paper_height>paper_width else 'H'
         if self.page_orientation=='V': 
             self.page_height = long_side
             self.page_width = short_side
