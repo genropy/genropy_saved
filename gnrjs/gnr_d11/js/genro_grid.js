@@ -1484,6 +1484,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(cell.rowTemplate){
                 cell.rowTemplate = sourceNode.currentFromDatasource(cell.rowTemplate);
             }
+            if(cell.bagfield && cell.subpath){
+                cell._customGetter = function(row){
+                    return row[cell.bagfield].getItem(cell.subpath);
+                };
+            }
             cell.field = cell.field.replace(/\W/g, '_');
             if(cell.group_aggr){
                 cell.field += '_'+cell.group_aggr.toLowerCase().replace(/\W/g, '_');
