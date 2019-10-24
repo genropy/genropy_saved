@@ -47,6 +47,8 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,SelectionExecutionError, R
 COLFINDER = re.compile(r"(\W|^)\$(\w+)")
 RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
 PERIODFINDER = re.compile(r"#PERIOD\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*,\s*:?(\w+)\)")
+BAGEXPFINDER = re.compile(r"#BAG\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*\)(\s*AS\s*(\w*))?")
+
 
 ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
 PREFFINDER = re.compile(r"#PREF\(([^,)]+)(,[^),]+)?\)")
@@ -78,6 +80,7 @@ class SqlCompiledQuery(object):
         self.offset = None
         self.for_update = None
         self.explodingColumns = []
+        self.evaluateBagColumns = []
         self.aggregateDict = {}
         self.pyColumns = []
         self.maintable_as = maintable_as
@@ -537,6 +540,7 @@ class SqlQueryCompiler(object):
         order_by = self.updateFieldDict(order_by or '')
         group_by = self.updateFieldDict(group_by or '')
         having = self.updateFieldDict(having or '')
+        columns = BAGEXPFINDER.sub(self.expandBagColumns,columns)
         col_list = uniquify([col for col in gnrstring.split(columns, ',') if col])
         new_col_list = []
         for col in col_list:
@@ -724,7 +728,14 @@ class SqlQueryCompiler(object):
             self.fieldlist.append('%s AS %s' % (field, as_name))
             self.cpl.resultmap.setItem(path_name, None, xattrs)
             #self.cpl.dicttemplate[path_name] = as_name
-            
+
+    def expandBagColumns(self, m):
+        fld = m.group(1)
+        asfld = m.group(3)
+        self.cpl.evaluateBagColumns.append((asfld or fld).replace('$',''))
+        return fld if not asfld else '{} AS {}'.format(fld, asfld)
+
+  
     def expandPeriod(self, m):
         """TODO
         
@@ -1003,6 +1014,7 @@ class SqlQuery(object):
         result = cursor.fetchall()
         cursor.close()
         self.handlePyColumns(result)
+        self.handleBagColumns(result)
         return result
 
     def handlePyColumns(self,data):
@@ -1019,6 +1031,14 @@ class SqlQuery(object):
                     result = handler(d,field=field)
                     d[field] = result
 
+    def handleBagColumns(self,data):
+        if not self.compiled.evaluateBagColumns:
+            return
+        for d in data:
+            for field in self.compiled.evaluateBagColumns:
+                d[field] = Bag(d[field])
+
+        
     def fetchPkeys(self):
         fetch = self.fetch()
         pkeyfield = self.dbtable.pkey
@@ -1098,7 +1118,7 @@ class SqlQuery(object):
             data = cursor.fetchall() or []
             index = cursor.index
         self.handlePyColumns(data)
-
+        self.handleBagColumns(data)
         return index, data
 
     def selection(self, pyWhere=None, key=None, sortedBy=None, _aggregateRows=False):
