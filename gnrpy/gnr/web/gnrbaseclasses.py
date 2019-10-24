@@ -194,8 +194,9 @@ class TableScriptToHtml(BagToHtml):
         self.print_handler = self.page.getService('htmltopdf')
         self.pdf_handler = self.page.getService('pdf')
         self.letterhead_sourcedata = None
+        self._gridStructures = {}
         self.record = None
-
+        
 
     def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, **kwargs):
         if not record:
@@ -276,8 +277,7 @@ class TableScriptToHtml(BagToHtml):
     def gridColumnsInfo(self,gridname=None):
         if self.grid_columns:
             return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
-        struct = self.page.newGridStruct(maintable=self.gridTable())
-        self.gridStruct(struct)
+        struct = self.getStruct(gridname=gridname)
         self.structAnalyze(struct)
         return dict(columns=self.gridColumnsFromStruct(struct=struct),
                     columnsets=self.gridColumnsetsFromStruct(struct))
@@ -287,6 +287,19 @@ class TableScriptToHtml(BagToHtml):
             return dict()
         return dict([(l[0],l[1]) for l in struct['info.columnsets'].digest('#k,#a')])
     
+    def setStruct(self,struct=None,gridname=None):
+        gridname = gridname or '_main_'  
+        self._gridStructures[gridname] = struct
+
+    def getStruct(self,gridname=None):
+        gridname = gridname or '_main_'
+        struct = self._gridStructures.get(gridname)
+        if struct is None:
+            struct = self.page.newGridStruct(maintable=self.gridTable())
+            self.gridStruct(struct)
+            self._gridStructures[gridname] = struct
+        return struct
+
     def gridStruct(self,struct):
         pass
 
@@ -380,7 +393,8 @@ class TableScriptToHtml(BagToHtml):
                         white_space=attr.get('white_space','nowrap'),subtotal=attr.get('subtotal'),
                         style=attr.get('style'),sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
                         columnset=attr.get('columnset'),sheet=attr.get('sheet','*'),
-                        totalize=attr.get('totalize'),formula=attr.get('formula'))
+                        totalize=attr.get('totalize'),formula=attr.get('formula'),
+                        bagfield=attr.get('bagfield'),subpath=attr.get('subpath'))
             grid_columns.append(pars)
         return grid_columns
     
@@ -432,7 +446,7 @@ class TableScriptToHtml(BagToHtml):
 
     @property
     def grid_sqlcolumns(self):
-        return ','.join([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')])
+        return ','.join(set([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')]))
                 
     def subtotalCaption(self,col_breaker,breaker_value):
         return dict(caption='{} {} {}'.format(self.page.localize(self.subtotal_caption_prefix),
