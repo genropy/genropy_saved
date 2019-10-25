@@ -223,7 +223,8 @@ class ExtDbExplorer(BaseComponent):
         externaldb = GnrSqlDb(implementation=connection_params['implementation'],
                             dbname=dbname,
                             host=connection_params['host'],user=connection_params['user'],
-                            password = connection_params['password'])
+                            password = connection_params['password'],
+                            port=connection_params['port'])
         externaldb.importModelFromDb()
         return externaldb
 
