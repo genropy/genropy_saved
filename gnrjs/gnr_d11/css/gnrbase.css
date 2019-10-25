@@ -5554,6 +5554,7 @@ div[disabled='true'], div[disabled='disabled']{
     padding-top: 1px;
     text-align: center;
     overflow: hidden;
+    height:100%;
 }
 
 .gr_table{
