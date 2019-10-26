@@ -2028,6 +2028,13 @@ class Bag(GnrObject):
                             n.value = Bag(link)
         return result
 
+    def getLeaves(self):
+        """Return the Bag index with all the internal address"""
+        path = []
+        resList = []
+        exploredNodes = [self]
+        self._deepIndex(path, resList, exploredNodes,excludeFolders=True)
+        return [('.'.join(k),v.value) for k,v in resList]
 
     def getIndex(self):
         """Return the Bag index with all the internal address"""
@@ -2037,10 +2044,11 @@ class Bag(GnrObject):
         self._deepIndex(path, resList, exploredNodes)
         return resList
 
-    def _deepIndex(self, path, resList, exploredItems):
+    def _deepIndex(self, path, resList, exploredItems,excludeFolders=False):
         for node in self._nodes:
             v = node.value
-            resList.append((path + [node.label], node))
+            if not excludeFolders or not isinstance(v,Bag):
+                resList.append((path + [node.label], node))
             if hasattr(v, '_deepIndex'):
                 if not v in exploredItems:
                     exploredItems.append(v)

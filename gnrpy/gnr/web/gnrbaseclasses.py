@@ -393,8 +393,7 @@ class TableScriptToHtml(BagToHtml):
                         white_space=attr.get('white_space','nowrap'),subtotal=attr.get('subtotal'),
                         style=attr.get('style'),sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
                         columnset=attr.get('columnset'),sheet=attr.get('sheet','*'),
-                        totalize=attr.get('totalize'),formula=attr.get('formula'),
-                        bagfield=attr.get('bagfield'),subpath=attr.get('subpath'))
+                        totalize=attr.get('totalize'),formula=attr.get('formula'))
             grid_columns.append(pars)
         return grid_columns
     

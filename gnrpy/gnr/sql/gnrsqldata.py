@@ -48,6 +48,7 @@ COLFINDER = re.compile(r"(\W|^)\$(\w+)")
 RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
 PERIODFINDER = re.compile(r"#PERIOD\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*,\s*:?(\w+)\)")
 BAGEXPFINDER = re.compile(r"#BAG\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*\)(\s*AS\s*(\w*))?")
+BAGCOLSEXPFINDER = re.compile(r"#BAGCOLS\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*\)(\s*AS\s*(\w*))?")
 
 
 ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
@@ -540,7 +541,9 @@ class SqlQueryCompiler(object):
         order_by = self.updateFieldDict(order_by or '')
         group_by = self.updateFieldDict(group_by or '')
         having = self.updateFieldDict(having or '')
-        columns = BAGEXPFINDER.sub(self.expandBagColumns,columns)
+        columns = BAGEXPFINDER.sub(self.expandBag,columns)
+        columns = BAGCOLSEXPFINDER.sub(self.expandBagcols,columns)
+
         col_list = uniquify([col for col in gnrstring.split(columns, ',') if col])
         new_col_list = []
         for col in col_list:
@@ -729,12 +732,17 @@ class SqlQueryCompiler(object):
             self.cpl.resultmap.setItem(path_name, None, xattrs)
             #self.cpl.dicttemplate[path_name] = as_name
 
-    def expandBagColumns(self, m):
+    def expandBag(self, m):
         fld = m.group(1)
         asfld = m.group(3)
-        self.cpl.evaluateBagColumns.append((asfld or fld).replace('$',''))
+        self.cpl.evaluateBagColumns.append(((asfld or fld).replace('$',''),False))
         return fld if not asfld else '{} AS {}'.format(fld, asfld)
 
+    def expandBagcols(self, m):
+        fld = m.group(1)
+        asfld = m.group(3)
+        self.cpl.evaluateBagColumns.append(((asfld or fld).replace('$',''),True))
+        return fld if not asfld else '{} AS {}'.format(fld, asfld)
   
     def expandPeriod(self, m):
         """TODO
@@ -1035,8 +1043,14 @@ class SqlQuery(object):
         if not self.compiled.evaluateBagColumns:
             return
         for d in data:
-            for field in self.compiled.evaluateBagColumns:
-                d[field] = Bag(d[field])
+            for field,separateCols in self.compiled.evaluateBagColumns:
+                val = Bag(d[field])
+                if separateCols:
+                    for k,v in val.getLeaves():
+                        d['{}_{}'.format(field,k.replace('.','_'))] = v
+                    d[field] = None
+                else:
+                    d[field] = val
 
         
     def fetchPkeys(self):

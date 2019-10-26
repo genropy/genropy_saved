@@ -785,9 +785,7 @@ class BagToHtml(object):
             elif callable(field_getter):
                 rowData[field] = field_getter(rowData=rowData,col=field)
             elif col.get('formula'):
-                rowData[field_getter or field] = self.cellFormulaValue(col,rowData)  
-            elif col.get('subpath') and rowData.get(col['bagfield']):
-                rowData[field_getter or field] = rowData[col['bagfield']].getItem(col['subpath'])
+                rowData[field_getter or field] = self.cellFormulaValue(col,rowData)
         if field_getter and not field_getter in rowData:
             field_getter = None
         return rowData.get(field_getter or field)

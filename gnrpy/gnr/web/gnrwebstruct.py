@@ -2411,7 +2411,7 @@ class GnrGridStruct(GnrStructData):
         return columnsets.child('columnset',code=code, name=name, childname=code,**kwargs)
 
     def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, 
-            headerClasses=None,bagfield=None,subpath=None,**kwargs):
+            headerClasses=None,**kwargs):
         """Return a :ref:`cell`
         
         :param field: TODO
@@ -2426,16 +2426,13 @@ class GnrGridStruct(GnrStructData):
         if field and getattr(self,'tblobj',None):
             kwargs.setdefault('calculated',self.tblobj.column(field) is None)
         row = self
-        if not field and (bagfield and subpath):
-            field = '{}.{}'.format(bagfield,subpath)
-            kwargs['calculated'] = True
         parentAttributes = self.attributes
         if  parentAttributes['tag'] == 'columnset':
             row = self.parent.parent.parent.getItem('view_0.rows_0')
             kwargs['columnset'] = parentAttributes['code']
         return row.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses,
-                          bagfield=bagfield,subpath=subpath,**kwargs)
+                          **kwargs)
                           
     
     def checkboxcolumn(self,field='_checked',checkedId=None,radioButton=False,calculated=True,name=None,
