@@ -323,7 +323,7 @@ class TableScriptToHtml(BagToHtml):
         while sheet_delta<3 and not self._structAnalyze_step(columns,net_min_grid_width,sheet_count+sheet_delta,grid_width):
             sheet_delta+=1
             #print('========== aumento delta {}'.format(sheet_delta))
-        self.sheets_counter = sheet_count+sheet_delta
+        self.sheets_counter =(max(struct['view_0.rows_0'].digest('#a.sheet')) or 0)+1
     
     def _structAnalyze_step(self,columns,net_min_grid_width,sheet_count,grid_width):
         sheet_space_available = grid_width-float(net_min_grid_width)/ sheet_count
