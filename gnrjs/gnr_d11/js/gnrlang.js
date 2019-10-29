@@ -25,9 +25,10 @@
 //funzioni di utilità varie
 
 //########################  Lang #########################
-var _lf = '\n';
-var _crlf = '\r\n';
-var _tab = '\t';
+const _lf = '\n';
+const _crlf = '\r\n';
+const _tab = '\t';
+
 function _px(v){
     v+='';
     if(v.indexOf('px')<0){
@@ -70,6 +71,10 @@ function _IN(val,str){
 function isBag(value){
     return value &&(value.htraverse!=null);
 };
+
+function isNumericType(dtype){
+    return dtype in  {'R':null,'L':null,'I':null,'N':null};
+}
 
 function pyref(ref,mode){    
     var node = genro.src._main.getNodeByAttr('__ref',ref);
@@ -980,13 +985,15 @@ var gnrformatter = {
         var formatKw =  objectUpdate({},valueAttr);
         var dtype = objectPop(formatKw,'dtype');
         var formattedValue;
+        var format = objectPop(formatKw,'format');
         if((value===null || value===undefined) && dtype!='B'){
-            return '';
+            if(isNumericType(dtype) && format.includes(';')){ 
+                value = 0;
+            }else{
+                return '';
+            }
         }
         dtype = dtype|| guessDtype(value);
-        
-        var format = objectPop(formatKw,'format');
-
         if(format && typeof(format)!='string'){
             var formatdict = format;
             format = objectPop(format,'format') || objectPop(format,'pattern');
