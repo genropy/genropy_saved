@@ -266,7 +266,7 @@
 <en_missing_user_for_this_email fr="Utilisateur manquantes pour cet e-mail" de="Fehlende Benutzer für diese E-Mail-" en="Missing user for this email" it="Utente mancante per questa e-mail" base="Missing user for this email"></en_missing_user_for_this_email>
 <en_check_your_email_for_instruction fr="Vérifiez votre email pour l'enseignement" de="Überprüfen Sie Ihre E-Mail für den Unterricht" en="Check your email for instruction" it="Controlla la tua e-mail per l'istruzione" base="Check your email for instruction"></en_check_your_email_for_instruction>
 <en_new_password fr="Nouveau Mot De Passe" de="Neues Passwort" en="New Password" it="Nuova password" base="New Password"></en_new_password>
-<en_confirm_password base="Confirm password"></en_confirm_password>
+<en_confirm_password base="Confirm password" en="Confirm password" it="Conferma password"></en_confirm_password>
 <en_passwords_must_be_equal fr="Les mots de passe doivent être égaux" de="Passwörter müssen gleich sein" en="Passwords must be equal" it="Le password devono essere uguali" base="Passwords must be equal"></en_passwords_must_be_equal>
 <en_send fr="Envoyer" de="Senden" en="Send" it="Inviare" base="Send"></en_send>
 <en_confirm_user fr="Confirmez utilisateur" de="Benutzer bestätigen" en="Confirm User" it="Conferma utente" base="Confirm User"></en_confirm_user>
