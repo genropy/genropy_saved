@@ -32,11 +32,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
         genro.ping_classes = true;
         this.stackSourceNode = stackSourceNode;
         this.dbstore =  genro.getData('gnr.dbstore');
-        var default_uri =  genro.getData('gnr.defaultUrl')||'/';
-        var thurl = 'sys/thpage/';
-        var lookup_url = 'sys/lookuptables';
-        this.thpage_url = this.dbstore?(default_uri+this.dbstore+'/'+thurl):(default_uri+thurl);
-        this.lookup_url = this.dbstore?(default_uri+this.dbstore+'/'+lookup_url):(default_uri+lookup_url);
+        this.default_uri =  genro.getData('gnr.defaultUrl')||'/';
+        this.thurl = 'sys/thpage/';
+        this.lookup_url = 'sys/lookuptables';
         genro.externalWindowsObjects = {};
         var that = this;
         genro.childrenHasPendingChanges_replaced = genro.childrenHasPendingChanges;
@@ -284,14 +282,21 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var table = kw.table;
         var lookup_manager = kw.lookup_manager;
         var urlPars = {};
+
+        var thpage_url = this.default_uri+this.thurl;
+        var lookup_url = this.default_uri+this.lookup_url;
+        if(this.dbstore && !kw.aux_instance){
+            thpage_url = this.default_uri+this.dbstore+'/'+this.thurl;
+            lookup_url = this.default_uri+this.dbstore+'/'+this.lookup_ur;
+        }
         if(kw.unique){
-            urlPars.ts = new Date().getMilliseconds()
+            urlPars.ts = new Date().getMilliseconds();
         }
         if(table){
-            url = this.thpage_url+table.replace('.','/');
+            url = thpage_url+table.replace('.','/');
             urlPars['th_from_package'] = kw['pkg_menu'] || genro.getData("gnr.package");
         }else if(lookup_manager){
-            url = this.lookup_url+(lookup_manager=='*'?'':('/'+lookup_manager.replace('.','/')));
+            url = lookup_url+(lookup_manager=='*'?'':('/'+lookup_manager.replace('.','/')));
         }
         else if(this.dbstore && url && url.indexOf('/')===0){
             if(url.slice(1).split('/')[0]!=this.dbstore){
