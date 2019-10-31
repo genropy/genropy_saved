@@ -33,8 +33,8 @@ dojo.declare("gnr.FramedIndexManager", null, {
         this.stackSourceNode = stackSourceNode;
         this.dbstore =  genro.getData('gnr.dbstore');
         this.default_uri =  genro.getData('gnr.defaultUrl')||'/';
-        this.thurl = 'sys/thpage/';
-        this.lookup_url = 'sys/lookuptables';
+        this.thpage_url = '${$default_url}/${$dbstore/}sys/thpage/';
+        this.lookup_url = '${$default_url}/${$dbstore/}sys/lookuptables';
         genro.externalWindowsObjects = {};
         var that = this;
         genro.childrenHasPendingChanges_replaced = genro.childrenHasPendingChanges;
@@ -282,32 +282,26 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var table = kw.table;
         var lookup_manager = kw.lookup_manager;
         var urlPars = {};
-
-        var thpage_url = this.default_uri+this.thurl;
-        var lookup_url = this.default_uri+this.lookup_url;
-        if(this.dbstore && !kw.aux_instance){
-            thpage_url = this.default_uri+this.dbstore+'/'+this.thurl;
-            lookup_url = this.default_uri+this.dbstore+'/'+this.lookup_ur;
-        }
+        var dbstore = this.dbstore;
         if(kw.unique){
             urlPars.ts = new Date().getMilliseconds();
         }
         if(table){
-            url = thpage_url+table.replace('.','/');
-            urlPars['th_from_package'] = kw['pkg_menu'] || genro.getData("gnr.package");
+            url = this.thpage_url+table.replace('.','/');
+            urlPars.th_from_package = kw.pkg_menu || genro.getData("gnr.package");
         }else if(lookup_manager){
-            url = lookup_url+(lookup_manager=='*'?'':('/'+lookup_manager.replace('.','/')));
+            url = this.lookup_url+(lookup_manager=='*'?'':('/'+lookup_manager.replace('.','/')));
         }
         else if(this.dbstore && url && url.indexOf('/')===0){
             if(url.slice(1).split('/')[0]!=this.dbstore){
-                url = '/'+this.dbstore+url;
+                url = '/${$dbstore/}'+url;
             }
         }
         if(kw.formResource){
-            urlPars['th_formResource'] = kw.formResource;
+            urlPars.th_formResource = kw.formResource;
         }
         if(kw.viewResource){
-            urlPars['th_viewResource'] = kw.viewResource;
+            urlPars.th_viewResource = kw.viewResource;
         }
         if(kw.workInProgress){
             urlPars.workInProgress = true;
@@ -315,7 +309,10 @@ dojo.declare("gnr.FramedIndexManager", null, {
         if(kw.aux_instance){
             urlPars.aux_instance = kw.aux_instance;
             objectPop(urlPars,'th_from_package');
+            dbstore = null;
         }
+        url = dataTemplate(url,{default_url:this.default_url,dbstore:dbstore});
+        console.log('url',url);
         objectUpdate(urlPars,objectExtract(kw,'url_*'));
         kw.url = genro.addParamsToUrl(url,urlPars);
         if(!('multipage' in kw )&& kw.table){
