@@ -312,7 +312,6 @@ dojo.declare("gnr.FramedIndexManager", null, {
             dbstore = null;
         }
         url = dataTemplate(url,{default_url:this.default_url,dbstore:dbstore});
-        console.log('url',url);
         objectUpdate(urlPars,objectExtract(kw,'url_*'));
         kw.url = genro.addParamsToUrl(url,urlPars);
         if(!('multipage' in kw )&& kw.table){
