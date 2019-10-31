@@ -1237,6 +1237,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
         var ds = genro.dialogStack;
         var parentDialog = ds.length>1?ds[ds.length-2]:null;
         this.adjustDialogSize(parentDialog);
+        this.resize();
     },
 
     mixin_autoSize:function(){
