@@ -36,6 +36,8 @@ from copy import copy
 def cellFromField(field,tableobj,checkPermissions=None):
     kwargs = dict()
     fldobj = tableobj.column(field)
+    if fldobj is None:
+        raise Exception('Missing column {} in table {}'.format(field,tableobj.fullname))
     fldattr = dict(fldobj.attributes or dict())
         
     if (fldattr.get('cell_edit') or fldattr.get('edit'))\
