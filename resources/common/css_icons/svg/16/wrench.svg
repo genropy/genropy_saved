@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>2_17_Wrench icon_16x16</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <path d="M9.5,8.6l-5,6.5a2.5,2.5,0,0,1-3.7.2h0a2.5,2.5,0,0,1,.1-3.7L7.2,6.3a4.5,4.5,0,0,1,5-6.2.5.5,0,0,1,.2.8L10.3,3.1a.9.9,0,0,0,0,1.3l1,1a.9.9,0,0,0,1.3,0l2.2-2.2a.5.5,0,0,1,.8.2A4.5,4.5,0,0,1,8.5,7.9" fill="#515151"/>
+    <circle cx="3" cy="13" r="1" transform="translate(-3.9 1.6) rotate(-18.2)" fill="#fff"/>
+  </g>
+</svg>

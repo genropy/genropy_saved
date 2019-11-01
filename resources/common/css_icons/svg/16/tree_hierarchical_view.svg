@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>2_13_Tree_Hierarchical_view_16x16</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <rect x="1" width="5" height="5" rx="0.9" ry="0.9" fill="#515151"/>
+    <rect x="10" y="5" width="5" height="5" rx="0.9" ry="0.9" fill="#515151"/>
+    <rect x="10" y="11" width="5" height="5" rx="0.9" ry="0.9" fill="#515151"/>
+    <path d="M3.5,4v8.7a.8.8,0,0,0,.8.8H13" fill="none" stroke="#515151" stroke-miterlimit="10"/>
+    <line x1="10" y1="7.5" x2="3" y2="7.5" fill="none" stroke="#515151" stroke-miterlimit="10"/>
+  </g>
+</svg>

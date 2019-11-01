@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>1_05_Light bulb_16x16</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <g>
+      <path d="M11.5,9.2a5.5,5.5,0,1,0-8.2-.1A6.4,6.4,0,0,1,5,13h5A5.8,5.8,0,0,1,11.5,9.2Z" fill="#515151"/>
+      <path d="M5,14.9A1.1,1.1,0,0,0,6.1,16H8.9A1.1,1.1,0,0,0,10,14.9V14H5Z" fill="#515151"/>
+      <path d="M6.5,11V8.3L5.7,6.2a.5.5,0,0,1,.5-.7H8.7a.5.5,0,0,1,.5.7L8.5,8.3V11" fill="none" stroke="#fff" stroke-miterlimit="10"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>1_04_Trash icon_16x16</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <g>
+      <rect x="2" y="1" width="13" height="2" rx="1" ry="1" fill="#515151"/>
+      <rect x="5" width="7" height="2" rx="1" ry="1" fill="#515151"/>
+    </g>
+    <path d="M11.7,16H5.3a1.4,1.4,0,0,1-1.4-1.2L3,4H14l-.9,10.8A1.4,1.4,0,0,1,11.7,16Z" fill="#515151"/>
+    <line x1="6.5" y1="6" x2="6.5" y2="14" fill="none" stroke="#fff" stroke-linecap="round" stroke-miterlimit="10"/>
+    <line x1="8.5" y1="6" x2="8.5" y2="14" fill="none" stroke="#fff" stroke-linecap="round" stroke-miterlimit="10"/>
+    <line x1="10.5" y1="6" x2="10.5" y2="14" fill="none" stroke="#fff" stroke-linecap="round" stroke-miterlimit="10"/>
+  </g>
+</svg>

@@ -401,7 +401,7 @@ class FormHandler(BaseComponent):
 
     @struct_method          
     def fh_slotbar_form_duplicate(self,pane,parentForm=True,**kwargs):
-        pane.formButton('!!Duplicate',iconClass='iconbox copy',
+        pane.formButton('!!Duplicate',iconClass='iconbox copy duplicate_record',
                        topic='navigationEvent',command='duplicate',parentForm=parentForm)
 
     @struct_method          

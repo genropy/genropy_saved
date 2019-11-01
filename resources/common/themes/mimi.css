@@ -1005,6 +1005,10 @@
 .framedindex_tablist{
     background-image: none;
     background-color: #555;
+    padding:2px;
+}
+.mimi .framedindex_tablist .button_block.iframetab{ 
+    padding:1px;
 }
 
 .multibutton:last-child{
@@ -1121,6 +1125,11 @@
 .darktoolbar{
     background-color: #666;
 }
+.mimi .slotbar_toolbar {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
 
 /*----------------------------------------- icone svg -------------------------------------*/
 
@@ -1136,9 +1145,18 @@
     background: url(/_rsrc/common/css_icons/svg/16/batch_assignment.svg) no-repeat center center;
 }
 
-.mimi .batch_scripts{
+.mimi .batch_scripts, .mimi .batch_monitor_icon{
     background: url(/_rsrc/common/css_icons/svg/16/batch_scripts.svg) no-repeat center center;
 }
+.mimi .address_book, .mimi .frameplugin_staff_icon{
+    background: url(/_rsrc/common/css_icons/svg/16/address_book.svg) no-repeat center center;
+}
+
+
+.mimi .gear{
+    background: url(/_rsrc/common/css_icons/svg/16/gear.svg) no-repeat center center;
+}
+
 
 .mimi .create_edit_html_template {
     background: url(/_rsrc/common/css_icons/svg/16/create_edit_html_template.svg) no-repeat center center;
@@ -1160,7 +1178,7 @@
     background: url(/_rsrc/common/css_icons/svg/16/export_to_excel.svg) no-repeat center center;
 }
 .mimi .picker, .mimi .iconbox.app.picker{
-    background: url(/_rsrc/common/css_icons/svg/16/picker.svg) no-repeat center center;
+    background: url(/_rsrc/common/css_icons/svg/16/open_floating_window.svg) no-repeat center center;
 }
 
 .mimi .form_status_green{
@@ -1187,8 +1205,8 @@
     background: url(/_rsrc/common/css_icons/svg/16/go_to_last_record.svg) no-repeat center center;
 }
 
-.mimi .grid_options, .mimi .menu_gray_svg{
-    background: url(/_rsrc/common/css_icons/svg/16/grid_options.svg) no-repeat center center;
+.mimi .grid_options, .mimi .menu_icon{
+    background: url(/_rsrc/common/css_icons/svg/16/menu_icon.svg) no-repeat center center;
 }
 
 .mimi .import_data_tool{
@@ -1215,8 +1233,12 @@
     background: url(/_rsrc/common/css_icons/svg/16/new_record.svg) no-repeat center center;
 }
 
-.mimi .new_set_column, .mimi .heart{
+.mimi .new_set_column{
     background: url(/_rsrc/common/css_icons/svg/16/new_set_column.svg) no-repeat center center;
+}
+
+.mimi .heart{
+    background: url(/_rsrc/common/css_icons/svg/16/heart.svg) no-repeat center center;
 }
 
 .mimi .next_record, .mimi .next{
@@ -1300,4 +1322,20 @@ background: url(/_rsrc/common/css_icons/svg/16/read_only_status.svg) no-repeat c
 
 .mimi .formside_noItem .fh_semaphore{
 background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat center center;
+}
+
+.mimi .switch_off, .mimi .iconbox.icnBaseUserLogout.switch_off{
+    background: url(/_rsrc/common/css_icons/svg/16/switch_off.svg) no-repeat center center;
+}
+
+.mimi .chat, .mimi .chat_plugin_icon{
+    background: url(/_rsrc/common/css_icons/svg/16/chat.svg) no-repeat center center;
+}
+
+.mimi .duplicate_record, .mimi .duplicate_record.copy{
+    background: url(/_rsrc/common/css_icons/svg/16/duplicate_record.svg) no-repeat center center;
+}
+
+.mimi .archive_record, .mimi .archive_record.box{
+    background: url(/_rsrc/common/css_icons/svg/16/archive_record.svg) no-repeat center center;
 }
