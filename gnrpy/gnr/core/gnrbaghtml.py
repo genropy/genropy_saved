@@ -857,9 +857,9 @@ class BagToHtml(object):
         """Hook method that could be overridden. It gives the :ref:`print_layout_page`
         object to which you have to append a :meth:`layout <gnr.core.gnrhtml.GnrHtmlSrc.layout>`
         :param page: the page object"""
-        return page.layout(**self.mainLayoutParamiters())
+        return page.layout(**self.mainLayoutParameters())
     
-    def mainLayoutParamiters(self):
+    def mainLayoutParameters(self):
         return dict(font_family='Arial Narrow',font_size='11pt',
                     name='mainLayout',top=1,left=1,right=1,bottom=1,border_width=0)
         

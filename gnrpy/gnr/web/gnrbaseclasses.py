@@ -304,7 +304,7 @@ class TableScriptToHtml(BagToHtml):
         pass
 
     def structAnalyze(self,struct,grid_width=None,grid_border_width=None):
-        layoutPars = self.mainLayoutParamiters()
+        layoutPars = self.mainLayoutParameters()
         gridPars = self.gridLayoutParameters()
         calcGridWidth =  self.copyWidth() - \
                         layoutPars.get('left',0)-layoutPars.get('right',0) -\
