@@ -4384,34 +4384,42 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw){
         var gnrwdg = sourceNode.gnrwdg;
-        sourceNode.attr.nodeId = objectPop(kw,'nodeId');
         if(objectPop(kw,'_workspace')!==false){
             sourceNode.attr._workspace = true;
         }
         var userObjectPars = objectExtract(kw,'table,flags,objtype');
-        userObjectPars.objtype = userObjectPars.objtype;
         gnrwdg.newcaption  = _T(objectPop(kw,'newcaption') ||  'New '+userObjectPars.objtype);
-        gnrwdg.table = userObjectPars.table;
         objectUpdate(userObjectPars,objectExtract(kw,'userobject_*'));
         gnrwdg.userObjectPars = userObjectPars;
         gnrwdg.startUserObjectIdOrCode = kw.userObjectId;
-        gnrwdg.dataIndex = objectExtract(kw,'source_');
+        gnrwdg.dataIndex = objectExtract(kw,'source_*');
         let metadataPath = kw.metadata || '#WORKSPACE.metadata';
-        gnrwdg.metadataPath = sourceNode.absDatapath(metadataPath);
+        gnrwdg.metadataPath = metadataPath;
+        gnrwdg.favoriteIdentifier = objectPop(kw,'favoriteIdentifier');
+
         gnrwdg.defaultMetadata = objectExtract(kw,'default_*');
+        if(kw.onLoaded){
+            gnrwdg.onLoaded = funcCreate(kw.onLoaded,'dataIndex','resoultValue','resoultAttr',sourceNode);
+
+        }
         return gnrwdg.buildToolbar(sourceNode);
     },
 
     gnrwdg_buildToolbar:function(sourceNode){
         this.setLoadMenuData();
-        var bar = sourceNode._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,favoritebtn,saveBtn,deletebtn,5'});
+        var bar = sourceNode._('slotBar','uo_bar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,favoritebtn,saveBtn,deletebtn,5'});
         var that = this;
+        var favorite;
         bar._('div','objTitle',{innerHTML:'^.description?=(#v || "New")',
                                 datapath:this.metadataPath,font_weight:'bold',
                                 font_size:'.9em',color:'#666'});
-        bar._('slotButton','favoritebtn',{'label':_T('Default'),
-                                                    action:function(){that.setCurrentAsFavorite();},
-                                                    iconClass:'highlightable iconbox star'});
+        if(this.favoriteIdentifier){
+            bar._('slotButton','favoritebtn',{'label':_T('Default'),
+                    action:function(){that.setCurrentAsFavorite();},
+                    iconClass:'highlightable iconbox star'});
+            favorite = this.getFavorite();
+        }
+       
         
         bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
             menupath:'#WORKSPACE.loadMenu',action:function(item){
@@ -4425,6 +4433,9 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
                     action:function(){
                         that.deleteCurrentObject();
                     }});
+        if(favorite){
+            this.loadObject(favorite || '__newobj__');
+        }
         return bar;
     },
 
@@ -4437,12 +4448,6 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
         this.sourceNode.setRelativeData('#WORKSPACE.loadMenu',
                                         genro.dev.userObjectMenuData(objectUpdate({},this.userObjectPars),
                                                     [{pkey:'__newobj__',caption:this.newcaption}]));
-    },
-
-    gnrwdg_prepareViewerFrame:function(bc,kw){
-        //override
-        var frame = bc._('FramePane','viewer',{region:'center',frameCode:this.sourceNode.attr.nodeId+'_viewer'});
-        this.viewerFrame(frame);
     },
 
     gnrwdg_setCurrentAsFavorite:function(){
@@ -4460,11 +4465,11 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
         var metadata = this.sourceNode.getRelativeData(this.metadataPath) || new gnr.GnrBag();
         var pkey = metadata.getItem('pkey');
         var currfavorite = this.getFavorite();
-        genro.dom.setClass(this.sourceNode.getValue().getNode('rootbc'),'highlighted',currfavorite==pkey);
+        genro.dom.setClass(this.sourceNode,'highlighted',currfavorite==pkey);
     },
 
     gnrwdg_storageKey:function(){
-        return this.userObjectPars.objtype + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
+        return this.userObjectPars.objtype + genro.getData('gnr.pagename') + '_' + this.favoriteIdentifier;
     },
 
     gnrwdg_deleteCurrentObject:function() {
@@ -4482,12 +4487,9 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_saveObject:function() {
-        var currentMetadata = this.sourceNode.getRelativeData(this.metadataPath);
-        var kw = kw || {};
-        kw.dataIndex = objectUpdate({},this.sourceIndex);
-        kw.objtype = this.userObjectPars.objtype;
+        var kw = objectUpdate({},this.userObjectPars);
+        kw.dataIndex = objectUpdate({},this.dataIndex);
         kw.metadataPath = this.metadataPath;
-        kw.table = this.title;
         kw.title = _T('Save '+this.userObjectPars.objtype);
         kw.defaultMetadata = objectUpdate({},this.defaultMetadata);
         var onSaved = objectPop(kw,'onSaved');
@@ -4497,41 +4499,24 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
                 that.resetMenuData();
             };
         }
-        genro.dev.userObjectSave(sourceNode,kw,onSaved);
+        genro.dev.userObjectSave(this.sourceNode,kw,onSaved);
     },
 
     gnrwdg_loadObject:function(userObjectId,firstLoad){
-        this.onLoadingObject(userObjectId,firstLoad);
-        if(userObjectId=='__newobj__'){
-            this.sourceNode.setRelativeData('#WORKSPACE.metadata',null);
-            this.onLoadedObject(null,userObjectId,firstLoad);
-        }else{
-            var that = this;
-            genro.serverCall('_table.adm.userobject.loadUserObject', {userObjectIdOrCode:userObjectId,
-                                                                    objtype:this.userObjectPars.objtype,
-                                                                    tbl:this.userObjectPars.table,
-                                                                    flags:this.userObjectPars.flags}, 
-            function(result){
-                if (result){
-                    that.sourceNode.setRelativeData('#WORKSPACE.metadata',new gnr.GnrBag(result.attr));
-                    that.onLoadedObject(result,userObjectId,firstLoad);
-                }else{
-                    var currfavorite = that.getFavorite();
-                    if(currfavorite==userObjectId){
-                        genro.setInStorage("local", that.storageKey(), null);
-                    }
-                }
-                that.checkFavorite();
-            });
+        var kw = objectUpdate({},this.userObjectPars);
+        kw.userObjectIdOrCode = userObjectId;
+        kw.metadataPath =  this.metadataPath;
+        var that = this;
+        kw.onLoaded = function(dataIndex,resultValue,resultAttr){
+            if(that.onLoaded){
+                that.onLoaded(dataIndex,resultValue,resultAttr);
+            }
+            that.checkFavorite();
         }
-    },
-
-    gnrwdg_onLoadingObject:function(userObjectId,firstLoad){
-        //override
-    },
-
-    gnrwdg_onLoadedObject:function(result,userObjectId,firstLoad){
-        //override
+        if(userObjectId=='__newobj__'){
+            kw.dataIndex = new gnr.GnrBag(this.dataIndex);
+        }
+        genro.dev.userObjectLoad(this.sourceNode,kw);
     },
 
 });

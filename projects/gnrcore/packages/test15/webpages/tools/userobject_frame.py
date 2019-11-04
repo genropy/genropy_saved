@@ -15,7 +15,7 @@ class GnrCustomWebPage(object):
     def test_2_userobject_bar(self, pane):
         frame = pane.framePane(height='300px',width='400px',border='1px solid silver',rounded=10)
         frame.top.userObjectBar(table='fatt.fattura',pkg='fatt',objtype='fakeobject',
-                                source_mieidati='=.mieidati')
+                                source_mieidati='=.mieidati',favoriteIdentifier='test_2')
         bc = frame.center.borderContainer(datapath='.mieidati')
         fb = bc.contentPane(region='top').formbuilder()
         fb.textbox(value='^.nome',lbl='Nome')

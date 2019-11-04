@@ -916,11 +916,17 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var metadataPath = objectPop(kw,'metadataPath');
         var onLoaded = objectPop(kw,'onLoaded');
         var onLoading = objectPop(kw,'onLoading');
-
-        genro.serverCall('_table.adm.userobject.loadUserObject',kw,function(result){
-            var resultValue = result._value.deepCopy();
-            var resultAttr = objectUpdate({},result.attr);
-            var dataIndex = resultValue.pop('__index__');
+        var resback = function(result){
+            var resultValue,resultAttr,dataIndex;
+            if(!result){
+                resultValue = new gnr.GnrBag();
+                resultAttr = objectUpdate({},kw.defaultMetadata);
+                dataIndex = kw.dataIndex;
+            }else{
+                resultValue = result._value.deepCopy();
+                resultAttr = objectUpdate({},result.attr);
+                dataIndex = resultValue.pop('__index__');
+            }
             if(onLoading){
                 funcApply(onLoading,null,sourceNode,
                         ['dataIndex','resoultValue','resoultAttr'],
@@ -937,7 +943,12 @@ dojo.declare("gnr.GnrDevHandler", null, {
                         sourceNode,['dataIndex','resoultValue','resoultAttr'],
                         [dataIndex,resultValue,resultAttr]);
             }
-        });
+        }; 
+        if(kw.userObjectIdOrCode==='__newobj__'){
+            return resback();
+        }
+
+        genro.serverCall('_table.adm.userobject.loadUserObject',kw,resback);
     },
 
     userObjectDialog:function(title,datapath,saveCb,preview){
