@@ -1390,6 +1390,10 @@ background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat c
     -webkit-transition-duration: 1s;
     -moz-transition-duration: 1s;
 }
+.mimi .folder{
+    background: url(/_rsrc/common/css_icons/svg/16/folder.svg) no-repeat center center;
+}
+
 .mimi .ping_start .ping_semaphore{
     background: url(/_rsrc/common/css_icons/svg/16/socket_transmitting.svg) no-repeat center center;
 }
@@ -1399,6 +1403,3 @@ background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat c
 }
 
 
-/* .mimi.tundra .dijitFolderClosed{
-    background: url(/_rsrc/common/css_icons/svg/16/folder.svg) no-repeat center center;
-} */

@@ -4381,8 +4381,162 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         }
     }
 });
+dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw){
+        var gnrwdg = sourceNode.gnrwdg;
+        sourceNode.attr.nodeId = objectPop(kw,'nodeId');
+        if(objectPop(kw,'_workspace')!==false){
+            sourceNode.attr._workspace = true;
+        }
+        var userObjectPars = objectExtract(kw,'table,flags,objtype');
+        userObjectPars.objtype = userObjectPars.objtype;
+        gnrwdg.newcaption  = _T(objectPop(kw,'newcaption') ||  'New '+userObjectPars.objtype);
+        gnrwdg.table = userObjectPars.table;
+        objectUpdate(userObjectPars,objectExtract(kw,'userobject_*'));
+        gnrwdg.userObjectPars = userObjectPars;
+        gnrwdg.startUserObjectIdOrCode = kw.userObjectId;
+        gnrwdg.dataIndex = objectExtract(kw,'source_');
+        gnrwdg.metadataPath = this.sourceNode.absDatapath(kw.metadata) || this.sourceNode.absDatapath('#WORKSPACE.metadata');
+        return gnrwdg.buildToolbar(sourceNode);
+    },
+
+    gnrwdg_buildToolbar:function(sourceNode){
+        this.setLoadMenuData();
+        var bar = sourceNode._('slotBar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,favoritebtn,saveBtn,deletebtn,5'});
+        var that = this;
+        bar._('div','objTitle',{innerHTML:'^.description?=(#v || "New")',
+                                datapath:this.metadataPath,font_weight:'bold',
+                                font_size:'.9em',color:'#666'});
+        bar._('slotButton','favoritebtn',{'label':_T('Default'),
+                                                    action:function(){that.setCurrentAsFavorite();},
+                                                    iconClass:'highlightable iconbox star'});
+        
+        bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
+            menupath:'#WORKSPACE.loadMenu',action:function(item){
+                that.loadObject(item.pkey);
+        }});
+        bar._('slotButton','saveBtn',{iconClass:'iconbox save',label:'Save',
+                                        action:function(){
+                                            that.saveObject();
+                                        }});
+        bar._('slotButton','deletebtn',{'label':_T('Delete'),iconClass:'iconbox trash',
+                    action:function(){
+                        that.deleteCurrentObject();
+                    }});
+        return bar;
+    },
+
+    gnrwdg_resetMenuData:function(){
+        var n = this.sourceNode.getRelativeData('#WORKSPACE').getNode('loadMenu');
+        n.getResolver().reset();
+    },
+
+    gnrwdg_setLoadMenuData:function(){
+        this.sourceNode.setRelativeData('#WORKSPACE.loadMenu',
+                                        genro.dev.userObjectMenuData(objectUpdate({},this.userObjectPars),
+                                                    [{pkey:'__newobj__',caption:this.newcaption}]));
+    },
+
+    gnrwdg_prepareViewerFrame:function(bc,kw){
+        //override
+        var frame = bc._('FramePane','viewer',{region:'center',frameCode:this.sourceNode.attr.nodeId+'_viewer'});
+        this.viewerFrame(frame);
+    },
+
+    gnrwdg_setCurrentAsFavorite:function(){
+        var metadata = this.sourceNode.getRelativeData(this.metadataPath);
+        var pkey = metadata.getItem('pkey');
+        genro.setInStorage("local", this.storageKey(), pkey);
+        this.checkFavorite();
+    },
+
+    gnrwdg_getFavorite:function(){
+        return  genro.getFromStorage("local", this.storageKey());
+    },
+
+    gnrwdg_checkFavorite:function(){
+        var metadata = this.sourceNode.getRelativeData(this.metadataPath) || new gnr.GnrBag();
+        var pkey = metadata.getItem('pkey');
+        var currfavorite = this.getFavorite();
+        genro.dom.setClass(this.sourceNode.getValue().getNode('rootbc'),'highlighted',currfavorite==pkey);
+    },
+
+    gnrwdg_storageKey:function(){
+        return this.userObjectPars.objtype + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
+    },
+
+    gnrwdg_deleteCurrentObject:function() {
+        var metadata = this.sourceNode.getRelativeData(this.metadataPath);
+        var pkey = metadata.getItem('pkey');
+        var that = this;
+        if(pkey){
+            genro.serverCall('_table.adm.userobject.deleteUserObject',{pkey:pkey},function(){
+                that.loadObject('__newobj__');
+                that.resetMenuData();
+            });
+        }else{
+             that.loadObject('__newobj__');
+        }
+    },
+
+    gnrwdg_saveObject:function() {
+        var currentMetadata = this.sourceNode.getRelativeData(this.metadataPath);
+        var kw = kw || {};
+        kw.dataIndex = {};
+        kw.objtype = this.userObjectPars.objtype;
+        kw.metadataPath = this.metadataPath;
+        kw.table = this.title;
+        kw.title = _T('Save '+this.userObjectPars.objtype);
+        kw.defaultMetadata = {flags:'grid|'+gridNode.attr.nodeId};
+        var onSaved = objectPop(kw,'onSaved');
+        var that = this;
+        if(!onSaved){
+            onSaved =function(result){
+                that.resetMenuData();
+            };
+        }
+        genro.dev.userObjectSave(sourceNode,kw,onSaved);
+    },
+
+    gnrwdg_loadObject:function(userObjectId,firstLoad){
+        this.onLoadingObject(userObjectId,firstLoad);
+        if(userObjectId=='__newobj__'){
+            this.sourceNode.setRelativeData('#WORKSPACE.metadata',null);
+            this.onLoadedObject(null,userObjectId,firstLoad);
+        }else{
+            var that = this;
+            genro.serverCall('_table.adm.userobject.loadUserObject', {userObjectIdOrCode:userObjectId,
+                                                                    objtype:this.userObjectPars.objtype,
+                                                                    tbl:this.userObjectPars.table,
+                                                                    flags:this.userObjectPars.flags}, 
+            function(result){
+                if (result){
+                    that.sourceNode.setRelativeData('#WORKSPACE.metadata',new gnr.GnrBag(result.attr));
+                    that.onLoadedObject(result,userObjectId,firstLoad);
+                }else{
+                    var currfavorite = that.getFavorite();
+                    if(currfavorite==userObjectId){
+                        genro.setInStorage("local", that.storageKey(), null);
+                    }
+                }
+                that.checkFavorite();
+            });
+        }
+    },
+
+    gnrwdg_onLoadingObject:function(userObjectId,firstLoad){
+        //override
+    },
+
+    gnrwdg_onLoadedObject:function(result,userObjectId,firstLoad){
+        //override
+    },
+
+});
+
 
 dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
+    //legacy
     objtype:null,
     default_configurator_pars:null,
     newcaption:null,

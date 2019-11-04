@@ -1,0 +1,18 @@
+# -*- coding: utf-8 -*-
+
+import datetime
+from gnr.core.gnrdecorator import public_method
+
+class GnrCustomWebPage(object):
+    py_requires = "gnrcomponents/testhandler:TestHandlerFull"
+    
+    def test_1_userobject_frame(self, pane):
+        pane.UserObjectLayout(table='fatt.fattura',pkg='fatt',objtype='query',height='300px',width='400px',
+                            border='1px solid silver',
+                            configurator={'region':'left','splitter':True,
+                                        'border_right':'1px solid #ccc','width':'230px'})
+
+    def test_2_userobject_bar(self, pane):
+        frame = pane.framePane(height='300px',width='400px',border='1px solid silver',rounded=10)
+        frame.top.userObjectBar(table='fatt.fattura',pkg='fatt',objtype='query')
+        frame.center.contentPane()

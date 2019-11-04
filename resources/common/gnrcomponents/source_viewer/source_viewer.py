@@ -6,9 +6,12 @@ from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.core.gnrdict import dictExtract
-from pygments import highlight
-from pygments.lexers import PythonLexer
-from pygments.formatters import HtmlFormatter
+try:
+    from pygments import highlight
+    from pygments.lexers import PythonLexer
+    from pygments.formatters import HtmlFormatter
+except ImportError:
+    print('Missing pygments. Please do pip install pygments')
 
 
 import sys
