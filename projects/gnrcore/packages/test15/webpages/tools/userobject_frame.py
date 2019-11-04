@@ -14,5 +14,12 @@ class GnrCustomWebPage(object):
 
     def test_2_userobject_bar(self, pane):
         frame = pane.framePane(height='300px',width='400px',border='1px solid silver',rounded=10)
-        frame.top.userObjectBar(table='fatt.fattura',pkg='fatt',objtype='query')
-        frame.center.contentPane()
+        frame.top.userObjectBar(table='fatt.fattura',pkg='fatt',objtype='fakeobject',
+                                source_mieidati='=.mieidati')
+        bc = frame.center.borderContainer(datapath='.mieidati')
+        fb = bc.contentPane(region='top').formbuilder()
+        fb.textbox(value='^.nome',lbl='Nome')
+        grid = bc.contentPane(region='center').quickGrid(value='^.righe')
+        grid.tools('delrow,addrow',title='Prova')
+        grid.column('code',name='Code',width='5em',edit=True)
+        grid.column('description',name='Description',width='20em',edit=True)

@@ -4396,7 +4396,9 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
         gnrwdg.userObjectPars = userObjectPars;
         gnrwdg.startUserObjectIdOrCode = kw.userObjectId;
         gnrwdg.dataIndex = objectExtract(kw,'source_');
-        gnrwdg.metadataPath = this.sourceNode.absDatapath(kw.metadata) || this.sourceNode.absDatapath('#WORKSPACE.metadata');
+        let metadataPath = kw.metadata || '#WORKSPACE.metadata';
+        gnrwdg.metadataPath = sourceNode.absDatapath(metadataPath);
+        gnrwdg.defaultMetadata = objectExtract(kw,'default_*');
         return gnrwdg.buildToolbar(sourceNode);
     },
 
@@ -4482,12 +4484,12 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
     gnrwdg_saveObject:function() {
         var currentMetadata = this.sourceNode.getRelativeData(this.metadataPath);
         var kw = kw || {};
-        kw.dataIndex = {};
+        kw.dataIndex = objectUpdate({},this.sourceIndex);
         kw.objtype = this.userObjectPars.objtype;
         kw.metadataPath = this.metadataPath;
         kw.table = this.title;
         kw.title = _T('Save '+this.userObjectPars.objtype);
-        kw.defaultMetadata = {flags:'grid|'+gridNode.attr.nodeId};
+        kw.defaultMetadata = objectUpdate({},this.defaultMetadata);
         var onSaved = objectPop(kw,'onSaved');
         var that = this;
         if(!onSaved){
