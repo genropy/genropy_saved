@@ -303,28 +303,39 @@ class BagToHtml(object):
             return self._parameters
         return self._parameters.getItem(path, default=default)
 
-    @deprecated(message='Do not use: use "record", "parameter" or "rows" properties')
+    
+
     def getData(self, path, default=None):
         """Make a :meth:`getItem() <gnr.core.gnrbag.Bag.getItem>` on ._data
         :param path: the path of data (e.g: ``'period.from'``)
         :param default: the default return value for a not found item"""
+
+        if path in self._data:
+            return self._data[path]
+        is_legacy, value = self._checkLegacyMode(path, default=default)
+        if is_legacy:
+            self._legacyDeprecation()
+        return value
+
+    def _checkLegacyMode(self, path, default=None):
         sp = path.split('.',1)
         if sp[0] == 'record':
-            if len(sp)==1:
-                return self.record
-            return self.record.getItem(sp[1], default=default)
+            return True, self.record if len(sp) == 1 else self.record.getItem(sp[1], default=default)
         if sp[0] == self.rows_path:
-            return self.getRows()
-        value = self._data.getItem(path, default)
-        return value
-    
-    @deprecated(message='Do not use: use "setRows", "getRows" or properties instead')
+            return True, self.getRows()
+        if path in self._parameters:
+            return True, self._parameters[path]
+        return False, default
+        
+    @deprecated(message='Do not use: getData/setData for record, parameters or rows')
+    def _legacyDeprecation(self):
+        return
+
     def setData(self, path, value, **kwargs):
         """Make a :meth:`setItem() <gnr.core.gnrbag.Bag.setItem>` on ._data
         
         :param path: the path of data (e.g: ``'period.from'``)
         :param default: the default return value for a not found item"""
-        
         self._data.setItem(path, value, **kwargs)
 
     def setRows(self, rows, gridName=None):
