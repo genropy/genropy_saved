@@ -386,10 +386,7 @@ dojo.declare("gnr.QueryManager", null, {
         return queryPars;
     },
 
-
-    saveQuery:function(){
-        var datapath =  this.sourceNode.absDatapath('.query.queryAttributes');
-        var code = this.sourceNode.getRelativeData('.query.queryAttributes.code');
+    prepareQueryData:function(){
         var where = this.sourceNode.getRelativeData('.query.where');
         var customOrderBy = this.sourceNode.getRelativeData('.query.customOrderBy');
         var currViewPath = this.sourceNode.getRelativeData('.grid.currViewPath');
@@ -397,8 +394,6 @@ dojo.declare("gnr.QueryManager", null, {
         var extraPars = this.sourceNode.getRelativeData('.query.extraPars');
         var joinConditions = this.sourceNode.getRelativeData('.query.joinConditions');
         var multiStores = this.sourceNode.getRelativeData('.query.multiStores');
-
-
         var queryPars = this.queryParsBag();
         var data = new gnr.GnrBag();
         if(queryPars.len()){
@@ -414,9 +409,14 @@ dojo.declare("gnr.QueryManager", null, {
         }
         data.setItem('queryLimit',queryLimit);
         data.setItem('currViewPath',currViewPath);
-
         data.setItem('multiStores',multiStores);
+        return data;
+    },
 
+    saveQuery:function(){
+        var datapath =  this.sourceNode.absDatapath('.query.queryAttributes');
+        var code = this.sourceNode.getRelativeData('.query.queryAttributes.code');
+        var data = this.prepareQueryData();
         var that = this;
         saveCb = function(dlg) {
             var metadata = genro.getData(datapath);

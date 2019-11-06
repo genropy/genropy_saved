@@ -26,7 +26,6 @@
 
 //######################## genro  #########################
 
-
 dojo.declare("gnr.GnrDevHandler", null, {
 
     constructor: function(application) {
@@ -880,7 +879,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }else if(kw.dataSetter){
                 funcApply(kw.dataSetter,{data:data},sourceNode);
             }
-            var metadata = new gnr.GnrBag(kw.defaultMetadata);
+            var metadata = new gnr.GnrBag();
             metadata.update(genro.getData(datapath));
             if (!metadata.getItem('code')){
                 genro.publish('floating_message',{message:_T('Missing code'),messageType:'error'});
@@ -920,7 +919,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
             var resultValue,resultAttr,dataIndex;
             if(!result){
                 resultValue = new gnr.GnrBag();
-                resultAttr = objectUpdate({},kw.defaultMetadata);
+                resultAttr = objectUpdate({},kw);
+                objectExtract(resultAttr,'userObjectIdOrCode,code,description,pkey');
                 dataIndex = kw.dataIndex;
             }else{
                 resultValue = result._value.deepCopy();
@@ -934,9 +934,12 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
             sourceNode.setRelativeData(metadataPath,new gnr.GnrBag(resultAttr));
             if(dataIndex){
-                dataIndex.forEach(function(n){
-                    sourceNode.setRelativeData(n.getValue(),resultValue.getItem(n.label));
-                });
+                if(dataIndex instanceof gnr.GnrBag){
+                    dataIndex = dataIndex.asDict();
+                }
+                for(let k in dataIndex){
+                    sourceNode.setRelativeData(dataIndex[k],resultValue.getItem(k));
+                }
             }
             if(onLoaded){
                 funcApply(onLoaded,null,
@@ -944,7 +947,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                         [dataIndex,resultValue,resultAttr]);
             }
         }; 
-        if(kw.userObjectIdOrCode==='__newobj__'){
+        if(kw.userObjectIdOrCode==='__newobj__'){          
             return resback();
         }
 

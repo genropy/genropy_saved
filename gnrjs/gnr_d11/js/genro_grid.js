@@ -555,11 +555,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         sourceNode.attr['onDrop_selfdragcolumn_' + sourceNode._id] = onDropCall;
         if(sourceNode.attr.configurable){
             var frameNode = genro.getFrameNode(sourceNode.attr.frameCode);
+            var configuratorNode = sourceNode.attr.configuratorId?genro.nodeById(sourceNode.attr.configuratorId):frameNode;
             sourceNode.registerSubscription('endDrag',sourceNode,function(){
-                genro.dom.removeClass(frameNode,'treeShowTrash');
+                genro.dom.removeClass(configuratorNode,'treeShowTrash');
             });
             sourceNode._showTrash=function(show){
-                genro.dom.addClass(frameNode,'treeShowTrash');
+                genro.dom.addClass(configuratorNode,'treeShowTrash');
             };
             sourceNode.attr.onTrashed = sourceNode.attr.onTrashed || 'this.widget.deleteColumn(data);';
         }
@@ -909,7 +910,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
 
    // cm_plugin_print:function(sourceNode,menu){
-   //     menu.setItem('#id',null,{caption:_T('Print'),action:"$2.widget.serverAction({command:'print',allRows:true,opt:{rawData:true,downloadAs:$2.attr.nodeId+'_print',respath:'print/_common/print_gridstruct'}});"});
+   //     menu.setItem('#id',null,{caption:_T('Print'),action:"$2.widget.serverAction({command:'print',allRows:true,opt:{rawData:true,downloadAs:$2.attr.nodeId+'_print',respath:'print/_common/print_gridres'}});"});
    // },
 
     cm_plugin_print:function(sourceNode,menu){
@@ -959,7 +960,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
     mixin_printRows:function(){
         var kw = {res_type:'print',table:this.sourceNode.attr.table,
-                    resource:'_common/print_gridstruct',
+                    resource:'_common/print_gridres',
                     gridId:this.sourceNode.attr.nodeId};
         objectUpdate(kw,this.currentSelectionPars());
         if(kw.selectedPkeys){

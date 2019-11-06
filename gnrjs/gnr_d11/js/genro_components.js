@@ -4388,7 +4388,7 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
             sourceNode.attr._workspace = true;
         }
         var userObjectPars = objectExtract(kw,'table,flags,objtype');
-        gnrwdg.newcaption  = _T(objectPop(kw,'newcaption') ||  'New '+userObjectPars.objtype);
+        gnrwdg.newcaption  = _T(objectPop(kw,'newcaption') ||  'New empty '+userObjectPars.objtype);
         objectUpdate(userObjectPars,objectExtract(kw,'userobject_*'));
         gnrwdg.userObjectPars = userObjectPars;
         gnrwdg.startUserObjectIdOrCode = kw.userObjectId;
@@ -4397,7 +4397,6 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
         gnrwdg.metadataPath = metadataPath;
         gnrwdg.favoriteIdentifier = objectPop(kw,'favoriteIdentifier');
 
-        gnrwdg.defaultMetadata = objectExtract(kw,'default_*');
         if(kw.onLoaded){
             gnrwdg.onLoaded = funcCreate(kw.onLoaded,'dataIndex','resoultValue','resoultAttr',sourceNode);
 
@@ -4419,16 +4418,14 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
                     iconClass:'highlightable iconbox star'});
             favorite = this.getFavorite();
         }
-       
-        
         bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
             menupath:'#WORKSPACE.loadMenu',action:function(item){
                 that.loadObject(item.pkey);
         }});
         bar._('slotButton','saveBtn',{iconClass:'iconbox save',label:'Save',
-                                        action:function(){
-                                            that.saveObject();
-                                        }});
+                    action:function(){
+                        that.saveObject();
+                    }});
         bar._('slotButton','deletebtn',{'label':_T('Delete'),iconClass:'iconbox trash',
                     action:function(){
                         that.deleteCurrentObject();
@@ -4445,9 +4442,14 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_setLoadMenuData:function(){
+        var that = this;
         this.sourceNode.setRelativeData('#WORKSPACE.loadMenu',
                                         genro.dev.userObjectMenuData(objectUpdate({},this.userObjectPars),
-                                                    [{pkey:'__newobj__',caption:this.newcaption}]));
+                                                    [{pkey:'__newobj__',caption:this.newcaption},
+                                                    {pkey:'',caption:_T('New from current'),
+                                                    action:function(){
+                                                        that.newFromCurrent();
+                                                    }}]));
     },
 
     gnrwdg_setCurrentAsFavorite:function(){
@@ -4462,10 +4464,8 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_checkFavorite:function(){
-        var metadata = this.sourceNode.getRelativeData(this.metadataPath) || new gnr.GnrBag();
-        var pkey = metadata.getItem('pkey');
-        var currfavorite = this.getFavorite();
-        genro.dom.setClass(this.sourceNode,'highlighted',currfavorite==pkey);
+        var pkey = this.sourceNode.getRelativeData(`${this.metadataPath}.pkey`);
+        genro.dom.setClass(this.sourceNode.getParentNode(),'highlighted',pkey==this.getFavorite());
     },
 
     gnrwdg_storageKey:function(){
@@ -4491,7 +4491,6 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
         kw.dataIndex = objectUpdate({},this.dataIndex);
         kw.metadataPath = this.metadataPath;
         kw.title = _T('Save '+this.userObjectPars.objtype);
-        kw.defaultMetadata = objectUpdate({},this.defaultMetadata);
         var onSaved = objectPop(kw,'onSaved');
         var that = this;
         if(!onSaved){
@@ -4502,8 +4501,9 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
         genro.dev.userObjectSave(this.sourceNode,kw,onSaved);
     },
 
-    gnrwdg_loadObject:function(userObjectId,firstLoad){
-        var kw = objectUpdate({},this.userObjectPars);
+    gnrwdg_loadObject:function(userObjectId,kw){
+        kw = kw || this.userObjectPars;
+        kw = objectUpdate({},kw);
         kw.userObjectIdOrCode = userObjectId;
         kw.metadataPath =  this.metadataPath;
         var that = this;
@@ -4514,9 +4514,15 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
             that.checkFavorite();
         }
         if(userObjectId=='__newobj__'){
-            kw.dataIndex = new gnr.GnrBag(this.dataIndex);
+            kw.dataIndex = this.dataIndex;
         }
         genro.dev.userObjectLoad(this.sourceNode,kw);
+    },
+
+    gnrwdg_newFromCurrent:function(){
+        var code = this.sourceNode.getRelativeData(`${this.metadataPath}.code`);
+        this.sourceNode.setRelativeData(this.metadataPath,new gnr.GnrBag(this.userObjectPars));
+        genro.publish('floating_message',{message:_T(`New from ${code}`)});
     },
 
 });

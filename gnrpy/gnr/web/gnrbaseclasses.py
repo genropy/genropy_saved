@@ -393,8 +393,22 @@ class TableScriptToHtml(BagToHtml):
                         style=attr.get('style'),sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
                         columnset=attr.get('columnset'),sheet=attr.get('sheet','*'),
                         totalize=attr.get('totalize'),formula=attr.get('formula'))
+            if self.row_table:
+                self._calcSqlColumn(pars)
             grid_columns.append(pars)
         return grid_columns
+
+    def _calcSqlColumn(self,col):
+        sqlcolumn = col.get('sqlcolumn')
+        if sqlcolumn:
+            return
+        field = col['field']
+        if field.startswith('@'):
+            col['sqlcolumn'] = '{} AS {}'.format(field,col['field_getter'])
+        else:
+            columnobj = self.db.table(self.row_table).column(field)
+            if columnobj is not None:
+                col['sqlcolumn'] = '${}'.format(field)
     
     def gridQueryParameters(self):
         #override
