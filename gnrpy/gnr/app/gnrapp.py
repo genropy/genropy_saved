@@ -1409,7 +1409,8 @@ class GnrApp(object):
             externaldb = GnrSqlDb(implementation=connection_params.get('implementation'),
                                 dbname=connection_params.get('dbname') or connection_params.get('filename') or name,
                                 host=connection_params.get('host'),user=connection_params.get('user'),
-                                password = connection_params.get('password'))
+                                password = connection_params.get('password'),
+                                port=connection_params.get('port'))
             externaldb.importModelFromDb()
             externaldb.model.build()
             setattr(self,'legacy_db_%s' %name,externaldb)

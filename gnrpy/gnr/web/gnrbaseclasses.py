@@ -195,8 +195,9 @@ class TableScriptToHtml(BagToHtml):
         self.print_handler = self.page.getService('htmltopdf')
         self.pdf_handler = self.page.getService('pdf')
         self.letterhead_sourcedata = None
+        self._gridStructures = {}
         self.record = None
-
+        
 
     def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, **kwargs):
         if not record:
@@ -277,8 +278,7 @@ class TableScriptToHtml(BagToHtml):
     def gridColumnsInfo(self,gridname=None):
         if self.grid_columns:
             return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
-        struct = self.page.newGridStruct(maintable=self.gridTable())
-        self.gridStruct(struct)
+        struct = self.getStruct(gridname=gridname)
         self.structAnalyze(struct)
         return dict(columns=self.gridColumnsFromStruct(struct=struct),
                     columnsets=self.gridColumnsetsFromStruct(struct))
@@ -288,11 +288,24 @@ class TableScriptToHtml(BagToHtml):
             return dict()
         return dict([(l[0],l[1]) for l in struct['info.columnsets'].digest('#k,#a')])
     
+    def setStruct(self,struct=None,gridname=None):
+        gridname = gridname or '_main_'  
+        self._gridStructures[gridname] = struct
+
+    def getStruct(self,gridname=None):
+        gridname = gridname or '_main_'
+        struct = self._gridStructures.get(gridname)
+        if struct is None:
+            struct = self.page.newGridStruct(maintable=self.gridTable())
+            self.gridStruct(struct)
+            self._gridStructures[gridname] = struct
+        return struct
+
     def gridStruct(self,struct):
         pass
 
     def structAnalyze(self,struct,grid_width=None,grid_border_width=None):
-        layoutPars = self.mainLayoutParamiters()
+        layoutPars = self.mainLayoutParameters()
         gridPars = self.gridLayoutParameters()
         calcGridWidth =  self.copyWidth() - \
                         layoutPars.get('left',0)-layoutPars.get('right',0) -\
@@ -310,8 +323,7 @@ class TableScriptToHtml(BagToHtml):
         sheet_delta = 0
         while sheet_delta<3 and not self._structAnalyze_step(columns,net_min_grid_width,sheet_count+sheet_delta,grid_width):
             sheet_delta+=1
-            #print('========== aumento delta {}'.format(sheet_delta))
-        self.sheets_counter = sheet_count+sheet_delta
+        self.sheets_counter =(max(struct['view_0.rows_0'].digest('#a.sheet')) or 0)+1
     
     def _structAnalyze_step(self,columns,net_min_grid_width,sheet_count,grid_width):
         sheet_space_available = grid_width-float(net_min_grid_width)/ sheet_count
@@ -433,7 +445,7 @@ class TableScriptToHtml(BagToHtml):
 
     @property
     def grid_sqlcolumns(self):
-        return ','.join([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')])
+        return ','.join(set([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')]))
                 
     def subtotalCaption(self,col_breaker,breaker_value):
         return dict(caption='{} {} {}'.format(self.page.localize(self.subtotal_caption_prefix),

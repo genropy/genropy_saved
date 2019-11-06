@@ -63,7 +63,7 @@ class Main(TableScriptToHtml):
         
     
     def gridColumnsInfo(self):
-        struct = self.sourceStruct
+        struct = self.getStruct()
         tot_width = decimalRound(self.page_width-self.page_margin_left -self.page_margin_right-2)
         cells = struct['#0.#0'].digest('#a')
         max_width_cell = sorted(cells,key=lambda r:r['q_width'])[-1]['q_width']

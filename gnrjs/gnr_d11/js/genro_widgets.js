@@ -1237,6 +1237,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
         var ds = genro.dialogStack;
         var parentDialog = ds.length>1?ds[ds.length-2]:null;
         this.adjustDialogSize(parentDialog);
+        this.resize();
     },
 
     mixin_autoSize:function(){
@@ -4821,7 +4822,7 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
 dojo.declare("gnr.widgets.img", gnr.widgets.uploadable, {
     constructor: function(application) {
         this._domtag = 'img';
-         this._default_ext='png,jpg,jpeg,gif';
+         this._default_ext='png,jpg,jpeg,gif,svg';
     }
 });
 

@@ -17,7 +17,7 @@ from gnr.web.gnrwebstruct import struct_method
 class Public(BaseComponent):
     @oncalled
     def public_applyOnRoot(self,frame,**kwargs):
-        if self.dbstore:
+        if self.dbstore or self.site.currentAuxInstanceName:
             return
         if self._getMultiDbSelector():
             bar = frame.top.bar

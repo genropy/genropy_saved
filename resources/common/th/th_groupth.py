@@ -35,7 +35,7 @@ class TableHandlerGroupBy(BaseComponent):
                                 struct=None,where=None,viewResource=None,
                                 condition=None,condition_kwargs=None,store_kwargs=None,datapath=None,
                                 treeRoot=None,configurable=True,
-                                dashboardIdentifier=None,static=False,
+                                dashboardIdentifier=None,static=False,pbl_classes=None,
                                 grid_kwargs=True,groupMode=None,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = table or inattr.get('table')
@@ -82,21 +82,30 @@ class TableHandlerGroupBy(BaseComponent):
                                     datamode='attr',
                                 struct=struct or self._thg_defaultstruct,_newGrid=True,pageName='flatview',title='!!Flat',
                                 grid_kwargs=grid_kwargs)
+
         
         frame.dataFormula('.changets.flatview','new Date();',store='^.store',struct='^.grid.struct',
                             _delay=1)
         if dashboardIdentifier:
             frame.dataController("root.publish('loadDashboard',{pkey:dashboardIdentifier});",root=sc,
                                 dashboardIdentifier=dashboardIdentifier,_onBuilt=1)
-        frame.dataFormula('.currentTitle',"basetitle+' '+(loadedDashboard || currentView || '')",
+        
+        if static:
+            slots = '5,vtitle,count,*,searchOn,export,5'
+            if pbl_classes is None:
+                pbl_classes = True
+            if pbl_classes:
+                bar = frame.top.slotBar(slots,_class='pbl_roundedGroupLabel',vtitle=title)
+                frame.attributes['_class'] = 'pbl_roundedGroup'
+            else:
+                bar = frame.top.slotToolbar(slots)
+                bar.vtitle.div(title,font_size='.9em',color='#666',font_weight='bold')
+
+        else:
+            frame.dataFormula('.currentTitle',"basetitle+' '+(loadedDashboard || currentView || '')",
                                     basetitle='!!Group by',
                                     currentView='^.grid.currViewAttrs.description',
                                     loadedDashboard='^.dashboardMeta.description')
-        if static:
-            bar = frame.top.slotToolbar('5,vtitle,count,*,searchOn,viewsMenu,export,5')
-            bar.vtitle.div('^.currentTitle',font_size='.9em',color='#666',font_weight='bold')
-        
-        else:
             frame.data('.grid.showCounterCol',True)
             frame.dataRemote('.dashboardsMenu',self.thg_dashboardsMenu,cacheTime=5,table=table,
                                 rootNodeId=rootNodeId,_fired='^.refreshDashboardsMenu')

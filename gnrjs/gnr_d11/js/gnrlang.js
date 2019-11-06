@@ -25,9 +25,10 @@
 //funzioni di utilità varie
 
 //########################  Lang #########################
-var _lf = '\n';
-var _crlf = '\r\n';
-var _tab = '\t';
+const _lf = '\n';
+const _crlf = '\r\n';
+const _tab = '\t';
+
 function _px(v){
     v+='';
     if(v.indexOf('px')<0){
@@ -70,6 +71,10 @@ function _IN(val,str){
 function isBag(value){
     return value &&(value.htraverse!=null);
 };
+
+function isNumericType(dtype){
+    return dtype in  {'R':null,'L':null,'I':null,'N':null};
+}
 
 function pyref(ref,mode){    
     var node = genro.src._main.getNodeByAttr('__ref',ref);
@@ -899,7 +904,7 @@ function convertFromText(value, t, fromLocale) {
         var k = value.lastIndexOf('::');
         if(k>=0){
             t = value.slice(k).slice(2);
-            if(['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','P','X'].indexOf(t)>=0){
+            if(['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','DHZ','P','X'].indexOf(t)>=0){
                 value = value.slice(0,k);
             }
         }
@@ -931,9 +936,9 @@ function convertFromText(value, t, fromLocale) {
     else if (t == 'B') {
         return (value.toLowerCase() == 'true');
     }
-    else if ((t == 'D') || (t == 'DH')) {
+    else if ((t == 'D') || (t == 'DH') || (t == 'DHZ')) {
         if (fromLocale) {
-            var selector = (t == 'DH') ? 'datetime' : 'date';
+            var selector = (t == 'DH' || t == 'DHZ') ? 'datetime' : 'date';
             result = dojo.date.locale.parse(value, {selector:selector});
         } else {
             if(t=='D'){
@@ -980,13 +985,15 @@ var gnrformatter = {
         var formatKw =  objectUpdate({},valueAttr);
         var dtype = objectPop(formatKw,'dtype');
         var formattedValue;
+        var format = objectPop(formatKw,'format');
         if((value===null || value===undefined) && dtype!='B'){
-            return '';
+            if(isNumericType(dtype) && format.includes(';')){ 
+                value = 0;
+            }else{
+                return '';
+            }
         }
         dtype = dtype|| guessDtype(value);
-        
-        var format = objectPop(formatKw,'format');
-
         if(format && typeof(format)!='string'){
             var formatdict = format;
             format = objectPop(format,'format') || objectPop(format,'pattern');
@@ -1361,6 +1368,9 @@ function convertToText(value, params) {
             dtype = value._gnrdtype || (value.toString().indexOf('Thu Dec 31 1970') == 0 ? 'H' : 'D');
         }
         var opt = {'selector':selectors[dtype]};
+        if(dtype=='DHZ'){
+            return ['DHZ',value.toISOString()]
+        }
         if (forXml) {
             opt.timePattern = 'HH:mm:ss';
             opt.datePattern = 'yyyy-MM-dd';

@@ -480,8 +480,8 @@ class BagToHtml(object):
         result = []
         for col in reversed(self.subtotals_breakers):
             f = col.get('field_getter') or col['field']
-            val = self.rowData.get(f)
-            newVal = nextRowData.get(f)
+            val = self.getGridCellValue(col,self.rowData)
+            newVal =self.getGridCellValue(col,nextRowData)
             if val == newVal:
                 break
             subtotal_row = (col,val,dict(self.subtotals_dict[f]))
@@ -791,7 +791,7 @@ class BagToHtml(object):
             elif callable(field_getter):
                 rowData[field] = field_getter(rowData=rowData,col=field)
             elif col.get('formula'):
-                rowData[field_getter or field] = self.cellFormulaValue(col,rowData)  
+                rowData[field_getter or field] = self.cellFormulaValue(col,rowData)
         if field_getter and not field_getter in rowData:
             field_getter = None
         return rowData.get(field_getter or field)
@@ -863,9 +863,9 @@ class BagToHtml(object):
         """Hook method that could be overridden. It gives the :ref:`print_layout_page`
         object to which you have to append a :meth:`layout <gnr.core.gnrhtml.GnrHtmlSrc.layout>`
         :param page: the page object"""
-        return page.layout(**self.mainLayoutParamiters())
+        return page.layout(**self.mainLayoutParameters())
     
-    def mainLayoutParamiters(self):
+    def mainLayoutParameters(self):
         return dict(font_family='Arial Narrow',font_size='11pt',
                     name='mainLayout',top=1,left=1,right=1,bottom=1,border_width=0)
         

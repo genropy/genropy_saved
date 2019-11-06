@@ -765,7 +765,7 @@ class TableHandlerView(BaseComponent):
         
     @struct_method
     def th_slotbar_resourceActions(self,pane,**kwargs):
-        pane.menudiv(iconClass='iconbox gear batch_scripts',storepath='.resources.action.menu',
+        pane.menudiv(iconClass='iconbox gear',storepath='.resources.action.menu',
                             _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
                                                         permissions='action'),action="""
                             FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};

@@ -43,6 +43,8 @@ from copy import copy
 def cellFromField(field,tableobj,checkPermissions=None):
     kwargs = dict()
     fldobj = tableobj.column(field)
+    if fldobj is None:
+        raise Exception('Missing column {} in table {}'.format(field,tableobj.fullname))
     fldattr = dict(fldobj.attributes or dict())
         
     if (fldattr.get('cell_edit') or fldattr.get('edit'))\
@@ -1000,7 +1002,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis','codemirror','dygraph','chartjs','MultiButton','PaletteGroup','DocumentFrame','DownloadButton','bagEditor','PagedHtml',
-             'DocItem','UserObjectLayout', 'PalettePane','PaletteMap','PaletteImporter','DropUploader','DropUploaderGrid','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
+             'DocItem','UserObjectLayout', 'PalettePane','PaletteMap','PaletteImporter','DropUploader','DropUploaderGrid','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor','FlatBagEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','TreeFrame','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu','ChartPane','PaletteChart','ColorTextBox','ColorFiltering', 'SearchBox', 'FormStore',
              'FramePane', 'FrameForm','BoxForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid',"GridGallery","VideoPlayer",'MultiValueEditor','MultiLineTextbox','QuickTree','SharedObject','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
@@ -2438,7 +2440,8 @@ class GnrGridStruct(GnrStructData):
             row = self.parent.parent.parent.getItem('view_0.rows_0')
             kwargs['columnset'] = parentAttributes['code']
         return row.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
-                          classes=classes, cellClasses=cellClasses, headerClasses=headerClasses,**kwargs)
+                          classes=classes, cellClasses=cellClasses, headerClasses=headerClasses,
+                          **kwargs)
                           
     
     def checkboxcolumn(self,field='_checked',checkedId=None,radioButton=False,calculated=True,name=None,

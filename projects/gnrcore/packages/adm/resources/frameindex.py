@@ -204,7 +204,7 @@ class FrameIndex(BaseComponent):
 
     def prepareBottom(self,bc):
         pane = bc.contentPane(region='bottom',overflow='hidden')
-        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,5,openGnrIDE,5,appdownload,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='22px',
+        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,5,openGnrIDE,5,appdownload,count_errors,5,appInfo,*,debugping,5,preferences,logout,3',_class='slotbar_toolbar framefooter',height='22px',
                         background='#EEEEEE',border_top='1px solid silver')
         sb.appInfo.div('^gnr.appInfo')
         applogo = sb.applogo.div()
@@ -219,8 +219,7 @@ class FrameIndex(BaseComponent):
                                 connect_onclick='PUBLISH app_preference',envbag='=gnr.rootenv')
         userPref = box.div(self.user if not self.isGuest else 'guest', _class='iframeroot_username',tip='!!%s preference' % (self.user if not self.isGuest else 'guest'),
                                connect_onclick='PUBLISH user_preference')
-        sb.logout.div(connect_onclick="genro.logout()",_class='iconbox icnBaseUserLogout',tip='!!Logout')
-        sb.screenlock.div(connect_onclick="genro.publish('screenlock')",_class='iconbox icnBaseUserPause',tip='!!Lock screen')
+        sb.logout.div(connect_onclick="genro.logout()",_class='iconbox icnBaseUserLogout switch_off',tip='!!Logout')
 
         formula = '==(_iframes && _iframes.len()>0)?_iframes.getAttr(_selectedFrame,"url"):"";'
         

@@ -32,10 +32,11 @@ class Main(BaseResourcePrint):
             self.htmlMaker.totalize_carry = totalize_carry
         self.htmlMaker.page_orientation = self.batch_parameters['orientation'] or 'V'
         self.htmlMaker.htmlTemplate = self.batch_parameters['letterhead_id']
-        self.htmlMaker.sourceStruct = struct
+        self.htmlMaker.setStruct(struct=struct)
         self.htmlMaker.row_table = getattr(self,'maintable',None)
         self.htmlMaker.callingBatch = self
         self.print_record(record='*',storagekey='x')
+    
         
     def table_script_parameters_pane(self,pane,extra_parameters=None,record_count=None,**kwargs):
         pane = pane.div(padding='10px',min_height='60px')        

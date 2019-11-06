@@ -50,10 +50,6 @@ var th_usersettings = function(th){
                                             }});
     bar._('button','cancel',{'label':'Cancel',command:'cancel'});
     bar._('button','confirm',{'label':'Confirm',command:'confirm'});
-
-
-
-
     dlg.show_action();
 };
 

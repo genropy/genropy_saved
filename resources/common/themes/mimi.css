@@ -1,4 +1,8 @@
 /*vico*/
+body.tundra.mimi {
+    font:14px "SF Pro Text","Myriad Set Pro","SF Pro Icons","Apple Legacy Chevron","Helvetica Neue","Helvetica","Arial",sans-serif;
+    color:#333;
+}
 .frameindexroot{
     background:#eeeeee;
 }
@@ -47,11 +51,10 @@
 }
 
 ._common_d11.tundra .dojoxFloatingPaneTitle {
-    background-color: #711B2A;
+    background-image: linear-gradient(to right top, #172b51, #1b3058, #20345e, #243965, #293e6c);
     vertical-align: middle;
     text-align: center;
     color: #f6f6f6;
-    background-image:none;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
     padding-top: 2px;
@@ -113,10 +116,10 @@
 }
 
 .pbl_root_top {
-    height: 22px;
+    height: 24px;
     vertical-align: middle;
-    color: white;
-    background-color: #711B2A;
+    color:rgba(30, 48, 85, 1);
+    background-color:rgba(234, 203, 110, 1) !important;
 }
 
 
@@ -733,7 +736,7 @@
 /* @end */
 
 #mainWindow {
-    /*background-color: rgba(170, 190, 201, 0.2);*/
+    background-image: linear-gradient(to right top, #efefef, #ffffff, #ffffff, #efefef, #ffffff);
     font-size: 12px;
 }
 
@@ -1001,10 +1004,19 @@
 ._common_d11.tundra .dijitPopup > div, .tundra .dijitPopup > table{
     opacity: 1;
 }
+.frameindex_left{
+    background: #ECE9E6;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #FFFFFF, #ECE9E6);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #FFFFFF, #ECE9E6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */         
+}
 
 .framedindex_tablist{
     background-image: none;
-    background-color: #555;
+    background-image: linear-gradient(to right top, #172b51, #1b3058, #20345e, #243965, #293e6c);
+    min-height: 34px;
+}
+.mimi .framedindex_tablist .button_block.iframetab{ 
+    padding:2px;
 }
 
 .multibutton:last-child{
@@ -1027,7 +1039,11 @@
     font-size: 9pt;
     font-variant:small-caps;*/
 }
-
+.mimi .iframetab{
+    line-height:24px;
+    font-size:10pt;
+    font-variant: none;
+}
 .iframetab:last-child{
     -moz-border-radius-topright: 4px;
     -moz-border-radius-bottomright: 4px;
@@ -1121,6 +1137,11 @@
 .darktoolbar{
     background-color: #666;
 }
+.mimi .slotbar_toolbar {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
 
 /*----------------------------------------- icone svg -------------------------------------*/
 
@@ -1136,9 +1157,18 @@
     background: url(/_rsrc/common/css_icons/svg/16/batch_assignment.svg) no-repeat center center;
 }
 
-.mimi .batch_scripts{
+.mimi .batch_scripts, .mimi .batch_monitor_icon{
     background: url(/_rsrc/common/css_icons/svg/16/batch_scripts.svg) no-repeat center center;
 }
+.mimi .address_book, .mimi .frameplugin_staff_icon{
+    background: url(/_rsrc/common/css_icons/svg/16/address_book.svg) no-repeat center center;
+}
+
+
+.mimi .gear{
+    background: url(/_rsrc/common/css_icons/svg/16/gear.svg) no-repeat center center;
+}
+
 
 .mimi .create_edit_html_template {
     background: url(/_rsrc/common/css_icons/svg/16/create_edit_html_template.svg) no-repeat center center;
@@ -1160,7 +1190,7 @@
     background: url(/_rsrc/common/css_icons/svg/16/export_to_excel.svg) no-repeat center center;
 }
 .mimi .picker, .mimi .iconbox.app.picker{
-    background: url(/_rsrc/common/css_icons/svg/16/picker.svg) no-repeat center center;
+    background: url(/_rsrc/common/css_icons/svg/16/open_floating_window.svg) no-repeat center center;
 }
 
 .mimi .form_status_green{
@@ -1187,8 +1217,8 @@
     background: url(/_rsrc/common/css_icons/svg/16/go_to_last_record.svg) no-repeat center center;
 }
 
-.mimi .grid_options, .mimi .menu_gray_svg{
-    background: url(/_rsrc/common/css_icons/svg/16/grid_options.svg) no-repeat center center;
+.mimi .grid_options, .mimi .menu_icon{
+    background: url(/_rsrc/common/css_icons/svg/16/menu_icon.svg) no-repeat center center;
 }
 
 .mimi .import_data_tool{
@@ -1215,8 +1245,12 @@
     background: url(/_rsrc/common/css_icons/svg/16/new_record.svg) no-repeat center center;
 }
 
-.mimi .new_set_column, .mimi .heart{
+.mimi .new_set_column{
     background: url(/_rsrc/common/css_icons/svg/16/new_set_column.svg) no-repeat center center;
+}
+
+.mimi .heart{
+    background: url(/_rsrc/common/css_icons/svg/16/heart.svg) no-repeat center center;
 }
 
 .mimi .next_record, .mimi .next{
@@ -1301,3 +1335,70 @@ background: url(/_rsrc/common/css_icons/svg/16/read_only_status.svg) no-repeat c
 .mimi .formside_noItem .fh_semaphore{
 background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat center center;
 }
+
+.mimi .switch_off, .mimi .iconbox.icnBaseUserLogout.switch_off{
+    background: url(/_rsrc/common/css_icons/svg/16/switch_off.svg) no-repeat center center;
+}
+
+.mimi .chat, .mimi .chat_plugin_icon{
+    background: url(/_rsrc/common/css_icons/svg/16/chat.svg) no-repeat center center;
+}
+
+.mimi .duplicate_record, .mimi .duplicate_record.copy{
+    background: url(/_rsrc/common/css_icons/svg/16/duplicate_record.svg) no-repeat center center;
+}
+
+.mimi .archive_record, .mimi .archive_record.box{
+    background: url(/_rsrc/common/css_icons/svg/16/archive_record.svg) no-repeat center center;
+}
+.mimi .bulb_off, .mimi .bulb_on{ 
+    background: url(/_rsrc/common/css_icons/svg/16/light_bulb.svg) no-repeat center center;
+}
+
+.mimi .paint, .mimi .batch_assignment{
+    background: url(/_rsrc/common/css_icons/svg/16/batch_assignment.svg) no-repeat center center;
+}
+.mimi .star{
+    background: url(/_rsrc/common/css_icons/svg/16/star.svg) no-repeat center center;
+}
+.mimi .trash{
+    background: url(/_rsrc/common/css_icons/svg/16/trash.svg) no-repeat center center;
+}
+.mimi.tundra .dijitComboBox .dijitArrowButton .dijitArrowButtonInner,.mimi.tundra .dijitArrowButtonInner{
+    background: url(/_rsrc/common/css_icons/svg/16/popup.svg) no-repeat center center;
+    transform:rotate(0deg) scale(0.8);
+}
+
+.mimi .application_menu{ 
+    background: url(/_rsrc/common/css_icons/svg/16/menu_icon.svg) no-repeat center center;
+}
+
+.mimi .tree_hierarchical_view, .mimi .iframemenu_plugin_icon{
+    background: url(/_rsrc/common/css_icons/svg/16/tree_hierarchical_view.svg) no-repeat center center;
+}
+.mimi .help{ 
+    background: url(/_rsrc/common/css_icons/svg/16/online_help.svg) no-repeat center center;
+
+}
+
+
+.mimi .ping_semaphore{
+    height: 16px;
+    width: 16px;
+    background: none;
+    transition-duration:1s;
+    -webkit-transition-duration: 1s;
+    -moz-transition-duration: 1s;
+}
+.mimi .ping_start .ping_semaphore{
+    background: url(/_rsrc/common/css_icons/svg/16/socket_transmitting.svg) no-repeat center center;
+}
+
+.mimi .ping_error .ping_semaphore{
+    background: url(/_rsrc/common/css_icons/svg/16/sockets_disconnected.svg) no-repeat center center;
+}
+
+
+/* .mimi.tundra .dijitFolderClosed{
+    background: url(/_rsrc/common/css_icons/svg/16/folder.svg) no-repeat center center;
+} */
