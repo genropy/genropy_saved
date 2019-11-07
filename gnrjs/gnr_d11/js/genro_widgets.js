@@ -2515,7 +2515,6 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
             genro.dom.addClass(document.body, 'openingMenu');
         });
         dojo.connect(widget, 'onClose', function() {
-            //console.log(zzz)
             genro.dom.removeClass(document.body, 'openingMenu');
         });
         widget.modifiers = savedAttrs['modifiers'];

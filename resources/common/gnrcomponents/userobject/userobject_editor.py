@@ -138,8 +138,6 @@ class PrintGridEditor(UserObjectEditor):
         frame = top.frameGrid(structpath='.struct',
                             grid_configurable=True,
                             grid_selfsubscribe_runbtn="FIRE .doQuery;",
-                            grid_selfsubscribe_longMouseDown="console.log('longMouseDown',this,arguments)",
-                            grid_selfsubscribe_clickAndHold="console.log('clickAndHold',this,arguments)",
                             datapath='.viewer',margin='4px',
                             _newGrid=True,
                             rounded=6,border='1px solid silver')

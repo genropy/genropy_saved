@@ -1756,13 +1756,15 @@ dojo.declare("gnr.GnrDomHandler", null, {
     styleFields:function(parent,kw){
         var whitelist = kw.whitelist || [];
         var blacklist = kw.blacklist || [];
-        var fb = genro.dev.formbuilder(parent, 1, {border_spacing:'6px'});
+        var prefix = kw.prefix || '';
+        var fb = kw.parentFb? parent : genro.dev.formbuilder(parent, 1, {border_spacing:'6px'});
         var stylefield = function(tag,pars){
             var f = objectPop(pars,'field');
             if(blacklist.indexOf(f)>=0){
                 return;
             }
             if(whitelist.length==0 || whitelist.indexOf(f)>=0){
+                f = prefix+f;
                 pars.value ='^.'+f;
                 fb.addField(tag,pars);
             }
