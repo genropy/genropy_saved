@@ -1010,7 +1010,7 @@ GUNICORN_DEFAULT_CONF_TEMPLATE ="""
 bind = 'unix:%(gunicorn_socket_path)s'
 pidfile = '%(pidfile_path)s'
 daemon = False
-accesslog = '%(logs_path)s/access.log'
+#accesslog = '%(logs_path)s/access.log'
 errorlog = '%(logs_path)s/error.log'
 logfile = '%(logs_path)s/main.log'
 workers = %(workers)i
@@ -1038,7 +1038,6 @@ server {
 
         root %(site_path)s;
 
-        access_log %(logs_path)s/nginx_access.log;
         error_log %(logs_path)s/nginx_error.log;
         proxy_connect_timeout       1800;
 	    proxy_send_timeout          1800;
