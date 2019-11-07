@@ -79,14 +79,8 @@ class Main(TableScriptToHtml):
             self.row_mode = 'value'
         else:
             self.row_mode = 'attribute'
-        result = self._getSourceData()
-        if self.subtotals_breakers:
-            sortlist = self.subtotals_breakers
-            if self.row_mode == 'attribute':
-                sortlist = ['#a.{}'.format(col.get('field_getter') or col.get('field')) for col in self.subtotals_breakers]
-            result = result.sort(','.join(sortlist))
-        return result 
-
+        return self._getSourceData()
+    
     def _getSourceData(self):
         currentQuery = self.getData('currentQuery')
         if currentQuery:
