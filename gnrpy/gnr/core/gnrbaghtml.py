@@ -12,7 +12,7 @@ from gnr.core.gnrstring import toText,templateReplace
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrclasses import GnrClassCatalog
-from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrdecorator import extract_kwargs, deprecated
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrnumber import decimalRound
 from collections import defaultdict
@@ -164,12 +164,13 @@ class BagToHtml(object):
         self.grid_height = None
         self._paperPages = {}
         self._data = Bag()
+        self._parameters = Bag()
+        self._rows = dict()
         self._gridsColumnsBag = Bag()
         self.is_draft = is_draft
         self.record = record
-        self.setData('record', record) #compatibility
         for k, v in kwargs.items():
-            self.setData(k, v)
+            self._parameters[k] = v
         if not filepath:
             folder = folder or tempfile.mkdtemp()
             filepath = os.path.join(folder, filename or self.outputDocName(ext='html'))
@@ -297,25 +298,55 @@ class BagToHtml(object):
     def getNewPage(self):
         return self.builder.newPage()
         
+    def parameter(self, path, default=None):
+        if not path:
+            return self._parameters
+        return self._parameters.getItem(path, default=default)
+
+    
+
     def getData(self, path, default=None):
-        """Make a :meth:`getItem() <gnr.core.gnrbag.Bag.getItem>` on data if
-        ... TODO
-        
+        """Make a :meth:`getItem() <gnr.core.gnrbag.Bag.getItem>` on ._data
         :param path: the path of data (e.g: ``'period.from'``)
         :param default: the default return value for a not found item"""
-        wildchars = []
-        if path[0] in wildchars:
-            value = 'not yet implemented'
-        else:
-            value = self._data.getItem(path, default)
+
+        if path in self._data:
+            return self._data[path]
+        is_legacy, value = self._checkLegacyMode(path, default=default)
+        if is_legacy:
+            self._legacyDeprecation()
         return value
+
+    def _checkLegacyMode(self, path, default=None):
+        sp = path.split('.',1)
+        if sp[0] == 'record':
+            return True, self.record if len(sp) == 1 else self.record.getItem(sp[1], default=default)
+        if sp[0] == self.rows_path:
+            return True, self.getRows()
+        if path in self._parameters:
+            return True, self._parameters[path]
+        return False, default
         
+    @deprecated(message='Do not use: getData/setData for record, parameters or rows')
+    def _legacyDeprecation(self):
+        return
+
     def setData(self, path, value, **kwargs):
-        """Make a :meth:`setItem() <gnr.core.gnrbag.Bag.setItem>` on data
+        """Make a :meth:`setItem() <gnr.core.gnrbag.Bag.setItem>` on ._data
         
         :param path: the path of data (e.g: ``'period.from'``)
         :param default: the default return value for a not found item"""
         self._data.setItem(path, value, **kwargs)
+
+    def setRows(self, rows, gridName=None):
+        self._rows[gridName or '_main_'] = rows
+
+    def getRows(self, gridName=None):
+        if self.rows_path in self._data:
+            self._rows['_main_'] = self._data[self.rows_path]
+        if not gridName and not '_main_' in self._rows:
+            self._rows['_main_'] = self.gridData()
+        return self._rows[gridName or '_main_']
         
     def onRecordExit(self, recordBag):
         """Hook method.
@@ -335,7 +366,7 @@ class BagToHtml(object):
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` documentation section"""
         if root is None:
-            root = self._data['record']
+            root = self.record
         attr = {}
         if isinstance(root, Bag):
             datanode = root.getNode(path)
@@ -490,10 +521,8 @@ class BagToHtml(object):
         self.lastPage = False
         self.defineStandardStyles()
         self.defineCustomStyles()
-        self.currGrid= None
-        if self.getData(self.rows_path) is None:
-            self.setData(self.rows_path,self.gridData())
-        lines = self.getData(self.rows_path)
+        self.currGrid = None
+        lines = self.getRows()
         if not lines and hasattr(self,'empty_row'):
             lines = Bag()
             lines.setItem('empty',Bag(self.empty_row),**self.empty_row)
