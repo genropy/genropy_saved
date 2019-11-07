@@ -109,7 +109,7 @@ class PrintGridEditor(UserObjectEditor):
                 source_struct='=.viewer.exportStruct',
                 source_query='=.viewer.query',
                 source_printerPars='=.printerPars',
-                source_queryPars='==TH({parentTH}).querymanager.queryParsBag();'.format(parentTH=parentTH))    
+                source_queryPars='=.viewer.queryPars')    
         frame.data('.viewer.grid.struct',defaultStruct)
         frame.data('.viewer.query.where',defaultWherebag)
         if parentTH:
@@ -126,15 +126,20 @@ class PrintGridEditor(UserObjectEditor):
         self._wherePaneConfig(parametersTab.borderContainer(title='!!Where',
                                                             datapath='.viewer',
                                                             region='top',height='50%'),table=table,frame=framegrid)
-        parametersTab.contentPane(region='center')
+        self._printOptionsForm(parametersTab.contentPane(region='center'))
         bar = frame.bottom.slotBar('*,doPrint,2')  
         bar.doPrint.slotButton('!!Print')
+
+    def _printOptionsForm(self,pane):
+        pass
 
     def _buildPrintEditor_view(self,bc,table=None):
         top = bc.contentPane(region='top',height='50%',splitter=True)
         frame = top.frameGrid(structpath='.struct',
                             grid_configurable=True,
                             grid_selfsubscribe_runbtn="FIRE .doQuery;",
+                            grid_selfsubscribe_longMouseDown="console.log('longMouseDown',this,arguments)",
+                            grid_selfsubscribe_clickAndHold="console.log('clickAndHold',this,arguments)",
                             datapath='.viewer',margin='4px',
                             _newGrid=True,
                             rounded=6,border='1px solid silver')
@@ -164,6 +169,9 @@ class PrintGridEditor(UserObjectEditor):
                             action="TH('{frameCode}_query').querymanager.onQueryCalling(querybag);".format(frameCode=frame.attributes['frameCode']),
                             _shortcut='@run:enter',
                             querybag='=.query.where') 
+        bar.dataController("SET .queryPars = TH(`${frameCode}_query`).querymanager.queryParsBag()",
+                            frameCode=frame.attributes['frameCode'],
+                            _fired='^.query.where',_delay=500)
 
 
         frame.grid.selectionStore(table=table,limit=500,
@@ -186,9 +194,9 @@ class PrintGridEditor(UserObjectEditor):
         bc.contentPane(region='center'
                         ).documentFrame(resource='{table}:html_res/print_gridres'.format(table=table),
                         pkey='*',html=True,
-                        currentGridStruct='=.viewer.exportStruct'.format(gridId=frame.grid.attributes['nodeId']),
+                        currentGridStruct='^.viewer.exportStruct'.format(gridId=frame.grid.attributes['nodeId']),
                         currentQuery='=.viewer.query',
                         _fired='^.viewer.runQueryDo',
                         _if='currentGridStruct',
-                        _delay=100)
+                        _delay=1000)
         return frame
