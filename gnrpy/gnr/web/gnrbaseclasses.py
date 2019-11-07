@@ -490,7 +490,7 @@ class TableScriptToHtml(BagToHtml):
             ext = '.%s' % ext
         caption = ''
         if self.record is not None:
-            caption = slugify(self.tblobj.recordCaption(self.getData('record')))
+            caption = slugify(self.tblobj.recordCaption(self.record))
             idx = self.record_idx
             if idx is not None:
                 caption = '%s_%i' %(caption,idx)
