@@ -50,14 +50,34 @@ class Main(BaseResourcePrint):
             data,metadata = self.db.table('adm.userobject'
                                 ).loadUserObject(userObjectIdOrCode=userobject,
                                                 table=self.tblobj.fullname)
-            struct =  data.getItem('struct')
-            query = data.getItem('query')
-            print(x)
-            printParams = data.getItem('printParams') or Bag()
+            struct =  data['struct']
+            query = data['query']
+            queryPars = data['queryPars']
+            printParams = data['printParams'] or Bag()
             for k,v in printParams.items():
                 fb.data('.{}'.format(k),v)
+
             fb.data('.currentGridStruct',struct)
             fb.data('.currentQuery',query) 
+            if queryPars:
+                fb.div('!!Query',font_weight='bold',color='#444')
+                for code,pars in queryPars.digest('#k,#a'):
+                    field = pars['field']
+                    tblobj = self.db.table(self.tblobj.fullname)
+                    rc = tblobj.column(field).relatedColumn()
+                    wherepath = pars['relpath']
+                    colobj = tblobj.column(field)
+                    tblcol = colobj.table
+                    wdgvalue = '^.{code}'.format(code=code)
+                    if colobj.name==tblcol.pkey:
+                        wdg = fb.dbSelect(value=wdgvalue,lbl=pars['lbl'],
+                                            dbtable=self.tblobj.fullname)
+                    elif pars['op'] == 'equal' and rc is not None:
+                        wdg = fb.dbSelect(value=wdgvalue,lbl=pars['lbl'],
+                                            dbtable=rc.table.fullname)
+                    else:
+                        wdg = fb.textbox(value=wdgvalue,lbl=pars['lbl'])
+                fb.div('!!Print parameters',font_weight='bold',color='#444')
         else:
             fb.dataController("""
                         var grid = genro.wdgById(gridId);
@@ -72,3 +92,6 @@ class Main(BaseResourcePrint):
         fb.textbox(value='^.totalize_carry',lbl='!!Carry',hidden='^.totalize_mode?=#v!="page"')
         fb.textbox(value='^.totalize_footer',lbl='!!Footer',hidden='^.totalize_mode?=!#v')
         fb.checkbox(value='^.allrows',label='!!Print all rows')
+
+
+        

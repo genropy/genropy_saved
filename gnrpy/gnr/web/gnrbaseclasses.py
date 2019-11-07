@@ -182,8 +182,9 @@ class TableScriptToHtml(BagToHtml):
     subtotal_caption_prefix = '!!Totals'
 
 
-    def __init__(self, page=None, resource_table=None, **kwargs):
+    def __init__(self, page=None, resource_table=None, parent=None, **kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
+        self.parent = parent
         self.page = page
         self.site = page.site
         self.db = page.db
@@ -250,7 +251,6 @@ class TableScriptToHtml(BagToHtml):
         self.pdf_handler.joinPdf(pdfToJoin,self.pdfpath)
         for pdf in pdfToJoin:
             os.remove(pdf)
-
 
     def get_css_requires(self):
         """TODO"""
@@ -430,12 +430,20 @@ class TableScriptToHtml(BagToHtml):
         fkey = many.pop()
         return dict(table=str('.'.join(many)),condition='$%s=:_fkey' %fkey,condition__fkey=self.record[self.tblobj.pkey])
 
+
+    def currentSelectionQueryParameters(self):
+        rowtable_obj = self.db.table(self.row_table)
+        return dict(condition='${pkey} IN :selectionPkeys'.format(pkey=rowtable_obj.pkey),
+                    condition_selectionPkeys=self.record['selectionPkeys'])
+    
     def gridData(self):
         #overridable
         self.row_mode = 'attribute'
         parameters = dict(self.gridQueryParameters())
+        if self.record['selectionPkeys'] and self.parameter('use_current_selection'):
+            parameters = self.currentSelectionQueryParameters()
         if not parameters:
-            raise Exception('You must define gridQueryParameters or gridData')
+            raise Exception('You must define gridQueryParameters or gridData or use_current_selection')
         condition_kwargs = dictExtract(parameters,'condition_',pop=True)
         parameters.update(condition_kwargs)
         condition = parameters.pop('condition',None)
@@ -491,7 +499,7 @@ class TableScriptToHtml(BagToHtml):
             ext = '.%s' % ext
         caption = ''
         if self.record is not None:
-            caption = slugify(self.tblobj.recordCaption(self.getData('record')))
+            caption = slugify(self.tblobj.recordCaption(self.record))
             idx = self.record_idx
             if idx is not None:
                 caption = '%s_%i' %(caption,idx)
