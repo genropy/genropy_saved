@@ -84,7 +84,6 @@ var genro_plugin_grid_configurator = {
                     var treeNode = genro.src.nodeBySourceNodeId(dropInfo.dragSourceInfo._id);
                     funcApply(sourceNode.attr.onDroppedColumn,{data:data, column:dropInfo.column,fieldcellattr:fieldcellattr,treeNode:treeNode},grid);
                 }else{
-                    console.log('fieldcellattr',fieldcellattr);
                     grid.addColumn(data, dropInfo.column,fieldcellattr);
                 }
                 
@@ -122,7 +121,7 @@ var genro_plugin_grid_configurator = {
             }
             viewAttr = menubag.getNode(currPath).attr;
         }        
-        viewAttr['id'] = viewAttr['pkey']
+        viewAttr.id = viewAttr.pkey;
         gridSourceNode.setRelativeData('.currViewAttrs',new gnr.GnrBag(viewAttr));
         this.checkFavorite(gridId);
         if(viewAttr.pkey){
@@ -173,10 +172,12 @@ var genro_plugin_grid_configurator = {
         var frame = pane._('framePane',{frameCode:paletteCode+'_panels',center_widget:'stackContainer'});
         var bar = frame._('slotBar',{slots:'2,stackButtons,*,saveConfiguration,2',toolbar:true,side:'top'});
         var that = this;
-        bar._('slotButton','saveConfiguration',{iconClass:'iconbox save',
-                                                action:function(){
-                                                    that.saveGridView(gridId);
-                                                }});
+        if(!gridNode.attr.externalSave){
+            bar._('slotButton','saveConfiguration',{iconClass:'iconbox save',
+                action:function(){
+                    that.saveGridView(gridId);
+                }});
+        }
         this._cellsEditorGrid(frame,gridNode);
         this._columnsetsGrid(frame,gridNode);
         this._structureConfigurator(frame,gridNode);

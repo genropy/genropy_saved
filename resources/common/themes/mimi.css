@@ -366,9 +366,8 @@ body.tundra.mimi {
 /* @end */
 
 .tundra._common_d11 .dijitDialogTitleBar {
-    background-color:#711B2A;
+    background-image: linear-gradient(to right top, #172b51, #1b3058, #20345e, #243965, #293e6c);
     color: #ffffff;
-    background-image:none;
     vertical-align: middle;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
@@ -379,7 +378,7 @@ body.tundra.mimi {
 }
 
 .tundra._common_d11 .commonTitleBar {
-    background-color:#711B2A;
+    background-image: linear-gradient(to right top, #172b51, #1b3058, #20345e, #243965, #293e6c);
     color: #ffffff;
     text-align: center;
     font-weight:normal;
@@ -1390,6 +1389,10 @@ background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat c
     -webkit-transition-duration: 1s;
     -moz-transition-duration: 1s;
 }
+.mimi .folder{
+    background: url(/_rsrc/common/css_icons/svg/16/folder.svg) no-repeat center center;
+}
+
 .mimi .ping_start .ping_semaphore{
     background: url(/_rsrc/common/css_icons/svg/16/socket_transmitting.svg) no-repeat center center;
 }
@@ -1399,6 +1402,3 @@ background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat c
 }
 
 
-/* .mimi.tundra .dijitFolderClosed{
-    background: url(/_rsrc/common/css_icons/svg/16/folder.svg) no-repeat center center;
-} */

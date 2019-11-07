@@ -336,3 +336,34 @@ class BaseResourceBatch(object):
         bar.confirmbtn.slotButton('!!Confirm', action='FIRE .confirm;')
         return bar
         
+
+    def configuration_handleQueryPars(self,fb,table):
+        wherepars = set()
+        for code,pars in self.queryPars.digest('#k,#a'):
+            autoTopic = False
+            aliasTopic = None
+            if code.endswith('*'):
+                code = code[0:-1]
+                autoTopic = code
+            field = pars['field']
+            tblobj = self.db.table(table)
+            rc = tblobj.column(field).relatedColumn()
+            wherepath = pars['relpath']
+            colobj = tblobj.column(field)
+            tblcol = colobj.table
+            if colobj.name==tblcol.pkey:
+                wdg = fb.dbSelect(value='^.wherepars_%s' %code,lbl=pars['lbl'],
+                                    #attr_wdg='dbselect',attr_dbtable=rc.table.fullname,
+                                    dbtable=table)
+                aliasTopic = '%s_pkey' %tblcol.fullname.replace('.','_')
+            elif pars['op'] == 'equal' and rc is not None:
+                wdg = fb.dbSelect(value='^.wherepars_%s' %code,lbl=pars['lbl'],
+                                    #attr_wdg='dbselect',attr_dbtable=rc.table.fullname,
+                                    dbtable=rc.table.fullname)
+                aliasTopic = '%s_pkey' %rc.table.fullname.replace('.','_')
+            else:
+                wdg = fb.textbox(value='^.wherepars_%s' %code,lbl=pars['lbl'])
+            wherepars.add('wherepars_%s' %code)
+            fb.data('.wherepars_%s' %code,pars.get('dflt'),wdg_tag=wdg.attributes['tag'],
+                    wdg_dbtable=wdg.attributes.get('dbtable'),autoTopic=autoTopic,aliasTopic=aliasTopic)
+                    wdg_dbtable=wdg.attributes.get('dbtable'),autoTopic=autoTopic,aliasTopic=aliasTopic)

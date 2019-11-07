@@ -237,7 +237,8 @@ class FrameGridTools(BaseComponent):
                                                         top='0',bottom='0',left='0',right='0',position='absolute',
                                                         box_datapath='._confFieldsTree',
                                                         searchMode='static',
-                                                        searchOn_searchCode='%s_fieldsTree' %view.attributes['frameCode'],trash=True)
+                                                        searchOn_searchCode='{}_fieldsTree'.format(view.attributes['frameCode']),
+                                                        trash=True)
             
 
 class FrameGrid(BaseComponent):
