@@ -439,7 +439,7 @@ class TableScriptToHtml(BagToHtml):
         #overridable
         self.row_mode = 'attribute'
         parameters = dict(self.gridQueryParameters())
-        if self.record['selectionPkeys'] and self.parameter('use_current_selection'):
+        if self.record['selectionPkeys'] and (not parameters or self.parameter('use_current_selection')):
             parameters = self.currentSelectionQueryParameters()
         if not parameters:
             raise Exception('You must define gridQueryParameters or gridData or use_current_selection')

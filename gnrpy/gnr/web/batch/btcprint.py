@@ -105,7 +105,7 @@ class BaseResourcePrint(BaseResourceBatch):
         if self.htmlMaker.maintable == self.htmlMaker.row_table:
             self.htmlMaker.row_table = self.tblobj.fullname
             self.print_record(record=Bag(dict(selectionPkeys=self.get_selection_pkeys())),
-                                 storagekey='__mainrecord__',idx=0)
+                              storagekey='__mainrecord__',idx=0)
         else:
             self.print_selection()
         
