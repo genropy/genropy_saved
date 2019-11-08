@@ -1391,26 +1391,15 @@ background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat c
     background: url(/_rsrc/common/css_icons/svg/16/online_help.svg) no-repeat center center;
 
 }
-
-
-.mimi .ping_semaphore{
-    height: 16px;
-    width: 16px;
-    background: none;
-    transition-duration:1s;
-    -webkit-transition-duration: 1s;
-    -moz-transition-duration: 1s;
+.mimi .spanner, .mimi .toolbox{
+    background: url(/_rsrc/common/css_icons/svg/16/toolbox.svg) no-repeat center center;
 }
+
+
+
 .mimi .folder{
     background: url(/_rsrc/common/css_icons/svg/16/folder.svg) no-repeat center center;
 }
 
-.mimi .ping_start .ping_semaphore{
-    background: url(/_rsrc/common/css_icons/svg/16/socket_transmitting.svg) no-repeat center center;
-}
-
-.mimi .ping_error .ping_semaphore{
-    background: url(/_rsrc/common/css_icons/svg/16/sockets_disconnected.svg) no-repeat center center;
-}
 
 
