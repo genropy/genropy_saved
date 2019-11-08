@@ -179,7 +179,7 @@ class TemplateEditorBase(BaseComponent):
                     tbody.replace(tbody_lastrow,HT.etree.Comment('TEMPLATEROW:$%s' %subname))
                     subtemplate=HT.tostring(tbody_lastrow).replace('%s.'%subname,'').replace('%24','$')
                     compiled.setItem(subname.replace('.','_'),subtemplate)
-            cmain = TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),HT.tostring(doc).replace('%24','$'))
+            cmain = TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),HT.tostring(doc).decode('utf-8').replace('%24','$'))
         compiled.setItem('main', cmain,
                             maintable=table,locale=self.locale,virtual_columns=','.join(virtual_columns),
                             columns=','.join(columns),formats=formats,masks=masks,editcols=editcols,df_templates=df_templates,dtypes=dtypes)
