@@ -108,7 +108,7 @@ class PrintGridEditor(UserObjectEditor):
         frame.top.userObjectBar(table=table,objtype='gridprint',
                 source_struct='=.viewer.exportStruct',
                 source_query='=.viewer.query',
-                source_printerPars='=.printerPars',
+                source_printParams='=.printParams',
                 source_queryPars='=.viewer.queryPars')    
         frame.data('.viewer.grid.struct',defaultStruct)
         frame.data('.viewer.query.where',defaultWherebag)
@@ -119,14 +119,16 @@ class PrintGridEditor(UserObjectEditor):
             SET .viewer.grid.struct = grid.structBag.deepCopy();
             """,_onBuilt=100,parentTH=parentTH)
 
-        center = frame.center.tabContainer(margin='2px') 
-        framegrid = self._buildPrintEditor_view(center.borderContainer(title='View',design='sidebar'),table=table)
-        parametersTab = center.borderContainer(title='!!Parameters')
-
-        self._wherePaneConfig(parametersTab.borderContainer(title='!!Where',
-                                                            datapath='.viewer',
-                                                            region='top',height='50%'),table=table,frame=framegrid)
-        self._printOptionsForm(parametersTab.contentPane(region='center'))
+        center = frame.center.borderContainer(design='sidebar')
+        framegrid = self._buildPrintEditor_view(center,table=table)
+        gridId = framegrid.grid.attributes['nodeId']
+        bar = framegrid.top.bar.replaceSlots('configuratorPalette','qpalette,configuratorPalette')
+        palette = bar.qpalette.palettePane(paletteCode='{}_pl'.format(gridId),
+                                            title='Query',datapath='#{}.#parent'.format(gridId),
+                                        palette_height='300px',palette_width='750px',
+                                        dockButton=dict(iconClass='iconbox menubox magnifier'))
+        self._wherePaneConfig(palette.borderContainer(),table=table,frame=framegrid)
+        #self._printOptionsForm(parametersTab.contentPane(region='center'))
         bar = frame.bottom.slotBar('*,doPrint,2')  
         bar.doPrint.slotButton('!!Print')
 
@@ -144,8 +146,8 @@ class PrintGridEditor(UserObjectEditor):
         gridattr = frame.grid.attributes
         configuratorId = '{}_configurator'.format(gridattr['nodeId'])
         gridattr['configuratorId'] = configuratorId
-        frame.dataController("""SET .exportStruct = grid.getExportStruct();
-                                FIRE .grid.doQuery;
+        frame.dataController("""FIRE .runQueryDo;
+                                SET .exportStruct = grid.getExportStruct();
                                 """,
                             grid=frame.grid.js_widget,
                             struct='^.grid.struct',_delay=100)
@@ -160,9 +162,11 @@ class PrintGridEditor(UserObjectEditor):
                             searchOn_searchCode='{}_fieldsTree'.format(frame.attributes['frameCode']),
                             trash=True)
             
-        bar = frame.top.slotToolbar('2,previewCaption,*,configuratorPalette,10,runPrint,2')
-        bar.previewCaption.div('Preview limit 500',font_style='italic',color='red',padding='2px')
-
+        bar = frame.top.slotToolbar('2,printParams,*,configuratorPalette,10,runPrint,2')
+        
+        printparams = bar.printParams.div(datapath='.#parent.printParams',_class='floatingPopup',cursor='pointer')
+        printparams.div('^.print_title?=#v?#v:"Missing title"')
+        self._printParamsFb(printparams.tooltipPane())
         bar.runPrint.slotButton(iconClass='iconbox run',
                             action="TH('{frameCode}_query').querymanager.onQueryCalling(querybag);".format(frameCode=frame.attributes['frameCode']),
                             _shortcut='@run:enter',
@@ -189,12 +193,30 @@ class PrintGridEditor(UserObjectEditor):
                                queryExtraPars='=.query.extraPars',
                                joinConditions='=.query.joinConditions',
                             _doRun='^.runQueryDo')
-        bc.contentPane(region='center'
+        bc.contentPane(region='center',background='white'
                         ).documentFrame(resource='{table}:html_res/print_gridres'.format(table=table),
                         pkey='*',html=True,
-                        currentGridStruct='^.viewer.exportStruct'.format(gridId=frame.grid.attributes['nodeId']),
+                        currentGridStruct='=.viewer.exportStruct',
                         currentQuery='=.viewer.query',
+                        page_debug='#efefef',
+                        printParams='^.printParams',
                         _fired='^.viewer.runQueryDo',
                         _if='currentGridStruct',
                         _delay=1000)
         return frame
+
+
+    def _printParamsFb(self,pane):
+        box = pane.div(font_size='.9em',color='#666')
+        box.div('!!Edit print parameters',_class='commonTitleBar')
+        pane = box.div(padding='10px')
+        fb = pane.formbuilder()
+        fb.textbox(value='^.print_title',lbl='!!Title')
+        fb.filteringSelect(value='^.orientation',lbl='!!Orientation',values='H:Horizontal,V:Vertical')
+        fb.dbSelect(dbtable='adm.htmltemplate', value='^.letterhead_id',
+                    selected_name='.letterhead',
+                    lbl='!!Letterhead',hasDownArrow=True)
+        fb.filteringSelect(value='^.totalize_mode', lbl='!!Totalize',values='doc:Document,page:Page')
+        fb.textbox(value='^.totalize_carry',lbl='!!Carry',hidden='^.totalize_mode?=#v!="page"')
+        fb.textbox(value='^.totalize_footer',lbl='!!Footer',hidden='^.totalize_mode?=!#v')
+        fb.checkbox(value='^.allrows',label='!!Print all rows')

@@ -27,7 +27,7 @@ class Main(TableScriptToHtml):
         userObjectIdOrCode = self.getData('userobject')
         struct = self.getData('currentGridStruct')
         printParams = self.getData('printParams') or Bag()
-        letterhead = self.getData('letterhead') or self.getData('letterhead_id')
+        letterhead = printParams['letterhead_id'] or self.getData('letterhead') or self.getData('letterhead_id')
         self.row_table = self.tblobj.fullname
         self.row_mode = 'attribute'
         if userObjectIdOrCode:
@@ -38,7 +38,7 @@ class Main(TableScriptToHtml):
                 struct =  data.getItem('struct')
             self.setData('currentQuery',self.getData('currentQuery') or data.getItem('query'))
             printParams = printParams or data.getItem('printParams') or Bag()
-            printParams['title'] = printParams['title'] or metadata.get('description')
+            printParams['print_title'] = printParams['print_title'] or metadata.get('description')
             self.row_table = metadata.get('tbl') or self.row_table
             letterhead = data['letterhead']
         self.htmlTemplate = letterhead
@@ -52,7 +52,7 @@ class Main(TableScriptToHtml):
         self.page_orientation = printParams['orientation'] or self.getData('orientation') or 'V'
         self.setStruct(struct)
         if not self.getData('print_title'):
-            self.setData('print_title',printParams['title'] or 'print_grid_{}'.format(self.row_table.replace('.','_')))
+            self.setData('print_title',printParams['print_title'] or 'print_grid_{}'.format(self.row_table.replace('.','_')))
 
     def gridColumnsInfo(self):
         struct = self.getStruct()
