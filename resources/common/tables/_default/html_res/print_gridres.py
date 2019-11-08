@@ -27,7 +27,7 @@ class Main(TableScriptToHtml):
         userObjectIdOrCode = self.getData('userobject')
         struct = self.getData('currentGridStruct')
         printParams = self.getData('printParams') or Bag()
-        letterhead = printParams['letterhead_id'] or self.getData('letterhead') or self.getData('letterhead_id')
+        letterhead_id = printParams['letterhead_id'] or self.getData('letterhead_id')
         self.row_table = self.tblobj.fullname
         self.row_mode = 'attribute'
         if userObjectIdOrCode:
@@ -40,8 +40,8 @@ class Main(TableScriptToHtml):
             printParams = printParams or data.getItem('printParams') or Bag()
             printParams['print_title'] = printParams['print_title'] or metadata.get('description')
             self.row_table = metadata.get('tbl') or self.row_table
-            letterhead = data['letterhead']
-        self.letterhead_id = letterhead
+            letterhead_id = letterhead_id or data['letterhead_id']
+        self.letterhead_id = letterhead_id
         totalize_mode = self.getData('totalize_mode') or printParams['totalize_mode']
         totalize_footer =  self.getData('totalize_footer') or printParams['totalize_footer']
         totalize_carry = self.getData('totalize_carry') or printParams['totalize_carry']

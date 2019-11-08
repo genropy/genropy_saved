@@ -182,9 +182,9 @@ class PrintGridEditor(UserObjectEditor):
                             grid=frame.grid.js_widget,
                             struct='^.grid.struct',_delay=100)
 
-        right = bc.framePane(region='right',width='200px',border_left='1px solid silver',nodeId=configuratorId)
+        right = bc.framePane(region='right',width='200px',border_left='1px solid silver')
 
-        right.center.contentPane().fieldsTree(table=table,checkPermissions=True,searchOn=True,
+        right.center.contentPane(nodeId=configuratorId).fieldsTree(table=table,checkPermissions=True,searchOn=True,
                             box_top='0',box_bottom='0',box_left='0',box_right='0',box_position='absolute',
                             top='0',bottom='0',left='0',right='0',position='absolute',
                             box_datapath='._confFieldsTree',
@@ -257,7 +257,6 @@ class PrintGridEditor(UserObjectEditor):
         fb.textbox(value='^.print_title',lbl='!!Title')
         fb.filteringSelect(value='^.orientation',lbl='!!Orientation',values='H:Horizontal,V:Vertical')
         fb.dbSelect(dbtable='adm.htmltemplate', value='^.letterhead_id',
-                    selected_name='.letterhead',
                     lbl='!!Letterhead',hasDownArrow=True)
         fb.filteringSelect(value='^.totalize_mode', lbl='!!Totalize',values='doc:Document,page:Page')
         fb.textbox(value='^.totalize_carry',lbl='!!Carry caption',hidden='^.totalize_mode?=#v!="page"')

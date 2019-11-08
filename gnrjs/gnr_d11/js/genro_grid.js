@@ -563,12 +563,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         sourceNode.attr['onDrop_selfdragcolumn_' + sourceNode._id] = onDropCall;
         if(sourceNode.attr.configurable){
             var frameNode = genro.getFrameNode(sourceNode.attr.frameCode);
-            var configuratorNode = sourceNode.attr.configuratorId?genro.nodeById(sourceNode.attr.configuratorId):frameNode;
             sourceNode.registerSubscription('endDrag',sourceNode,function(){
-                genro.dom.removeClass(configuratorNode,'treeShowTrash');
+                genro.dom.removeClass(sourceNode.attr.configuratorId || frameNode,'treeShowTrash');
             });
             sourceNode._showTrash=function(show){
-                genro.dom.addClass(configuratorNode,'treeShowTrash');
+                genro.dom.addClass(sourceNode.attr.configuratorId || frameNode,'treeShowTrash');
             };
             sourceNode.attr.onTrashed = sourceNode.attr.onTrashed || 'this.widget.deleteColumn(data);';
         }
