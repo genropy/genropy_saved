@@ -41,7 +41,7 @@ class Main(TableScriptToHtml):
             printParams['print_title'] = printParams['print_title'] or metadata.get('description')
             self.row_table = metadata.get('tbl') or self.row_table
             letterhead = data['letterhead']
-        self.htmlTemplate = letterhead
+        self.letterhead_id = letterhead
         totalize_mode = self.getData('totalize_mode') or printParams['totalize_mode']
         totalize_footer =  self.getData('totalize_footer') or printParams['totalize_footer']
         totalize_carry = self.getData('totalize_carry') or printParams['totalize_carry']
