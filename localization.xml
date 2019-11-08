@@ -14,7 +14,7 @@
 <en_children fr="Enfants" de="Kinder" en="Children" it="Bambini" base="Children"></en_children>
 <en_hierarchical_s fr="Hiérarchique%s" de="Hierarchischen  %s" en="Hierarchical [0]" it="Gerarchica% s" base="Hierarchical %s"></en_hierarchical_s>
 <en_parent_hierarchical_s fr="Parent hiérarchique%s" de="Mutter Hierarchical  %s" en="Parent Hierarchical [0]" it="Parent gerarchica% s" base="Parent Hierarchical %s"></en_parent_hierarchical_s>
-<en_counter fr="Compteur" de="Zähler" en="Counter" it="Contatore" base="Counter"></en_counter>
+<en_counter fr="Compteur" en="Counters" de="Zähler" it="Contatori" base="Counter"></en_counter>
 <en_counter_s fr="Contre%s" de="Gegen  %s" en="Counter [0]" it="Contatore% s" base="Counter %s"></en_counter_s>
 <en_warnings fr="Avertissements" de="Warnungen" en="Warnings" it="Avvertenze" base="Warnings"></en_warnings>
 <en_errors fr="Erreurs" de="Fehler" en="Errors" it="Errori" base="Errors"></en_errors>
