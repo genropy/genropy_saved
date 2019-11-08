@@ -389,7 +389,7 @@ class GnrHtmlBuilder(object):
         extra_style= ''
         if self.page_debug:
             border_color = 'red' if self.page_debug is True else self.page_debug
-            extra_style = 'box-shadow:3px 3px 4px gray;'
+            extra_style = '{} box-shadow:3px 3px 4px gray;'.format(extra_style)
         page_break = '' if firstpage else 'page-break-before:always;'
         page = self.body.div(style="""position:relative;
                                    width:%smm;

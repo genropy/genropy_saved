@@ -70,7 +70,11 @@ class TableHandlerView(BaseComponent):
         th_root = view.attributes['th_root']
         dlgId = '{th_root}_print_editor_dlg'.format(th_root=th_root)
         gridattr = view.grid.attributes
-        gridattr['selfsubscribe_open_print_editor'] = 'genro.wdgById("{dlgId}").show()'.format(dlgId=dlgId)
+        gridattr['selfsubscribe_open_print_editor'] = """genro.wdgById("{dlgId}").show();
+                        if($1.new){{
+                            genro.publish('{th_root}_print_editor_newObject');
+                        }}
+                        """.format(dlgId=dlgId,th_root=th_root)
         gridattr['selfsubscribe_close_print_editor'] = 'genro.wdgById("{dlgId}").hide()'.format(dlgId=dlgId)
 
         dlg = view.dialog(title='!!Print Editor',nodeId=dlgId,
@@ -753,6 +757,7 @@ class TableHandlerView(BaseComponent):
         #SOURCE MENUPRINT
         pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,
                         flags=options.get('print_flags'),
+                        printEditorOpened='=.print_editor.viewer?=#v!==null',
                         from_resource=options.get('print_from_resource',True),
                         gridId=gridId,
                         cacheTime=5)
@@ -777,7 +782,8 @@ class TableHandlerView(BaseComponent):
                     action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,userobject:$1.userobject,res_type:'print'};""")
 
     @public_method
-    def th_printMenu(self,table=None,flags=None,from_resource=True,gridId=None,**kwargs):
+    def th_printMenu(self,table=None,flags=None,from_resource=True,
+                    gridId=None,printEditorOpened=None,**kwargs):
         result = self._printAndMailMenu(table=table,flags=flags,from_resource=from_resource,res_type='print')
         gridprint = self.db.table('adm.userobject').userObjectMenu(table=table,objtype='gridprint')
         if gridprint and len(gridprint)>0:
@@ -785,8 +791,11 @@ class TableHandlerView(BaseComponent):
         result.walk(self._th_gridPrint)
 
         result.addItem('r_sep_edit',None,caption='-')
-        result.addItem('r_edit',None,caption='!!New Print',
-                        action="genro.nodeById('{gridId}').publish('open_print_editor');".format(gridId=gridId))
+        if printEditorOpened:
+            result.addItem('r_edit',None,caption='!!Edit current print',
+                        action="genro.nodeById('{gridId}').publish('open_print_editor',{{new:false}});".format(gridId=gridId))
+        result.addItem('r_new',None,caption='!!New Print',
+                        action="genro.nodeById('{gridId}').publish('open_print_editor',{{new:true}});".format(gridId=gridId))
         return result
         
     @struct_method
