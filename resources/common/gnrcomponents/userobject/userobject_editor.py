@@ -153,18 +153,21 @@ class PrintGridEditor(UserObjectEditor):
                             struct='^.grid.struct',_delay=100)
 
 
-        bc.contentPane(region='right',width='200px',border_left='1px solid silver',nodeId=configuratorId,
-                        ).fieldsTree(table=table,checkPermissions=True,searchOn=True,
+        right = bc.framePane(region='right',width='200px',border_left='1px solid silver',nodeId=configuratorId)
+
+        right.center.contentPane().fieldsTree(table=table,checkPermissions=True,searchOn=True,
                             box_top='0',box_bottom='0',box_left='0',box_right='0',box_position='absolute',
                             top='0',bottom='0',left='0',right='0',position='absolute',
                             box_datapath='._confFieldsTree',
                             searchMode='static',
                             searchOn_searchCode='{}_fieldsTree'.format(frame.attributes['frameCode']),
                             trash=True)
-            
+        right.bottom.slotToolbar('*,fbpar,3').fbpar.formbuilder(border_spacing='2px').numberTextBox(value='^.viewer.previewLimit',
+                                                    width='4em',lbl='!!Preview limit',default=300)
         bar = frame.top.slotToolbar('2,printParams,*,configuratorPalette,10,runPrint,2')
-        
-        printparams = bar.printParams.div(datapath='.#parent.printParams',_class='floatingPopup',cursor='pointer')
+        printparams = bar.printParams.div(datapath='.#parent.printParams',
+                                        _class='popupLabel',font_weight='bold',
+                                        color='#666',cursor='pointer')
         printparams.div('^.print_title?=#v?#v:"Missing title"')
         self._printParamsFb(printparams.tooltipPane())
         bar.runPrint.slotButton(iconClass='iconbox run',
@@ -176,7 +179,7 @@ class PrintGridEditor(UserObjectEditor):
                             _fired='^.query.where',_delay=500)
 
 
-        frame.grid.selectionStore(table=table,limit=500,
+        frame.grid.selectionStore(table=table,
                             where='=.query.where',
                                queryMode='=.query.queryMode', 
                                sortedBy='=.grid.sorted',
@@ -192,6 +195,7 @@ class PrintGridEditor(UserObjectEditor):
                                prevSelectedDict = '=.query.prevSelectedDict',
                                queryExtraPars='=.query.extraPars',
                                joinConditions='=.query.joinConditions',
+                               limit='^.previewLimit',
                             _doRun='^.runQueryDo')
         bc.contentPane(region='center',background='white'
                         ).documentFrame(resource='{table}:html_res/print_gridres'.format(table=table),
@@ -199,6 +203,7 @@ class PrintGridEditor(UserObjectEditor):
                         currentGridStruct='=.viewer.exportStruct',
                         currentQuery='=.viewer.query',
                         page_debug='#efefef',
+                        previewLimit='^.viewer.previewLimit',
                         printParams='^.printParams',
                         _fired='^.viewer.runQueryDo',
                         _if='currentGridStruct',

@@ -102,7 +102,7 @@ class Main(TableScriptToHtml):
         
     def _selection_from_query(self,query):
         if query['where']:
-            limit = query['queryLimit']
+            limit = query['queryLimit'] or self.parameter('previewLimit')
             customOrderBy = query['customOrderBy']
             where = query['where']
             self._selection_from_savedQuery_fill_parameters(where)
