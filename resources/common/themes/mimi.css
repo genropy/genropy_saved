@@ -1141,6 +1141,14 @@ body.tundra.mimi {
     padding-bottom: 2px;
 }
 
+.popupLabel {
+    padding-right: 15px;
+    cursor: pointer;
+    background: url(/_rsrc/common/css_icons/svg/16/popup.svg) no-repeat right !important;
+}
+
+
+
 
 /*----------------------------------------- icone svg -------------------------------------*/
 

@@ -784,7 +784,7 @@ class TableHandlerView(BaseComponent):
         result.walk(self._th_gridPrint)
 
         result.addItem('r_sep_edit',None,caption='-')
-        result.addItem('r_edit',None,caption='Print editor',
+        result.addItem('r_edit',None,caption='!!New Print',
                         action="genro.nodeById('{gridId}').publish('open_print_editor');".format(gridId=gridId))
         return result
         
