@@ -922,6 +922,19 @@ dojo.declare("gnr.GnrDevHandler", null, {
                 resultAttr = objectUpdate({},kw);
                 objectExtract(resultAttr,'userObjectIdOrCode,code,description,pkey');
                 dataIndex = kw.dataIndex;
+                if(kw.defaults){
+                    let defaults = kw.defaults;
+                    if(defaults instanceof gnr.GnrBag){
+                        defaults = defaults.asDict();
+                    }
+                    for(let k in defaults){
+                        let v = defaults[k];
+                        if(v instanceof gnr.GnrBag){
+                            v = v.deepCopy();
+                        }
+                        resultValue.setItem(k,v);
+                    }
+                }
             }else{
                 resultValue = result._value.deepCopy();
                 resultAttr = objectUpdate({},result.attr);

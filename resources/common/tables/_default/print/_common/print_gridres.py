@@ -27,7 +27,7 @@ class Main(BaseResourcePrint):
     
         
     def table_script_parameters_pane(self,pane,extra_parameters=None,record_count=None,**kwargs):
-        pane = pane.div(padding='10px',min_height='60px')        
+        pane = pane.div(min_height='60px')        
         fb = pane.formbuilder(cols=1,fld_width='20em',border_spacing='4px')
         userobject = extra_parameters['userobject']
 
@@ -53,7 +53,7 @@ class Main(BaseResourcePrint):
                     wherepath = pars['relpath']
                     colobj = tblobj.column(field)
                     tblcol = colobj.table
-                    wdgvalue = '^.{code}'.format(code=code)
+                    wdgvalue = '^.wherepars.{wherepath}'.format(wherepath=wherepath)
                     if colobj.name==tblcol.pkey:
                         wdg = fb.dbSelect(value=wdgvalue,lbl=pars['lbl'],
                                             dbtable=self.tblobj.fullname)
@@ -74,9 +74,9 @@ class Main(BaseResourcePrint):
         fb.filteringSelect(value='^.orientation',lbl='!!Orientation',values='H:Horizontal,V:Vertical')
         fb.dbSelect(dbtable='adm.htmltemplate', value='^.letterhead_id',lbl='!!Letterhead',hasDownArrow=True)
         fb.filteringSelect(value='^.totalize_mode', lbl='!!Totalize',values='doc:Document,page:Page')
-        fb.textbox(value='^.totalize_carry',lbl='!!Carry',hidden='^.totalize_mode?=#v!="page"')
-        fb.textbox(value='^.totalize_footer',lbl='!!Footer',hidden='^.totalize_mode?=!#v')
-        fb.checkbox(value='^.allrows',label='!!Print all rows')
+        fb.textbox(value='^.totalize_carry',lbl='!!Carry caption',hidden='^.totalize_mode?=#v!="page"')
+        fb.textbox(value='^.totalize_footer',lbl='!!Totals caption',hidden='^.totalize_mode?=!#v')
+        #fb.checkbox(value='^.allrows',label='!!Print all rows')
 
 
         

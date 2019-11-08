@@ -54,7 +54,7 @@ class GroupByEditor(UserObjectEditor):
                                 source_treeRootName='=.gth.treeRootName',
                                 source_output='=.gth.output',
                                 source_queryPars='=.gth.queryPars',
-                                favoriteIdentifier=frameCode)
+                                mainIdentifier=frameCode)
         bc = mainframe.center.borderContainer()
         thframecode = '{}_gth'.format(frameCode)
         frame = bc.contentPane(region='center').groupByTableHandler(table=table,frameCode=thframecode,
@@ -106,17 +106,23 @@ class PrintGridEditor(UserObjectEditor):
                             defaultStruct=None,defaultWherebag=None,**kwargs):
         frame = parent.framePane(frameCode=frameCode,**kwargs)
         frame.top.userObjectBar(table=table,objtype='gridprint',
+                source_viewerStruct='=.viewer.grid.struct',
                 source_struct='=.viewer.exportStruct',
                 source_query='=.viewer.query',
                 source_printParams='=.printParams',
-                source_queryPars='=.viewer.queryPars')    
+                source_queryPars='=.viewer.queryPars',
+                default_viewerStruct='=.viewer.defaultStruct',
+                mainIdentifier=frameCode)   
+        defaultStruct = defaultStruct or self._getDefaultStruct(table=table) 
         frame.data('.viewer.grid.struct',defaultStruct)
+        frame.data('.viewer.defaultStruct',defaultStruct)
         frame.data('.viewer.query.where',defaultWherebag)
         if parentTH:
             frame.dataController("""
             SET .viewer.query = TH(parentTH).querymanager.prepareQueryData();
             let grid = genro.wdgById(`${parentTH}_grid`);
             SET .viewer.grid.struct = grid.structBag.deepCopy();
+            SET .viewer.defaultStruct = grid.structBag.deepCopy();
             """,_onBuilt=100,parentTH=parentTH)
 
         center = frame.center.borderContainer(design='sidebar')
@@ -129,18 +135,42 @@ class PrintGridEditor(UserObjectEditor):
                                         dockButton=dict(iconClass='iconbox menubox magnifier'))
         self._wherePaneConfig(palette.borderContainer(),table=table,frame=framegrid)
         #self._printOptionsForm(parametersTab.contentPane(region='center'))
-        bar = frame.bottom.slotBar('*,doPrint,2')  
-        bar.doPrint.slotButton('!!Print')
+        bar = frame.bottom.slotBar('*,doPrint,2',margin_bottom='2px',_class='slotbar_dialog_footer')  
+        bar.doPrint.slotButton('!!Print',action="""
+                             var parameters = {'table':table,
+                                                'respath':'html_res/print_gridres',
+                                                'pdf':true,
+                                                'currentGridStruct':currentGridStruct,
+                                                'currentQuery':currentQuery,
+                                                'printParams':printParams,
+                                                'pkey':'*',
+                                                'record':'*'
+                                                }
+                             genro.rpcDownload("callTableScript",parameters,'print');
+                    """,currentGridStruct='=.viewer.exportStruct',
+                            currentQuery='=.viewer.query',
+                            printParams='=.printParams',
+                        table=table)
+                
+    def _getDefaultStruct(self,table=None):
+        struct = self.newGridStruct(table)
+        tblobj = self.db.table(table)
+        r = struct.view().rows()
+        if tblobj.attributes.get('caption_field'):
+            r.fieldcell(tblobj.attributes.get('caption_field'))
+        else:
+            r.fieldcell(tblobj.pkey)
 
     def _printOptionsForm(self,pane):
         pass
 
     def _buildPrintEditor_view(self,bc,table=None):
-        top = bc.contentPane(region='top',height='50%',splitter=True)
+        top = bc.contentPane(region='top',height='50%',splitter=True,closable=True)
         frame = top.frameGrid(structpath='.struct',
                             grid_configurable=True,
                             grid_selfsubscribe_runbtn="FIRE .doQuery;",
                             datapath='.viewer',margin='4px',
+                            grid_externalSave=True,
                             _newGrid=True,
                             rounded=6,border='1px solid silver')
         gridattr = frame.grid.attributes
@@ -151,7 +181,6 @@ class PrintGridEditor(UserObjectEditor):
                                 """,
                             grid=frame.grid.js_widget,
                             struct='^.grid.struct',_delay=100)
-
 
         right = bc.framePane(region='right',width='200px',border_left='1px solid silver',nodeId=configuratorId)
 
@@ -197,12 +226,21 @@ class PrintGridEditor(UserObjectEditor):
                                joinConditions='=.query.joinConditions',
                                limit='^.previewLimit',
                             _doRun='^.runQueryDo')
-        bc.contentPane(region='center',background='white'
-                        ).documentFrame(resource='{table}:html_res/print_gridres'.format(table=table),
+        tc = bc.tabContainer(margin='2px',region='center')
+        tc.contentPane(title='HTML',background='white').documentFrame(resource='{table}:html_res/print_gridres'.format(table=table),
                         pkey='*',html=True,
                         currentGridStruct='=.viewer.exportStruct',
                         currentQuery='=.viewer.query',
                         page_debug='#efefef',
+                        previewLimit='^.viewer.previewLimit',
+                        printParams='^.printParams',
+                        _fired='^.viewer.runQueryDo',
+                        _if='currentGridStruct',
+                        _delay=1000)
+        tc.contentPane(title='PDF',background='white').documentFrame(resource='{table}:html_res/print_gridres'.format(table=table),
+                        pkey='*',html=False,
+                        currentGridStruct='=.viewer.exportStruct',
+                        currentQuery='=.viewer.query',
                         previewLimit='^.viewer.previewLimit',
                         printParams='^.printParams',
                         _fired='^.viewer.runQueryDo',
@@ -222,6 +260,5 @@ class PrintGridEditor(UserObjectEditor):
                     selected_name='.letterhead',
                     lbl='!!Letterhead',hasDownArrow=True)
         fb.filteringSelect(value='^.totalize_mode', lbl='!!Totalize',values='doc:Document,page:Page')
-        fb.textbox(value='^.totalize_carry',lbl='!!Carry',hidden='^.totalize_mode?=#v!="page"')
-        fb.textbox(value='^.totalize_footer',lbl='!!Footer',hidden='^.totalize_mode?=!#v')
-        fb.checkbox(value='^.allrows',label='!!Print all rows')
+        fb.textbox(value='^.totalize_carry',lbl='!!Carry caption',hidden='^.totalize_mode?=#v!="page"')
+        fb.textbox(value='^.totalize_footer',lbl='!!Totals caption',hidden='^.totalize_mode?=!#v')

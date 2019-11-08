@@ -121,12 +121,10 @@ class Main(TableScriptToHtml):
             return self.tblobj.query(where=where,**selection_kwargs).selection()
         
     def _selection_from_savedQuery_fill_parameters(self,wherebag):
-        def fillpar(n):
-            if n.value is None and n.attr.get('value_caption','').startswith('?'):
-                bp_name = n.attr['value_caption'][1:].lower().replace(' ','_')
-                if bp_name in self._data:
-                    n.value = self.getData(bp_name)
-        wherebag.walk(fillpar)
+        wherepars = self.parameter('wherepars')
+        if wherepars:
+            for path in wherepars.getIndexList():
+                wherebag[path] = wherepars[path]
         
     def docHeader(self, header):
         layout = header.layout(name='doc_header',um='mm',
