@@ -196,7 +196,7 @@ class ExtDbExplorer(BaseComponent):
                                                         unique=colattr.get('unique')))
                     columns_bag.setItem(colname,b)
                     if colattr.get('relate_to'):
-                        b.setItem('_relation',Bag(dict(relation=colattr['relate_to'].lower(),onDelete='raise',meta_thmode='plain')))
+                        b.setItem('_relation',Bag(dict(relation=colattr['relate_to'].lower(),onDelete='raise',meta_thmode='dialog')))
                 table_data['caption_field'] = caption_field
                 self.makeOneTable(os.path.join(modelpath,'%s.py' %tablename),table_data=table_data)
 
