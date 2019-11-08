@@ -157,6 +157,7 @@ var genro_plugin_grid_configurator = {
             {'field':'name','dtype':'T','widget':{'tag':'Textbox','width':'15em','lbl':_T('Name')}},
             {'field':'columnset','dtype':'T','widget':{'tag':'ComboBox','width':'15em','lbl':_T('Columnset')}}, //to complete
             {'field':'formula','dtype':'T','widget':{'tag':'Textbox','lbl':_T('Formula'),'width':'15em','hidden':'^.?calculated?=!#v'}},//to complete
+            {'field':'hidden','dtype':'B','widget':{'tag':'checkbox','label':_T('Hidden'),'hidden':'^.?dtype?="NRFLI".indexOf(#v)<0'}},
             {'field':'totalize','dtype':'B','widget':{'tag':'checkbox','label':_T('Totalize'),'hidden':'^.?dtype?="NRFLI".indexOf(#v)<0'}},
             {'field':'subtotal','dtype':'B','widget':{'tag':'checkbox','label':_T('Subtotal'),'hidden':'^.?dtype?="NRFLI".indexOf(#v)>=0'}},
         ];
@@ -238,6 +239,7 @@ var genro_plugin_grid_configurator = {
                     }
                     fb.addField(objectPop(wdgkw,'tag'),wdgkw);
                 });
+                fb.addField('div',{'innerHTML':'&nbsp;',font_weight:'bold',border_top:'1px solid silver'});
                 genro.dom.styleFields(fb,{parentFb:true,prefix:'?',blacklist:['height','width']});
             });
     },

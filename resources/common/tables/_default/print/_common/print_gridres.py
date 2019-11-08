@@ -21,21 +21,6 @@ class Main(BaseResourcePrint):
     html_res = 'html_res/print_gridres'
 
     def do(self):
-        #struct = self.batch_parameters['currentGridStruct']
-        #
-        #totalize_mode = self.batch_parameters['totalize_mode']
-        #totalize_footer = self.batch_parameters['totalize_footer']
-        #totalize_carry = self.batch_parameters['totalize_carry']
-        #printParams = Bag(totalize_mode=totalize_mode,
-        #                    totalize_footer=totalize_footer,
-        #                    totalize_carry=totalize_carry)
-       #if totalize_mode or totalize_footer or totalize_carry:
-       #    self.htmlMaker.totalize_mode = totalize_mode or 'doc'
-       #    self.htmlMaker.totalize_footer = totalize_footer or True
-       #    self.htmlMaker.totalize_carry = totalize_carry
-       #self.htmlMaker.page_orientation = self.batch_parameters['orientation'] or 'V'
-       #self.htmlMaker.htmlTemplate = self.batch_parameters['letterhead_id']
-       #self.htmlMaker.setStruct(struct=struct)
         self.htmlMaker.row_table = getattr(self,'maintable',None)
         self.htmlMaker.callingBatch = self
         self.print_record(record='*',storagekey='x')
