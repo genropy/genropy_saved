@@ -67,7 +67,7 @@ class Main(TableScriptToHtml):
                 c['mm_min_width'] = min_mm_elastic_width
             else:
                 c['mm_width'] = max(int(c['q_width']*tot_width),min_mm_width)
-        self.structAnalyze(struct)
+        #self.structAnalyze(struct)
         return dict(columns=self.gridColumnsFromStruct(struct=struct),
                     columnsets=self.gridColumnsetsFromStruct(struct))
 
