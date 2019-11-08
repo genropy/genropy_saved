@@ -840,7 +840,7 @@ class TableHandlerView(BaseComponent):
             node.attr['template_id'] = node.attr['pkey']
 
     def _th_gridPrint(self,node):
-        if node.attr.get('code'):
+        if node.attr.get('code') and not node.attr.get('resource'):
             node.attr['resource'] ='_common/print_gridres'
             node.attr['userobject'] = node.attr['pkey']
         
