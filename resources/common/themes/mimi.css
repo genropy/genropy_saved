@@ -1147,6 +1147,10 @@ body.tundra.mimi {
     background: url(/_rsrc/common/css_icons/svg/16/popup.svg) no-repeat right !important;
 }
 
+.popupLabel:hover {
+    background:rgba(234, 203, 110, 1.00);
+}
+
 
 
 

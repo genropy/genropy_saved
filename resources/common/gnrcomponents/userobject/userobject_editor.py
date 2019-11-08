@@ -162,10 +162,12 @@ class PrintGridEditor(UserObjectEditor):
                             searchMode='static',
                             searchOn_searchCode='{}_fieldsTree'.format(frame.attributes['frameCode']),
                             trash=True)
-        right.bottom.slotToolbar('*,fbpar,3').fbpar.formbuilder(border_spacing='2px').numberTextBox(value='^.previewLimit',
-                                                    width='4em',lbl='!!Preview limit')
+        right.bottom.slotToolbar('*,fbpar,3').fbpar.formbuilder(border_spacing='2px').numberTextBox(value='^.viewer.previewLimit',
+                                                    width='4em',lbl='!!Preview limit',default=300)
         bar = frame.top.slotToolbar('2,printParams,*,configuratorPalette,10,runPrint,2')
-        printparams = bar.printParams.div(datapath='.#parent.printParams',_class='popupLabel',cursor='pointer')
+        printparams = bar.printParams.div(datapath='.#parent.printParams',
+                                        _class='popupLabel',font_weight='bold',
+                                        color='#666',cursor='pointer')
         printparams.div('^.print_title?=#v?#v:"Missing title"')
         self._printParamsFb(printparams.tooltipPane())
         bar.runPrint.slotButton(iconClass='iconbox run',
