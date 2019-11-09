@@ -266,7 +266,7 @@ class FrameGrid(BaseComponent):
         grid_kwargs['selfsubscribe_duprow'] = grid_kwargs.get('selfsubscribe_duprow','this.widget.addRows($1._counter,$1.evt,true);')
         grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteSelectedRows();')
         grid_kwargs['selfsubscribe_archive'] = grid_kwargs.get('selfsubscribe_archive','this.widget.archiveSelectedRows();')
-        #grid_kwargs['selfsubscribe_setSortedBy'] = """this.setRelativeData(this.attr.sortedBy,$1);"""
+        #grid_kwargs['selfsubscribe_setSortedBy'] = """console.log($1.event);"""
         grid_kwargs.setdefault('selectedId','.selectedId')
         envelope_bc = frame.borderContainer(childname='grid_envelope',pageName='mainView',
                                             title=grid_kwargs.pop('title','!!Grid'))

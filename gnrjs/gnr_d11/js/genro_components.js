@@ -4393,10 +4393,12 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
         gnrwdg.userObjectPars = userObjectPars;
         gnrwdg.startUserObjectIdOrCode = kw.userObjectId;
         gnrwdg.dataIndex = objectExtract(kw,'source_*');
+        gnrwdg.defaults = objectExtract(kw,'default_*');
+
         let metadataPath = kw.metadata || '#WORKSPACE.metadata';
         gnrwdg.metadataPath = metadataPath;
-        gnrwdg.favoriteIdentifier = objectPop(kw,'favoriteIdentifier');
-
+        gnrwdg.handleFavorites = objectPop(kw,'handleFavorites');
+        gnrwdg.mainIdentifier = objectPop(kw,'mainIdentifier');
         if(kw.onLoaded){
             gnrwdg.onLoaded = funcCreate(kw.onLoaded,'dataIndex','resoultValue','resoultAttr',sourceNode);
 
@@ -4407,12 +4409,31 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
     gnrwdg_buildToolbar:function(sourceNode){
         this.setLoadMenuData();
         var bar = sourceNode._('slotBar','uo_bar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,favoritebtn,saveBtn,deletebtn,5'});
+        
+        if(this.mainIdentifier){
+            let barNode = bar.getParentNode();
+            var that = this;
+            let cb = function(){
+                console.log('register subscription',`${that.mainIdentifier}_newObject`)
+                barNode.registerSubscription(`${that.mainIdentifier}_newObject`,that,function(kwargs){
+                    this.loadObject('__newobj__');
+                });
+                barNode.registerSubscription(`${that.mainIdentifier}_loadObject`,that,function(kwargs){
+                    this.loadObject(kwargs.userobject);
+                });
+                barNode.registerSubscription(`${that.mainIdentifier}_loadObject`,that,function(kwargs){
+                    this.saveObject();
+                });
+            }
+            genro.src.onBuiltCall(cb);
+        }
+        
         var that = this;
         var favorite;
         bar._('div','objTitle',{innerHTML:'^.description?=(#v || "New")',
                                 datapath:this.metadataPath,font_weight:'bold',
                                 font_size:'.9em',color:'#666'});
-        if(this.favoriteIdentifier){
+        if(this.mainIdentifier && this.handleFavorites){
             bar._('slotButton','favoritebtn',{'label':_T('Default'),
                     action:function(){that.setCurrentAsFavorite();},
                     iconClass:'highlightable iconbox star'});
@@ -4469,7 +4490,7 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
     },
 
     gnrwdg_storageKey:function(){
-        return this.userObjectPars.objtype + genro.getData('gnr.pagename') + '_' + this.favoriteIdentifier;
+        return this.userObjectPars.objtype + genro.getData('gnr.pagename') + '_' + this.mainIdentifier;
     },
 
     gnrwdg_deleteCurrentObject:function() {
@@ -4515,6 +4536,7 @@ dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
         }
         if(userObjectId=='__newobj__'){
             kw.dataIndex = this.dataIndex;
+            kw.defaults = this.sourceNode.evaluateOnNode(this.defaults);
         }
         genro.dev.userObjectLoad(this.sourceNode,kw);
     },

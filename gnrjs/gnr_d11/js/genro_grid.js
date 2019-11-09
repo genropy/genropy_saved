@@ -221,7 +221,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             sourceNode.attr = containerAttr;
             sourceNode.label = 'grid_wrapper';
             sourceNode.setValue(new gnr.GnrDomSource(),false);
-            var top = sourceNode._('ContentPane','columnsets',{region:'top',datapath:gridattr.datapath,hidden:true},{'doTrigger':false});
+            var top = sourceNode._('ContentPane','columnsets',{region:'top',
+                                    datapath:gridattr.datapath,hidden:true},{'doTrigger':false});
             _columnsetsNode = top.getParentNode();
             top._('div','scrollbox',{_class:'gr_columnset gr_scrollbox'},{'doTrigger':false});
             var bottom = sourceNode._('ContentPane','footers',{region:'bottom',datapath:gridattr.datapath,hidden:true},{'doTrigger':false});
@@ -360,6 +361,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             colspan = objectPop(item,'colspan') || 1;
             currIdx = idx+colspan;
             item._class = (item._class) || '' +' groupcontent';
+            item.selfsubscribe_clickAndHold = function(kw){
+                console.log('clickAndHold',this,kw);
+                if(sourceNode.attr.configurable){
+                    //inside cellHeader
+                    sourceNode.widget.configuratorColsetTooltip(this.attr,kw.event);
+                }
+            };
             tr._('td',item.field,{idx:idx,colspan:colspan})._('div',item);
         });
         if(currIdx<totCols){
@@ -555,12 +563,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         sourceNode.attr['onDrop_selfdragcolumn_' + sourceNode._id] = onDropCall;
         if(sourceNode.attr.configurable){
             var frameNode = genro.getFrameNode(sourceNode.attr.frameCode);
-            var configuratorNode = sourceNode.attr.configuratorId?genro.nodeById(sourceNode.attr.configuratorId):frameNode;
             sourceNode.registerSubscription('endDrag',sourceNode,function(){
-                genro.dom.removeClass(configuratorNode,'treeShowTrash');
+                genro.dom.removeClass(sourceNode.attr.configuratorId || frameNode,'treeShowTrash');
             });
             sourceNode._showTrash=function(show){
-                genro.dom.addClass(configuratorNode,'treeShowTrash');
+                genro.dom.addClass(sourceNode.attr.configuratorId || frameNode,'treeShowTrash');
             };
             sourceNode.attr.onTrashed = sourceNode.attr.onTrashed || 'this.widget.deleteColumn(data);';
         }
@@ -766,6 +773,15 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             this.widget.configuratorPalette();
         });
 
+        sourceNode.subscribe('clickAndHold',function(kw){
+            var event = kw.event;
+            if(this.attr.configurable){
+                //inside cellHeader
+                this.widget.configuratorCellTooltip(event);
+            }
+            
+        });
+
 
         if(sourceNode.getRelativeData('.filterset')){
             widget.filterManager = new gnr.GridFilterManager(widget);
@@ -897,6 +913,19 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 }
             });
         }
+        var gridData = sourceNode.getRelativeData();
+        gridData.setCallBackItem('menuColsConfigMenu',function(){
+            var result = new gnr.GnrBag();
+            var grid = sourceNode.widget;
+            var cells = grid.getColumnInfo();
+            cells.getNodes().forEach(function(n,idx){
+                result.addItem(n.label,null,{caption:n.attr.cell.name,cell:n.attr.cell});
+            });
+            result.addItem('-',null,{caption:'-'});
+            result.addItem('_newcol',null,{caption:_T('New formula cell'),cell:'newcell'});
+
+            return result;
+        });
         setTimeout(function(){widget.updateRowCount('*');},1);
     },
 
@@ -3845,6 +3874,20 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             genro.grid_configurator.configuratorPalette(this.sourceNode.attr.nodeId || this.sourceNode._id);
         }
     },
+
+
+    mixin_configuratorColsetTooltip:function(colset,event){
+        if(this.sourceNode.attr.configurable && genro.grid_configurator){
+            genro.grid_configurator.configuratorColsetTooltip(this.sourceNode.attr.nodeId || this.sourceNode._id,colset,event);
+        }
+    },
+
+    mixin_configuratorCellTooltip:function(event){
+        if(this.sourceNode.attr.configurable && genro.grid_configurator){
+            genro.grid_configurator.configuratorCellTooltip(this.sourceNode.attr.nodeId || this.sourceNode._id,event.cell,event.target);
+        }
+    },
+
 
     mixin_setDynamicStorepath:function(newstorepath){
         newstorepath = newstorepath || '.store';

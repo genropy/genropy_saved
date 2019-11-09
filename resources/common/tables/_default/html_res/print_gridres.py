@@ -27,7 +27,7 @@ class Main(TableScriptToHtml):
         userObjectIdOrCode = self.getData('userobject')
         struct = self.getData('currentGridStruct')
         printParams = self.getData('printParams') or Bag()
-        letterhead = self.getData('letterhead') or self.getData('letterhead_id')
+        letterhead_id = printParams['letterhead_id'] or self.getData('letterhead_id')
         self.row_table = self.tblobj.fullname
         self.row_mode = 'attribute'
         if userObjectIdOrCode:
@@ -38,10 +38,10 @@ class Main(TableScriptToHtml):
                 struct =  data.getItem('struct')
             self.setData('currentQuery',self.getData('currentQuery') or data.getItem('query'))
             printParams = printParams or data.getItem('printParams') or Bag()
-            printParams['title'] = printParams['title'] or metadata.get('description')
+            printParams['print_title'] = printParams['print_title'] or metadata.get('description')
             self.row_table = metadata.get('tbl') or self.row_table
-            letterhead = data['letterhead']
-        self.htmlTemplate = letterhead
+            letterhead_id = letterhead_id or data['letterhead_id']
+        self.letterhead_id = letterhead_id
         totalize_mode = self.getData('totalize_mode') or printParams['totalize_mode']
         totalize_footer =  self.getData('totalize_footer') or printParams['totalize_footer']
         totalize_carry = self.getData('totalize_carry') or printParams['totalize_carry']
@@ -52,7 +52,7 @@ class Main(TableScriptToHtml):
         self.page_orientation = printParams['orientation'] or self.getData('orientation') or 'V'
         self.setStruct(struct)
         if not self.getData('print_title'):
-            self.setData('print_title',printParams['title'] or 'print_grid_{}'.format(self.row_table.replace('.','_')))
+            self.setData('print_title',printParams['print_title'] or 'print_grid_{}'.format(self.row_table.replace('.','_')))
 
     def gridColumnsInfo(self):
         struct = self.getStruct()
@@ -67,7 +67,7 @@ class Main(TableScriptToHtml):
                 c['mm_min_width'] = min_mm_elastic_width
             else:
                 c['mm_width'] = max(int(c['q_width']*tot_width),min_mm_width)
-        self.structAnalyze(struct)
+        #self.structAnalyze(struct)
         return dict(columns=self.gridColumnsFromStruct(struct=struct),
                     columnsets=self.gridColumnsetsFromStruct(struct))
 
@@ -79,14 +79,8 @@ class Main(TableScriptToHtml):
             self.row_mode = 'value'
         else:
             self.row_mode = 'attribute'
-        result = self._getSourceData()
-        if self.subtotals_breakers:
-            sortlist = self.subtotals_breakers
-            if self.row_mode == 'attribute':
-                sortlist = ['#a.{}'.format(col.get('field_getter') or col.get('field')) for col in self.subtotals_breakers]
-            result = result.sort(','.join(sortlist))
-        return result 
-
+        return self._getSourceData()
+    
     def _getSourceData(self):
         currentQuery = self.getData('currentQuery')
         if currentQuery:
@@ -108,7 +102,7 @@ class Main(TableScriptToHtml):
         
     def _selection_from_query(self,query):
         if query['where']:
-            limit = query['queryLimit']
+            limit = query['queryLimit'] or self.parameter('previewLimit')
             customOrderBy = query['customOrderBy']
             where = query['where']
             self._selection_from_savedQuery_fill_parameters(where)
@@ -127,12 +121,10 @@ class Main(TableScriptToHtml):
             return self.tblobj.query(where=where,**selection_kwargs).selection()
         
     def _selection_from_savedQuery_fill_parameters(self,wherebag):
-        def fillpar(n):
-            if n.value is None and n.attr.get('value_caption','').startswith('?'):
-                bp_name = n.attr['value_caption'][1:].lower().replace(' ','_')
-                if bp_name in self._data:
-                    n.value = self.getData(bp_name)
-        wherebag.walk(fillpar)
+        wherepars = self.parameter('wherepars')
+        if wherepars:
+            for path in wherepars.getIndexList():
+                wherebag[path] = wherepars[path]
         
     def docHeader(self, header):
         layout = header.layout(name='doc_header',um='mm',

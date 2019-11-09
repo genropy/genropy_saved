@@ -17,7 +17,7 @@ class GnrCustomWebPage(object):
         frame = pane.framePane(height='300px',width='400px',border='1px solid silver',rounded=10)
         frame.top.userObjectBar(table='fatt.fattura',objtype='fakeobject',
                                 source_mieidati='=.mieidati',
-                                favoriteIdentifier='test_2')
+                                mainIdentifier='test_2')
 
         bc = frame.center.borderContainer(datapath='.mieidati')
         fb = bc.contentPane(region='top').formbuilder()
