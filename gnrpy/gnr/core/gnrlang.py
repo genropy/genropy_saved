@@ -939,6 +939,31 @@ def base_visitor(cls):
         for inner_base in base_visitor(base):
             yield inner_base
             
+def serializedFuncName(func, cls=None):
+    funcName = func.__name__
+    if funcName.startswith('rpc_'):
+        funcName = funcName[4:]
+    proxy_name=getattr(func, 'proxy_name', None)
+    cls = cls or func.__self__.__class__
+    _gnrPublicName = getattr(cls,'_gnrPublicName',None)
+    print(_gnrPublicName)
+    if _gnrPublicName:
+        proxy_name = _gnrPublicName
+    if cls.__name__=='SqlTable':
+        proxy_name = "_table.%s" % func.__self__.fullname
+    if proxy_name:
+        funcName = '%s.%s'%(proxy_name,funcName)
+    __mixin_pkg = getattr(func, '__mixin_pkg', None)
+    __mixin_path = getattr(func, '__mixin_path', None)
+    is_websocket = getattr(func, 'is_websocket',None)
+    if __mixin_path:
+        if not __mixin_pkg:
+            __mixin_pkg='*'
+        funcName = '%s|%s;%s'%(__mixin_pkg, __mixin_path, funcName)
+    if is_websocket:
+        funcName =funcName
+    return funcName
+
 @extract_kwargs(mangling=True)       
 def instanceMixin(obj, source, methods=None, attributes=None, only_callables=True,
                   exclude='js_requires,css_requires,py_requires',

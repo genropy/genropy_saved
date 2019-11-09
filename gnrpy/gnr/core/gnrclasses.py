@@ -32,11 +32,12 @@ import re
 import six
 from gnr.core import gnrstring
 from gnr.core.gnrdate import decodeOneDate, decodeDatePeriod
-from gnr.core.gnrlang import gnrImport
+from gnr.core.gnrlang import gnrImport, serializedFuncName
 from decimal import Decimal
 from dateutil.parser import parse as dateutil_parse
 from dateutil.tz import tzlocal
 from gnr.core.gnrlang import GnrException
+import types
 
 ISO_MATCH = re.compile(r'\d{4}\W\d{1,2}\W\d{1,2}')
 
@@ -356,8 +357,9 @@ class GnrClassCatalog(object):
         self.addSerializer("asText", list, self.toJson)
         self.addSerializer("asText", tuple, self.toJson)
         self.addSerializer("asText", dict, self.toJson)
-        self.addClass(cls=type(self.__init__), key='RPC', empty=None)
-        self.addSerializer("asText", type(self.__init__), self.funcName)
+        self.addClass(cls=type(self.__init__), key='RPC', altcls=[type(lambda s:s)], empty=None)
+        self.addSerializer("asText", type(self.__init__), serializedFuncName)
+        #self.addSerializer("asText", type(lambda s:s), self.funcName)
         
         self.addClass(cls=type, key='CLS', aliases=[],empty=None)
         self.addSerializer("asText", type, self.serializeClass)
@@ -377,30 +379,6 @@ class GnrClassCatalog(object):
         return '%s:%s' %(cls.__module__,cls.__name__)
 
 
-
-
-    def funcName(self, func):
-        funcName = func.__name__
-        if funcName.startswith('rpc_'):
-            funcName = funcName[4:]
-        proxy_name=getattr(func, 'proxy_name', None)
-        _gnrPublicName = getattr(func.__self__.__class__,'_gnrPublicName',None)
-        if _gnrPublicName:
-            proxy_name = _gnrPublicName
-        if func.__self__.__class__.__name__=='SqlTable':
-            proxy_name = "_table.%s" % func.__self__.fullname
-        if proxy_name:
-            funcName = '%s.%s'%(proxy_name,funcName)
-        __mixin_pkg = getattr(func, '__mixin_pkg', None)
-        __mixin_path = getattr(func, '__mixin_path', None)
-        is_websocket = getattr(func, 'is_websocket',None)
-        if __mixin_path:
-            if not __mixin_pkg:
-                __mixin_pkg='*'
-            funcName = '%s|%s;%s'%(__mixin_pkg, __mixin_path, funcName)
-        if is_websocket:
-            funcName =funcName
-        return funcName
         
     def parse_float(self, txt):
         """Add???
