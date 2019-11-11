@@ -311,8 +311,14 @@ class TableHandlerView(BaseComponent):
             b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration("%s");' %table)
         b.rowchild(label='!!Configure grid',action="genro.nodeById('%s').publish('configuratorPalette');" %rootNodeId)
         b.rowchild(label='!!Print rows',action="genro.nodeById('%s').publish('printRows');" %rootNodeId)
-        b.rowchild(label='-')
+
+        b.rowchild(label='!!Show Archived Records',checked='^#{rootNodeId}.#parent.showLogicalDeleted'.format(rootNodeId=rootNodeId),
+                                action="""SET #{rootNodeId}.#parent.showLogicalDeleted= !GET #{rootNodeId}.#parent.showLogicalDeleted;
+                                           genro.nodeById('{rootNodeId}').widget.reload();""".format(rootNodeId=rootNodeId))
+        b.rowchild(label='!!Totals count',action='SET #{rootNodeId}.#parent.tableRecordCount= !GET #{rootNodeId}.#parent.tableRecordCount;'.format(rootNodeId=rootNodeId),
+                            checked='^#{rootNodeId}.#parent.tableRecordCount'.format(rootNodeId=rootNodeId))
         if statsEnabled:
+            b.rowchild(label='-')
             b.rowchild(label='!!Group by',action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools";')
             if self.ths_pandas_available():
                 b.rowchild(label='!!Pivot table',action='SET .statsTools.selectedPage = "pandas"; SET .viewPage= "statsTools";')
