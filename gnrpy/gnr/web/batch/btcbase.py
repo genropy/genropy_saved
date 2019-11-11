@@ -333,3 +333,4 @@ class BaseResourceBatch(object):
         bar.confirmbtn.slotButton('!!Confirm', action='FIRE .confirm;')
         return bar
         
+

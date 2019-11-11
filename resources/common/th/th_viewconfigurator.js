@@ -84,7 +84,6 @@ var genro_plugin_grid_configurator = {
                     var treeNode = genro.src.nodeBySourceNodeId(dropInfo.dragSourceInfo._id);
                     funcApply(sourceNode.attr.onDroppedColumn,{data:data, column:dropInfo.column,fieldcellattr:fieldcellattr,treeNode:treeNode},grid);
                 }else{
-                    console.log('fieldcellattr',fieldcellattr);
                     grid.addColumn(data, dropInfo.column,fieldcellattr);
                 }
                 
@@ -122,7 +121,7 @@ var genro_plugin_grid_configurator = {
             }
             viewAttr = menubag.getNode(currPath).attr;
         }        
-        viewAttr['id'] = viewAttr['pkey']
+        viewAttr.id = viewAttr.pkey;
         gridSourceNode.setRelativeData('.currViewAttrs',new gnr.GnrBag(viewAttr));
         this.checkFavorite(gridId);
         if(viewAttr.pkey){
@@ -153,6 +152,99 @@ var genro_plugin_grid_configurator = {
         genro.dom.setClass(frame,'th_isFavoriteView',currfavorite==currPath);
     },
 
+    _colParametersFields:function(){
+       var fields = [
+            {'field':'name','dtype':'T','widget':{'tag':'Textbox','width':'15em','lbl':_T('Name')}},
+            {'field':'columnset','dtype':'T','widget':{'tag':'ComboBox','width':'15em','lbl':_T('Columnset')}}, //to complete
+            {'field':'formula','dtype':'T','widget':{'tag':'Textbox','lbl':_T('Formula'),'width':'15em','hidden':'^.?calculated?=!#v'}},//to complete
+            {'field':'hidden','dtype':'B','widget':{'tag':'checkbox','label':_T('Hidden'),'hidden':'^.?dtype?="NRFLI".indexOf(#v)<0'}},
+            {'field':'totalize','dtype':'B','widget':{'tag':'checkbox','label':_T('Totalize'),'hidden':'^.?dtype?="NRFLI".indexOf(#v)<0'}},
+            {'field':'subtotal','dtype':'B','widget':{'tag':'checkbox','label':_T('Subtotal'),'hidden':'^.?dtype?="NRFLI".indexOf(#v)>=0'}},
+        ];
+        return fields;
+
+    },
+    configuratorColsetTooltip:function(gridId,colset,event){
+        if(!colset){
+            return;
+        }
+        var gridNode = genro.nodeById(gridId) || genro.nodeBySourceNodeId(gridId);
+        var structpath = gridNode.absDatapath(gridNode.attr.structpath);
+        genro.dlg.quickTooltipPane({modal:true,domNode:event.target},
+            function(tp,kw){
+                var pane = tp._('div',{datapath:`${structpath}.info.columnsets.${colset.code}`,font_size:'.9em'});
+                var topbar = pane._('div',{_class:'commonTitleBar',innerHTML:`Edit columnset ${colset.code}`});
+                var box = pane._('div',{padding:'10px'});
+                var fb = genro.dev.formbuilder(box,1,{border_spacing:'3px',lbl_color:'#666',label_color:'#666'});
+                fb.addField('textbox',{value:'^.?name',lbl:'Name'});
+                genro.dom.styleFields(fb,{parentFb:true,prefix:'?',blacklist:['height','width']});
+                fb.addField('div',{'innerHTML':_T('Cell Styles'),font_weight:'bold'});
+                genro.dom.styleFields(fb,{parentFb:true,prefix:'?cells_',blacklist:['height','width']});
+
+            });
+    },
+
+    configuratorCellTooltip:function(gridId,cell,parentDomNode){
+        if(!cell){
+            return;
+        }
+        var fields = this._colParametersFields();
+        var gridNode = genro.nodeById(gridId) || genro.nodeBySourceNodeId(gridId);
+        var grid = gridNode.widget;
+        var structpath = gridNode.absDatapath(gridNode.attr.structpath);
+        var that = this;
+        genro.dlg.quickTooltipPane({modal:true,domNode:parentDomNode},
+            function(tp,tpkw){
+                var pane = tp._('div',{datapath:`${structpath}.view_0.rows_0.${cell._nodelabel}`,font_size:'.9em'});
+                var topbar = pane._('div',{_class:'commonTitleBar',innerHTML:`Edit cell ${cell.field}`});
+                topbar._('menu',{'_class':'smallMenu','modifiers':'*','storepath':`#${gridId}.menuColsConfigMenu`,
+                                    action:function(kw){
+                                        genro.nodeById(tpkw.tooltipOpenerId).publish('close');
+                                        if(kw.cell=='newcell'){
+                                            genro.dlg.prompt(_T('Add col'),{'widget':[{lbl:'name',value:'^.field'},
+                                             {lbl:'dtype',value:'^.dtype',wdg:'filteringSelect',values:'T:Text,N:Number,B:Boolean'},
+                                             {lbl:'formula',value:'^.formula'}
+                                            ],
+                                                action:function(result){
+                                                            var b = genro.getData(structpath);
+                                                            var kw = result.asDict();
+                                                            kw.name = kw.field;
+                                                            kw.calculated= true; 
+                                                            b.setItem('#0.#0.cell_'+genro.getCounter(),null,kw);
+                                                            //that.configuratorCellTooltip(gridId,grid.cellmap[field],parentDomNode);
+                                                        }
+                                                });
+                                        }else{
+                                            that.configuratorCellTooltip(gridId,kw.cell,parentDomNode);
+                                        }
+                                    },
+                                });
+                var box = pane._('div',{padding:'10px'});
+                var fb = genro.dev.formbuilder(box,1,{border_spacing:'3px',lbl_color:'#666',label_color:'#666'});
+                //fb.addField('textbox',{value:'^.?name',lbl:'Name'});
+                fields.forEach(function(fieldkw){
+                    var wdgkw = objectUpdate({},fieldkw.widget); 
+                    wdgkw.value = `^.?${fieldkw.field}`;
+                    if(fieldkw.field=='columnset'){
+                        wdgkw.values = `=${structpath}.info.columnsets?=#v?#v.keys().join(","):null`;
+                        wdgkw.validate_onAccept = function(value){
+                            if(value){
+                                var currColset = this.getRelativeData(`${structpath}.info.columnsets`) || new gnr.GnrBag();
+                                if(currColset.index(value)<0){
+                                    currColset.addItem(value.toLowerCase(),null,{code:value.toLowerCase(),name:stringCapitalize(value)});
+                                }
+                                this.setRelativeData(`${structpath}.info.columnsets`,currColset);
+                            }
+                        };
+                    }
+                    fb.addField(objectPop(wdgkw,'tag'),wdgkw);
+                });
+                fb.addField('div',{'innerHTML':'&nbsp;',font_weight:'bold',border_top:'1px solid silver'});
+                genro.dom.styleFields(fb,{parentFb:true,prefix:'?',blacklist:['height','width']});
+            });
+    },
+
+
     configuratorPalette:function(gridId){
         var gridNode = genro.nodeById(gridId) || genro.nodeBySourceNodeId(gridId);
         var paletteCode = '_currentPaletteGridConfigurator_'+gridId;
@@ -173,10 +265,12 @@ var genro_plugin_grid_configurator = {
         var frame = pane._('framePane',{frameCode:paletteCode+'_panels',center_widget:'stackContainer'});
         var bar = frame._('slotBar',{slots:'2,stackButtons,*,saveConfiguration,2',toolbar:true,side:'top'});
         var that = this;
-        bar._('slotButton','saveConfiguration',{iconClass:'iconbox save',
-                                                action:function(){
-                                                    that.saveGridView(gridId);
-                                                }});
+        if(!gridNode.attr.externalSave){
+            bar._('slotButton','saveConfiguration',{iconClass:'iconbox save',
+                action:function(){
+                    that.saveGridView(gridId);
+                }});
+        }
         this._cellsEditorGrid(frame,gridNode);
         this._columnsetsGrid(frame,gridNode);
         this._structureConfigurator(frame,gridNode);
@@ -358,7 +452,6 @@ var genro_plugin_grid_configurator = {
 
 
     _subBagCell:function(grid,field,name,cb,cpars){
-        var result = {};
         grid._('column',{name:_T(name),width:'15em',field:field,
                 _customGetter:function(row){return row[field]?row[field].getFormattedValue():'-';},
                 edit:{modal:true,contentCb:function(pane,kw){

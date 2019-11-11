@@ -12,7 +12,7 @@ from gnr.core.gnrstring import toText,templateReplace
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrclasses import GnrClassCatalog
-from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrdecorator import extract_kwargs, deprecated
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrnumber import decimalRound
 from collections import defaultdict
@@ -164,12 +164,13 @@ class BagToHtml(object):
         self.grid_height = None
         self._paperPages = {}
         self._data = Bag()
+        self._parameters = Bag()
+        self._rows = dict()
         self._gridsColumnsBag = Bag()
         self.is_draft = is_draft
         self.record = record
-        self.setData('record', record) #compatibility
         for k, v in kwargs.items():
-            self.setData(k, v)
+            self._parameters[k] = v
         if not filepath:
             folder = folder or tempfile.mkdtemp()
             filepath = os.path.join(folder, filename or self.outputDocName(ext='html'))
@@ -187,6 +188,7 @@ class BagToHtml(object):
         
         if self.onRecordLoaded() is False:
             return False
+        
         if self.splittedPages:
             self.pages_folder = os.path.splitext(self.filepath)[0]
         self.showTemplate(hideTemplate is not True)
@@ -297,25 +299,55 @@ class BagToHtml(object):
     def getNewPage(self):
         return self.builder.newPage()
         
+    def parameter(self, path, default=None):
+        if not path:
+            return self._parameters
+        return self._parameters.getItem(path, default=default)
+
+    
+
     def getData(self, path, default=None):
-        """Make a :meth:`getItem() <gnr.core.gnrbag.Bag.getItem>` on data if
-        ... TODO
-        
+        """Make a :meth:`getItem() <gnr.core.gnrbag.Bag.getItem>` on ._data
         :param path: the path of data (e.g: ``'period.from'``)
         :param default: the default return value for a not found item"""
-        wildchars = []
-        if path[0] in wildchars:
-            value = 'not yet implemented'
-        else:
-            value = self._data.getItem(path, default)
+
+        if path in self._data:
+            return self._data[path]
+        is_legacy, value = self._checkLegacyMode(path, default=default)
+        if is_legacy:
+            self._legacyDeprecation()
         return value
+
+    def _checkLegacyMode(self, path, default=None):
+        sp = path.split('.',1)
+        if sp[0] == 'record':
+            return True, self.record if len(sp) == 1 else self.record.getItem(sp[1], default=default)
+        if sp[0] == self.rows_path:
+            return True, self.getRows()
+        if path in self._parameters:
+            return True, self._parameters[path]
+        return False, default
         
+    @deprecated(message='Do not use: getData/setData for record, parameters or rows')
+    def _legacyDeprecation(self):
+        return
+
     def setData(self, path, value, **kwargs):
-        """Make a :meth:`setItem() <gnr.core.gnrbag.Bag.setItem>` on data
+        """Make a :meth:`setItem() <gnr.core.gnrbag.Bag.setItem>` on ._data
         
         :param path: the path of data (e.g: ``'period.from'``)
         :param default: the default return value for a not found item"""
         self._data.setItem(path, value, **kwargs)
+
+    def setRows(self, rows, gridName=None):
+        self._rows[gridName or '_main_'] = rows
+
+    def getRows(self, gridName=None):
+        if self.rows_path in self._data:
+            self._rows['_main_'] = self._data[self.rows_path]
+        if not gridName and not '_main_' in self._rows:
+            self._rows['_main_'] = self.gridData()
+        return self._rows[gridName or '_main_']
         
     def onRecordExit(self, recordBag):
         """Hook method.
@@ -335,7 +367,7 @@ class BagToHtml(object):
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` documentation section"""
         if root is None:
-            root = self._data['record']
+            root = self.record
         attr = {}
         if isinstance(root, Bag):
             datanode = root.getNode(path)
@@ -490,15 +522,14 @@ class BagToHtml(object):
         self.lastPage = False
         self.defineStandardStyles()
         self.defineCustomStyles()
-        self.currGrid= None
-        if self.getData(self.rows_path) is None:
-            self.setData(self.rows_path,self.gridData())
-        lines = self.getData(self.rows_path)
+        self.currGrid = None
+        lines = self.getRows()
         if not lines and hasattr(self,'empty_row'):
             lines = Bag()
             lines.setItem('empty',Bag(self.empty_row),**self.empty_row)
         if not lines:
             return
+        lines = self.sortLines(lines)
         self.currRowDataNode = None
         if isinstance(lines, Bag):
             nodes = lines.getNodes()
@@ -540,6 +571,17 @@ class BagToHtml(object):
                 self.sheet = sheet
                 self._closePage(True)
         
+
+    def sortLines(self, lines):
+        if self.subtotals_breakers:
+            sortlist = self.subtotals_breakers
+            if self.row_mode == 'attribute':
+                sortlist = ['#a.{}'.format(col.get('field_getter') or col.get('field')) for col in self.subtotals_breakers]
+                lines = lines.sort(','.join(sortlist))
+        return lines
+
+
+
     def getRowAttrsFromData(self):
         return dictExtract(self.rowData,'row_')
 
@@ -683,11 +725,11 @@ class BagToHtml(object):
             self.renderGridCell(col=colNode.attr,rowData=rowData)
         
     def renderGridCell(self,col=None,rowData=None,parentRow=None):
-        pars = self.getGridCellPars(col,rowData)
-        if pars.get('hidden'):
+        cell_kwargs = self.getGridCellPars(col,rowData)
+        if cell_kwargs.get('hidden'):
             return
-        colspan = pars.pop('colspan',1)
-        mm_width = pars.pop('mm_width',0)
+        colspan = cell_kwargs.pop('colspan',1)
+        mm_width = cell_kwargs.get('mm_width',0)
         parentRow = parentRow or self.currRow
         if self._currSpanCell:
             if mm_width==0:
@@ -700,24 +742,30 @@ class BagToHtml(object):
             if not self._currSpanCell.attributes['colspan_count']: 
                 self._currSpanCell = None
             return
-        value = self.getGridCellValue(col,rowData)
-        content_class = pars.pop('content_class',None)
-        align_class = pars.pop('align_class',None)
-        align_class = align_class or self._guessAlign(value=value)
-        content_class = '%s %s' %(content_class,align_class) if content_class else align_class
-        locale = pars.pop('locale',None) or self.locale
-        format_cell = pars.pop('format',None)
-        mask = pars.pop('mask',None)
-        currency = pars.pop('currency',None)
-        white_space = pars.pop('white_space',None) or 'nowrap'
-        value = self.toText(value, locale, format_cell, mask, self.encoding, currency=currency)
-        cell = parentRow.cell(value, width=mm_width,overflow='hidden',
-                            white_space=white_space,
-                            content_class=content_class, **pars)
+        handler = getattr(self, 'renderGridCell_%s' % col, self.renderGridCell_default)
+        cell = handler(col=col, rowData=rowData, parentRow=parentRow, **cell_kwargs)
         if colspan>1:
             self._currSpanCell = cell
             cell.attributes['extra_width'] = 0
             cell.attributes['colspan_count'] = colspan
+
+    def renderGridCell_default(self, col = None, rowData = None, parentRow = None, **cell_kwargs):
+        value = self.getGridCellValue(col,rowData)
+        cell_kwargs['align_class'] = cell_kwargs.get('align_class') or self._guessAlign(value=value)
+        ac = cell_kwargs['align_class']
+        cc = cell_kwargs.get('content_class',None)
+        cell_kwargs['content_class'] = '%s %s' %(cc,ac) if cc else ac    
+        cell_kwargs['white_space'] = cell_kwargs.get('white_space') or 'nowrap'
+        cell_kwargs['width'] = cell_kwargs.pop('mm_width',None)
+        
+        value = self.toText(value, locale =  cell_kwargs.pop('locale', None) or self.locale, 
+                                   format = cell_kwargs.pop('format', None),
+                                   mask = cell_kwargs.pop('mask',None), 
+                                   encoding = self.encoding, 
+                                   currency=cell_kwargs.pop('currency',None))
+        return parentRow.cell(value, overflow='hidden', **cell_kwargs)
+                        
+        
 
     def getGridCellPars(self,col=None,rowData=None):
         rowData = rowData or dict()
@@ -940,7 +988,7 @@ class BagToHtml(object):
                         currentColsetCell.width = 0
                 else:
                     currentColsetCell.attributes['extra_width'] = currentColsetCell.attributes.get('extra_width') or 0
-                    currentColsetCell.attributes['extra_width']+=pars.get('mm_width')+.3
+                    currentColsetCell.attributes['extra_width']+=pars.get('mm_width',0)+.3
             else:
                 colsetattr = dict(self.columnsets[pars['columnset']])
                 colsetattr.pop('tag',None)

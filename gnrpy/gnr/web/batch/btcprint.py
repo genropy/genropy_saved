@@ -8,6 +8,7 @@
 
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrstring import slugify
+from gnr.core.gnrbag import Bag
 import os
 
 
@@ -21,6 +22,7 @@ class BaseResourcePrint(BaseResourceBatch):
     mail_address = ''
     mail_tags = 'admin'
     templates = '' #CONTROLLARE
+    
     batch_print_modes = ['pdf','server_print','mail_pdf','mail_deliver']
     batch_mail_modes = ['mail_pdf','mail_deliver']
     def __init__(self, *args, **kwargs):
@@ -100,8 +102,12 @@ class BaseResourcePrint(BaseResourceBatch):
         return
         
     def do(self):
-        self.print_selection()
-    
+        if self.htmlMaker.maintable == self.htmlMaker.row_table:
+            self.htmlMaker.row_table = self.tblobj.fullname
+            self.print_record(record=Bag(dict(selectionPkeys=self.get_selection_pkeys())),
+                              storagekey='__mainrecord__',idx=0)
+        else:
+            self.print_selection()
         
     def get_record_caption(self, item, progress, maximum, **kwargs):
         caption = '%s (%i/%i)' % (self.tblobj.recordCaption(item),
