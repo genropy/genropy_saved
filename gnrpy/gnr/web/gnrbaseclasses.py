@@ -199,7 +199,7 @@ class TableScriptToHtml(BagToHtml):
         self.record = None
         
 
-    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, **kwargs):
+    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, resultAs=None,**kwargs):
         if not record:
             return
         self.thermo_kwargs = thermo
@@ -213,7 +213,7 @@ class TableScriptToHtml(BagToHtml):
         if not result:
             return False
         if not pdf:
-            return result
+            return self.getHtmlUrl(os.path.basename(self.filepath)) if resultAs=='url' else result
         if not isinstance(result, list):
             self.writePdf(docname=self.getDocName())
         else:
@@ -221,9 +221,9 @@ class TableScriptToHtml(BagToHtml):
         if downloadAs:
             with open(self.pdfpath, 'rb') as f:
                 result = f.read()
-            return result
+            return result            
         else:
-            return self.pdfpath
+            return self.getPdfUrl(os.path.basename(self.pdfpath)) if resultAs=='url' else self.pdfpath
             #with open(temp.name,'rb') as f:
             #    result=f.read()
 
@@ -478,19 +478,19 @@ class TableScriptToHtml(BagToHtml):
         
     def getHtmlPath(self, *args, **kwargs):
         """TODO"""
-        return self.site.getStaticPath(self.html_folder, *args, **kwargs)
+        return self.site.storageNode(self.html_folder, *args, **kwargs).internal_path
         
     def getPdfPath(self, *args, **kwargs):
         """TODO"""
-        return self.site.getStaticPath(self.pdf_folder, *args, **kwargs)
+        return self.site.storageNode(self.pdf_folder, *args, **kwargs).internal_path
         
     def getHtmlUrl(self, *args, **kwargs):
         """TODO"""
-        return self.site.getStaticUrl(self.html_folder, *args, **kwargs)
+        return self.site.storageNode(self.html_folder, *args).url(**kwargs)
         
     def getPdfUrl(self, *args, **kwargs):
         """TODO"""
-        return self.site.getStaticUrl(self.pdf_folder, *args, **kwargs)
+        return self.site.storageNode(self.pdf_folder, *args).url(**kwargs)
         
     def outputDocName(self, ext=''):
         """TODO

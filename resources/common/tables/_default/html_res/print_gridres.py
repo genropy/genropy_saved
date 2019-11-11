@@ -22,6 +22,8 @@ class Main(TableScriptToHtml):
     grid_header_height = 4.3
     grid_col_widths=[0] #rowColWidth
     grid_row_height=5
+    html_folder = 'page:preview_html'
+    pdf_folder = 'page:preview_pdf'
 
     def onRecordLoaded(self):
         userObjectIdOrCode = self.getData('userobject')
@@ -135,4 +137,4 @@ class Main(TableScriptToHtml):
         row.cell(self.getData('print_title'), content_class='caption')    
 
     def outputDocName(self, ext=''):
-        return '%s.%s' %(self.getData('print_title') ,ext)
+        return '%s.%s' %(self.getData('print_title') or self.page.getUuid() ,ext)

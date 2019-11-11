@@ -687,12 +687,21 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         var attributes = sourceNode.attr;
         if (attributes['src']) {
             return sourceNode.getAttributeFromDatasource('src');
-        } else if (attributes['rpcCall']) {
+        } else if (attributes.rpcCall) {
             params = sourceNode.evaluateOnNode(objectExtract(sourceNode.savedAttrs, 'rpc_*', true));
-            params.mode = params.mode ? params.mode : 'text';
-            return genro.remoteUrl(attributes['rpcCall'], params, sourceNode, false);
+            var httpMethod = objectPop(params,'httpMethod');
+            if(httpMethod=='POST'){
+                params._sourceNode = sourceNode;
+                params.resultAs = 'url';
+                genro.serverCall(attributes.rpcCall,params,function(resultSrc){
+                    domnode.src = resultSrc;
+                },null,httpMethod);
+                return null;
+            }else{
+                params.mode = params.mode ? params.mode : 'text';
+                return genro.remoteUrl(attributes.rpcCall, params, sourceNode, false);
+            }
         }
- 
     },
     set_print:function(domnode, v, kw) {
         genro.dom.iFramePrint(domnode);
