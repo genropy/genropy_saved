@@ -689,6 +689,13 @@ class TableHandlerView(BaseComponent):
         selection.forcedOrderBy='$_duplicate_finder,$__mod_ts'
         return selection
 
+    @public_method
+    @metadata(prefix='query',code='default_invalidrows_finder',description='!!Find invalid rows')
+    def th_default_find_invalidRows(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
+        query = tblobj.query(where='$__is_invalid_row IS TRUE',**kwargs)
+        selection= query.selection(sortedBy=None, _aggregateRows=True) 
+        return selection
+
     #@public_method
     #@metadata(prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')
     #def th_default_find_duplicates_to_del(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
@@ -718,6 +725,10 @@ class TableHandlerView(BaseComponent):
                 self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
             pyqueries['default_duplicate_finder'] = self.th_default_find_duplicates
             #pyqueries['default_duplicate_finder_to_del'] = self.th_default_find_duplicates_to_del
+        
+        if self.db.table(table).hasInvalidCheck():
+            pyqueries['default_invalidrows_finder'] = self.th_default_find_invalidRows        
+
         for k,v in pyqueries.items():
             pars = dictExtract(dict(v.__dict__),'query_')
             code = pars.get('code')

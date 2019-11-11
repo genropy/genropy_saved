@@ -1156,6 +1156,12 @@ body.tundra.mimi {
 
 /*----------------------------------------- icone svg -------------------------------------*/
 
+.tundra ._gnrInvalidRow ._statusIcon, .tundra ._gnrInvalidRow._gnrReadOnlyRow ._statusIcon ,
+.tundra ._gnrInvalidRow._gnrProtectionPass ._statusIcon{
+    background: url(/_rsrc/common/css_icons/svg/16/form_status_red.svg) no-repeat center center;
+}
+
+
 .mimi .archive_record, .mimi .box{
     background: url(/_rsrc/common/css_icons/svg/16/archive_record.svg) no-repeat center center;
 }
