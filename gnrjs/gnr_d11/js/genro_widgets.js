@@ -685,7 +685,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     prepareSrc:function(domnode) {
         var sourceNode = domnode.sourceNode;
         var attributes = sourceNode.attr;
-        if (attributes['src']) {
+        if (attributes.src) {
             return sourceNode.getAttributeFromDatasource('src');
         } else if (attributes.rpcCall) {
             params = sourceNode.evaluateOnNode(objectExtract(sourceNode.savedAttrs, 'rpc_*', true));

@@ -1401,6 +1401,9 @@ background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat c
     background: url(/_rsrc/common/css_icons/svg/16/toolbox.svg) no-repeat center center;
 }
 
+.mimi .iconbox.pencil .mimi .edit{
+    background: url(/_rsrc/common/css_icons/svg/16/pencil.svg) no-repeat center center;
+}
 
 
 .mimi .folder{
