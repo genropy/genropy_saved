@@ -757,7 +757,6 @@ class BagToHtml(object):
         cell_kwargs['content_class'] = '%s %s' %(cc,ac) if cc else ac    
         cell_kwargs['white_space'] = cell_kwargs.get('white_space') or 'nowrap'
         cell_kwargs['width'] = cell_kwargs.pop('mm_width',None)
-        
         value = self.toText(value, locale =  cell_kwargs.pop('locale', None) or self.locale, 
                                    format = cell_kwargs.pop('format', None),
                                    mask = cell_kwargs.pop('mask',None), 
@@ -783,9 +782,10 @@ class BagToHtml(object):
         flattenkey = self._flattenField(field)
         extra_kw = rowData.get('%s_kw' %flattenkey) or dict()
         extra_kw.update(dictExtract(rowData,'%s_' %flattenkey))
-    
         extra_kw.update(dictExtract(rowData,'%s_kw_' %field))
         result.update(extra_kw)
+        if self.renderMode:
+            result.pop('hidden',False)
         return result
     
     def cellFormulaValue(self,col=None,rowData=None):

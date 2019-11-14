@@ -393,7 +393,9 @@ class TableScriptToHtml(BagToHtml):
                         style=attr.get('style'),sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
                         columnset=attr.get('columnset'),sheet=attr.get('sheet','*'),
                         totalize=attr.get('totalize'),formula=attr.get('formula'),
-                        background=attr.get('background'),color=attr.get('color'))
+                        background=attr.get('background'),color=attr.get('color'),
+                        white_space=attr.get('white_space'),
+                        hidden=attr.get('hidden'))
             if self.row_table:
                 self._calcSqlColumn(pars)
             grid_columns.append(pars)
