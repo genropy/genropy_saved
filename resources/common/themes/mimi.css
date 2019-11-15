@@ -115,33 +115,59 @@ body.tundra.mimi {
     color:white !important;
 }
 
-.pbl_root_top {
+.mimi .pbl_root_top {
     height: 24px;
     vertical-align: middle;
     color:rgba(30, 48, 85, 1);
-    background-color:rgba(234, 203, 110, 1) !important;
+    background-color:rgba(234, 203, 110, 1);
+}
+.mimi .pbl_root_top .gnrfieldlabel{
+    color:rgba(30, 48, 85, 1);
 }
 
+.mimi.theme_variant_green .pbl_root_top{
+    background-color: #799f0c;
+    background:linear-gradient(to bottom, #799f0c, #70940c);;
+    color:white;
 
+}
+.mimi.theme_variant_green .pbl_root_top .gnrfieldlabel{
+    color:white;
+}
+.mimi.theme_variant_red .pbl_root_top{
+    background-color:#d31027;
+    background: linear-gradient(to bottom, #d31027, #ea384d);;
+    color:white;
 
-.theme_variant_green .pbl_root_top{
-    background-color: #306227;
+}
+.mimi.theme_variant_green .pbl_root_top .gnrfieldlabel{
+    color:white;
 }
 
-.theme_variant_red .pbl_root_top{
-    background-color: #711B2A;
-}
-
-.theme_variant_blue .pbl_root_top{
+.mimi.theme_variant_blue .pbl_root_top{
     background-color: #1A415E;
+    color:white;
+
+}
+.mimi.theme_variant_blue .pbl_root_top .gnrfieldlabel{
+    color:white;
 }
 
-.theme_variant_orange .pbl_root_top{
-    background-color:#FF5226;
+.mimi.theme_variant_orange .pbl_root_top{
+    background-color:#e65c00;
+    background: linear-gradient(to right, #e65c00, #f9d423);
+    color:rgba(30, 48, 85, 1);
+}
+.mimi.theme_variant_orange .pbl_root_top .gnrfieldlabel{
+    color:rgba(30, 48, 85, 1);
 }
 
-.theme_variant_yellow .pbl_root_top{
-    background-color:#86770E;
+.mimi.theme_variant_yellow .pbl_root_top{
+    background-color:rgba(234, 203, 110, 1);
+    color:rgba(30, 48, 85, 1);
+}
+.mimi.theme_variant_yellow .pbl_root_top .gnrfieldlabel{
+    color:rgba(30, 48, 85, 1);
 }
 
 
