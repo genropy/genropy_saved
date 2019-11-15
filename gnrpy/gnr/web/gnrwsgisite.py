@@ -804,8 +804,12 @@ class GnrWsgiSite(object):
 
     @property
     def external_host(self):
-        return self.currentPage.external_host if (self.currentPage and hasattr(self.currentPage,'request')) else self.configurationItem('wsgi?external_host',mandatory=True)
-
+        if (self.currentPage and hasattr(self.currentPage,'request')):
+            external_host = self.currentPage.external_host
+        else:
+            external_host = self.configurationItem('wsgi?external_host',mandatory=True)
+        return external_host.rstrip('/')
+        
     def configurationItem(self,path,mandatory=False):
         result = self.config[path]
         if mandatory and result is None:
