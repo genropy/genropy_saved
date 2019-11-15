@@ -140,14 +140,14 @@ body.tundra.mimi {
     color:white;
 
 }
-.mimi.theme_variant_green .pbl_root_top .gnrfieldlabel{
+.mimi.theme_variant_red .pbl_root_top .gnrfieldlabel{
     color:white;
 }
 
 .mimi.theme_variant_blue .pbl_root_top{
-    background-color: #1A415E;
+    background-color: #182848;
+    background: linear-gradient(to bottom, #4b6cb7, #2c5481);;
     color:white;
-
 }
 .mimi.theme_variant_blue .pbl_root_top .gnrfieldlabel{
     color:white;
@@ -155,11 +155,11 @@ body.tundra.mimi {
 
 .mimi.theme_variant_orange .pbl_root_top{
     background-color:#e65c00;
-    background: linear-gradient(to right, #e65c00, #f9d423);
-    color:rgba(30, 48, 85, 1);
+    background: linear-gradient(to bottom, #e65c00, #f96723);
+    color:white;
 }
 .mimi.theme_variant_orange .pbl_root_top .gnrfieldlabel{
-    color:rgba(30, 48, 85, 1);
+    color:white;
 }
 
 .mimi.theme_variant_yellow .pbl_root_top{
