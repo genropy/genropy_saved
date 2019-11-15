@@ -766,8 +766,8 @@ class TableHandlerView(BaseComponent):
             prefix,name=k.split('_struct_')
             q.setItem(name,self._prepareGridStruct(v,table=table),caption=v.__doc__)
         pane.data('.grid.resource_structs',q)
-        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="=.grid.currViewPath",
-                        table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30)
+        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="^.grid.currViewPath",
+                        table=table,th_root=th_root,favoriteViewPath='^.grid.favoriteViewPath',cacheTime=30)
 
         options = self._th_hook('options',mangler=pane)() or dict()
         #SOURCE MENUPRINT
