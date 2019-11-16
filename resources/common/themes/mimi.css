@@ -1504,3 +1504,21 @@ background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat c
 
 
 
+.mimi .ping_semaphore{
+    height: 16px;
+    width: 16px;
+    background: url(/_rsrc/common/css_icons/svg/16/socket_transmitting.svg) no-repeat center center;
+    opacity: 0;
+}
+
+.mimi.ping_start .ping_semaphore{
+    background: url(/_rsrc/common/css_icons/svg/16/socket_transmitting.svg) no-repeat center center;
+    transition: opacity 200ms, visibility 200ms;
+    opacity:1;
+}
+
+.mimi.ping_error .ping_semaphore{
+    background: url(/_rsrc/common/css_icons/svg/16/sockets_disconnected.svg) no-repeat center center;
+    transition: opacity 200ms, visibility 200ms;
+    opacity:1;
+}
