@@ -235,7 +235,7 @@ class BaseResourceBatch(object):
                         :ref:`sql_columns` section"""
         selection = None
         selection_kwargs = dict()
-        ignoreGridSelection = self.batch_parameters.get('ignore_grid_selection')
+        ignoreGridSelectedRow = self.batch_parameters.get('allrows')
         extra_parameters = self.batch_parameters.get('extra_parameters')
         if self.batch_selection_kwargs:
             selection_kwargs.update(self.batch_selection_kwargs) 
@@ -250,12 +250,12 @@ class BaseResourceBatch(object):
 
         elif hasattr(self,'selectionName'):
             selection = self.page.getUserSelection(selectionName=self.selectionName,
-                                                    selectedRowidx=self.selectedRowidx if not ignoreGridSelection else None, 
+                                                    selectedRowidx=self.selectedRowidx if not ignoreGridSelectedRow else None, 
                                                     filterCb=self.selectionFilterCb,
                                                     table=self.tblobj,sortBy=self.sortBy,
                                                     **selection_kwargs)
         elif self.selectedPkeys:
-            pkeys = self.selectedPkeys if not ignoreGridSelection else extra_parameters['allPkeys']
+            pkeys = self.selectedPkeys if not ignoreGridSelectedRow else extra_parameters['allPkeys']
             selection = self.tblobj.query(where='$%s IN :selectedPkeys' %self.tblobj.pkey,selectedPkeys=pkeys,
                                             excludeDraft=False,excludeLogicalDeleted=False,
                                             ignorePartition=True,

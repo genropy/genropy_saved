@@ -41,6 +41,7 @@ class Main(BaseResourcePrint):
         fb = pane.formbuilder(cols=1,fld_width='20em',border_spacing='4px')
         userobject = extra_parameters['userobject']
         where = None
+        printParams = {}
         if userobject:
             data,metadata = self.db.table('adm.userobject'
                                 ).loadUserObject(userObjectIdOrCode=userobject,
@@ -89,8 +90,11 @@ class Main(BaseResourcePrint):
         _cleanWhere(where)
         where = where or Bag()
         fb.data('.use_current_selection',len(where) is 0)
-        if len(where) > 0:
+        if len(where) > 0 and not printParams.get('allow_only_saved_query'):
             fb.checkbox(value='^.use_current_selection',label='!!Use current selection')
-        fb.checkbox(value='^.ignore_grid_selection',label='!!Ignore grid selected rows',hidden='^.use_current_selection?=!#v')
+        if record_count==1:
+            fb.checkbox(value='^.allrows',
+                        label='!!Use all selection rows',
+                        hidden='^.use_current_selection?=!#v')
 
         

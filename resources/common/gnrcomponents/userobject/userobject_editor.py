@@ -265,3 +265,4 @@ class PrintGridEditor(UserObjectEditor):
         fb.filteringSelect(value='^.totalize_mode', lbl='!!Totalize',values='doc:Document,page:Page')
         fb.textbox(value='^.totalize_carry',lbl='!!Carry caption',hidden='^.totalize_mode?=#v!="page"')
         fb.textbox(value='^.totalize_footer',lbl='!!Totals caption',hidden='^.totalize_mode?=!#v')
+        fb.checkbox(value='^.allow_only_saved_query',label='!!Allow only saved query')
