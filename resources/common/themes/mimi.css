@@ -332,8 +332,11 @@ body.tundra.mimi {
 }
 .tundra._common_d11 .dijitButtonText{
     text-align: center;
-    padding: 1px 0.4em;
+    padding: 2px 5px;
     color: #555;
+}
+.dijitButtonNode .fh_semaphore{ 
+    transform:rotate(0deg) scale(0.8);
 }
 
 .pbl_roundedGroupBottom {
@@ -703,11 +706,13 @@ body.tundra.mimi {
     line-height: 11px;
     margin-right: 8px;
     margin-top: 0px;
-    color: #555;
+    color: #444;
+    padding-bottom: 4px;
+    background: linear-gradient(45deg, #1f345d26, transparent);
 }
 
 .menutree .menu_current_page {
-    color:#555;
+    color:#444;
 }
 .menutree .menu_existing_page.menu_shape  {
     font-weight:bold;
@@ -1137,19 +1142,19 @@ body.tundra.mimi {
     background-color: #E4E4E4;
     background-image: none;
     border-radius: 2px;
-    padding:1px 2px 2px 1px;
+    padding:0 2px;
     border-color:#666;
-    font-weight:bold;
-    font-size:.9em;
 }
+
 .slotbar_toolbar .dijitButtonNode {
     color: #444;
     background-image: linear-gradient(to bottom, #EFEFEF, #EDEDED, #EFEFEF);
     border: 1px solid #777;
     font-variant: normal;
-    border-radius: 4px;
-    padding:1px 2px 3px 1px;
-    box-shadow: none; 
+    border-radius: 5px;
+    padding: 2px 2px;
+    box-shadow: none;
+    font-weight: bold;
 }
 
 .tundra .dijitButtonHover .dijitButtonNode,
@@ -1343,6 +1348,21 @@ body.tundra.mimi {
     background: url(/_rsrc/common/css_icons/svg/16/next_record.svg) no-repeat center center;
 }
 
+.mimi .th_enableLinker .th_linkerAdd {
+    background: url(/_rsrc/common/css_icons/svg/16/new_row.svg) no-repeat center center;
+    width: 14px;
+    position: absolute;
+    right: 1px;
+    top: 0px;
+    bottom: 0;
+    display: block;
+    transform:scale(.85);
+}
+.mimi .dijitError.th_linkerField {
+    margin-top: 1px;
+    background:transparent  url(/_rsrc/common/css_icons/svg/16/form_status_red.svg) no-repeat right center !important;
+}
+
 .mimi .plus_square, .mimi .add_record{
     background: url(/_rsrc/common/css_icons/svg/16/plus_square.svg) no-repeat center center;
 }
@@ -1454,6 +1474,9 @@ background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat c
     background: url(/_rsrc/common/css_icons/svg/16/popup.svg) no-repeat center center;
     transform:rotate(0deg) scale(0.8);
 }
+.mimi.tundra .dijitDropDownButton .dijitArrowButtonInner{ 
+    transform:rotate(0deg) scale(1);
+}
 
 .mimi .application_menu{ 
     background: url(/_rsrc/common/css_icons/svg/16/menu_icon.svg) no-repeat center center;
@@ -1470,8 +1493,8 @@ background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat c
     background: url(/_rsrc/common/css_icons/svg/16/toolbox.svg) no-repeat center center;
 }
 
-.mimi .iconbox.pencil .mimi .edit{
-    background: url(/_rsrc/common/css_icons/svg/16/pencil.svg) no-repeat center center;
+.mimi .iconbox.pencil, .mimi .edit{
+    background: url(/_rsrc/common/css_icons/svg/16/edit.svg) no-repeat center center;
 }
 
 
