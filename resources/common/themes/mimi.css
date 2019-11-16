@@ -67,8 +67,8 @@ body.tundra.mimi {
 }
 
 ._common_d11.tundra.theme_variant_green .dojoxFloatingPaneTitle{
-    background-color: #799f0c;
-    background:linear-gradient(to bottom, #799f0c, #70940c);
+    background-color: #50c9c3;
+    background:linear-gradient(to bottom, #3ca55c, #b5ac49);
     color:white;
 }
 
@@ -132,8 +132,8 @@ body.tundra.mimi {
 }
 
 .mimi.theme_variant_green .pbl_root_top{
-    background-color: #799f0c;
-    background:linear-gradient(to bottom, #799f0c, #70940c);
+    background-color: #50c9c3;
+    background:linear-gradient(to bottom, #3ca55c, #b5ac49);
     color:white;
 
 }
@@ -427,8 +427,8 @@ body.tundra.mimi {
 }
 
 .tundra._common_d11.theme_variant_green .dijitDialogTitleBar,.tundra._common_d11.theme_variant_green .commonTitleBar{
-    background-color: #799f0c;
-    background:linear-gradient(to bottom, #799f0c, #70940c);
+    background-color: #50c9c3;
+    background:linear-gradient(to bottom, #3ca55c, #b5ac49);
     color:white;
 }
 
@@ -1132,6 +1132,13 @@ body.tundra.mimi {
     border-top-right-radius: 6px;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
+}
+
+.dlg_alert.dijitDialog .dijitDialogPaneContent{
+    background:linear-gradient(to top, #e4e4e4,white);
+}
+.dlg_prompt.dijitDialog .dijitDialogPaneContent{
+    background:linear-gradient(to top, #e4e4e4,white);
 }
 
 
