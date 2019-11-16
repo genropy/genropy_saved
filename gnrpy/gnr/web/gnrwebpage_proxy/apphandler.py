@@ -937,6 +937,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         if hasProtectionColumns:
             columns = '%s,$__is_protected_row AS _is_readonly_row' %columns
 
+        if tblobj.hasInvalidCheck():
+            columns = '%s,$__is_invalid_row AS _is_invalid_row' %columns
+
         return columns,external_queries
     
     def _externalQueries(self,selection=None,external_queries=None):

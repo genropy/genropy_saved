@@ -182,8 +182,9 @@ class TableScriptToHtml(BagToHtml):
     subtotal_caption_prefix = '!!Totals'
 
 
-    def __init__(self, page=None, resource_table=None, **kwargs):
+    def __init__(self, page=None, resource_table=None, parent=None, **kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
+        self.parent = parent
         self.page = page
         self.site = page.site
         self.db = page.db
@@ -199,7 +200,7 @@ class TableScriptToHtml(BagToHtml):
         self.record = None
         
 
-    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, **kwargs):
+    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, resultAs=None,**kwargs):
         if not record:
             return
         self.thermo_kwargs = thermo
@@ -213,7 +214,7 @@ class TableScriptToHtml(BagToHtml):
         if not result:
             return False
         if not pdf:
-            return result
+            return self.getHtmlUrl(os.path.basename(self.filepath)) if resultAs=='url' else result
         if not isinstance(result, list):
             self.writePdf(docname=self.getDocName())
         else:
@@ -221,9 +222,9 @@ class TableScriptToHtml(BagToHtml):
         if downloadAs:
             with open(self.pdfpath, 'rb') as f:
                 result = f.read()
-            return result
+            return result            
         else:
-            return self.pdfpath
+            return self.getPdfUrl(os.path.basename(self.pdfpath)) if resultAs=='url' else self.pdfpath
             #with open(temp.name,'rb') as f:
             #    result=f.read()
 
@@ -250,7 +251,6 @@ class TableScriptToHtml(BagToHtml):
         self.pdf_handler.joinPdf(pdfToJoin,self.pdfpath)
         for pdf in pdfToJoin:
             os.remove(pdf)
-
 
     def get_css_requires(self):
         """TODO"""
@@ -381,8 +381,8 @@ class TableScriptToHtml(BagToHtml):
         columns = []
         for n in cells:
             attr = n.attr
-            field =  attr.get('field')
-            field_getter = attr.get('field_getter') or attr.get('caption_field') or field
+            field =  attr.get('caption_field') or attr.get('field')
+            field_getter = attr.get('field_getter') or field
             if isinstance(field_getter,basestring):
                 field_getter = self._flattenField(field_getter)
             group_aggr = attr.get('group_aggr')
@@ -393,9 +393,27 @@ class TableScriptToHtml(BagToHtml):
                         white_space=attr.get('white_space','nowrap'),subtotal=attr.get('subtotal'),
                         style=attr.get('style'),sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
                         columnset=attr.get('columnset'),sheet=attr.get('sheet','*'),
-                        totalize=attr.get('totalize'),formula=attr.get('formula'))
+                        totalize=attr.get('totalize'),formula=attr.get('formula'),
+                        background=attr.get('background'),color=attr.get('color'),
+                        hidden=attr.get('hidden'))
+            if self.row_table:
+                self._calcSqlColumn(pars)
             grid_columns.append(pars)
         return grid_columns
+
+    def _calcSqlColumn(self,col):
+        sqlcolumn = col.get('sqlcolumn')
+        if sqlcolumn:
+            return
+        field = col['field']
+        if field.startswith('@'):
+            col['sqlcolumn'] = col['field']
+        else:
+            columnobj = self.db.table(self.row_table).column(field)
+            if columnobj is not None:
+                col['sqlcolumn'] = '${}'.format(field)
+        if field!=col['field_getter']:
+             col['sqlcolumn'] = '{} AS {}'.format(col['sqlcolumn'],col['field_getter'])
     
     def gridQueryParameters(self):
         #override
@@ -416,12 +434,20 @@ class TableScriptToHtml(BagToHtml):
         fkey = many.pop()
         return dict(table=str('.'.join(many)),condition='$%s=:_fkey' %fkey,condition__fkey=self.record[self.tblobj.pkey])
 
+
+    def currentSelectionQueryParameters(self):
+        rowtable_obj = self.db.table(self.row_table)
+        return dict(condition='${pkey} IN :selectionPkeys'.format(pkey=rowtable_obj.pkey),
+                    condition_selectionPkeys=self.record['selectionPkeys'])
+    
     def gridData(self):
         #overridable
         self.row_mode = 'attribute'
         parameters = dict(self.gridQueryParameters())
+        if self.record['selectionPkeys'] and (not parameters or self.parameter('use_current_selection')):
+            parameters = self.currentSelectionQueryParameters()
         if not parameters:
-            raise Exception('You must define gridQueryParameters or gridData')
+            raise Exception('You must define gridQueryParameters or gridData or use_current_selection')
         condition_kwargs = dictExtract(parameters,'condition_',pop=True)
         parameters.update(condition_kwargs)
         condition = parameters.pop('condition',None)
@@ -443,6 +469,7 @@ class TableScriptToHtml(BagToHtml):
         return rowtblobj.query(columns=columns,where= ' AND '.join(where),**parameters
                                 ).selection(_aggregateRows=True).output('grid',recordResolver=False)
 
+
     @property
     def grid_sqlcolumns(self):
         return ','.join(set([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')]))
@@ -456,19 +483,19 @@ class TableScriptToHtml(BagToHtml):
         
     def getHtmlPath(self, *args, **kwargs):
         """TODO"""
-        return self.site.getStaticPath(self.html_folder, *args, **kwargs)
+        return self.site.storageNode(self.html_folder, *args, **kwargs).internal_path
         
     def getPdfPath(self, *args, **kwargs):
         """TODO"""
-        return self.site.getStaticPath(self.pdf_folder, *args, **kwargs)
+        return self.site.storageNode(self.pdf_folder, *args, **kwargs).internal_path
         
     def getHtmlUrl(self, *args, **kwargs):
         """TODO"""
-        return self.site.getStaticUrl(self.html_folder, *args, **kwargs)
+        return self.site.storageNode(self.html_folder, *args).url(**kwargs)
         
     def getPdfUrl(self, *args, **kwargs):
         """TODO"""
-        return self.site.getStaticUrl(self.pdf_folder, *args, **kwargs)
+        return self.site.storageNode(self.pdf_folder, *args).url(**kwargs)
         
     def outputDocName(self, ext=''):
         """TODO
@@ -477,7 +504,7 @@ class TableScriptToHtml(BagToHtml):
             ext = '.%s' % ext
         caption = ''
         if self.record is not None:
-            caption = slugify(self.tblobj.recordCaption(self.getData('record')))
+            caption = slugify(self.tblobj.recordCaption(self.record))
             idx = self.record_idx
             if idx is not None:
                 caption = '%s_%i' %(caption,idx)

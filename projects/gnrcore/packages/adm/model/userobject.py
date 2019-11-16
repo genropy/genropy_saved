@@ -149,7 +149,8 @@ class Table(object):
     #PUBLIC METHODS 
     
     @public_method
-    def loadUserObject(self, id=None, objtype=None,userObjectIdOrCode=None,**kwargs):
+    def loadUserObject(self, id=None, objtype=None,userObjectIdOrCode=None,table=None,**kwargs):
+        kwargs.setdefault('tbl',table)
         if id:
             record = self.record(id, mode='record', ignoreMissing=True)
 

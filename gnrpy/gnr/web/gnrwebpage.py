@@ -1688,7 +1688,7 @@ class GnrWebPage(GnrBaseWebPage):
         with self.site.storage('pkg').open(pkg,'tables',table,path,mode='w') as f:
             f.write(value)
 
-    def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None, **kwargs):
+    def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None,returnURL=False, **kwargs):
         """Call a script from a table's resources (e.g: ``_resources/tables/<table>/<respath>``).
 
         This is typically used to customize prints and batch jobs for a particular installation
@@ -2140,7 +2140,7 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO"""
         shutil.rmtree(os.path.join(self.connectionFolder, self.page_id), True)
         
-    def rpc_callTableScript(self, table=None, respath=None, class_name='Main', downloadAs=None, **kwargs):
+    def rpc_callTableScript(self, table=None, respath=None, class_name='Main', downloadAs=None,resultAs=None, **kwargs):
         """Call a script from a table's local resources (i.e. ``_resources/tables/<table>/<respath>``).
         
         This is typically used to customize prints and batch jobs for a particular installation.
@@ -2154,10 +2154,10 @@ class GnrWebPage(GnrBaseWebPage):
         if downloadAs:
             self.download_name = downloadAs
         result = self.site.callTableScript(page=self, table=table, respath=respath, class_name=class_name,
-                                         downloadAs=downloadAs, **kwargs)
+                                         downloadAs=downloadAs,resultAs=resultAs, **kwargs)
         if not result:
             return None
-        if os.path.exists(result):
+        if (resultAs is None or resultAs=='path') and os.path.exists(result):
             return open(result,'r')
         return result
     

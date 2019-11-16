@@ -26,7 +26,6 @@
 
 //######################## genro  #########################
 
-
 dojo.declare("gnr.GnrDevHandler", null, {
 
     constructor: function(application) {
@@ -880,7 +879,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }else if(kw.dataSetter){
                 funcApply(kw.dataSetter,{data:data},sourceNode);
             }
-            var metadata = new gnr.GnrBag(kw.defaultMetadata);
+            var metadata = new gnr.GnrBag();
             metadata.update(genro.getData(datapath));
             if (!metadata.getItem('code')){
                 genro.publish('floating_message',{message:_T('Missing code'),messageType:'error'});
@@ -916,11 +915,31 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var metadataPath = objectPop(kw,'metadataPath');
         var onLoaded = objectPop(kw,'onLoaded');
         var onLoading = objectPop(kw,'onLoading');
-
-        genro.serverCall('_table.adm.userobject.loadUserObject',kw,function(result){
-            var resultValue = result._value.deepCopy();
-            var resultAttr = objectUpdate({},result.attr);
-            var dataIndex = resultValue.pop('__index__');
+        var resback = function(result){
+            var resultValue,resultAttr,dataIndex;
+            if(!result){
+                resultValue = new gnr.GnrBag();
+                resultAttr = objectUpdate({},kw);
+                objectExtract(resultAttr,'userObjectIdOrCode,code,description,pkey');
+                dataIndex = kw.dataIndex;
+                if(kw.defaults){
+                    let defaults = kw.defaults;
+                    if(defaults instanceof gnr.GnrBag){
+                        defaults = defaults.asDict();
+                    }
+                    for(let k in defaults){
+                        let v = defaults[k];
+                        if(v instanceof gnr.GnrBag){
+                            v = v.deepCopy();
+                        }
+                        resultValue.setItem(k,v);
+                    }
+                }
+            }else{
+                resultValue = result._value.deepCopy();
+                resultAttr = objectUpdate({},result.attr);
+                dataIndex = resultValue.pop('__index__');
+            }
             if(onLoading){
                 funcApply(onLoading,null,sourceNode,
                         ['dataIndex','resoultValue','resoultAttr'],
@@ -928,16 +947,24 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
             sourceNode.setRelativeData(metadataPath,new gnr.GnrBag(resultAttr));
             if(dataIndex){
-                dataIndex.forEach(function(n){
-                    sourceNode.setRelativeData(n.getValue(),resultValue.getItem(n.label));
-                });
+                if(dataIndex instanceof gnr.GnrBag){
+                    dataIndex = dataIndex.asDict();
+                }
+                for(let k in dataIndex){
+                    sourceNode.setRelativeData(dataIndex[k],resultValue.getItem(k));
+                }
             }
             if(onLoaded){
                 funcApply(onLoaded,null,
                         sourceNode,['dataIndex','resoultValue','resoultAttr'],
                         [dataIndex,resultValue,resultAttr]);
             }
-        });
+        }; 
+        if(kw.userObjectIdOrCode==='__newobj__'){          
+            return resback();
+        }
+
+        genro.serverCall('_table.adm.userobject.loadUserObject',kw,resback);
     },
 
     userObjectDialog:function(title,datapath,saveCb,preview){
