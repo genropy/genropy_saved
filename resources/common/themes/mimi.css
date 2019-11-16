@@ -62,8 +62,8 @@ body.tundra.mimi {
     border:0;
 }
 .slotbar_toolbar_standard{
-    background-image: none;
     background-color:#E4E4E4;
+    background-image: linear-gradient(to bottom,#f5f8fada, #eff1f3bf, #f3f4f5da);
 }
 
 ._common_d11.tundra.theme_variant_green .dojoxFloatingPaneTitle{
