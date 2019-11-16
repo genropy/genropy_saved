@@ -227,24 +227,28 @@ class PrintGridEditor(UserObjectEditor):
                                limit='^.previewLimit',
                             _doRun='^.runQueryDo')
         tc = bc.tabContainer(margin='2px',region='center')
-        tc.contentPane(title='HTML',background='white').documentFrame(resource='{table}:html_res/print_gridres'.format(table=table),
-                        pkey='*',html=True,
-                        currentGridStruct='=.viewer.exportStruct',
-                        currentQuery='=.viewer.query',
-                        page_debug='#efefef',
-                        previewLimit='^.viewer.previewLimit',
-                        printParams='^.printParams',
-                        _fired='^.viewer.runQueryDo',
-                        _if='currentGridStruct',
+        tc.contentPane(title='HTML',background='white'
+                        ).documentFrame(resource='{table}:html_res/print_gridres'.format(table=table),
+                                pkey='*',html=True,
+                                currentGridStruct='=.viewer.exportStruct',
+                                currentQuery='=.viewer.query',
+                                page_debug='#efefef',
+                                previewLimit='^.viewer.previewLimit',
+                                printParams='^.printParams',
+                                httpMethod='POST',
+                                _fired='^.viewer.runQueryDo',
+                                _if='currentGridStruct',
                         _delay=1000)
-        tc.contentPane(title='PDF',background='white').documentFrame(resource='{table}:html_res/print_gridres'.format(table=table),
-                        pkey='*',html=False,
-                        currentGridStruct='=.viewer.exportStruct',
-                        currentQuery='=.viewer.query',
-                        previewLimit='^.viewer.previewLimit',
-                        printParams='^.printParams',
-                        _fired='^.viewer.runQueryDo',
-                        _if='currentGridStruct',
+        tc.contentPane(title='PDF',background='white'
+                        ).documentFrame(resource='{table}:html_res/print_gridres'.format(table=table),
+                                pkey='*',html=False,
+                                httpMethod='POST',
+                                currentGridStruct='=.viewer.exportStruct',
+                                currentQuery='=.viewer.query',
+                                previewLimit='^.viewer.previewLimit',
+                                printParams='^.printParams',
+                                _fired='^.viewer.runQueryDo',
+                                _if='currentGridStruct',
                         _delay=1000)
         return frame
 
@@ -261,3 +265,4 @@ class PrintGridEditor(UserObjectEditor):
         fb.filteringSelect(value='^.totalize_mode', lbl='!!Totalize',values='doc:Document,page:Page')
         fb.textbox(value='^.totalize_carry',lbl='!!Carry caption',hidden='^.totalize_mode?=#v!="page"')
         fb.textbox(value='^.totalize_footer',lbl='!!Totals caption',hidden='^.totalize_mode?=!#v')
+        fb.checkbox(value='^.allow_only_saved_query',label='!!Allow only saved query')

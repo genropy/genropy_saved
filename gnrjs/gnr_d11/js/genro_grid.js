@@ -2606,6 +2606,11 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }else if(attr._is_readonly_row === false){
             row.customClasses = row.customClasses?row.customClasses + ' _gnrProtectionPass': '_gnrProtectionPass';
         }
+        if (attr._is_invalid_row){
+            row.customClasses = row.customClasses?row.customClasses + ' _gnrInvalidRow': '_gnrInvalidRow';
+        }else if(attr._is_invalid_row === false){
+            row.customClasses = row.customClasses?row.customClasses + ' _gnrRegularRow': '_gnrRegularRow';
+        }
         if(this.rowCustomClassesCb){
             row.customClasses = (row.customClasses || '')+' '+(this.rowCustomClassesCb(attr)||'');
         }
@@ -4251,10 +4256,12 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             kw.selectedPkeys = this.getSelectedPkeys() || [];
             if (kw.selectedPkeys.length==0){
                 kw.selectedPkeys = this.getAllPkeys();
+            }else if(kw.selectedPkeys.length==1){
+                kw.allPkeys = this.getAllPkeys();
             }
         }else{
             kw.currentData = this.currentData(null,true);
-            if(this.getSelectedRowidx()){
+            if(this.getSelectedRowidx()==1){
                 kw.allGridData = this.storebag().deepCopy();
             }
         }

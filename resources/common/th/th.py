@@ -165,7 +165,10 @@ class TableHandler(BaseComponent):
             if isinstance(parentFormSave,basestring):
                 hider_kwargs.setdefault('message',parentFormSave)
         preview_kwargs.setdefault('tpl',True)
-        rowStatusColumn = self.db.table(table).hasProtectionColumns() if rowStatusColumn is None else rowStatusColumn
+        hasProtectionColumns = self.db.table(table).hasProtectionColumns()
+        hasInvalidCheck = self.db.table(table).hasInvalidCheck()
+
+        rowStatusColumn = hasInvalidCheck or hasProtectionColumns if rowStatusColumn is None else rowStatusColumn
         grid_kwargs.setdefault('rowStatusColumn',rowStatusColumn)
         if fkeyfield:
             grid_kwargs.setdefault('excludeCols',fkeyfield)

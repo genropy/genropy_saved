@@ -312,8 +312,14 @@ class TableHandlerView(BaseComponent):
             b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration("%s");' %table)
         b.rowchild(label='!!Configure grid',action="genro.nodeById('%s').publish('configuratorPalette');" %rootNodeId)
         b.rowchild(label='!!Print rows',action="genro.nodeById('%s').publish('printRows');" %rootNodeId)
-        b.rowchild(label='-')
+
+        b.rowchild(label='!!Show Archived Records',checked='^#{rootNodeId}.#parent.showLogicalDeleted'.format(rootNodeId=rootNodeId),
+                                action="""SET #{rootNodeId}.#parent.showLogicalDeleted= !GET #{rootNodeId}.#parent.showLogicalDeleted;
+                                           genro.nodeById('{rootNodeId}').widget.reload();""".format(rootNodeId=rootNodeId))
+        b.rowchild(label='!!Totals count',action='SET #{rootNodeId}.#parent.tableRecordCount= !GET #{rootNodeId}.#parent.tableRecordCount;'.format(rootNodeId=rootNodeId),
+                            checked='^#{rootNodeId}.#parent.tableRecordCount'.format(rootNodeId=rootNodeId))
         if statsEnabled:
+            b.rowchild(label='-')
             b.rowchild(label='!!Group by',action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools";')
             if self.ths_pandas_available():
                 b.rowchild(label='!!Pivot table',action='SET .statsTools.selectedPage = "pandas"; SET .viewPage= "statsTools";')
@@ -684,6 +690,13 @@ class TableHandlerView(BaseComponent):
         selection.forcedOrderBy='$_duplicate_finder,$__mod_ts'
         return selection
 
+    @public_method
+    @metadata(prefix='query',code='default_invalidrows_finder',description='!!Find invalid rows')
+    def th_default_find_invalidRows(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
+        query = tblobj.query(where='$__is_invalid_row IS TRUE',**kwargs)
+        selection= query.selection(sortedBy=None, _aggregateRows=True) 
+        return selection
+
     #@public_method
     #@metadata(prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')
     #def th_default_find_duplicates_to_del(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
@@ -713,6 +726,10 @@ class TableHandlerView(BaseComponent):
                 self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
             pyqueries['default_duplicate_finder'] = self.th_default_find_duplicates
             #pyqueries['default_duplicate_finder_to_del'] = self.th_default_find_duplicates_to_del
+        
+        if self.db.table(table).hasInvalidCheck():
+            pyqueries['default_invalidrows_finder'] = self.th_default_find_invalidRows        
+
         for k,v in pyqueries.items():
             pars = dictExtract(dict(v.__dict__),'query_')
             code = pars.get('code')
@@ -750,8 +767,8 @@ class TableHandlerView(BaseComponent):
             prefix,name=k.split('_struct_')
             q.setItem(name,self._prepareGridStruct(v,table=table),caption=v.__doc__)
         pane.data('.grid.resource_structs',q)
-        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="=.grid.currViewPath",
-                        table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30)
+        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="^.grid.currViewPath",
+                        table=table,th_root=th_root,favoriteViewPath='^.grid.favoriteViewPath',cacheTime=30)
 
         options = self._th_hook('options',mangler=pane)() or dict()
         #SOURCE MENUPRINT

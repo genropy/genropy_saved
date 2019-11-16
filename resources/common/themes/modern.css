@@ -63,6 +63,9 @@
     background-color:#E4E4E4;
 }
 
+.pbl_root_top .gnrfieldlabel{
+    color:white;
+}
 ._common_d11.tundra.theme_variant_green .dojoxFloatingPaneTitle{
     background-color: #306227;
 }

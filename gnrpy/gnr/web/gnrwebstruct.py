@@ -71,7 +71,8 @@ def cellFromField(field,tableobj,checkPermissions=None):
     kwargs.setdefault('format_pattern',fldattr.get('format'))
     kwargs.setdefault('format',fldattr.get('format'))
     kwargs.update(dictExtract(fldattr,'format_',slice_prefix=False))
-    if getattr(fldobj,'sql_formula',None) and fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
+    if getattr(fldobj,'sql_formula',None) and fldobj.sql_formula is not True and \
+        fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
         kwargs['_subtable'] = True
     kwargs['name'] =  fldobj.name_short or fldobj.name_long
     kwargs['dtype'] =  fldobj.dtype

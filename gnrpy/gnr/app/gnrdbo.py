@@ -422,6 +422,8 @@ class TableBase(object):
             self.sysFields_df(tbl)
         tbl.formulaColumn('__protecting_reasons',sql_formula=True,group=group,name_long='!!Protecting reasons',_sysfield=True)
         tbl.formulaColumn('__is_protected_row',"$__protecting_reasons!=''",group=group,name_long='!!Row Protected',_sysfield=True)
+        tbl.formulaColumn('__invalid_reasons',sql_formula=True,group=group,name_long='!!Invalid reasons',_sysfield=True)
+        tbl.formulaColumn('__is_invalid_row',"$__invalid_reasons!=''",group=group,name_long='!!Invalid row',_sysfield=True)
 
         if [r for r in dir(self) if r!='_release_' and r.startswith('_release_')]:
             tbl.column('__release', dtype='L', name_long='Sys Version', group=group,_sysfield=True)
@@ -484,6 +486,21 @@ class TableBase(object):
             protections.append("""( CASE WHEN $%s IS TRUE THEN '%s' ELSE NULL END )  """ %(field,field[15:]))
         if protections:
             return "array_to_string(ARRAY[%s],',')"   %','.join(protections)
+        else:
+            return " NULL "
+
+    def hasInvalidCheck(self):
+        result = False
+        if filter(lambda r: r.startswith('__invalid_by_'), self.model.virtual_columns.keys()):
+            result = True
+        return result
+    
+    def sql_formula___invalid_reasons(self,attr):
+        invalids = []
+        for field in filter(lambda r: r.startswith('__invalid_by_'), self.model.virtual_columns.keys()):
+            invalids.append("""( CASE WHEN $%s IS TRUE THEN '%s' ELSE NULL END )  """ %(field,field[13:]))
+        if invalids:
+            return "array_to_string(ARRAY[%s],',')"   %','.join(invalids)
         else:
             return " NULL "
 
