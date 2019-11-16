@@ -93,12 +93,19 @@ class Main(TableScriptToHtml):
         where.walk(cb,_pathlist=[])
         for path in wrongLinesPathlist:
             where.popNode(path)
+
     
     def _getSourceData(self):
         self.row_table = self.tblobj.fullname
         currentQuery = self.getData('currentQuery') or Bag()
         if currentQuery or self.record['selectionPkeys']:
             return self._selection_from_query(currentQuery).output('grid')
+        allrows = self.parameter('allrows')
+        extra_parameters = self.parameter('extra_parameters')
+        if extra_parameters['currentData']:
+            if allrows and extra_parameters['allGridData']:
+                return extra_parameters['allGridData']
+            return extra_parameters['currentData']
 
     def _selection_from_query(self,query):
         customOrderBy = query['customOrderBy']
