@@ -71,7 +71,7 @@ class FrameGridTools(BaseComponent):
                                 _delay=delay,menupath=menupath,**kwargs)
          
     @struct_method
-    def fgr_slotbar_duprow(self,pane,_class='iconbox copy',disabled='^.disabledButton',enable=None,delay=300,defaults=None,**kwargs):
+    def fgr_slotbar_duprow(self,pane,_class='iconbox copy duplicate_record',disabled='^.disabledButton',enable=None,delay=300,defaults=None,**kwargs):
         kwargs.setdefault('visible',enable)
         return pane.slotButton(label='!!Duplicate',publish='duprow',iconClass=_class,disabled=disabled,
                                 _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
