@@ -4256,6 +4256,8 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             kw.selectedPkeys = this.getSelectedPkeys() || [];
             if (kw.selectedPkeys.length==0){
                 kw.selectedPkeys = this.getAllPkeys();
+            }else{
+                kw.allPkeys = this.getAllPkeys();
             }
         }else{
             kw.currentData = this.currentData(null,true);

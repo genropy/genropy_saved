@@ -11,6 +11,19 @@ tags='user'
 caption = '!!Print grid'
 description='!!Print grid'
 
+def _cleanWhere(where):
+    if not where:
+        return
+    wrongLinesPathlist = []
+    def cb(node,_pathlist=None):
+        attr = node.attr
+        if not (attr.get('op') and attr.get('column')):
+            if not isinstance(node.value,Bag):
+                wrongLinesPathlist.append('.'.join(_pathlist+[node.label]))
+    where.walk(cb,_pathlist=[])
+    for path in wrongLinesPathlist:
+        where.popNode(path)
+
 class Main(BaseResourcePrint):
     batch_prefix = 'pr_grid'
     batch_cancellable = True
@@ -20,17 +33,14 @@ class Main(BaseResourcePrint):
     print_mode = 'pdf'
     html_res = 'html_res/print_gridres'
 
-    def do(self):
+    def pre_process(self):
         self.htmlMaker.row_table = getattr(self,'maintable',None)
-        self.htmlMaker.callingBatch = self
-        self.print_record(record='*',storagekey='x')
-    
         
     def table_script_parameters_pane(self,pane,extra_parameters=None,record_count=None,**kwargs):
         pane = pane.div(min_height='60px')        
         fb = pane.formbuilder(cols=1,fld_width='20em',border_spacing='4px')
         userobject = extra_parameters['userobject']
-
+        where = None
         if userobject:
             data,metadata = self.db.table('adm.userobject'
                                 ).loadUserObject(userObjectIdOrCode=userobject,
@@ -44,6 +54,7 @@ class Main(BaseResourcePrint):
 
             fb.data('.currentGridStruct',struct)
             fb.data('.currentQuery',query) 
+            where = query['where']
             if queryPars:
                 fb.div('!!Query',font_weight='bold',color='#444')
                 for code,pars in queryPars.digest('#k,#a'):
@@ -69,14 +80,17 @@ class Main(BaseResourcePrint):
                         SET .grid_datamode = grid.datamode;
                         SET .currentGridStruct = grid.getExportStruct();""",
                         _onBuilt=True,gridId=extra_parameters['gridId'])
-
         fb.textbox(value='^.print_title',lbl='!!Title')
         fb.filteringSelect(value='^.orientation',lbl='!!Orientation',values='H:Horizontal,V:Vertical')
         fb.dbSelect(dbtable='adm.htmltemplate', value='^.letterhead_id',lbl='!!Letterhead',hasDownArrow=True)
         fb.filteringSelect(value='^.totalize_mode', lbl='!!Totalize',values='doc:Document,page:Page')
         fb.textbox(value='^.totalize_carry',lbl='!!Carry caption',hidden='^.totalize_mode?=#v!="page"')
         fb.textbox(value='^.totalize_footer',lbl='!!Totals caption',hidden='^.totalize_mode?=!#v')
-        #fb.checkbox(value='^.allrows',label='!!Print all rows')
-
+        _cleanWhere(where)
+        where = where or Bag()
+        fb.data('.use_current_selection',len(where) is 0)
+        if len(where) > 0:
+            fb.checkbox(value='^.use_current_selection',label='!!Use current selection')
+        fb.checkbox(value='^.ignore_grid_selection',label='!!Ignore grid selected rows',hidden='^.use_current_selection?=!#v')
 
         

@@ -380,8 +380,8 @@ class TableScriptToHtml(BagToHtml):
         columns = []
         for n in cells:
             attr = n.attr
-            field =  attr.get('field')
-            field_getter = attr.get('field_getter') or attr.get('caption_field') or field
+            field =  attr.get('caption_field') or attr.get('field')
+            field_getter = attr.get('field_getter') or field
             if isinstance(field_getter,basestring):
                 field_getter = self._flattenField(field_getter)
             group_aggr = attr.get('group_aggr')
@@ -406,11 +406,13 @@ class TableScriptToHtml(BagToHtml):
             return
         field = col['field']
         if field.startswith('@'):
-            col['sqlcolumn'] = '{} AS {}'.format(field,col['field_getter'])
+            col['sqlcolumn'] = col['field']
         else:
             columnobj = self.db.table(self.row_table).column(field)
             if columnobj is not None:
                 col['sqlcolumn'] = '${}'.format(field)
+        if field!=col['field_getter']:
+             col['sqlcolumn'] = '{} AS {}'.format(col['sqlcolumn'],col['field_getter'])
     
     def gridQueryParameters(self):
         #override
@@ -465,6 +467,7 @@ class TableScriptToHtml(BagToHtml):
         rowtblobj = self.db.table(self.row_table)
         return rowtblobj.query(columns=columns,where= ' AND '.join(where),**parameters
                                 ).selection(_aggregateRows=True).output('grid',recordResolver=False)
+
 
     @property
     def grid_sqlcolumns(self):
