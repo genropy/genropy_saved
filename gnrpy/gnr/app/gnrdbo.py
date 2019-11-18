@@ -491,13 +491,13 @@ class TableBase(object):
 
     def hasInvalidCheck(self):
         result = False
-        if filter(lambda r: r.startswith('__invalid_by_'), self.model.virtual_columns.keys()):
+        if [r for r in self.model.virtual_columns.keys() if r.startswith('__invalid_by_')]:
             result = True
         return result
     
     def sql_formula___invalid_reasons(self,attr):
         invalids = []
-        for field in filter(lambda r: r.startswith('__invalid_by_'), self.model.virtual_columns.keys()):
+        for field in [r for r in self.model.virtual_columns.keys() if r.startswith('__invalid_by_')]:
             invalids.append("""( CASE WHEN $%s IS TRUE THEN '%s' ELSE NULL END )  """ %(field,field[13:]))
         if invalids:
             return "array_to_string(ARRAY[%s],',')"   %','.join(invalids)
