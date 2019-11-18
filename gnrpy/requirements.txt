@@ -19,7 +19,6 @@ smart_open
 tornado<5
 toro
 gunicorn
-gevent
 supervisor
 futures
 lxml
