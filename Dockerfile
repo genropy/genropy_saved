@@ -3,26 +3,23 @@
 # Based on Ubuntu
 ############################################################
 
-FROM genropy/ubuntu-python
+FROM alpine:3.7
 MAINTAINER Francesco Porcari - francesco@genropy.org
 
-ADD . /home/genropy
+RUN apk update
+RUN apk add git
+RUN apk add python3
+RUN apk add py3-lxml
+RUN apk add py3-psutil
+RUN apk add supervisor 
+RUN apk add nginx 
 
-RUN apt-get update
-RUN apt-get install -y supervisor nginx liblzma-dev
-RUN pip install --upgrade setuptools
-RUN pip install --upgrade pip
-RUN easy_install pip
-RUN pip install gunicorn gevent futures
-RUN pip install 'Tornado>=4.0.0,<5.0.0'
-RUN mkdir -p /var/log/supervisor
+ADD . /home/genropy
+RUN pip3 install paver
 WORKDIR /home/genropy/gnrpy
 RUN paver develop
-RUN python initgenropy.py
-
-
+RUN python3 initgenropy.py
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
 
 
 
