@@ -78,7 +78,7 @@ class DashboardItem(BaseComponent):
                     node.attr['di_userObjectEditor'] = serializedFuncName(di_userObjectEditor,resclass)
         for pkgid,pkgobj in list(self.db.application.packages.items()):
             di_folder = os.path.join(pkgobj.packageFolder,'resources','dashboard_items') 
-            d = DirectoryResolver(di_folder,include='*.py')
+            d = DirectoryResolver(di_folder,include='*.py',exclude='__pycache__')
             content = Bag(d())
             content.walk(cb,_mode='deep',pkg=pkgid)
             if content:

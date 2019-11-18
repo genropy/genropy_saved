@@ -4,10 +4,10 @@ body.tundra.mimi {
     color:#555;
 }
 .frameindexroot{
-    background:#eeeeee;
+    background:linear-gradient(to right, #ffffff, #bacbdf);    
 }
 .frameindexcenter{
-    background:white;
+    background:linear-gradient(to top, #f6f8fa, #ffffff);    
 }
 
 /* @group Floating pane */
@@ -45,7 +45,7 @@ body.tundra.mimi {
 }
 
 ._common_d11 .dojoxFloatingPane {
-    border-radius: 2px;
+    border-radius: 4px;
     box-shadow: 3px 3px 4px #666;
     border-color:silver;
 }
@@ -55,26 +55,26 @@ body.tundra.mimi {
     vertical-align: middle;
     text-align: center;
     color: #f6f6f6;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
     padding-top: 2px;
     padding-bottom: 3px;
     border:0;
 }
 .slotbar_toolbar_standard{
-    background-image: none;
     background-color:#E4E4E4;
+    background-image: linear-gradient(to bottom,#f5f8fada, #eff1f3bf, #f3f4f5da);
 }
 
 ._common_d11.tundra.theme_variant_green .dojoxFloatingPaneTitle{
-    background-color: #799f0c;
-    background:linear-gradient(to bottom, #799f0c, #70940c);
+    background-color: #50c9c3;
+    background:linear-gradient(to bottom, #3ca55c, #b5ac49);
     color:white;
 }
 
 ._common_d11.tundra.theme_variant_blue .dojoxFloatingPaneTitle{
     background-color: #182848;
-    background: linear-gradient(to bottom, #4b6cb7, #2c5481);
+    background: linear-gradient(to bottom, #4b6cb7, #3b6391);
 }
 
 ._common_d11.tundra.theme_variant_red .dojoxFloatingPaneTitle{
@@ -84,7 +84,7 @@ body.tundra.mimi {
 
 ._common_d11.tundra.theme_variant_orange .dojoxFloatingPaneTitle{
     background-color:#e65c00;
-    background: linear-gradient(to bottom, #e65c00, #f96723);
+    background: linear-gradient(to bottom, #fa8435, #f96723);
 }
 
 ._common_d11.tundra.theme_variant_yellow .dojoxFloatingPaneTitle{
@@ -104,7 +104,7 @@ body.tundra.mimi {
 /* @group top */
 
 .pbl_username {
-    border-radius: 2px;
+    border-radius: 4px;
     background-color: #bfb6ae;
     color: #403b3b;
     font-size: 0.9em;
@@ -132,8 +132,8 @@ body.tundra.mimi {
 }
 
 .mimi.theme_variant_green .pbl_root_top{
-    background-color: #799f0c;
-    background:linear-gradient(to bottom, #799f0c, #70940c);
+    background-color: #50c9c3;
+    background:linear-gradient(to bottom, #3ca55c, #b5ac49);
     color:white;
 
 }
@@ -152,7 +152,7 @@ body.tundra.mimi {
 
 .mimi.theme_variant_blue .pbl_root_top{
     background-color: #182848;
-    background: linear-gradient(to bottom, #4b6cb7, #2c5481);
+    background: linear-gradient(to bottom, #4b6cb7, #3b6391);
     color:white;
 }
 .mimi.theme_variant_blue .pbl_root_top .gnrfieldlabel{
@@ -161,7 +161,7 @@ body.tundra.mimi {
 
 .mimi.theme_variant_orange .pbl_root_top{
     background-color:#e65c00;
-    background: linear-gradient(to bottom, #e65c00, #f96723);
+    background: linear-gradient(to bottom, #fa8435, #f96723);
     color:white;
 }
 .mimi.theme_variant_orange .pbl_root_top .gnrfieldlabel{
@@ -189,7 +189,7 @@ body.tundra.mimi {
     background: white;
     margin: 2px;
     border:1px solid #ddd ;
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 /* @group Logo */
@@ -249,15 +249,15 @@ body.tundra.mimi {
 .pbl_viewBox {
     padding: 5px;
 
-    border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
     background-color: rgba(170, 190, 201, 0.2);
 }
 
 .pbl_viewBoxLabel {
     height: 18px;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
     padding-left: 10px;
     font-size: 0.9em;
     padding-top: 3px;
@@ -275,7 +275,7 @@ body.tundra.mimi {
     background-color: rgb(217, 227, 233);
 }
 .pbl_roundedBlock{
-    border-radius: 2px;
+    border-radius: 6px;
     position: absolute;
     top:2px;
     bottom:2px;
@@ -285,7 +285,7 @@ body.tundra.mimi {
 }
 
 .pbl_roundedGroup {
-    border-radius: 2px;
+    border-radius: 6px;
     border:1px solid #ddd;
 }
 
@@ -296,8 +296,8 @@ body.tundra.mimi {
     padding-top:2px;
     padding-left: 4px;
     padding-right: 4px;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
     font-size: 1em;
     background:#c2d0e9;
     background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
@@ -332,8 +332,11 @@ body.tundra.mimi {
 }
 .tundra._common_d11 .dijitButtonText{
     text-align: center;
-    padding: 1px 0.4em;
+    padding: 2px 5px;
     color: #555;
+}
+.dijitButtonNode .fh_semaphore{ 
+    transform:rotate(0deg) scale(0.8);
 }
 
 .pbl_roundedGroupBottom {
@@ -393,7 +396,7 @@ body.tundra.mimi {
     vertical-align: middle;
     font-size: 1em;
     padding-top: 2em;
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 .alertBodyMessage{
@@ -406,8 +409,8 @@ body.tundra.mimi {
     background-image: linear-gradient(to right top, #172b51, #1b3058, #20345e, #243965, #293e6c);
     color: #ffffff;
     vertical-align: middle;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
     text-align: center;
     font-weight:normal;
     border-bottom:1px solid #ccc;
@@ -424,8 +427,8 @@ body.tundra.mimi {
 }
 
 .tundra._common_d11.theme_variant_green .dijitDialogTitleBar,.tundra._common_d11.theme_variant_green .commonTitleBar{
-    background-color: #799f0c;
-    background:linear-gradient(to bottom, #799f0c, #70940c);
+    background-color: #50c9c3;
+    background:linear-gradient(to bottom, #3ca55c, #b5ac49);
     color:white;
 }
 
@@ -435,12 +438,12 @@ body.tundra.mimi {
 }
 .tundra._common_d11.theme_variant_blue .dijitDialogTitleBar, .tundra._common_d11.theme_variant_blue .commonTitleBar{
     background-color: #182848;
-    background: linear-gradient(to bottom, #4b6cb7, #2c5481);
+    background: linear-gradient(to bottom, #4b6cb7, #3b6391);
 }
 
 .tundra._common_d11.theme_variant_orange .dijitDialogTitleBar, .tundra._common_d11.theme_variant_orange .commonTitleBar{
     background-color:#e65c00;
-    background: linear-gradient(to bottom, #e65c00, #f96723);
+    background: linear-gradient(to bottom, #fa8435, #f96723);
 }
 
 .tundra._common_d11.theme_variant_yellow .dijitDialogTitleBar, .tundra._common_d11.theme_variant_yellow .commonTitleBar{
@@ -455,8 +458,7 @@ body.tundra.mimi {
 }*/
 
 ._common_d11 .dijitDialog {
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    border-radius: 6px;
     background-color: #f6f6f6;
     box-shadow: 3px 3px 5px #403b3b;
     border:1px solid silver;
@@ -464,8 +466,7 @@ body.tundra.mimi {
 
 ._common_d11 .dijitDialog .dijitDialogPaneContent {
 
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
+    border-radius:6px;
     border: 0px;
     background-color: #f6f6f6;
 
@@ -480,8 +481,8 @@ body.tundra.mimi {
     padding-left: 2px;
     padding-right: 2px;
 
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
 }
 
 
@@ -526,8 +527,8 @@ body.tundra.mimi {
 
 ._common_d11 .dijitTab {
     font-size: .9em;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
     background-image: none;
     background:#c2d0e9;
     background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
@@ -566,7 +567,7 @@ body.tundra.mimi {
 }
 
 ._common_d11 .dijitTabPaneWrapper {
-    border-radius: 2px;
+    border-radius: 6px;
     border-top-left-radius: 0px;
 }
 
@@ -574,8 +575,8 @@ body.tundra.mimi {
 
 ._common_d11 .dijitTabLabels-right-h .dijitTab {
 
-    /*border-bottom-right-radius: 2px;
-    border-top-right-radius: 2px;
+    /*border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
     border-bottom-left-radius: 0px;
     border-top-left-radius: 0px;*/
     margin-bottom: 1px;
@@ -647,8 +648,11 @@ body.tundra.mimi {
 
 /* @group tootlipDialog */
 
+.mimi .dijitLayoutContainer{
+    background:transparent;
+}
 ._common_d11 .dijitTooltipDialog .dijitTooltipContainer {
-    border-radius: 2px;
+    border-radius: 6px;
     padding: 0px;
     border: 1px solid silver;
     font-size: inherit;
@@ -700,11 +704,13 @@ body.tundra.mimi {
     line-height: 11px;
     margin-right: 8px;
     margin-top: 0px;
-    color: #555;
+    color: #444;
+    padding-bottom: 4px;
+    background: linear-gradient(45deg, #1f345d26, transparent);
 }
 
 .menutree .menu_current_page {
-    color:#555;
+    color:#444;
 }
 .menutree .menu_existing_page.menu_shape  {
     font-weight:bold;
@@ -772,13 +778,13 @@ body.tundra.mimi {
     padding: 5px;
     background-color: #f6f6f6;
     box-shadow: rgb(158, 133, 111) 2px 2px 2px;
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 /* @end */
 
 #mainWindow {
-    background-image: linear-gradient(to right top, #efefef, #ffffff, #ffffff, #efefef, #ffffff);
+    background:linear-gradient(to top, #f6f8fa, #ffffff);    
     font-size: 12px;
 }
 
@@ -1118,12 +1124,41 @@ body.tundra.mimi {
     background-color: #EDEDEE;
 }
 
+.mimi._common_d11 .lightboxDialog.dijitDialog {
+    padding: 2px;
+    background: linear-gradient(to top, #efefef,white);;
+    border: 1px solid #ddd;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.dlg_alert.dijitDialog .dijitDialogPaneContent{
+    background:linear-gradient(to top, #e4e4e4,white);
+}
+.dlg_prompt.dijitDialog .dijitDialogPaneContent{
+    background:linear-gradient(to top, #e4e4e4,white);
+}
+
 
 .tundra .dijitButtonNode {
     /* enabled state - inner */
     background-color: #E4E4E4;
     background-image: none;
     border-radius: 2px;
+    padding:0 2px;
+    border-color:#666;
+}
+
+.slotbar_toolbar .dijitButtonNode {
+    color: #444;
+    border: 1px solid #777;
+    font-variant: normal;
+    border-radius: 5px;
+    padding: 1px 2px;
+    box-shadow: none;
+    font-weight: bold;
 }
 
 .tundra .dijitButtonHover .dijitButtonNode,
@@ -1177,7 +1212,9 @@ body.tundra.mimi {
 }
 
 .darktoolbar{
-    background-color: #666;
+    background-color: #444;
+    background-image: linear-gradient(to bottom,#f5f8fa46, #eff1f344, #f3f4f531);
+
 }
 .mimi .slotbar_toolbar {
     padding-top: 2px;
@@ -1317,6 +1354,21 @@ body.tundra.mimi {
     background: url(/_rsrc/common/css_icons/svg/16/next_record.svg) no-repeat center center;
 }
 
+.mimi .th_enableLinker .th_linkerAdd {
+    background: url(/_rsrc/common/css_icons/svg/16/new_row.svg) no-repeat center center;
+    width: 14px;
+    position: absolute;
+    right: 1px;
+    top: 0px;
+    bottom: 0;
+    display: block;
+    transform:scale(.85);
+}
+.mimi .dijitError.th_linkerField {
+    margin-top: 1px;
+    background:transparent  url(/_rsrc/common/css_icons/svg/16/form_status_red.svg) no-repeat right center !important;
+}
+
 .mimi .plus_square, .mimi .add_record{
     background: url(/_rsrc/common/css_icons/svg/16/plus_square.svg) no-repeat center center;
 }
@@ -1428,6 +1480,9 @@ background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat c
     background: url(/_rsrc/common/css_icons/svg/16/popup.svg) no-repeat center center;
     transform:rotate(0deg) scale(0.8);
 }
+.mimi.tundra .dijitDropDownButton .dijitArrowButtonInner{ 
+    transform:rotate(0deg) scale(1);
+}
 
 .mimi .application_menu{ 
     background: url(/_rsrc/common/css_icons/svg/16/menu_icon.svg) no-repeat center center;
@@ -1444,8 +1499,8 @@ background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat c
     background: url(/_rsrc/common/css_icons/svg/16/toolbox.svg) no-repeat center center;
 }
 
-.mimi .iconbox.pencil .mimi .edit{
-    background: url(/_rsrc/common/css_icons/svg/16/pencil.svg) no-repeat center center;
+.mimi .iconbox.pencil, .mimi .edit{
+    background: url(/_rsrc/common/css_icons/svg/16/edit.svg) no-repeat center center;
 }
 
 
@@ -1455,3 +1510,21 @@ background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat c
 
 
 
+.mimi .ping_semaphore{
+    height: 16px;
+    width: 16px;
+    background: url(/_rsrc/common/css_icons/svg/16/socket_transmitting.svg) no-repeat center center;
+    opacity: 0;
+}
+
+.mimi.ping_start .ping_semaphore{
+    background: url(/_rsrc/common/css_icons/svg/16/socket_transmitting.svg) no-repeat center center;
+    transition: opacity 200ms, visibility 200ms;
+    opacity:1;
+}
+
+.mimi.ping_error .ping_semaphore{
+    background: url(/_rsrc/common/css_icons/svg/16/sockets_disconnected.svg) no-repeat center center;
+    transition: opacity 200ms, visibility 200ms;
+    opacity:1;
+}

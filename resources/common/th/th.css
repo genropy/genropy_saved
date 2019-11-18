@@ -99,12 +99,13 @@
     background-color:transparent;
 }
 
-.slotbar_toolbar .th_querybox_item.th_queryboxfield{
+.slotbar_toolbar .th_querybox_item.th_queryboxfield {
     background: white;
-    color:#444;
+    color: #444;
     cursor: text;
     padding-left: 0;
     padding-right: 4px;
+    box-shadow: inset 0px 1px 1px #ccc;
 }
 
 .slotbar_cell .formbuilder.th_querysampleform{
