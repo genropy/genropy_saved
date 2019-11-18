@@ -179,7 +179,7 @@ class ImapReceiver(object):
         new_mail['uid'] = emailid
         resp, data = self.imap.uid('fetch',emailid, "(RFC822)")
         email_body = data[0][1]
-        mail = email.message_from_string(email_body)
+        mail = email.message_from_bytes(email_body)
         #mail = email.message_from_string(unicode(email_body.decode(encoding).encode('utf8')))
         onCreatingCallbacs = [fname for fname in dir(self.messages_table) if fname.startswith('onCreatingMessage_')]
         if onCreatingCallbacs:
