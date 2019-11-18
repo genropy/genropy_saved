@@ -50,12 +50,7 @@ class TableHandlerView(BaseComponent):
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                                  virtualStore=virtualStore,bySample=queryBySample is not None,
                                  condition=condition,condition_kwargs=condition_kwargs,
-                                 _dashboardRoot=True,
                                  _sections_dict=sections_kwargs,
-                                 selfsubscribe_saveDashboard="th_dash_tableviewer.saveAsDashboard(this,$1);",
-                                 selfsubscribe_loadDashboard="th_dash_tableviewer.loadDashboard(this,$1)",
-                                 selfsubscribe_deleteCurrentDashboard="th_dash_tableviewer.deleteCurrentDashboard(this,$1)",
-
                                  selectedPage='^.viewPage',resourceOptions=options,
                                  **kwargs)
         
@@ -68,7 +63,30 @@ class TableHandlerView(BaseComponent):
         viewhook = self._th_hook('view',mangler=frameCode)
         if viewhook:
             viewhook(view)
+        self._th_view_printEditorDialog(view)
         return view
+    
+    def _th_view_printEditorDialog(self,view):
+        th_root = view.attributes['th_root']
+        dlgId = '{th_root}_print_editor_dlg'.format(th_root=th_root)
+        gridattr = view.grid.attributes
+        gridattr['selfsubscribe_open_print_editor'] = """genro.wdgById("{dlgId}").show();
+                        if($1.new){{
+                            genro.publish('{th_root}_print_editor_newObject');
+                        }}
+                        """.format(dlgId=dlgId,th_root=th_root)
+        gridattr['selfsubscribe_close_print_editor'] = 'genro.wdgById("{dlgId}").hide()'.format(dlgId=dlgId)
+
+        dlg = view.dialog(title='!!Print Editor',nodeId=dlgId,
+                            closable=True,windowRatio=.9,noModal=True)
+        dlg.contentPane().remote(self._th_buildPrintEditor,
+                                    table=gridattr['table'],
+                                    th_root=th_root)
+
+    @public_method
+    def _th_buildPrintEditor(self,pane,table=None,th_root=None):
+        pane.printGridEditor(frameCode='{th_root}_print_editor'.format(th_root=th_root),
+                            table=table,parentTH=th_root,datapath='.print_editor')
 
     def _th_handleQueryBySample(self,view,table=None,pars=None):
         fields = pars.pop('fields')
@@ -284,18 +302,24 @@ class TableHandlerView(BaseComponent):
     @public_method
     def _th_advancedToolsMenu(self,statsEnabled=None,table=None,rootNodeId=None,**kwargs):
         b = Bag()
-        b.rowchild(label='!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
-                                action="""SET .#parent.showLogicalDeleted= !GET .#parent.showLogicalDeleted;
-                                         FIRE .runQueryDo;""")
-        b.rowchild(label='!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
-                            checked='^.#parent.tableRecordCount')
+        #b.rowchild(label='!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
+        #                        action="""SET .#parent.showLogicalDeleted= !GET .#parent.showLogicalDeleted;
+        #                                 FIRE .runQueryDo;""")
+        #b.rowchild(label='!!Totals count',action='SET #{rootNodeId}.#parent.tableRecordCount= !GET #{rootNodeId}.#parent.tableRecordCount;'.format(rootNodeId=rootNodeId),
+        #                    checked='^#{rootNodeId}.#parent.tableRecordCount'.format(rootNodeId=rootNodeId))
         if self.application.checkResourcePermission('superadmin', self.userTags):
             b.rowchild(label='-')
             b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration("%s");' %table)
         b.rowchild(label='!!Configure grid',action="genro.nodeById('%s').publish('configuratorPalette');" %rootNodeId)
         b.rowchild(label='!!Print rows',action="genro.nodeById('%s').publish('printRows');" %rootNodeId)
-        b.rowchild(label='-')
+
+        b.rowchild(label='!!Show Archived Records',checked='^#{rootNodeId}.#parent.showLogicalDeleted'.format(rootNodeId=rootNodeId),
+                                action="""SET #{rootNodeId}.#parent.showLogicalDeleted= !GET #{rootNodeId}.#parent.showLogicalDeleted;
+                                           genro.nodeById('{rootNodeId}').widget.reload();""".format(rootNodeId=rootNodeId))
+        b.rowchild(label='!!Totals count',action='SET #{rootNodeId}.#parent.tableRecordCount= !GET #{rootNodeId}.#parent.tableRecordCount;'.format(rootNodeId=rootNodeId),
+                            checked='^#{rootNodeId}.#parent.tableRecordCount'.format(rootNodeId=rootNodeId))
         if statsEnabled:
+            b.rowchild(label='-')
             b.rowchild(label='!!Group by',action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools";')
             if self.ths_pandas_available():
                 b.rowchild(label='!!Pivot table',action='SET .statsTools.selectedPage = "pandas"; SET .viewPage= "statsTools";')
@@ -666,6 +690,13 @@ class TableHandlerView(BaseComponent):
         selection.forcedOrderBy='$_duplicate_finder,$__mod_ts'
         return selection
 
+    @public_method
+    @metadata(prefix='query',code='default_invalidrows_finder',description='!!Find invalid rows')
+    def th_default_find_invalidRows(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
+        query = tblobj.query(where='$__is_invalid_row IS TRUE',**kwargs)
+        selection= query.selection(sortedBy=None, _aggregateRows=True) 
+        return selection
+
     #@public_method
     #@metadata(prefix='query',code='default_duplicate_finder_to_del',description='!!Find duplicates to delete')
     #def th_default_find_duplicates_to_del(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
@@ -695,6 +726,10 @@ class TableHandlerView(BaseComponent):
                 self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
             pyqueries['default_duplicate_finder'] = self.th_default_find_duplicates
             #pyqueries['default_duplicate_finder_to_del'] = self.th_default_find_duplicates_to_del
+        
+        if self.db.table(table).hasInvalidCheck():
+            pyqueries['default_invalidrows_finder'] = self.th_default_find_invalidRows        
+
         for k,v in pyqueries.items():
             pars = dictExtract(dict(v.__dict__),'query_')
             code = pars.get('code')
@@ -732,13 +767,17 @@ class TableHandlerView(BaseComponent):
             prefix,name=k.split('_struct_')
             q.setItem(name,self._prepareGridStruct(v,table=table),caption=v.__doc__)
         pane.data('.grid.resource_structs',q)
-        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="=.grid.currViewPath",
-                        table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30)
+        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="^.grid.currViewPath",
+                        table=table,th_root=th_root,favoriteViewPath='^.grid.favoriteViewPath',cacheTime=30)
 
         options = self._th_hook('options',mangler=pane)() or dict()
         #SOURCE MENUPRINT
-        pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,flags=options.get('print_flags'),
-                        from_resource=options.get('print_from_resource',True),cacheTime=5)
+        pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,
+                        flags=options.get('print_flags'),
+                        printEditorOpened='=.print_editor.viewer?=#v!==null',
+                        from_resource=options.get('print_from_resource',True),
+                        gridId=gridId,
+                        cacheTime=5)
 
         #SOURCE MENUMAIL
         pane.dataRemote('.resources.mail.menu',self.th_mailMenu,table=table,flags=options.get('mail_flags'),
@@ -757,11 +796,24 @@ class TableHandlerView(BaseComponent):
         pane.menudiv(iconClass='iconbox menubox print',hidden=hidden,storepath='.resources.print.menu',
                     _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
                                                         permissions='print'),
-                    action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'print'};""")
+                    action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,userobject:$1.userobject,res_type:'print'};""")
 
     @public_method
-    def th_printMenu(self,table=None,flags=None,from_resource=True,**kwargs):
-        return self._printAndMailMenu(table=table,flags=flags,from_resource=from_resource,res_type='print')
+    def th_printMenu(self,table=None,flags=None,from_resource=True,
+                    gridId=None,printEditorOpened=None,**kwargs):
+        result = self._printAndMailMenu(table=table,flags=flags,from_resource=from_resource,res_type='print')
+        gridprint = self.db.table('adm.userobject').userObjectMenu(table=table,objtype='gridprint')
+        if gridprint and len(gridprint)>0:
+            result.update(gridprint)
+        result.walk(self._th_gridPrint)
+
+        result.addItem('r_sep_edit',None,caption='-')
+        if printEditorOpened:
+            result.addItem('r_edit',None,caption='!!Edit current print',
+                        action="genro.nodeById('{gridId}').publish('open_print_editor',{{new:false}});".format(gridId=gridId))
+        result.addItem('r_new',None,caption='!!New Print',
+                        action="genro.nodeById('{gridId}').publish('open_print_editor',{{new:true}});".format(gridId=gridId))
+        return result
         
     @struct_method
     def th_slotbar_resourceActions(self,pane,**kwargs):
@@ -803,6 +855,12 @@ class TableHandlerView(BaseComponent):
         if node.attr.get('code'):
             node.attr['resource'] ='%s_%s' %(res_type,node.attr['objtype'])
             node.attr['template_id'] = node.attr['pkey']
+
+    def _th_gridPrint(self,node):
+        if node.attr.get('code') and not node.attr.get('resource'):
+            node.attr['resource'] ='_common/print_gridres'
+            node.attr['userobject'] = node.attr['pkey']
+        
         
     @struct_method
     def th_slotbar_templateManager(self,pane,**kwargs):

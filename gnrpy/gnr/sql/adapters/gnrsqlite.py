@@ -181,7 +181,6 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                     un_schema = schema
                     ref = tbl
                     un_ref = un_tbl
-
                     result.append([ref, schema, tbl, cols, un_ref, un_schema, un_tbl, un_cols,None,None,None])
         return result
 

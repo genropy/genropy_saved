@@ -46,7 +46,7 @@ class Public(BaseComponent):
         multidb_selector = self._getMultiDbSelector() 
         extra_kw = {} if multidb_selector is True else multidb_selector
         fb.dbSelect(value='^current.context_dbstore',_storename=False,dbtable=storetable,
-                    alternatePkey='dbstore',font_size='.8em',lbl_color='white',
+                    alternatePkey='dbstore',font_size='.8em',
                     color='#666',lbl_font_size='.8em',lbl=self.db.table(storetable).name_long,**extra_kw)
 
 class TableHandlerMain(BaseComponent):
@@ -59,7 +59,7 @@ class TableHandlerMain(BaseComponent):
         multidb_selector = self._getMultiDbSelector() 
         extra_kw = {} if multidb_selector is True else multidb_selector
         fb.dbSelect(value='^current.context_dbstore',_storename=False,dbtable=storetable,
-                    alternatePkey='dbstore',font_size='.8em',lbl_color='white',
+                    alternatePkey='dbstore',font_size='.8em',
                     disabled='^%s.form.pkey' %self.maintable.replace('.','_'),
                     color='#666',lbl_font_size='.8em',lbl=self.db.table(storetable).name_long,**extra_kw)
         fb.dataController("FIRE %s.view.runQueryDo;" %self.maintable.replace('.','_'),

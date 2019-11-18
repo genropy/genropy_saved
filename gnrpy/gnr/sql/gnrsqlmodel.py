@@ -135,11 +135,11 @@ class DbModel(object):
         col = tbl.columns[col]
         return (pkg.name, tbl.name, col.name)
        
-    @extract_kwargs(resolver=True) 
+    @extract_kwargs(resolver=True,meta=True) 
     def addRelation(self, many_relation_tuple, oneColumn, mode=None,storename=None, one_one=None, onDelete=None, onDelete_sql=None,
                     onUpdate=None, onUpdate_sql=None, deferred=None, eager_one=None, eager_many=None, relation_name=None,
                     one_name=None, many_name=None, one_group=None, many_group=None, many_order_by=None,storefield=None,
-                    external_relation=None,resolver_kwargs=None,inheritProtect=None,inheritLock=None):
+                    external_relation=None,resolver_kwargs=None,inheritProtect=None,inheritLock=None,meta_kwargs=None):
         """Add a relation in the current model.
         
         :param many_relation_tuple: tuple. The column of the "many table". e.g: ('video','movie','director_id')
@@ -214,7 +214,7 @@ class DbModel(object):
                                    onUpdate=onUpdate, onUpdate_sql=onUpdate_sql, deferred=deferred,external_relation=external_relation,
                                    case_insensitive=case_insensitive, eager_one=eager_one, eager_many=eager_many,
                                    one_group=one_group, many_group=many_group,storefield=storefield,_storename=storename,
-                                   inheritLock=inheritLock,inheritProtect=inheritProtect)
+                                   inheritLock=inheritLock,inheritProtect=inheritProtect,**meta_kwargs)
             #print 'The relation %s - %s was added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
             self.checkRelationIndex(many_pkg, many_table, many_field)
             self.checkRelationIndex(one_pkg, one_table, one_field)

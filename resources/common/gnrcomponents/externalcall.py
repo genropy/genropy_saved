@@ -29,7 +29,8 @@ from dateutil import parser as dtparser
 import datetime
 from decimal import Decimal
 from gnr.core.gnrdecorator import public_method
-from xmlrpc.client import dumps as xmlrpcdumps,loads as xmlrpcloads, Marshaller, Fault
+from xmlrpclib import dumps as xmlrpcdumps,loads as xmlrpcloads, Marshaller, Fault
+from gnr.core.gnrbag import TraceBackResolver
 
 def dump_decimal(self,value, write):
     write("<value><double>")
@@ -111,7 +112,9 @@ class NetBagRpc(BaseComponent):
         try:
             result = method(*args, **kwargs)
         except Exception as e:
-            result = Bag(dict(error=str(e)))
+            #import traceback
+            #result = Bag(dict(error=traceback.format_exc().encode('utf8')))
+            result = Bag(dict(error=TraceBackResolver()))
         if not isinstance(result,Bag):
             result = Bag(dict(result=result))
         return result.toXml(unresolved=True)

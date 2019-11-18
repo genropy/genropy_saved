@@ -33,7 +33,8 @@ class TableHandler(BaseComponent):
     py_requires="""th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,
                     th/th_stats:TableHandlerStats,th/th_groupth:TableHandlerGroupBy,
                   th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker,
-                  th/th:MultiButtonForm,th/th:THBusinessIntelligence
+                  th/th:MultiButtonForm,th/th:THBusinessIntelligence,
+                  gnrcomponents/userobject/userobject_editor:PrintGridEditor
                   """
     
     @extract_kwargs(condition=True,grid=True,view=True,picker=True,export=True,addrowmenu=True,hider=True,preview=True,relation=True)
@@ -164,7 +165,10 @@ class TableHandler(BaseComponent):
             if isinstance(parentFormSave,basestring):
                 hider_kwargs.setdefault('message',parentFormSave)
         preview_kwargs.setdefault('tpl',True)
-        rowStatusColumn = self.db.table(table).hasProtectionColumns() if rowStatusColumn is None else rowStatusColumn
+        hasProtectionColumns = self.db.table(table).hasProtectionColumns()
+        hasInvalidCheck = self.db.table(table).hasInvalidCheck()
+
+        rowStatusColumn = hasInvalidCheck or hasProtectionColumns if rowStatusColumn is None else rowStatusColumn
         grid_kwargs.setdefault('rowStatusColumn',rowStatusColumn)
         if fkeyfield:
             grid_kwargs.setdefault('excludeCols',fkeyfield)

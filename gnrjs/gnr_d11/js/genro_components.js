@@ -4381,8 +4381,177 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         }
     }
 });
+dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw){
+        var gnrwdg = sourceNode.gnrwdg;
+        if(objectPop(kw,'_workspace')!==false){
+            sourceNode.attr._workspace = true;
+        }
+        var userObjectPars = objectExtract(kw,'table,flags,objtype');
+        gnrwdg.newcaption  = _T(objectPop(kw,'newcaption') ||  'New empty '+userObjectPars.objtype);
+        objectUpdate(userObjectPars,objectExtract(kw,'userobject_*'));
+        gnrwdg.userObjectPars = userObjectPars;
+        gnrwdg.startUserObjectIdOrCode = kw.userObjectId;
+        gnrwdg.dataIndex = objectExtract(kw,'source_*');
+        gnrwdg.defaults = objectExtract(kw,'default_*');
+
+        let metadataPath = kw.metadata || '#WORKSPACE.metadata';
+        gnrwdg.metadataPath = metadataPath;
+        gnrwdg.handleFavorites = objectPop(kw,'handleFavorites');
+        gnrwdg.mainIdentifier = objectPop(kw,'mainIdentifier');
+        if(kw.onLoaded){
+            gnrwdg.onLoaded = funcCreate(kw.onLoaded,'dataIndex','resoultValue','resoultAttr',sourceNode);
+
+        }
+        return gnrwdg.buildToolbar(sourceNode);
+    },
+
+    gnrwdg_buildToolbar:function(sourceNode){
+        this.setLoadMenuData();
+        var bar = sourceNode._('slotBar','uo_bar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,favoritebtn,saveBtn,deletebtn,5'});
+        
+        if(this.mainIdentifier){
+            let barNode = bar.getParentNode();
+            var that = this;
+            let cb = function(){
+                console.log('register subscription',`${that.mainIdentifier}_newObject`)
+                barNode.registerSubscription(`${that.mainIdentifier}_newObject`,that,function(kwargs){
+                    this.loadObject('__newobj__');
+                });
+                barNode.registerSubscription(`${that.mainIdentifier}_loadObject`,that,function(kwargs){
+                    this.loadObject(kwargs.userobject);
+                });
+                barNode.registerSubscription(`${that.mainIdentifier}_loadObject`,that,function(kwargs){
+                    this.saveObject();
+                });
+            }
+            genro.src.onBuiltCall(cb);
+        }
+        
+        var that = this;
+        var favorite;
+        bar._('div','objTitle',{innerHTML:'^.description?=(#v || "New")',
+                                datapath:this.metadataPath,font_weight:'bold',
+                                font_size:'.9em',color:'#666'});
+        if(this.mainIdentifier && this.handleFavorites){
+            bar._('slotButton','favoritebtn',{'label':_T('Default'),
+                    action:function(){that.setCurrentAsFavorite();},
+                    iconClass:'highlightable iconbox star'});
+            favorite = this.getFavorite();
+        }
+        bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
+            menupath:'#WORKSPACE.loadMenu',action:function(item){
+                that.loadObject(item.pkey);
+        }});
+        bar._('slotButton','saveBtn',{iconClass:'iconbox save',label:'Save',
+                    action:function(){
+                        that.saveObject();
+                    }});
+        bar._('slotButton','deletebtn',{'label':_T('Delete'),iconClass:'iconbox trash',
+                    action:function(){
+                        that.deleteCurrentObject();
+                    }});
+        if(favorite){
+            this.loadObject(favorite || '__newobj__');
+        }
+        return bar;
+    },
+
+    gnrwdg_resetMenuData:function(){
+        var n = this.sourceNode.getRelativeData('#WORKSPACE').getNode('loadMenu');
+        n.getResolver().reset();
+    },
+
+    gnrwdg_setLoadMenuData:function(){
+        var that = this;
+        this.sourceNode.setRelativeData('#WORKSPACE.loadMenu',
+                                        genro.dev.userObjectMenuData(objectUpdate({},this.userObjectPars),
+                                                    [{pkey:'__newobj__',caption:this.newcaption},
+                                                    {pkey:'',caption:_T('New from current'),
+                                                    action:function(){
+                                                        that.newFromCurrent();
+                                                    }}]));
+    },
+
+    gnrwdg_setCurrentAsFavorite:function(){
+        var metadata = this.sourceNode.getRelativeData(this.metadataPath);
+        var pkey = metadata.getItem('pkey');
+        genro.setInStorage("local", this.storageKey(), pkey);
+        this.checkFavorite();
+    },
+
+    gnrwdg_getFavorite:function(){
+        return  genro.getFromStorage("local", this.storageKey());
+    },
+
+    gnrwdg_checkFavorite:function(){
+        var pkey = this.sourceNode.getRelativeData(`${this.metadataPath}.pkey`);
+        genro.dom.setClass(this.sourceNode.getParentNode(),'highlighted',pkey==this.getFavorite());
+    },
+
+    gnrwdg_storageKey:function(){
+        return this.userObjectPars.objtype + genro.getData('gnr.pagename') + '_' + this.mainIdentifier;
+    },
+
+    gnrwdg_deleteCurrentObject:function() {
+        var metadata = this.sourceNode.getRelativeData(this.metadataPath);
+        var pkey = metadata.getItem('pkey');
+        var that = this;
+        if(pkey){
+            genro.serverCall('_table.adm.userobject.deleteUserObject',{pkey:pkey},function(){
+                that.loadObject('__newobj__');
+                that.resetMenuData();
+            });
+        }else{
+             that.loadObject('__newobj__');
+        }
+    },
+
+    gnrwdg_saveObject:function() {
+        var kw = objectUpdate({},this.userObjectPars);
+        kw.dataIndex = objectUpdate({},this.dataIndex);
+        kw.metadataPath = this.metadataPath;
+        kw.title = _T('Save '+this.userObjectPars.objtype);
+        var onSaved = objectPop(kw,'onSaved');
+        var that = this;
+        if(!onSaved){
+            onSaved =function(result){
+                that.resetMenuData();
+            };
+        }
+        genro.dev.userObjectSave(this.sourceNode,kw,onSaved);
+    },
+
+    gnrwdg_loadObject:function(userObjectId,kw){
+        kw = kw || this.userObjectPars;
+        kw = objectUpdate({},kw);
+        kw.userObjectIdOrCode = userObjectId;
+        kw.metadataPath =  this.metadataPath;
+        var that = this;
+        kw.onLoaded = function(dataIndex,resultValue,resultAttr){
+            if(that.onLoaded){
+                that.onLoaded(dataIndex,resultValue,resultAttr);
+            }
+            that.checkFavorite();
+        }
+        if(userObjectId=='__newobj__'){
+            kw.dataIndex = this.dataIndex;
+            kw.defaults = this.sourceNode.evaluateOnNode(this.defaults);
+        }
+        genro.dev.userObjectLoad(this.sourceNode,kw);
+    },
+
+    gnrwdg_newFromCurrent:function(){
+        var code = this.sourceNode.getRelativeData(`${this.metadataPath}.code`);
+        this.sourceNode.setRelativeData(this.metadataPath,new gnr.GnrBag(this.userObjectPars));
+        genro.publish('floating_message',{message:_T(`New from ${code}`)});
+    },
+
+});
+
 
 dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
+    //legacy
     objtype:null,
     default_configurator_pars:null,
     newcaption:null,

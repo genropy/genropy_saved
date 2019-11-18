@@ -1,13 +1,13 @@
 /*vico*/
 body.tundra.mimi {
     font:14px "SF Pro Text","Myriad Set Pro","SF Pro Icons","Apple Legacy Chevron","Helvetica Neue","Helvetica","Arial",sans-serif;
-    color:#333;
+    color:#555;
 }
 .frameindexroot{
     background:#eeeeee;
 }
 .frameindexcenter{
-    background:#f6f6f6;
+    background:white;
 }
 
 /* @group Floating pane */
@@ -67,23 +67,29 @@ body.tundra.mimi {
 }
 
 ._common_d11.tundra.theme_variant_green .dojoxFloatingPaneTitle{
-    background-color: #306227;
+    background-color: #799f0c;
+    background:linear-gradient(to bottom, #799f0c, #70940c);
+    color:white;
 }
 
 ._common_d11.tundra.theme_variant_blue .dojoxFloatingPaneTitle{
-    background-color: #1A415E;
+    background-color: #182848;
+    background: linear-gradient(to bottom, #4b6cb7, #2c5481);
 }
 
 ._common_d11.tundra.theme_variant_red .dojoxFloatingPaneTitle{
-    background-color: #711B2A;
+    background-color: #d31027;
+    background:d31027linear-gradient(to bottom, #d31027, #ea384d);
 }
 
 ._common_d11.tundra.theme_variant_orange .dojoxFloatingPaneTitle{
-    background-color: #FF5226;
+    background-color:#e65c00;
+    background: linear-gradient(to bottom, #e65c00, #f96723);
 }
 
 ._common_d11.tundra.theme_variant_yellow .dojoxFloatingPaneTitle{
-    background-color: #86770E;
+    background-color:rgba(234, 203, 110, 1);
+    color:rgba(30, 48, 85, 1);
 }
 
 
@@ -115,33 +121,59 @@ body.tundra.mimi {
     color:white !important;
 }
 
-.pbl_root_top {
+.mimi .pbl_root_top {
     height: 24px;
     vertical-align: middle;
     color:rgba(30, 48, 85, 1);
-    background-color:rgba(234, 203, 110, 1) !important;
+    background-color:rgba(234, 203, 110, 1);
+}
+.mimi .pbl_root_top .gnrfieldlabel{
+    color:rgba(30, 48, 85, 1);
 }
 
+.mimi.theme_variant_green .pbl_root_top{
+    background-color: #799f0c;
+    background:linear-gradient(to bottom, #799f0c, #70940c);
+    color:white;
 
+}
+.mimi.theme_variant_green .pbl_root_top .gnrfieldlabel{
+    color:white;
+}
+.mimi.theme_variant_red .pbl_root_top{
+    background-color:#d31027;
+    background: linear-gradient(to bottom, #d31027, #ea384d);
+    color:white;
 
-.theme_variant_green .pbl_root_top{
-    background-color: #306227;
+}
+.mimi.theme_variant_red .pbl_root_top .gnrfieldlabel{
+    color:white;
 }
 
-.theme_variant_red .pbl_root_top{
-    background-color: #711B2A;
+.mimi.theme_variant_blue .pbl_root_top{
+    background-color: #182848;
+    background: linear-gradient(to bottom, #4b6cb7, #2c5481);
+    color:white;
+}
+.mimi.theme_variant_blue .pbl_root_top .gnrfieldlabel{
+    color:white;
 }
 
-.theme_variant_blue .pbl_root_top{
-    background-color: #1A415E;
+.mimi.theme_variant_orange .pbl_root_top{
+    background-color:#e65c00;
+    background: linear-gradient(to bottom, #e65c00, #f96723);
+    color:white;
+}
+.mimi.theme_variant_orange .pbl_root_top .gnrfieldlabel{
+    color:white;
 }
 
-.theme_variant_orange .pbl_root_top{
-    background-color:#FF5226;
+.mimi.theme_variant_yellow .pbl_root_top{
+    background-color:rgba(234, 203, 110, 1);
+    color:rgba(30, 48, 85, 1);
 }
-
-.theme_variant_yellow .pbl_root_top{
-    background-color:#86770E;
+.mimi.theme_variant_yellow .pbl_root_top .gnrfieldlabel{
+    color:rgba(30, 48, 85, 1);
 }
 
 
@@ -258,20 +290,23 @@ body.tundra.mimi {
 }
 
 .pbl_roundedGroupLabel {
-    height: 20px;
+    height: 22px;
     line-height:19px;
     padding-bottom: 0;
+    padding-top:2px;
     padding-left: 4px;
     padding-right: 4px;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
-    font-size: 0.9em;
-    background-color:#D9E9FC;
-    color: #555;
+    font-size: 1em;
+    background:#c2d0e9;
+    background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
+    color: #333;
 	text-indent: 2px;
 }
 .pbl_roundedGroupVertical {
-    background-color: #D9E9FC;
+    background:#c2d0e9;
+    background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
 }
 
 
@@ -298,7 +333,7 @@ body.tundra.mimi {
 .tundra._common_d11 .dijitButtonText{
     text-align: center;
     padding: 1px 0.4em;
-    color: #444;
+    color: #555;
 }
 
 .pbl_roundedGroupBottom {
@@ -318,12 +353,13 @@ body.tundra.mimi {
 }
 
 .pbl_rectGroupLabel {
-    height: 18px;
+    height: 22px;
     padding-left: 10px;
     font-size: 0.9em;
     padding-top: 5px;
-    background-color:#D9E9FC;
-    color: #feffff;
+    background:#c2d0e9;
+    background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
+    color: #333;
 }
 
 .pbl_rectGroupBottom {
@@ -331,7 +367,8 @@ body.tundra.mimi {
     padding-left: 10px;
     font-size: 0.9em;
     padding-bottom: 5px;
-    background-color:#D9E9FC;
+    background:#c2d0e9;
+    background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
 }
 
 /* @end */
@@ -360,15 +397,14 @@ body.tundra.mimi {
 }
 
 .alertBodyMessage{
-    color:#444;
+    color:#555;
     margin:12px;
 }
 /* @end */
 
 .tundra._common_d11 .dijitDialogTitleBar {
-    background-color:#711B2A;
+    background-image: linear-gradient(to right top, #172b51, #1b3058, #20345e, #243965, #293e6c);
     color: #ffffff;
-    background-image:none;
     vertical-align: middle;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
@@ -379,7 +415,7 @@ body.tundra.mimi {
 }
 
 .tundra._common_d11 .commonTitleBar {
-    background-color:#711B2A;
+    background-image: linear-gradient(to right top, #172b51, #1b3058, #20345e, #243965, #293e6c);
     color: #ffffff;
     text-align: center;
     font-weight:normal;
@@ -388,22 +424,28 @@ body.tundra.mimi {
 }
 
 .tundra._common_d11.theme_variant_green .dijitDialogTitleBar,.tundra._common_d11.theme_variant_green .commonTitleBar{
-    background-color: #306227;
+    background-color: #799f0c;
+    background:linear-gradient(to bottom, #799f0c, #70940c);
+    color:white;
 }
 
 .tundra._common_d11.theme_variant_red .dijitDialogTitleBar, .tundra._common_d11.theme_variant_red .commonTitleBar{
-    background-color:#E4E4E4;
+    background-color:#d31027;
+    background:linear-gradient(to bottom, #d31027, #ea384d);
 }
 .tundra._common_d11.theme_variant_blue .dijitDialogTitleBar, .tundra._common_d11.theme_variant_blue .commonTitleBar{
-    background-color:#1A415E;
+    background-color: #182848;
+    background: linear-gradient(to bottom, #4b6cb7, #2c5481);
 }
 
 .tundra._common_d11.theme_variant_orange .dijitDialogTitleBar, .tundra._common_d11.theme_variant_orange .commonTitleBar{
-    background-color: #FF5226;
+    background-color:#e65c00;
+    background: linear-gradient(to bottom, #e65c00, #f96723);
 }
 
 .tundra._common_d11.theme_variant_yellow .dijitDialogTitleBar, .tundra._common_d11.theme_variant_yellow .commonTitleBar{
-    background-color:#86770E;
+    background-color:rgba(234, 203, 110, 1);
+    color:rgba(30, 48, 85, 1);
 }
 
 
@@ -486,11 +528,11 @@ body.tundra.mimi {
     font-size: .9em;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
-
-    background-color:#D9E9FC;
     background-image: none;
+    background:#c2d0e9;
+    background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
     margin-right: 2px;
-    color: #444;
+    color: #333;
     font-weight: plain;
     /*background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));
   background-image:-moz-linear-gradient(top, bottom,from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));*/
@@ -658,11 +700,11 @@ body.tundra.mimi {
     line-height: 11px;
     margin-right: 8px;
     margin-top: 0px;
-    color: #444;
+    color: #555;
 }
 
 .menutree .menu_current_page {
-    color:#444;
+    color:#555;
 }
 .menutree .menu_existing_page.menu_shape  {
     font-weight:bold;
@@ -804,8 +846,8 @@ body.tundra.mimi {
 
 
 .draggedItem .dojoxGrid-row{
-    border-bottom:1px solid #333;
-    border-bottom:1px solid #333;
+    border-bottom:1px solid #555;
+    border-bottom:1px solid #555;
 
 }
 
@@ -948,7 +990,7 @@ body.tundra.mimi {
     line-height:16px;
     font-size: 8pt;
     font-variant:small-caps;
-    color:#333;
+    color:#555;
     background-color: #CDCDCD;
     border: 1px solid #666;
     cursor:pointer;
@@ -1142,8 +1184,26 @@ body.tundra.mimi {
     padding-bottom: 2px;
 }
 
+.popupLabel {
+    padding-right: 15px;
+    cursor: pointer;
+    background: url(/_rsrc/common/css_icons/svg/16/popup.svg) no-repeat right !important;
+}
+
+.popupLabel:hover {
+    background:rgba(234, 203, 110, 1.00);
+}
+
+
+
 
 /*----------------------------------------- icone svg -------------------------------------*/
+
+.tundra ._gnrInvalidRow ._statusIcon, .tundra ._gnrInvalidRow._gnrReadOnlyRow ._statusIcon ,
+.tundra ._gnrInvalidRow._gnrProtectionPass ._statusIcon{
+    background: url(/_rsrc/common/css_icons/svg/16/form_status_red.svg) no-repeat center center;
+}
+
 
 .mimi .archive_record, .mimi .box{
     background: url(/_rsrc/common/css_icons/svg/16/archive_record.svg) no-repeat center center;
@@ -1380,25 +1440,18 @@ background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat c
     background: url(/_rsrc/common/css_icons/svg/16/online_help.svg) no-repeat center center;
 
 }
-
-
-.mimi .ping_semaphore{
-    height: 16px;
-    width: 16px;
-    background: none;
-    transition-duration:1s;
-    -webkit-transition-duration: 1s;
-    -moz-transition-duration: 1s;
-}
-.mimi .ping_start .ping_semaphore{
-    background: url(/_rsrc/common/css_icons/svg/16/socket_transmitting.svg) no-repeat center center;
+.mimi .iconbox.spanner, .mimi .toolbox{
+    background: url(/_rsrc/common/css_icons/svg/16/toolbox.svg) no-repeat center center;
 }
 
-.mimi .ping_error .ping_semaphore{
-    background: url(/_rsrc/common/css_icons/svg/16/sockets_disconnected.svg) no-repeat center center;
+.mimi .iconbox.pencil .mimi .edit{
+    background: url(/_rsrc/common/css_icons/svg/16/pencil.svg) no-repeat center center;
 }
 
 
-/* .mimi.tundra .dijitFolderClosed{
+.mimi .folder{
     background: url(/_rsrc/common/css_icons/svg/16/folder.svg) no-repeat center center;
-} */
+}
+
+
+

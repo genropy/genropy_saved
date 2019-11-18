@@ -987,7 +987,7 @@ var gnrformatter = {
         var formattedValue;
         var format = objectPop(formatKw,'format');
         if((value===null || value===undefined) && dtype!='B'){
-            if(isNumericType(dtype) && format.includes(';')){ 
+            if(isNumericType(dtype) && format && format.includes(';')){ 
                 value = 0;
             }else{
                 return '';

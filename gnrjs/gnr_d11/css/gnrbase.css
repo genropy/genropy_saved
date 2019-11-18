@@ -2811,6 +2811,11 @@ border='1px solid gray',margin='2px', rounded=10,
     background:url(icons/base16/locked.gif) no-repeat center center;
 }
 
+.tundra ._gnrInvalidRow ._statusIcon, .tundra ._gnrInvalidRow._gnrReadOnlyRow ._statusIcon ,
+.tundra ._gnrInvalidRow._gnrProtectionPass ._statusIcon{
+    background: url(icons/base16/semaphore_red.png) no-repeat center center;
+}
+
 .tundra ._gnrProtectionPass ._statusIcon{
 }
 

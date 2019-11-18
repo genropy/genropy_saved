@@ -933,12 +933,13 @@ class ThPackageResourceMaker(object):
                 self.write("fb.field('%s')"%column, indent=2)
             if len(children)>1:
                 self.write("tc = bc.tabContainer(region='center',margin='2px')", indent=2)
-                for c in children:
+                for c,mode in children:
                     self.write("tab_%s = tc.contentPane(title='%s')" %(c.replace('@',''),(tblobj.name_plural or tblobj.name_long)), indent=2)
-                    self.write("tab_%s.dialogTableHandler(relation='%s')" %(c.replace('@',''),c), indent=2)
+                    self.write("tab_%s.%sTableHandler(relation='%s')" %(c.replace('@',''),mode,c), indent=2)
             else:
+                c,mode = children[0]
                 self.write("center = bc.contentPane(region='center')", indent=2)
-                self.write("center.plainTableHandler(relation='%s')" %children[0], indent=2)
+                self.write("center.%sTableHandler(relation='%s')" %(mode,c), indent=2)
         else:
             self.write("pane = form.record", indent=2)
             self.write("fb = pane.formbuilder(cols=%i, border_spacing='4px')"%self.option_columns, indent=2)
@@ -952,14 +953,18 @@ class ThPackageResourceMaker(object):
         self.write()
         self.write()
         self.write("def th_options(self):", indent=1)
-        self.write("return dict(dialog_height='400px', dialog_width='600px')", indent=2)
+        hierarchical  = tblobj.column('hierarchical_pkey') is not None
+        hierarchical_chunk = ''
+        if hierarchical:
+            hierarchical_chunk = 'hierarchical=True'
+        self.write("return dict(dialog_height='400px', dialog_width='600px' %s)" %hierarchical_chunk, indent=2)
 
 
     def getChildrenRelations(self,tblobj):
         result = []
         for relation,j in tblobj.relations.digest('#k,#a.joiner'):
-            if j and j['mode'] == 'M' and j.get('onDelete') == 'cascade':
-                result.append(relation)
+            if j and j['mode'] == 'M' and j.get('thmode'):
+                result.append((relation,j.get('thmode')))
         return result
 
     def createResourceFile(self, table):

@@ -5,6 +5,7 @@
 # Copyright (c) 2012 Softwell. All rights reserved.
 
 from builtins import str
+from collections import defaultdict
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrdecorator import public_method
 from gnr.web.gnrwebstruct import struct_method
@@ -196,7 +197,7 @@ class ExtDbExplorer(BaseComponent):
                                                         unique=colattr.get('unique')))
                     columns_bag.setItem(colname,b)
                     if colattr.get('relate_to'):
-                        b.setItem('_relation',Bag(dict(relation=colattr['relate_to'].lower(),onDelete='raise')))
+                        b.setItem('_relation',Bag(dict(relation=colattr['relate_to'].lower(),onDelete='raise',meta_thmode='dialog')))
                 table_data['caption_field'] = caption_field
                 self.makeOneTable(os.path.join(modelpath,'%s.py' %tablename),table_data=table_data)
 
@@ -247,6 +248,9 @@ class ExtDbExplorer(BaseComponent):
             if os.path.isdir(modelpath):
                 existing_tables = [os.path.splitext(r)[0] for r in [r for r in os.listdir(modelpath) if r.endswith('.py')]]
         src = externaldb.model.src
+        relations_dict = defaultdict(dict)
+        for r in externaldb.adapter.relations():
+            relations_dict[(r[1],r[2])][r[3][0]] = dict(reltable=(r[5],r[6]),pkey=r[7][0])
         result = Bag()
         for pkg in list(src['packages'].keys()):
             pkgval = Bag()
@@ -256,6 +260,7 @@ class ExtDbExplorer(BaseComponent):
                 continue
             tables.sort('#k')
             for table,tblattr,tblval in tables.digest('#k,#a,#v'):
+                fkeys = relations_dict[(pkg,table)]
                 tblattr = dict(tblattr)
                 imported_table = table.lower() in existing_tables
                 if imported_table and avoidImported:
@@ -275,9 +280,12 @@ class ExtDbExplorer(BaseComponent):
                         cv['table_%s' %t] = v
                     #cv['checked'] = False
                     cv['name'] = column
+                    fkey = fkeys.get(column)
                     if colval:
                         relnode = colval.getNode('relation')
                         cv['relate_to'] = relnode.attr['related_column']
+                    if fkey and not cv.get('relate_to'):
+                        cv['relate_to'] = '%s.%s' %(fkey['reltable'][1],fkey['pkey'])
                     tableval.setItem(column,None,**cv)
                 if tblval['indexes']:
                     for column,unique in tblval['indexes'].digest('#a.columns,#a.unique'):
