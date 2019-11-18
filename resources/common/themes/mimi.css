@@ -1156,7 +1156,7 @@ body.tundra.mimi {
     border: 1px solid #777;
     font-variant: normal;
     border-radius: 5px;
-    padding: 2px 2px;
+    padding: 1px 2px;
     box-shadow: none;
     font-weight: bold;
 }
@@ -1212,7 +1212,9 @@ body.tundra.mimi {
 }
 
 .darktoolbar{
-    background-color: #666;
+    background-color: #444;
+    background-image: linear-gradient(to bottom,#f5f8fa46, #eff1f344, #f3f4f531);
+
 }
 .mimi .slotbar_toolbar {
     padding-top: 2px;
