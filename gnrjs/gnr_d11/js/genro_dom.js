@@ -31,7 +31,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         this.pendingHeaders = {};
         this.css3AttrNames = ['rounded','gradient','shadow','transform','transition','zoom','filter'];
         this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom', 'resize',
-            'visibility','opacity', 'overflow', 'float', 'clear', 'display',
+            'visibility','opacity', 'overflow', 'float', 'clear', 'display','line_height',
             'z_index', 'border','position','padding','margin','cursor',
             'color','white_space','vertical_align','background','font','text'].concat(this.css3AttrNames);
         

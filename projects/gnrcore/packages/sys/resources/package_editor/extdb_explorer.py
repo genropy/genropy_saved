@@ -67,8 +67,7 @@ class ExtDbExplorer(BaseComponent):
         bar.confirm.div(hidden='^.instance?=!#v').button('Add to model',action="""
             FIRE .addToModel;
         """)
-
-
+  
     def extdb_contentFrame(self,frame):
         top = frame.top.slotToolbar('2,fbconnection,5,connecbutton,*,2',height='22px')
         bc = frame.center.borderContainer()
@@ -80,7 +79,17 @@ class ExtDbExplorer(BaseComponent):
         fb.textbox(value='^.port',lbl='Port',width='5em',hidden='^.implementation?=#v=="sqlite"')
         fb.textbox(value='^.user',lbl='User',width='7em',hidden='^.implementation?=#v=="sqlite"')
         fb.textbox(value='^.password',lbl='Password',width='5em',hidden='^.implementation?=#v=="sqlite"')
-        fb.textbox(value='^.filename',lbl='Filename',width='50em',hidden='^.implementation?=#v!="sqlite"')
+        #fb.textbox(value='^.filename',lbl='Filename',
+        #            width='50em',hidden='^.implementation?=#v!="sqlite"')
+        fb.dropUploader(nodeId="sqliteUploader",
+            uploadPath='page:sqliteSource',
+            filename='sqlite_source.db',
+            height = '20px', width='30em',
+            line_height='18px',font_size='15px',
+            onResult="""genro.publish('floating_message',{message:_T('Sql file added. Press connect'),messageType:'message'});""",
+            hidden='^.implementation?=#v!="sqlite"',
+            label= '!![en]Drop sqlite file here or do double click to browse your disk')
+
         top.connecbutton.slotButton('Connect',
                                     action="""FIRE .connect= new gnr.GnrBag({"avoidImported":avoidImported,"avoidNoPkey":avoidNoPkey,"avoidEmpty":avoidEmpty});""",
                                     ask=dict(title='Connect options',
@@ -215,12 +224,15 @@ class ExtDbExplorer(BaseComponent):
         return result
 
     def extdb_getSourceDb(self,connection_params=None):
-        dbname=connection_params['dbname'] or connection_params['filename']
-        if connection_params['implementation']!='sqlite':
+        dbname=connection_params['dbname']
+        if connection_params['implementation'] == 'sqlite':
+            dbname = self.site.storageNode(connection_params['filename']).internal_path
+        else:
             connection_params['host'] = connection_params['host'] or 'localhost'
             connection_params['user'] = connection_params['user']
             connection_params['password'] = connection_params['password']
             connection_params['port'] = connection_params['port']
+        
         externaldb = GnrSqlDb(implementation=connection_params['implementation'],
                             dbname=dbname,
                             host=connection_params['host'],user=connection_params['user'],
@@ -235,6 +247,8 @@ class ExtDbExplorer(BaseComponent):
         avoidImported = connection_options['avoidImported']
         avoidNoPkey = connection_options['avoidNoPkey']
         avoidEmpty = connection_options['avoidEmpty']
+        if connection_params['filename']:
+            connection_params['filename'] = self.site.storageNode(connection_params['filename']).internal_path
         if avoidEmpty:
             externaldb.model.build()
         #externaldb.table('targetcross.anl_budget').query().count()
