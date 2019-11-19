@@ -86,10 +86,11 @@ class ImapReceiver(object):
         new_mail['to_address'] = str(mail['To']) if mail['To'] else None
         new_mail['cc_address'] = str(mail['Cc']) if mail['Cc'] else None
         new_mail['bcc_address'] = str(mail['Bcc']) if mail['Bcc'] else None
-        new_mail['subject'] = self.smartConverter(mail['Subject'],encoding)
+        #new_mail['subject'] = self.smartConverter(mail['Subject'],encoding)
+        new_mail['subject'] =mail['Subject']
         date = mail['Date']
         if date:
-            datetuple = email.Utils.parsedate(date.replace('Date:','').replace('.',':')) #some emails have '.' instead of ':' for time format
+            datetuple = email.utils.parsedate(date.replace('Date:','').replace('.',':')) #some emails have '.' instead of ':' for time format
             if datetuple:
                 try:
                     new_mail['send_date'] = datetime.datetime(datetuple[0],datetuple[1],datetuple[2],datetuple[3],datetuple[4])
@@ -101,17 +102,19 @@ class ImapReceiver(object):
     
     def parseBody(self, part, new_mail, part_content_type=None):
         if part_content_type == 'text/html':
-            content = part.get_payload(decode=True)
+            content = part.get_payload()#decode=True)
             content = BASE_RE.sub('',content)
             #encoding = chardet.detect(content)['encoding']
             encoding = part.get_content_charset()
-            new_mail['body'] = self.smartConverter(content,encoding)
+            new_mail['body'] = content
+            #new_mail['body'] = self.smartConverter(content,encoding)
             new_mail['html'] = True
         elif part_content_type == 'text/plain':
-            content = part.get_payload(decode=True)
+            content = part.get_payload()#decode=True)
             #encoding = chardet.detect(content)['encoding']
-            encoding = part.get_content_charset() or 'utf8'
-            new_mail['body_plain'] = self.smartConverter(content,encoding)
+            #encoding = part.get_content_charset() or 'utf8'
+            new_mail['body_plain'] = content
+            #new_mail['body_plain'] = self.smartConverter(content,encoding)
 
     def smartConverter(self,m,encoding=None):
         if not m:
@@ -131,11 +134,11 @@ class ImapReceiver(object):
             return str('')
 
     
-    def parseAttachment(self, part, new_mail, part_content_type=None):
+    def parseAttachment(self, part, new_mail, part_content_type=None, encoding=None):
         new_attachment = dict(message_id = new_mail['id'])
         filename = part.get_filename()
-        filename = email.Header.decode_header(filename)[0][0]
-        filename =  self.smartConverter(filename)
+        filename = email.header.decode_header(filename)[0][0]
+        #filename =  self.smartConverter(filename, encoding)
         
         counter = 1
         if not filename:
@@ -188,20 +191,21 @@ class ImapReceiver(object):
                 make_message = make_message or getattr(self.messages_table,fname)(mail) is not False
             if make_message is False:
                 return False
-        encoding = mail.get_content_charset()
+        encoding = mail.get_content_charset() or chardet.detect(email_body)['encoding']
         b = Bag(mail)
-        for k,v in list(b.items()):
-            if isinstance(v,basestring):
-                b[k] = self.smartConverter(v,encoding)
+        #for k,v in list(b.items()):
+        #    if isinstance(v,bytes):
+        #        b[k] = self.smartConverter(v,encoding)
         new_mail['email_bag'] = b
         self.fillHeaders(mail, new_mail,encoding)
         if self.messages_table.spamChecker(new_mail) is True:
             return
         if mail.get_content_maintype() not in ('multipart','image'):
-            content = mail.get_payload(decode=True)
+            content = mail.get_payload()#decode=True)
             encoding = mail.get_content_charset()
             #encoding = chardet.detect(content)['encoding']
-            new_mail['body'] = self.smartConverter(content,encoding)
+            #new_mail['body'] = self.smartConverter(content,encoding)
+            new_mail['body'] = content
             new_mail['body_plain'] = new_mail['body']
         else:
             for part in mail.walk():

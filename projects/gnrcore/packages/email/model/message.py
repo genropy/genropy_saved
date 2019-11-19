@@ -74,7 +74,7 @@ class Table(object):
         return list(outaddress.keys())
 
     def parsedAddress(self,address):
-        return email.Utils.parseaddr(address)
+        return email.utils.parseaddr(address)
             
     def deleteAddressRelations(self,record):
         self.db.table('email.message_address').deleteSelection('message_id',record['id'])
