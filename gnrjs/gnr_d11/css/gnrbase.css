@@ -4585,6 +4585,9 @@ div[disabled='true'], div[disabled='disabled']{
 .fm_close{
     background: url(icons/fm_close.gif) no-repeat center center;
 }
+.dlg_prompt{
+    background:white;
+}
 
 .dlg_closebtn{
     height: 18px;

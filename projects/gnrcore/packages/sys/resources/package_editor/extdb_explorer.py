@@ -69,11 +69,25 @@ class ExtDbExplorer(BaseComponent):
             FIRE .addToModel;
         """)
 
+    @public_method
+    def onUploaded_exdbSqliteUploader(self, file_url=None, file_path=None, file_ext=None, instance_name=None,
+                                  action_results=None,filename=None, **kwargs):
+        sn = self.site.storageNode(file_path)
+        p = PathResolver()
+        instance_path = p.instance_name_to_path(instance_name)
+        destpath = os.path.join(instance_path,'data','legacy',filename)
+        sn.move(destpath)
+        self.clientPublish('update_filename',filename=destpath,nodeId='exdb_params')
+
 
     def extdb_contentFrame(self,frame):
         top = frame.top.slotToolbar('2,fbconnection,5,connecbutton,*,2',height='22px')
         bc = frame.center.borderContainer()
-        fb = top.fbconnection.formbuilder(cols=7,border_spacing='3px',datapath='.connection_params')
+        fb = top.fbconnection.formbuilder(cols=7,border_spacing='3px',nodeId='exdb_params',
+                                        selfsubscribe_update_filename="""SET .filename = $1.filename
+                                        genro.publish('floating_message',{message:_T('Sql file added. Press connect'),messageType:'message'});
+                                        """,
+                                        datapath='.connection_params')
         fb.filteringSelect(value='^.implementation',values='postgres,sqlite,mysql,mssql',
                             lbl='Implementation',width='7em')
         fb.textbox(value='^.dbname',lbl='Dbname',width='8em',hidden='^.implementation?=#v=="sqlite"')
@@ -81,7 +95,14 @@ class ExtDbExplorer(BaseComponent):
         fb.textbox(value='^.port',lbl='Port',width='5em',hidden='^.implementation?=#v=="sqlite"')
         fb.textbox(value='^.user',lbl='User',width='7em',hidden='^.implementation?=#v=="sqlite"')
         fb.textbox(value='^.password',lbl='Password',width='5em',hidden='^.implementation?=#v=="sqlite"')
-        fb.textbox(value='^.filename',lbl='Filename',width='50em',hidden='^.implementation?=#v!="sqlite"')
+        fb.dropUploader(nodeId='exdbSqliteUploader',
+            rpc_instance_name='=main.data.record.instance_name', 
+            uploadPath='page:sqliteSource',
+            height = '16px', width='30em',
+            line_height='15px',font_size='14px',
+            hidden='^.implementation?=#v!="sqlite"',
+            label= '!![en]Drop sqlite file here or do double click to browse your disk')
+    
         top.connecbutton.slotButton('Connect',
                                     action="""FIRE .connect= new gnr.GnrBag({"avoidImported":avoidImported,"avoidNoPkey":avoidNoPkey,"avoidEmpty":avoidEmpty});""",
                                     ask=dict(title='Connect options',

@@ -326,7 +326,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         resultPath = resultPath;
         var that = this;
         var node = genro.src.getNode(alertCode).clearValue().freeze();
-        var dlg = node._('dialog', objectUpdate({nodeId:alertCode, title:title, 
+        var dlg = node._('dialog', objectUpdate({nodeId:alertCode, title:title, _class:'dlg_alert',
                                                 connect_show:function(){
                                                     that.alert_count+=1;
                                                 },connect_hide:function(){
@@ -381,7 +381,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             actions = resultPathOrActions || {};
             action = "genro.wdgById('"+alertCode+"').hide();if (this.attr.act){funcCreate(this.attr.act).call();};";
         }
-        var dlg = node._('dialog', {nodeId:alertCode,title:title,
+        var dlg = node._('dialog', {nodeId:alertCode,title:title,_class:'dlg_alert',
                                     connect_show:function(){
                                         that.alert_count+=1;
                                     },connect_hide:function(){
@@ -500,7 +500,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var prompt_datapath = 'gnr.promptDlg.prompt_'+genro.dlg.prompt_counter;
         var promptvalue_path = prompt_datapath+'.promptvalue';
         genro.setData(promptvalue_path,dflt || null);
-        dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:prompt_datapath,background:'white',autoSize:true},dlg_kw);
+        dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:prompt_datapath,_class:'dlg_prompt',autoSize:true},dlg_kw);
         var dlg = genro.dlg.quickDialog(title,dlg_kw,sourceNode);
         var mandatory = objectPop(kw,'mandatory');
         var actionCb = function(command){
@@ -684,7 +684,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     quickDialog: function(title,kw,rootNode) {
-        kw = objectUpdate({},kw);
+        kw = objectUpdate({_class:'dlg_prompt'},kw);
         var quickRoot = '_dlg_quick_'+genro.getCounter();
         var node;
         if(!rootNode){
