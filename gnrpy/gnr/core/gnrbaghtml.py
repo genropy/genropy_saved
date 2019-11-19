@@ -343,9 +343,11 @@ class BagToHtml(object):
         self._rows[gridName or '_main_'] = rows
 
     def getRows(self, gridName=None):
-        
-        if self.getData(self.rows_path):
-            self._rows['_main_'] = self.getData(self.rows_path)
+        sp = self.rows_path.split('.',1)
+        if sp[0]=='record':
+            self._rows['_main_'] = self.record[sp[1]]
+        elif self.rows_path in self._data:
+            self._rows['_main_'] = self._data[self.rows_path]
         if not gridName and not '_main_' in self._rows:
             self._rows['_main_'] = self.gridData()
         return self._rows[gridName or '_main_']
