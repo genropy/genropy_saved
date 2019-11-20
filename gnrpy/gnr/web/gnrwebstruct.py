@@ -155,10 +155,10 @@ def externalStore(tableobj,field,joiner,fkey,ext_fldname,kwargs):
     ext_table = '.'.join(joiner['one_relation'].split('.')[0:2])
     storefield = joiner.get('storefield')
     kwargs['_joiner_storename'] = storefield if storefield else " '%s' " % (joiner.get('_storename') or tableobj.db.rootstore)
-    kwargs['_external_fkey'] ='$%s AS %s_fkey' %(fkey,ext_table.replace('.','_'))
+    kwargs['_external_fkey'] ='$%s AS %s_fkey' %(fkey,joiner['one_relation'].replace('.','_'))
     if not ext_fldname.startswith('@'):
         ext_fldname = '$%s' %ext_fldname
-    kwargs['_external_name'] = '%s:%s AS %s' %(ext_table,ext_fldname,field.replace('.','_').replace('@','_'))
+    kwargs['_external_name'] = '%s:%s AS %s' %(joiner['one_relation'],ext_fldname,field.replace('.','_').replace('@','_'))
 
     
     

@@ -917,8 +917,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             columns = []
             for col in colaux:
                 if ':' in col:
-                    external_table,external_field = col.split(':')
-                    external_queries.setdefault(external_table,[]).append(external_field)
+                    external_relkey,external_field = col.split(':')
+                    external_queries.setdefault(external_relkey,[]).append(external_field)
                     continue
                 if '[' in col:
                     tbl, col = col.split('[')
@@ -946,14 +946,16 @@ class GnrWebAppHandler(GnrBaseProxy):
         storedict = dict()
         for r in selection.data:
             storedict.setdefault(r['_external_store'],[]).append(r)
-        for store,subsel in list(storedict.items()):
+        for store,subsel in storedict.items():
             with self.db.tempEnv(storename=store):
-                for k,v in list(external_queries.items()):
-                    tblobj = self.db.table(k)
+                for k,v in external_queries.items():
+                    ksplitted = k.split('.')
+                    tblobj = self.db.table('.'.join(ksplitted[:2]))
+                    relkey = ksplitted[-1]
                     extfkeyname = '%s_fkey' %k.replace('.','_')
                     fkeys = [r[extfkeyname] for r in selection.data]
-                    columns = ','.join(v+['$%s AS %s' %(tblobj.pkey,extfkeyname)])
-                    resdict = tblobj.query(columns=columns,where='$%s IN :fkeys' %tblobj.pkey,fkeys=fkeys,addPkeyColumn=False).fetchAsDict(key=extfkeyname)
+                    columns = ','.join(v+['$%s AS %s' %(relkey,extfkeyname)])
+                    resdict = tblobj.query(columns=columns,where='$%s IN :fkeys' %relkey,fkeys=fkeys,addPkeyColumn=False).fetchAsDict(key=extfkeyname)
                     for r in subsel:
                         if r[extfkeyname] in resdict:
                             r.update(resdict[r[extfkeyname]])
