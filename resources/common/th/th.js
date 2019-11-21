@@ -324,6 +324,7 @@ dojo.declare("gnr.LinkerManager", null, {
         }
         var default_kw = this.sourceNode.evaluateOnNode(this.default_kwargs);
         if(this.linkerform){
+            this.linkerform.sourceNode.attr.context_dbstore = this.sourceNode.inheritedAttribute('context_dbstore');
             this.linkerform.load({destPkey:pkey,default_kw:default_kw});
             this.thdialog.show();
         }else{
@@ -346,7 +347,6 @@ dojo.declare("gnr.LinkerManager", null, {
                 objectExtract(iframeDialogKw,'height,width');
             }
             objectUpdate(iframeDialogKw,this.dialog_kwargs);
-            console.log('iframeDialogKw',iframeDialogKw);
             var thdialog = genro.src.create('thIframeDialog',iframeDialogKw,this.sourceNode.getStringId());
             this.thdialog = thdialog.getParentNode().getWidget();
             this.thdialog.show();
@@ -356,6 +356,7 @@ dojo.declare("gnr.LinkerManager", null, {
     onIframeStarted:function(iframe,pkey,default_kw){
         default_kw = default_kw || {};
         this.linkerform = iframe._genro.formById(this.fakeFormId);
+        this.linkerform.sourceNode.attr.context_dbstore = this.sourceNode.inheritedAttribute('context_dbstore');
         this.linkerform.load({destPkey:pkey,default_kw:default_kw});
         var that = this;
         this.linkerform.subscribe('onSaved',function(kw){
