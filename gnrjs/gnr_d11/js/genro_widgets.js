@@ -1566,6 +1566,18 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
         },1);
     },
 
+    connectFocus: function(widget, savedAttrs, sourceNode) {
+        if (sourceNode.attr._autoselect && !genro.isMobile) {
+            dojo.connect(widget, 'onFocus', widget, function(e) {
+                setTimeout(dojo.hitch(this, 'selectAllInputText'), 1);
+            });
+        }
+    },
+
+    mixin_selectAllInputText: function() {
+        dijit.selectInputText(this.focusNode);
+    },
+
     creating:function(attributes, sourceNode) {
         var savedAttrs = objectExtract(attributes, 'value,shortcuts');
         return savedAttrs;
@@ -1586,13 +1598,13 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
         }));
         dojo.connect(sourceNode,'setValidationError',function(result){
             newobj.state = result.error?'Error':null;
-
         })
+        this.connectFocus(newobj, savedAttrs, sourceNode);
     },
 
     cell_onCreating:function(gridEditor,colname,colattr){
         colattr['z_index']= 1;
-        colattr['position'] = 'fixed';
+        //colattr['position'] = 'fixed';
         colattr['height'] = colattr['height'] || '100px';
     },
 
