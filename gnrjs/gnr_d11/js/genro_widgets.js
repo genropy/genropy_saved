@@ -4934,6 +4934,10 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
             this.onPositionCall(sourceNode,kw.center,function(center){
                 kw.center=center;
                 sourceNode.map=new google.maps.Map(sourceNode.domNode,kw);
+                var events = objectExtract(kw,'event_*');
+                for(let k in events){
+                    sourceNode.map.addListener(k,funcCreate(events[k],'kw',sourceNode));
+                }
                 var centerMarker = sourceNode.attr.centerMarker;
                 if(centerMarker){
                     that.setMarker(sourceNode,'center_marker',kw.center,centerMarker==true?{}:centerMarker);
