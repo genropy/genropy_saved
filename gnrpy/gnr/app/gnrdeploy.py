@@ -1019,11 +1019,12 @@ daemon = False
 errorlog = '%(logs_path)s/error.log'
 logfile = '%(logs_path)s/main.log'
 workers = %(workers)i
+threads = %(threads)i
 loglevel = 'error'
 chdir = '%(chdir)s'
 reload = False
 capture_output = True
-worker_class = 'gevent'
+#worker_class = 'gevent'
 max_requests = %(max_requests)i
 max_requests_jitter = %(max_requests_jitter)i
 timeout = 1800
@@ -1106,6 +1107,7 @@ class GunicornDeployBuilder(object):
         self.create_dirs()
         import multiprocessing
         self.default_workers = multiprocessing.cpu_count()* 2 + 1
+        self.default_workers = 4
         self.default_max_requests = 300
         self.default_max_requests_jitter = 50
         self.options = kwargs
@@ -1121,6 +1123,8 @@ class GunicornDeployBuilder(object):
         pars['gunicorn_socket_path'] = self.gunicorn_socket_path
         pars['pidfile_path'] = self.site_name
         pars['workers'] = int(opt.get('workers') or self.default_workers)
+        pars['threads'] = int(opt.get('threads') or self.default_threads)
+
         pars['pidfile_path'] = self.pidfile_path
         pars['site_path'] = self.site_path
         pars['logs_path'] = self.logs_path

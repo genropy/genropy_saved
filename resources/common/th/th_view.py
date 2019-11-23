@@ -498,7 +498,7 @@ class TableHandlerView(BaseComponent):
         for i,kw in enumerate(sectionslist):
             code = kw.get('code') or 'r_%i' %i
             if kw.get('isDefault'):
-                meta.setdefault('dflt',code)
+                meta['dflt'] = meta.get('dflt') or code
             sectionsBag.setItem(code,None,**kw)
         return sectionsBag
 
@@ -561,6 +561,7 @@ class TableHandlerView(BaseComponent):
         pane.data('.variable_struct',variable_struct)
         if sectionsBag:
             if not dflt:
+                
                 dflt = sectionsBag.getNode('#0').label
             pane.data('.current',dflt)
 
@@ -1005,6 +1006,7 @@ class TableHandlerView(BaseComponent):
         """,_runQueryDo='^.runQueryDo',viewPage='=.viewPage')
         store_kwargs.setdefault('weakLogicalDeleted',options.get('weakLogicalDeleted'))
         multiStores = store_kwargs.pop('multiStores',None)
+        frame.data('.query.limit',store_kwargs.pop('limit',None))
         store = frame.grid.selectionStore(table=table,
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where',
