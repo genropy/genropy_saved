@@ -253,7 +253,7 @@ class DashboardGallery(BaseComponent):
 
     def di_dashboardItemPalettes(self,pane,dashboardNodeId=None):
         pg = pane.paletteGroup(groupCode='dasboardTools',width='700px',title='!!Item picker',
-                                dockButton=dict(hidden='^.selectedDashboard?=!#v', iconClass='iconbox app'))
+                                dockButton=dict(hidden='^.selectedDashboard?=!#v', iconClass='iconbox app picker'))
         self.di_userObjectsTree(pg,dashboardNodeId=dashboardNodeId)
         self.di_itemClassesTree(pg,dashboardNodeId=dashboardNodeId)
         self.di_userObjectMakerDlg(pane,dashboardNodeId=dashboardNodeId)
