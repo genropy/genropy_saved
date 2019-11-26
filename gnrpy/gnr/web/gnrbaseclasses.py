@@ -387,10 +387,13 @@ class TableScriptToHtml(BagToHtml):
             group_aggr = attr.get('group_aggr')
             if group_aggr:
                 field_getter = '%s_%s' %(field_getter,group_aggr)
+            content_class = attr.get('cellClasses') or attr.get('content_class')
+            lbl_class = attr.get('headerClasses') or attr.get('lbl_class')
             pars = dict(field=field,name=self.page.localize(attr.get('name')),field_getter=field_getter,
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),subtotal=attr.get('subtotal'),
-                        style=attr.get('style'),sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
+                        style=attr.get('style'), content_class = content_class, lbl_class=lbl_class,
+                        sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
                         columnset=attr.get('columnset'),sheet=attr.get('sheet','*'),
                         totalize=attr.get('totalize'),formula=attr.get('formula'),
                         background=attr.get('background'),color=attr.get('color'),
