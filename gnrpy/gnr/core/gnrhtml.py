@@ -101,7 +101,7 @@ class GnrHtmlSrc(GnrStructData):
         #    kwargs['_name'] = kwargs.pop('name')
         return super(GnrHtmlSrc, self).child(tag, *args, **kwargs)
         
-    def layout(self, name='l1', um='mm', top=0, left=0, bottom=0, right=0, width=0, height=0,
+    def layout(self, name=None, um='mm', top=0, left=0, bottom=0, right=0, width=0, height=0,
                border_width=None,border_color=None, border_style='solid', row_border=True, cell_border=True,
                lbl_height=3, lbl_class='lbl_base', content_class='content_base',
                hasBorderTop=None, hasBorderLeft=None, hasBorderRight=None, hasBorderBottom=None,
@@ -131,6 +131,10 @@ class GnrHtmlSrc(GnrStructData):
         :param \*\*kwargs: you can pass:
         
             * *style*: a string with css style"""
+        name = name or 'l_{}'.format('_'.join([p for p in self.fullpath.split('.') \
+                            if p.startswith('layout_') \
+                              or p.startswith('row_') \
+                                or p.startswith('cell_')]))
         default_kwargs = self.defaultKwargs()
         if border_width is None:
             border_width = default_kwargs.get('layout_border_width') or default_kwargs.get('border_width',0)
@@ -412,7 +416,7 @@ class GnrHtmlBuilder(object):
         else:
             height = self.page_height - self.page_margin_top - self.page_margin_bottom
             width = self.page_width - self.page_margin_left - self.page_margin_right
-            letterhead_root = letterhead_root.layout(top=0,left=0,border=0,width=width,height=height).row().cell()
+            letterhead_root = letterhead_root.layout(name='paper',top=0,left=0,border_width=0,width=width,height=height).row().cell()
         if firstpage and self.print_button:
             letterhead_root.div(self.print_button, _class='no_print', id='printButton', onclick='window.print();')
         return letterhead_root
