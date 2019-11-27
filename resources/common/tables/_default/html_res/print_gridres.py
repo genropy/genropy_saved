@@ -146,4 +146,4 @@ class Main(TableScriptToHtml):
         row.cell(self.getData('print_title'), content_class='caption')    
 
     def outputDocName(self, ext=''):
-        return '%s.%s' %(self.getData('print_title') or self.page.getUuid() ,ext)
+        return '%s.%s' %(self.parameter('print_title') or self.page.getUuid() ,ext)
