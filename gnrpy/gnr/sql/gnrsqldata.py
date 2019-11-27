@@ -633,7 +633,7 @@ class SqlQueryCompiler(object):
         elif distinct is None or distinct == '':
             if self._explodingRows:
                 if not aggregate:              # if there is not yet a group_by
-                    distinct = 'DISTINCT '     # add a DISTINCT to remove unusefull rows: eg. a JOIN used only for a where, not for columns
+                    #distinct = 'DISTINCT '     # add a DISTINCT to remove unusefull rows: eg. a JOIN used only for a where, not for columns
                     if order_by:
                         xorderby= gnrstring.split((('%s '%order_by.lower()).replace(' ascending ','').replace(' descending ','').replace(' asc ','').replace(' desc','')),',')
                         lowercol=columns.lower()
@@ -1287,7 +1287,7 @@ class SqlSelection(object):
                 else:
                     masterRow = datadict[d['pkey']]
                     for col in mixColumns:
-                        if d[col] not in masterRow[col]:
+                        if (d[col] not in masterRow[col] or True):
                             masterRow[col].append(d[col])
                             masterRow[col].sort()
                     if aggregateDict:

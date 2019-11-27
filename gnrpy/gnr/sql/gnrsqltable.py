@@ -1066,7 +1066,7 @@ class SqlTable(GnrObject):
         if dtype=='B':
             dd = [d or False for d in data]
             data = not (False in dd) if (aggregator or 'AND')=='AND' else (True in dd)
-        elif dtype in ('R','L','N'):
+        elif dtype in ('I','R','L','N'):
             aggregator = aggregator or 'SUM'
             dd = filter(lambda r: r is not None, data)
             if not dd:
