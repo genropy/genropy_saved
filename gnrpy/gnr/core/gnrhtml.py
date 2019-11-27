@@ -104,7 +104,7 @@ class GnrHtmlSrc(GnrStructData):
         #    kwargs['_name'] = kwargs.pop('name')
         return super(GnrHtmlSrc, self).child(tag, *args, **kwargs)
         
-    def layout(self, name='l1', um='mm', top=0, left=0, bottom=0, right=0, width=0, height=0,
+    def layout(self, name=None, um='mm', top=0, left=0, bottom=0, right=0, width=0, height=0,
                border_width=None,border_color=None, border_style='solid', row_border=True, cell_border=True,
                lbl_height=3, lbl_class='lbl_base', content_class='content_base',
                hasBorderTop=None, hasBorderLeft=None, hasBorderRight=None, hasBorderBottom=None,
@@ -134,6 +134,10 @@ class GnrHtmlSrc(GnrStructData):
         :param \*\*kwargs: you can pass:
         
             * *style*: a string with css style"""
+        name = name or 'l_{}'.format('_'.join([p for p in self.fullpath.split('.') \
+                            if p.startswith('layout_') \
+                              or p.startswith('row_') \
+                                or p.startswith('cell_')]))
         default_kwargs = self.defaultKwargs()
         if border_width is None:
             border_width = default_kwargs.get('layout_border_width') or default_kwargs.get('border_width',0)
@@ -154,6 +158,7 @@ class GnrHtmlSrc(GnrStructData):
         layout.right = float(right or 0)
         layout.width = float(width or 0)
         layout.height = float(height or 0)
+        layout.rowborder_total_height = 0
         layout.border_width = float(border_width or 0)
         layout.border_color = border_color
         layout.border_style = border_style
@@ -171,7 +176,8 @@ class GnrHtmlSrc(GnrStructData):
         return layout
             
     def row(self, height=0, row_border=None, cell_border=None,
-            lbl_height=None, lbl_class=None, content_class=None, **kwargs):
+            lbl_height=None, lbl_class=None, 
+            content_class=None, border_width=None,**kwargs):
         """Build a :meth:`row <gnr.core.gnrhtml.GnrHtmlSrc.row>` and return it
         
         :param height: the row's height
@@ -183,30 +189,33 @@ class GnrHtmlSrc(GnrStructData):
         assert self.parentNode.getAttr('tag') == 'layout'
         layout = self
         row = self.child(tag='row', **kwargs)
-        
         row.lbl_height = float(lbl_height or 0)
         row.lbl_class = lbl_class
         row.content_class = content_class
-        if height:
-            height = height - layout.border_width
-        row.height = float(height or 0)
         if row_border is None:
             row.row_border = layout.row_border
         else:
             row.row_border = row_border
+        row.border_width = (border_width or layout.border_width) * row.row_border
+        if height:
+            height = height - row.border_width
+        row.height = float(height or 0)
         if cell_border is None:
             row.cell_border = layout.cell_border
         else:
             row.cell_border = cell_border
+        layout.last_row_border_height = row.border_width
+        layout.rowborder_total_height += layout.last_row_border_height
         row.idx = len(layout) - 1
         row.layout = layout
         row.elastic_cells = []
+        row.cellborder_total_width = 0
         if not row.height:
             layout.elastic_rows.append(row)
         return row
             
     def cell(self, content=None, width=0, content_class=None,
-             lbl=None, lbl_class=None, lbl_height=None, cell_border=None, **kwargs):
+             lbl=None, lbl_class=None, lbl_height=None, cell_border=None,border_width=None, **kwargs):
         """Build a :meth:`cell` and return it
         
         :param content: the row's content
@@ -231,10 +240,14 @@ class GnrHtmlSrc(GnrStructData):
         cell.lbl = lbl
         cell.lbl_class = lbl_class
         cell.lbl_height = float(lbl_height or 0)
+        
         if cell_border is None:
             cell.cell_border = row.cell_border
         else:
             cell.cell_border = cell_border
+        cell.border_width = (border_width or row.border_width or row.layout.border_width) * cell.cell_border
+        row.last_cell_border_width = cell.border_width
+        row.cellborder_total_width += row.last_cell_border_width
         return cell
             
 class GnrHtmlBuilder(object):
@@ -415,7 +428,7 @@ class GnrHtmlBuilder(object):
         else:
             height = self.page_height - self.page_margin_top - self.page_margin_bottom
             width = self.page_width - self.page_margin_left - self.page_margin_right
-            letterhead_root = letterhead_root.layout(top=0,left=0,border=0,width=width,height=height).row().cell()
+            letterhead_root = letterhead_root.layout(name='paper',top=0,left=0,border_width=0,width=width,height=height).row().cell()
         if firstpage and self.print_button:
             letterhead_root.div(self.print_button, _class='no_print', id='printButton', onclick='window.print();')
         return letterhead_root
@@ -492,7 +505,7 @@ class GnrHtmlBuilder(object):
                 except:
                     pass
                 style_dict[name] = value
-        attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in list(style_dict.items())])
+        attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in style_dict.items()])
             
     def styleMaker(self, attr):
         """TODO
@@ -504,7 +517,7 @@ class GnrHtmlBuilder(object):
         for oneattr in list(attr.keys()):
             if oneattr in self.styleAttrNames or ('_' in oneattr and oneattr.split('_')[0] in self.styleAttrNames):
                 style_dict[oneattr.replace('_', '-')] = attr.pop(oneattr)
-        attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in list(style_dict.items())])
+        attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in style_dict.items()])
             
     def finalize(self, src):
         """TODO
@@ -528,6 +541,7 @@ class GnrHtmlBuilder(object):
         :param attr: TODO
         :param layout: TODO"""
         borders = '%s%s' % (layout.border_width, layout.um)
+        row_border_width = layout.rowborder_total_height - layout.last_row_border_height
         if layout.nested:
             layout.has_topBorder = layout.hasBorderTop if layout.hasBorderTop is not None else bool(
                     layout.top or parent.lbl)
@@ -543,22 +557,20 @@ class GnrHtmlBuilder(object):
             borders = ' '.join(
                     ['%s%s' % (int(getattr(layout, 'has_%sBorder' % side)) * layout.border_width, layout.um) for side in
                      ('top', 'right', 'bottom', 'left')])
-                     
+        rows = layout.values() #is not an iterator
         if layout.elastic_rows:
             if layout.height:
-                height = old_div((layout.height - sum(
-                        [(row.height) for row in list(layout.values()) if row.height]) - layout.border_width * (
-                len(layout) - 1)), len(layout.elastic_rows))
+                fixed_height_rows = sum([(row.height) for row in rows if row.height])
+                free_height = (layout.height - fixed_height_rows - row_border_width) 
+                height = free_height/len(layout.elastic_rows)
                 for row in layout.elastic_rows:
                     row.height = height
             else:
                 raise GnrHtmlSrcError('No total height with elastic rows')
                 ## Possibile ricerca in profondità
-
-        if list(layout.values()):
-            layout.height = sum([row.height for row in list(layout.values())]) + layout.border_width * (len(layout) - 1)
-            list(layout.values())[-1].row_border = False
-
+        if rows:
+            layout.height = sum([row.height for row in rows]) + row_border_width
+            rows[-1].row_border = False
         attr['top'] = layout.top
         attr['left'] = layout.left
         attr['bottom'] = layout.bottom
@@ -567,7 +579,6 @@ class GnrHtmlBuilder(object):
         attr['width'] = layout.width
         attr['class'] = ' '.join(x for x in [attr.get('class'), layout.layout_class] if x)
         kw = {'border-width': borders}
-                    
         self.calculate_style(attr, layout.um, **kw)
         layout.curr_y = 0
         attr['tag'] = 'div'
@@ -582,15 +593,16 @@ class GnrHtmlBuilder(object):
         if row.elastic_cells:
             elastic_cells_count = len(row.elastic_cells)
             if layout.width:
+                totalcellborderwidth =  row.cellborder_total_width - row.last_cell_border_width
                 fixed_width_sum = sum([(cell.width or 0)+cell.attributes.get('extra_width',0) for cell in row.values()])
-                free_space = layout.width - fixed_width_sum - layout.border_width * (len(row) - 1)
+                free_space = layout.width - fixed_width_sum - totalcellborderwidth
                 elastic_width =  free_space / elastic_cells_count
                 for cell in row.elastic_cells:
                     cell.width = elastic_width
             else:
                 raise GnrHtmlSrcError('No total width with elastic cells')
                 ## Possibile ricerca in profondità
-        cells = list(row.values())
+        cells = row.values()
         if cells:
             cells[-1].cell_border = False
         attr['height'] = row.height
@@ -599,7 +611,7 @@ class GnrHtmlBuilder(object):
         attr['left'] = 0
         attr['right'] = 0
         attr['class'] = ' '.join(x for x in [attr.get('class'), 'layout_row'] if x)
-        layout.curr_y += row.height + layout.border_width
+        layout.curr_y += row.height + row.border_width
         self.calculate_style(attr, layout.um, position='absolute')
         row.curr_x = 0
                     
@@ -614,8 +626,8 @@ class GnrHtmlBuilder(object):
         cell.width = width
         if cell.lbl:
             self.setLabel(cell, attr)
-        bottom_border_width = row.layout.border_width if row.row_border else 0
-        right_border_width = row.layout.border_width if cell.cell_border else 0
+        bottom_border_width = row.border_width
+        right_border_width = cell.border_width
         attr['width'] = width
         attr['height'] = cell.height
         attr['tag'] = 'div'
@@ -626,6 +638,8 @@ class GnrHtmlBuilder(object):
             cell_class = cell_class.replace('b', '')
         if not right_border_width:
             cell_class = cell_class.replace('r', '')
+        else:
+            attr['border_width'] = '{}mm'.format(right_border_width)
         attr['class'] = ' '.join(x for x in [attr.get('class'), row.layout.layout_class, cell_class] if x)
         row.curr_x += width + right_border_width
         self.calculate_style(attr, row.layout.um)

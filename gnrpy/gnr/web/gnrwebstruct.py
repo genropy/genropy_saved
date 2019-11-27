@@ -105,10 +105,13 @@ def cellFromField(field,tableobj,checkPermissions=None):
             kwargs['related_table'] = relatedTable.fullname
             kwargs['related_table_lookup'] = linktable_attr.get('lookup')
             onerelfld = columnjoiner['one_relation'].split('.')[2]
+            isForeignKey = columnjoiner.get('foreignkey')
             if(onerelfld != relatedTable.pkey):
                 kwargs['alternatePkey'] = onerelfld
             if len(relfldlst) == 1:
-                caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
+                caption_field = kwargs.pop('caption_field',None)
+                if (caption_field is None) and isForeignKey and not kwargs.get('alternatePkey'):
+                    caption_field =  relatedTable.attributes.get('caption_field')
                 if caption_field and not kwargs.get('hidden'):
                     rel_caption_field = '@%s.%s' %(field,caption_field)
                     caption_fieldobj = tableobj.column(rel_caption_field)

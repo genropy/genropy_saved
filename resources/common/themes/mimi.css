@@ -714,6 +714,8 @@ body.tundra.mimi {
 }
 .menutree .menu_existing_page.menu_shape  {
     font-weight:bold;
+    padding-top: 5px; /*adjustment for bold*/
+    padding-bottom: 5px; /*adjustment for bold*/
 }
 
 .menutree .menu_shape:hover {

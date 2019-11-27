@@ -762,7 +762,8 @@ class BagToHtml(object):
         value = self.getGridCellValue(col,rowData)
         cell_kwargs['align_class'] = cell_kwargs.get('align_class') or self._guessAlign(value=value)
         ac = cell_kwargs['align_class']
-        cc = cell_kwargs.get('content_class',None)
+        gridLayout_content_class = parentRow.layout.content_class
+        cc = cell_kwargs.get('content_class', gridLayout_content_class)
         cell_kwargs['content_class'] = '%s %s' %(cc,ac) if cc else ac    
         cell_kwargs['white_space'] = cell_kwargs.get('white_space') or 'nowrap'
         cell_kwargs['width'] = cell_kwargs.pop('mm_width',None)

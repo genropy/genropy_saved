@@ -2224,7 +2224,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             }
             return dataTemplate(this.rowTemplate,new gnr.GnrBag(rowdata),null,null,{formats:formats});
         }else{
-            return rowdata[this.field_getter]
+            return rowdata[this.field_getter]; 
         }
         //return this._customGetter ? this._customGetter.call(this, rowdata,inRowIndex) : ;
     },
