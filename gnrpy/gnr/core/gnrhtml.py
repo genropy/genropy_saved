@@ -142,8 +142,21 @@ class GnrHtmlSrc(GnrStructData):
         border_style = border_style or default_kwargs.get('layout_border_style') or default_kwargs.get('border_style','solid')
         lbl_class = lbl_class or default_kwargs.get('lbl_class','lbl_base')
         content_class = content_class or default_kwargs.get('content_class','content_base')
-        self.style(".%s_layout{border:%s%s %s %s;position:absolute;}" % (
-        name, border_width, um, border_style, border_color))
+        classes = [""".{name}_layout{{
+                            border:{border_width}{um} {border_style} {border_color};
+                            position:absolute;
+                      }}""".format(
+                   name=name, border_width=border_width, um=um, 
+                   border_style=border_style, border_color=border_color)]
+        #if row_border:
+        #    classes.append(""".{name}_layout .layout_row:last-child .layout_cell{{
+        #        padding-bottom:{border_width}{um} !important;
+        #    }}""".format(name=name,border_width=border_width,um=um))
+        #if cell_border:
+        #    classes.append(""".{name}_layout .layout_row .layout_cell:last-child{{
+        #        padding-right:{border_width}{um} !important;
+        #    }}""".format(border_width=border_width,um=um,name=name))
+        self.style('\n'.join(classes))
             
         layout = self.child(tag='layout', **kwargs)
         layout.layout_name = name
@@ -577,7 +590,6 @@ class GnrHtmlBuilder(object):
         attr['width'] = layout.width
         attr['class'] = ' '.join(x for x in [attr.get('class'), layout.layout_class] if x)
         kw = {'border-width': borders}
-                    
         self.calculate_style(attr, layout.um, **kw)
         layout.curr_y = 0
         attr['tag'] = 'div'
@@ -639,7 +651,7 @@ class GnrHtmlBuilder(object):
             cell_class = cell_class.replace('r', '')
         else:
             attr['border_width'] = '{}mm'.format(right_border_width)
-        attr['class'] = ' '.join(x for x in [attr.get('class'), row.layout.layout_class, cell_class] if x)
+        attr['class'] = ' '.join(x for x in [attr.get('class'), row.layout.layout_class, cell_class, 'layout_cell'] if x)
         row.curr_x += width + right_border_width
         self.calculate_style(attr, row.layout.um)
                      
