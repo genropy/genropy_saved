@@ -148,14 +148,14 @@ class GnrHtmlSrc(GnrStructData):
                       }}""".format(
                    name=name, border_width=border_width, um=um, 
                    border_style=border_style, border_color=border_color)]
-        #if row_border:
-        #    classes.append(""".{name}_layout .layout_row:last-child .layout_cell{{
-        #        padding-bottom:{border_width}{um} !important;
-        #    }}""".format(name=name,border_width=border_width,um=um))
-        #if cell_border:
-        #    classes.append(""".{name}_layout .layout_row .layout_cell:last-child{{
-        #        padding-right:{border_width}{um} !important;
-        #    }}""".format(border_width=border_width,um=um,name=name))
+        if row_border:
+            classes.append(""".{name}_layout .layout_row:last-child .layout_cell{{
+                padding-bottom:{border_width}{um} !important;
+            }}""".format(name=name,border_width=border_width,um=um))
+        if cell_border:
+            classes.append(""".{name}_layout .layout_row .layout_cell:last-child{{
+                padding-right:{border_width}{um} !important;
+            }}""".format(border_width=border_width,um=um,name=name))
         self.style('\n'.join(classes))
             
         layout = self.child(tag='layout', **kwargs)
@@ -570,7 +570,7 @@ class GnrHtmlBuilder(object):
         if layout.elastic_rows:
             if layout.height:
                 fixed_height_rows = sum([(row.height) for row in layout.values() if row.height])
-                free_height = (layout.height - fixed_height_rows - row_border_width) 
+                free_height = (layout.height - fixed_height_rows) 
                 height = free_height/len(layout.elastic_rows)
                 for row in layout.elastic_rows:
                     row.height = height
@@ -579,8 +579,8 @@ class GnrHtmlBuilder(object):
                 ## Possibile ricerca in profondità
 
         if layout.values():
-            layout.height = sum([row.height for row in layout.values()]) + row_border_width
-            layout.values()[-1].row_border = False
+            layout.height = sum([row.height for row in layout.values()])
+            #layout.values()[-1].row_border = False
 
         attr['top'] = layout.top
         attr['left'] = layout.left
@@ -604,9 +604,8 @@ class GnrHtmlBuilder(object):
         if row.elastic_cells:
             elastic_cells_count = len(row.elastic_cells)
             if layout.width:
-                totalcellborderwidth =  row.cellborder_total_width - row.last_cell_border_width
                 fixed_width_sum = sum([(cell.width or 0)+cell.attributes.get('extra_width',0) for cell in row.values()])
-                free_space = layout.width - fixed_width_sum - totalcellborderwidth
+                free_space = layout.width - fixed_width_sum
                 elastic_width =  free_space / elastic_cells_count
                 for cell in row.elastic_cells:
                     cell.width = elastic_width
@@ -622,7 +621,7 @@ class GnrHtmlBuilder(object):
         attr['left'] = 0
         attr['right'] = 0
         attr['class'] = ' '.join(x for x in [attr.get('class'), 'layout_row'] if x)
-        layout.curr_y += row.height + row.border_width
+        layout.curr_y += row.height
         self.calculate_style(attr, layout.um, position='absolute')
         row.curr_x = 0
                     
@@ -652,7 +651,7 @@ class GnrHtmlBuilder(object):
         else:
             attr['border_width'] = '{}mm'.format(right_border_width)
         attr['class'] = ' '.join(x for x in [attr.get('class'), row.layout.layout_class, cell_class, 'layout_cell'] if x)
-        row.curr_x += width + right_border_width
+        row.curr_x += width
         self.calculate_style(attr, row.layout.um)
                      
     def setLabel(self, cell, attr):
