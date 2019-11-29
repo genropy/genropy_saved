@@ -1772,6 +1772,10 @@ class GnrWebPage(GnrBaseWebPage):
         return result
 
     def clientPublish(self,topic,nodeId=None,iframe=None,parent=None,page_id=None,**kwargs):
+        for k,v in kwargs.items():
+            if isinstance(v,Bag):
+                v = self.catalog.asTypedText(v)
+                kwargs[k] = v
         if self.wsk:
             self.wsk.publishToClient(page_id or self.page_id,topic=topic,data=kwargs,nodeId=nodeId,iframe=iframe)
         else:
@@ -1783,6 +1787,14 @@ class GnrWebPage(GnrBaseWebPage):
             if parent:
                 value['parent'] = parent
             self.setInClientData('gnr.publisher',value=value,page_id=page_id,fired=True)
+
+    def setInClientRecord(self,tblobj=None,record=None,fields=None,silent=True):
+        updater = Bag()
+        for field in fields.split(','):
+            updater[field] = record[field]
+        self.clientPublish('setInClientRecord',table=tblobj.fullname,
+                            pkey=record[tblobj.pkey],silent=silent,
+                            updater=updater)
         
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, replace=False,public=None,**kwargs):
@@ -1961,7 +1973,7 @@ class GnrWebPage(GnrBaseWebPage):
                             nodePath="^gnr.serverEvent.refreshNode")
                             
         page.dataController("""if(kw){
-                                genro.publish(kw)
+                                genro.publish(kw);
                              };""", kw='^gnr.publisher')
 
         page.dataController('if(url){genro.download(url)};', url='^gnr.downloadurl')

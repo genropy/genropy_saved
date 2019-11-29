@@ -14,23 +14,24 @@ class Package(GnrDboPackage):
             return 'organizer','frameplugin_organizer'
 
     def onBuildingDbobj(self):
-        annotaton_mixins = self.db.model.mixins['tbl.orgn.annotation']
-        annotaton_src = self.db.model.src['packages.orgn.tables.annotation']
-        config_entities = self.db.application.packages['orgn'].content['entities']
-        for m in [k for k in dir(annotaton_mixins) if k.startswith('orgn_')]:
-            pars = getattr(annotaton_mixins,m)()
-            pars['code'] = m[5:]
-            self.configureEntity(annotaton_src,**pars)
-        if not config_entities:
-            return
-        for k,pars in config_entities.digest('#k,#a'):
-            pars['code'] = k
-            self.configureEntity(annotaton_src,**pars)
+        for tbl in ('annotation','cal_event'):
+            tbl_mixins = self.db.model.mixins['tbl.orgn.{tblname}'.format(tblname=tbl)]
+            tbl_src = self.db.model.src['packages.orgn.tables.{tblname}'.format(tblname=tbl)]
+            config_entities = self.db.application.packages['orgn'].content['entities']
+            for m in [k for k in dir(tbl_mixins) if k.startswith('orgn_')]:
+                pars = getattr(tbl_mixins,m)()
+                pars['code'] = m[5:]
+                self.configureEntity(tbl_src,**pars)
+            if not config_entities:
+                continue
+            for k,pars in config_entities.digest('#k,#a'):
+                pars['code'] = k
+                self.configureEntity(tbl_src,**pars)
 
 
     def configureEntity(self,src,code=None,caption=None,tbl=None,pivot_date=None,**kwargs):
         pkg,tblname = tbl.split('.')
-        tblsrc = self.db.model.src['packages.%s.tables.%s' %(pkg,tblname)]
+        tblsrc = self.db.model.src['packages.{pkg}.tables.{tblname}'.format(pkg=pkg,tblname=tblname)]
         tblattrs = tblsrc.attributes
         pkey = tblattrs.get('pkey')
         pkeycolAttrs = tblsrc.column(pkey).getAttr()
@@ -54,12 +55,12 @@ class Package(GnrDboPackage):
                 colattr.update(**kwargs)#da fare
                 return
             else:
-                fkey = 'le_%s' %tbl.replace('.','_')
-
+                fkey = 'le_{}'.format(tbl.replace('.','_'))
+        relation_name = '{}s'.format(src.attributes['fullname'].split('.')[1])
         src.column(fkey, dtype=pkeycolAttrs.get('dtype'),_sysfield=True,group='_',
                     name_long=tblattrs.get('name_long'),
                     size=pkeycolAttrs.get('size'),linked_entity=entity,
-                    pivot_date=pivot_date,**linked_attrs).relation(rel,relation_name='annotations',mode='foreignKey',onDelete='cascade')
+                    pivot_date=pivot_date,**linked_attrs).relation(rel,relation_name=relation_name,mode='foreignKey',onDelete='cascade')
 
 
 class Table(GnrDboTable):
