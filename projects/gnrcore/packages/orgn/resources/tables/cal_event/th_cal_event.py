@@ -38,7 +38,7 @@ class Form(BaseComponent):
                         lbl='!![en]Location',selected_position='.geocode')
 
     def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
-        dtstart,dtend = record['dtstart'],dtend
+        dtstart,dtend = record['dtstart'],record['dtend']
         if dtstart:
             record['date_start'] = dtstart.date()
             record['time_start'] = dtstart.time()
