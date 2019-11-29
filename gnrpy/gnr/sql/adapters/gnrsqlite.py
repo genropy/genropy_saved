@@ -391,10 +391,11 @@ pysqlite.register_converter('numeric', lambda x: decimal.Decimal(x.decode()))
 # ------------------------------------------------------------------------------------------------------- Fix issues with datetimes and dates
 
 def convert_date(val):
-    val = val.partition(' ')[0] # take just the date part, if we received a datetime string
+    val = val.decode().partition(' ')[0] # take just the date part, if we received a datetime string
     return datetime.date(*list(map(int, val.split("-"))))
 
 pysqlite.register_converter("date", convert_date)
+
 
 
 def convert_boolean(val):
