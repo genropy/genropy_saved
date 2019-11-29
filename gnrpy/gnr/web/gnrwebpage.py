@@ -1765,6 +1765,10 @@ class GnrWebPage(GnrBaseWebPage):
         return result
 
     def clientPublish(self,topic,nodeId=None,iframe=None,parent=None,page_id=None,**kwargs):
+        for k,v in kwargs.items():
+            if isinstance(v,Bag):
+                v = self.catalog.asTypedText(v)
+                kwargs[k] = v
         if self.wsk:
             self.wsk.publishToClient(page_id or self.page_id,topic=topic,data=kwargs,nodeId=nodeId,iframe=iframe)
         else:
