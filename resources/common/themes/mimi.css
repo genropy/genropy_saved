@@ -68,7 +68,7 @@ body.tundra.mimi {
 
 ._common_d11.tundra.theme_variant_green .dojoxFloatingPaneTitle{
     background-color: #50c9c3;
-    background:linear-gradient(to bottom, #3ca55c, #b5ac49);
+    background: linear-gradient(to bottom, #1d976c, #37ce99);  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     color:white;
 }
 
@@ -79,7 +79,7 @@ body.tundra.mimi {
 
 ._common_d11.tundra.theme_variant_red .dojoxFloatingPaneTitle{
     background-color: #d31027;
-    background:d31027linear-gradient(to bottom, #d31027, #ea384d);
+    background:linear-gradient(to bottom, #d31027, #ea384d);
 }
 
 ._common_d11.tundra.theme_variant_orange .dojoxFloatingPaneTitle{
@@ -133,7 +133,8 @@ body.tundra.mimi {
 
 .mimi.theme_variant_green .pbl_root_top{
     background-color: #50c9c3;
-    background:linear-gradient(to bottom, #3ca55c, #b5ac49);
+      background: linear-gradient(to bottom, #1d976c, #37ce99);  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
     color:white;
 
 }
@@ -428,7 +429,8 @@ body.tundra.mimi {
 
 .tundra._common_d11.theme_variant_green .dijitDialogTitleBar,.tundra._common_d11.theme_variant_green .commonTitleBar{
     background-color: #50c9c3;
-    background:linear-gradient(to bottom, #3ca55c, #b5ac49);
+      background: linear-gradient(to bottom, #1d976c, #37ce99);  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
     color:white;
 }
 

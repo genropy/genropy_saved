@@ -199,7 +199,7 @@ class ActionOutcomeForm(BaseComponent):
         bc.contentPane(region='top',height='95px').templateChunk(template='action_tpl',
                                                     record_id='^#FORM.record.id',table='orgn.annotation',_class='orgn_form_tpl')
 
-        centerframe = bc.framePane(region='center')
+        centerframe = bc.framePane(region='center',border_top='1px solid silver')
         centerframe.top.slotToolbar('*,stackButtons,*')
         sc = centerframe.center.stackContainer(selectedPage='^#FORM.record.exit_status')
         sc.contentPane(title='!!More info',pageName='more_info').dynamicFieldsPane('action_fields',margin='2px')
@@ -209,7 +209,8 @@ class ActionOutcomeForm(BaseComponent):
         self.orgnActionRescheduled(sc.contentPane(title='!!Reschedule',pageName='action_rescheduled'))
 
     def orgnActionConfirmed(self,pane):
-        fb = pane.div(margin='10px').formbuilder(cols=2,border_spacing='3px',width='100%',colswidth='auto',datapath='.record',fld_width='100%')
+        fb = pane.div(margin='10px',margin_right='20px').formbuilder(cols=2,border_spacing='3px',
+                            width='100%',colswidth='auto',datapath='.record',fld_width='100%')
         fb.field('description',lbl='!!Action result',width='100%',tag='simpleTextArea',colspan=2)
 
         fb.dbSelect(value='^.outcome_id',hidden='^.@action_type_id.@outcomes?=(!#v || #v.len()===0)',
@@ -247,19 +248,24 @@ class ActionOutcomeForm(BaseComponent):
         pane.button('!!Confirm Action',action='this.form.publish("save",{destPkey:"*dismiss*"})',position='absolute',bottom='5px',right='5px')
 
     def orgnActionCancelled(self,pane):
-        fb = pane.div(margin='10px').formbuilder(cols=1,border_spacing='3px',width='100%',colswidth='auto')
+        fb = pane.div(margin='10px',margin_right='20px'
+                        ).formbuilder(cols=1,border_spacing='3px',width='100%',fld_width='100%',colswidth='auto')
         fb.simpleTextArea(value='^#FORM.record.description',lbl='!!Cancelling reason',width='100%')
         pane.button('!!Cancel Action',action='this.form.publish("save",{destPkey:"*dismiss*"})',position='absolute',bottom='5px',right='5px')
 
     def orgnActionDelay(self,pane):
-        fb = pane.div(margin='10px').formbuilder(cols=2,border_spacing='3px',colswidth='auto',datapath='.record')
+        fb = pane.div(margin='10px',margin_right='20px'
+                        ).formbuilder(cols=2,border_spacing='3px',width='100%',
+                    colswidth='auto',fld_width='100%',datapath='.record')
         fb.field('action_description',lbl='!!Details',width='400px',colspan=2)
         fb.field('date_due',lbl='!!Date due',validate_notnull='^#FORM.record.exit_status?=#v=="action_delay"',width='7em')
         fb.field('time_due',lbl='!!Time due',width='6em')
         pane.button('!!Delay Action',action='this.form.publish("save",{destPkey:"*dismiss*"})',position='absolute',bottom='5px',right='5px')
 
     def orgnActionRescheduled(self,pane):
-        fb = pane.div(margin='10px').formbuilder(cols=2,border_spacing='3px',colswidth='auto',datapath='.record')
+        fb = pane.div(margin='10px',margin_right='20px'
+                ).formbuilder(cols=2,border_spacing='3px',width='100%',
+                            colswidth='auto',fld_width='100%',datapath='.record')
         fb.field('description',lbl='!!Rescheduling reason',colspan=2,width='400px',tag='simpleTextArea')
         fb.dateTextBox(value='^.rescheduling.date_due',lbl='!!Date due',
                       validate_notnull='^.exit_status?=#v=="action_rescheduled"',
@@ -446,12 +452,12 @@ class Form(BaseComponent):
         record['$allowed_user_pkeys'] = self.db.table('orgn.annotation').getAllowedActionUsers(record)
 
     def th_options(self):
-        return dict(dialog_height='350px', dialog_width='550px',readOnly=True)
+        return dict(dialog_windowRatio=.8,readOnly=True)
 
 
 class FormMixedComponent(Form):
     def th_options(self):
-        return dict(dialog_height='350px', dialog_width='550px',modal=True)
+        return dict(dialog_windowRatio=.8,modal=True)
 
     def th_form(self, form):
         linked_entity = form._current_options['linked_entity']
@@ -467,7 +473,7 @@ class FormAction(Form):
        # entities =.getLinkedEntityDict()
 #
        # print x
-       # return dict(dialog_height='350px', dialog_width='550px',modal=True,
+       # return dict(dialog_windowRatio=.8,modal=True,
        #                     defaultPrompt=dict(title='!!New Action',
        #                             fields=[dict(value='^.linked_entity',lbl='Entity',tag='filteringSelect',values=entities)]))
 #

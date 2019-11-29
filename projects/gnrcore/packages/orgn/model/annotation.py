@@ -15,7 +15,11 @@ class Table(object):
         self.sysFields(tbl,user_upd=True)
         tbl.column('rec_type',size='2',values='AN:[!!Annotation],AC:[!!Action]')
         #belong to annotation
-        tbl.column('author_user_id',size='22',group='_',name_long='User').relation('adm.user.id',relation_name='annotations',onDelete='raise')
+        tbl.column('author_user_id',size='22',
+                    group='_',name_long='User').relation('adm.user.id',
+                    relation_name='annotations',
+                    mode='foreignkey',
+                    onDelete='raise')
 
         tbl.column('description',name_long='!!Description')
         tbl.column('annotation_type_id',size='22',name_long='!!Annotation type',group='_').relation('annotation_type.id',mode='foreignkey', onDelete='raise')

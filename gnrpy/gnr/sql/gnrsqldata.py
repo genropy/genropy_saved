@@ -613,7 +613,7 @@ class SqlQueryCompiler(object):
             if excludeLogicalDeleted is True:
                 extracnd = '%s.%s IS NULL' % (self.aliasCode(0),logicalDeletionField)
                 if where:
-                    where = '%s AND %s' % (extracnd, where)
+                    where = ' ( %s ) AND ( %s ) ' % (extracnd, where)
                 else:
                     where = extracnd
             elif excludeLogicalDeleted == 'mark':
@@ -623,7 +623,7 @@ class SqlQueryCompiler(object):
             if excludeDraft is True:
                 extracnd = '%s.%s IS NOT TRUE' %(self.aliasCode(0),draftField)
                 if where:
-                    where = '%s AND %s' % (extracnd, where)
+                    where = ' ( %s ) AND ( %s )' % (extracnd, where)
                 else:
                     where = extracnd
         # add a special joinCondition for the main selection, not for JOINs
@@ -631,7 +631,7 @@ class SqlQueryCompiler(object):
             extracnd, one_one = self.getJoinCondition('*', '*', self.aliasCode(0))
             if extracnd:
                 if where:
-                    where = '(%s) AND (%s)' % (where, extracnd)
+                    where = ' ( %s ) AND ( %s ) ' % (where, extracnd)
                 else:
                     where = extracnd
         order_by = gnrstring.templateReplace(order_by, colPars)
