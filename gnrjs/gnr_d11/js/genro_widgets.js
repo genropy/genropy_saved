@@ -4611,13 +4611,20 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                         genro.dlg.alert("Missing info to upload the image",'Warning');
                         return false;
                     }
-
-                    genro.rpc.uploadMultipart_oneFile(data,null,{uploadPath:sourceNode.currentFromDatasource(uploadAttr.folder),
-                                  filename:filename,
-                                  onResult:function(result){
-                                      var url = this.responseText;
-                                      sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,url).formattedUrl);
-                                   }});
+                    if(uploadAttr.folder=='*'){
+                        var reader = new FileReader();
+                        reader.onload = function(event){
+                            sourceNode.setRelativeData(src,event.target.result);
+                        }
+                        reader.readAsDataURL(data);
+                    }else{
+                        genro.rpc.uploadMultipart_oneFile(data,null,{uploadPath:sourceNode.currentFromDatasource(uploadAttr.folder),
+                            filename:filename,
+                            onResult:function(result){
+                                var url = this.responseText;
+                                sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,url).formattedUrl);
+                             }});
+                    }
                  }
                 sourceNode._('input','fakeinput',{hidden:true,type:'file',
                 connect_onchange:function(evt){
@@ -4689,6 +4696,9 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
         var currUrl = sourceNode.getAttributeFromDatasource('src');
         if(currUrl){
             var parsedUrl = parseURL(currUrl);
+            if(parsedUrl.protocol=='data'){
+                return;
+            }
             var params = parsedUrl.params;
             params = objectUpdate(params,{'v_y':margin_top,'v_x':margin_left});
             var url = this.encodeUrl(parsedUrl);
@@ -4793,12 +4803,17 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
     },
     
     encodeUrl:function(parsedUrl,dropFormatters){
+        console.log('parsedUrl',parsedUrl)
+
         var kw = objectUpdate({},parsedUrl.params);
         var baseUrl;
         if(window.location.protocol.replace(':','')==parsedUrl.protocol && window.location.hostname == parsedUrl.host && window.location.port == parsedUrl.port){
             baseUrl = parsedUrl.path;
         }else{
             baseUrl = parsedUrl.protocol+'://'+parsedUrl.host+parsedUrl.path;
+        }
+        if(parsedUrl.protocol=='data'){
+            return baseUrl;
         }
         if (dropFormatters){
             objectExtract(kw,'v_*');
