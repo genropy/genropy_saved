@@ -566,7 +566,8 @@ class SqlQueryCompiler(object):
                 else:
                     # replace non word char with _ and check for numbers
                     as_ = self.db.colToAs(col)
-                col = '%s AS "%s"' % (col, as_)
+                as_ = self.db.adapter.asTranslator(as_)
+                col = '%s AS %s' % (col, as_)
             else:
                 colbody, as_ = col.split(' AS ', 1)
                 # leave the col as is, but save the AS name to recover the db column original name from selection result
