@@ -88,7 +88,7 @@ class ExtDbExplorer(BaseComponent):
                                         genro.publish('floating_message',{message:_T('Sql file added. Press connect'),messageType:'message'});
                                         """,
                                         datapath='.connection_params')
-        fb.filteringSelect(value='^.implementation',values='postgres,sqlite,mysql,mssql',
+        fb.filteringSelect(value='^.implementation',values='postgres,sqlite,mysql,mssql,fourd',
                             lbl='Implementation',width='7em')
         fb.textbox(value='^.dbname',lbl='Dbname',width='8em',hidden='^.implementation?=#v=="sqlite"')
         fb.textbox(value='^.host',lbl='Host',width='8em',hidden='^.implementation?=#v=="sqlite"')
