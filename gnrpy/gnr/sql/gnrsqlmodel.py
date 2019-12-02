@@ -799,7 +799,10 @@ class DbTableObj(DbModelObj):
         
     def _get_sqlfullname(self):
         """property. Returns the table's sqlfullname"""
-        return '%s.%s' % (self.sqlschema, self.adapted_sqlname)
+        if not self.db.adapter.use_schemas():
+            return self.adapted_sqlname
+        else: 
+            return '%s.%s' % (self.sqlschema, self.adapted_sqlname)
         
     sqlfullname = property(_get_sqlfullname)
         
