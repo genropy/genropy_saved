@@ -176,8 +176,6 @@ class GnrModuleLoader(object):
 
     def load_module(self, fullname):
         """TODO"""
-        print(self.pathname)
-        print(fullname)
         if fullname in sys.modules:
             mod = sys.modules[fullname]
         else:
