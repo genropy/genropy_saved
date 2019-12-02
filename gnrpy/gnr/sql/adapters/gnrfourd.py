@@ -148,10 +148,15 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         :returns: tuple (sql, kwargs)
         """
         sql = self.adaptTupleListSet(sql,kwargs)
+        sql = sql.replace('ILIKE', 'LIKE')
         return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
         
     def adaptSqlName(self,name):
         return '[%s]' %name
+
+
+    def asTranslator(self, as_):
+        return as_
 
     def listElements(self, elType, **kwargs):
         """Get a list of element names
@@ -351,19 +356,35 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             result.append(col)
         if column:
             result = result[0]
-        print(result)
         return result
 
     def getWhereTranslator(self):
-        return GnrWhereTranslatorPG(self.dbroot)
+        return GnrWhereTranslatorFourD(self.dbroot)
 
 
-class GnrWhereTranslatorPG(GnrWhereTranslator):
-    def op_similar(self, column, value, dtype, sqlArgs,tblobj):
-        "!!Similar"
-        phonetic_column =  tblobj.column(column).attributes['phonetic']
-        phonetic_mode = tblobj.column(column).table.column(phonetic_column).attributes['phonetic_mode']
-        return '%s = %s(:%s)' % (phonetic_column, phonetic_mode, self.storeArgs(value, dtype, sqlArgs))
+class GnrWhereTranslatorFourD(GnrWhereTranslator):
+    
+    def op_startswithchars(self, column, value, dtype, sqlArgs,tblobj):
+        "!!Starts with Chars"
+        return self.unaccentTpl(tblobj,column,'LIKE',mask="CONCAT(:%s,'%%%%')")  % (column, self.storeArgs(value, dtype, sqlArgs))
+
+    def op_equal(self, column, value, dtype, sqlArgs,tblobj):
+        "!!Equal to"
+        return self.unaccentTpl(tblobj,column,'=')  % (column, self.storeArgs(value, dtype, sqlArgs))
+
+    def op_startswith(self, column, value, dtype, sqlArgs,tblobj):
+        "!!Starts with"
+        return self.unaccentTpl(tblobj,column,'LIKE',mask="CONCAT(:%s,'%%%%')")  % (column, self.storeArgs(value, dtype, sqlArgs))
+
+    def op_wordstart(self, column, value, dtype, sqlArgs,tblobj):
+        "!!Word start"
+        value = value.replace('(', r'\(').replace(')', r'\)').replace('[', r'\[').replace(']', r'\]')
+        return self.unaccentTpl(tblobj,column,'~*',mask="'(^|\\W)' || :%s")  % (column, self.storeArgs(value, dtype, sqlArgs))
+
+    def op_contains(self, column, value, dtype, sqlArgs,tblobj):
+        "!!Contains"
+        return self.unaccentTpl(tblobj,column,'LIKE',mask="CONCAT('%%%%',:%s,'%%%%')")  % (column, self.storeArgs(value, dtype, sqlArgs))
+
 
     def unaccent(self,v):
         return 'unaccent(%s)' %v
