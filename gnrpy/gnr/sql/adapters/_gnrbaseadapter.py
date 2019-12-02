@@ -40,6 +40,7 @@ class SqlDbAdapter(object):
     
     All the methods of this class can be overwritten for specific db adapters,
     but only a few must be implemented in a specific adapter."""
+
     typesDict = {'character varying': 'A', 'character': 'A', 'text': 'T',
                  'boolean': 'B', 'date': 'D', 
                  'time without time zone': 'H', 
@@ -72,6 +73,9 @@ class SqlDbAdapter(object):
     def __init__(self, dbroot, **kwargs):
         self.dbroot = dbroot
         self.options = kwargs
+
+    def use_schemas(self):
+        return True
 
     def connect(self, storename=None):
         """-- IMPLEMENT THIS --
