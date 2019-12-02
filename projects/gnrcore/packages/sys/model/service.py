@@ -36,7 +36,7 @@ class Table(object):
                     continue
                 for resource in os.listdir(stypedir):
                     resname,ext = os.path.splitext(resource)
-                    if resname.startswith('.') or resname=='_base_':
+                    if resname.startswith('.') or resname=='_base_' or resname=='__pycache__':
                         continue
                     resource = resname
                     respath = os.path.join(service_root,service_type,resource)
