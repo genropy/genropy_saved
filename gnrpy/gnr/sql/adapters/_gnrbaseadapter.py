@@ -251,6 +251,9 @@ class SqlDbAdapter(object):
     def adaptSqlName(self,name):
         return name
 
+    def asTranslator(self, as_):
+        return '"%s"'%as_
+
     def existsRecord(self, dbtable, record_data):
         """Test if a record yet exists in the db.
         
