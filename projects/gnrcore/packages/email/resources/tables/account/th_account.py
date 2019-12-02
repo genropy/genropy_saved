@@ -9,16 +9,14 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('account_name',width='35em')
-        r.fieldcell('address',width='35em')
-        r.fieldcell('full_name',width='80em')
-        r.fieldcell('host',width='80em')
+        r.fieldcell('account_name',width='15em')
+        r.fieldcell('address',width='20em')
+        r.fieldcell('full_name',width='20em')
+        r.fieldcell('host',width='20em')
         r.fieldcell('port',width='7em')
-        r.fieldcell('protocol_code',width='35em')
+        r.fieldcell('protocol_code',width='10em')
         r.fieldcell('tls',width='7em')
         r.fieldcell('ssl',width='7em')
-        r.fieldcell('username',width='80em')
-        r.fieldcell('password',width='80em')
         r.fieldcell('last_uid',width='7em')
         r.fieldcell('schedulable',width='7em')
 
