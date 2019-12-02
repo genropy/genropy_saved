@@ -308,7 +308,7 @@ class MailService(GnrBaseService):
                  account=None,timeout=None,
                  from_address=None, smtp_host=None, port=None, user=None, password=None,message_id=None,message_date=None,
                  ssl=False, tls=False, html=False, charset='utf-8', async_=False,
-                 cb=None, cb_args=None, cb_kwargs=None, **kwargs):
+                 cb=None, cb_args=None, cb_kwargs=None, headers_kwargs=None, **kwargs):
         """Send mail is a function called from the postoffice object to send an email.
 
         :param to_address: the email receiver
