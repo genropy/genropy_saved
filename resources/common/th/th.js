@@ -482,7 +482,7 @@ dojo.declare("gnr.IframeFormManager", null, {
         this.formStoreKwargs = sourceNode.attr._formStoreKwargs || {};
     },
     openrecord:function(kw){
-        var kw = typeof(kw)=='string'?{destPkey:kw}:kw;
+        kw = typeof(kw)=='string'?{destPkey:kw}:kw;
         genro.publish('form_'+this.fakeFormId+'_onLoading');
         if(this.iframeForm){
             this.iframeForm.load(kw);
@@ -494,7 +494,7 @@ dojo.declare("gnr.IframeFormManager", null, {
             objectUpdate(iframeAttr,{height:'100%',width:'100%',border:0});
             var dbstore = genro.getData('gnr.dbstore');
             iframeAttr.src = iframeAttr.src || '/sys/thpage/'+this.table.replace('.','/');
-            if(dbstore){
+            if(dbstore && isNullOrBlank(this.sourceNode.attr.context_dbstore)){
                 iframeAttr.src = '/'+dbstore+iframeAttr.src;
             }
             if(this.formStoreKwargs.parentStore){
@@ -511,6 +511,7 @@ dojo.declare("gnr.IframeFormManager", null, {
         var that = this;
         this.iframe = iframe;
         this.iframeForm = iframe._genro.formById(this.fakeFormId);
+        this.iframeForm.sourceNode.attr.context_dbstore = this.sourceNode.inheritedAttribute('context_dbstore');
         this.iframeForm.publishToParent = true;
         this.iframeForm.store.handlers.load.defaultCb = function(){
             return that.sourceNode.evaluateOnNode(that.default_kwargs);
