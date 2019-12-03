@@ -236,7 +236,7 @@ class TableBase(object):
                   draftField=False, invalidFields=None,invalidRelations=None,md5=False,
                   counter=None,hierarchical=None,hierarchical_virtual_roots=False,
                     hierarchical_root_id=False,useProtectionTag=None,
-                  group='zzz', group_name='!!System',
+                  group='zzz', group_name='!![en]System',
                   df=None,counter_kwargs=None,**kwargs):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
@@ -257,7 +257,7 @@ class TableBase(object):
         :param group_name: TODO"""
         user_ins,user_upd = self._sysFields_defaults(user_ins=user_ins,user_upd=user_upd)
         if id:
-            tbl.column('id', size='22', group=group, readOnly='y', name_long='!!Id',_sendback=True,_sysfield=True)
+            tbl.column('id', size='22', group=group, readOnly='y', name_long='!![en]Id',_sendback=True,_sysfield=True)
             pkey = tbl.attributes.get('pkey')
             if not pkey:
                 tbl.attributes['pkey'] = 'id'
@@ -267,21 +267,21 @@ class TableBase(object):
             group = '_'
         tsType = 'DHZ' if self.db.application.config['db?use_timezone'] else 'DH'
         if ins:
-            tbl.column('__ins_ts', dtype=tsType, name_long='!!Insert date', onInserting='setTSNow', group=group,_sysfield=True,indexed=True)
+            tbl.column('__ins_ts', dtype=tsType, name_long='!![en]Insert date', onInserting='setTSNow', group=group,_sysfield=True,indexed=True)
         if ldel:
-            tbl.column('__del_ts', dtype=tsType, name_long='!!Logical delete date', group=group,_sysfield=True,indexed=True)
+            tbl.column('__del_ts', dtype=tsType, name_long='!![en]Logical delete date', group=group,_sysfield=True,indexed=True)
             tbl.attributes['logicalDeletionField'] = '__del_ts'
         if upd:
-            tbl.column('__mod_ts', dtype=tsType, name_long='!!Update date', onUpdating='setTSNow', onInserting='setTSNow',
+            tbl.column('__mod_ts', dtype=tsType, name_long='!![en]Update date', onUpdating='setTSNow', onInserting='setTSNow',
                        group=group,_sysfield=True,indexed=True)
             lastTS = tbl.attributes.get('lastTS')
             if not lastTS:
                 tbl.attributes['lastTS'] = '__mod_ts'
         if full_upd:
-            tbl.column('__full_mod_ts', dtype=tsType, name_long='!!Full Update TS', group=group, _sysfield=True, indexed=True)
+            tbl.column('__full_mod_ts', dtype=tsType, name_long='!![en]Full Update TS', group=group, _sysfield=True, indexed=True)
 
         if md5:
-            tbl.column('__rec_md5', name_long='!!Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5',
+            tbl.column('__rec_md5', name_long='!![en]Update date', onUpdating='setRecordMd5', onInserting='setRecordMd5',
                        group=group,_sysfield=True)
         if useProtectionTag:
             self.sysFields_protectionTag(tbl,protectionTag=useProtectionTag,group=group)
@@ -290,22 +290,24 @@ class TableBase(object):
             assert id,'You must use automatic id in order to use hierarchical feature in sysFields'
             tblname = tbl.parentNode.label
             pkg = tbl.attributes['pkg']
-            tbl.column('parent_id',size='22',name_long='!!Parent id',
+            tbl.column('parent_id',size='22',name_long='!![en]Parent id',
                                              onUpdating='hierarchical_before',
                                              onUpdated='hierarchical_after',
                                              onInserting='hierarchical_before',group='*',_sysfield=True).relation('%s.id' %tblname,mode='foreignkey', 
                                                                                         onDelete='cascade',relation_name='_children',
-                                                                                        one_name='!!Parent',many_name='!!Children',
+                                                                                        one_name='!![en]Parent',many_name='!![en]Children',
                                                                                         deferred=True,
                                                                                         one_group=group,many_group=group)
             tbl.formulaColumn('child_count','(SELECT count(*) FROM %s.%s_%s AS children WHERE children.parent_id=#THIS.id)' %(pkg,pkg,tblname),group='*')
             tbl.formulaColumn('hlevel',"""length($hierarchical_pkey)-length(replace($hierarchical_pkey,'/',''))+1""",group='*')
             if hierarchical_root_id:
                 tbl.column('root_id',sql_value="substring(:hierarchical_pkey from 1 for 22)",
-                            group='*',size='22').relation('%s.id' %tblname,relation_name='_grandchildren',mode='foreignkey',one_name='!!Root',many_name='!!Grandchildren',
-                                                onDelete='ignore')
+                            group='*',size='22').relation('%s.id' %tblname,relation_name='_grandchildren',
+                                                    mode='foreignkey',one_name='!![en]Root',
+                                                    many_name='!![en]Grandchildren',
+                                                    onDelete='ignore')
             if hierarchical_virtual_roots:
-                tbl.column('_virtual_node',dtype='B',name_lomg="!!H.Virtual node",copyFromParent=True)
+                tbl.column('_virtual_node',dtype='B',name_lomg="!![en]H.Virtual node",copyFromParent=True)
 
             hfields = []
             for fld in hierarchical.split(','):
@@ -319,11 +321,11 @@ class TableBase(object):
                         fld,mode = fld.split(':')
                         unique = mode=='unique'
                     hcol = tbl.column(fld)
-                    fld_caption=hcol.attributes.get('name_long',fld).replace('!!','')  
+                    fld_caption=hcol.attributes.get('name_long',fld).replace('!![en]','')  
                     hfields.append(fld)
-                    tbl.column('hierarchical_%s'%fld,name_long='!!Hierarchical %s'%fld_caption,group=group,_sysfield=True,
+                    tbl.column('hierarchical_%s'%fld,name_long='!![en]Hierarchical %s'%fld_caption,group=group,_sysfield=True,
                                 unique=unique)
-                    tbl.column('_parent_h_%s'%fld,name_long='!!Parent Hierarchical %s'%fld_caption,group=group,_sysfield=True)
+                    tbl.column('_parent_h_%s'%fld,name_long='!![en]Parent Hierarchical %s'%fld_caption,group=group,_sysfield=True)
             tbl.attributes['hierarchical'] = ','.join(hfields)
             if not counter:
                 tbl.attributes.setdefault('order_by','$hierarchical_%s' %hfields[0] )
@@ -340,16 +342,16 @@ class TableBase(object):
                 assert counter is True, 'in hierarchical counter is not relative to a foreignkey'
                 tbl.column('_h_count',group=group,_sysfield=True)
                 tbl.column('_parent_h_count',group=group,_sysfield=True) 
-                tbl.column('_row_count', dtype='L', name_long='!!Counter', counter=True,group=group,_sysfield=True)
+                tbl.column('_row_count', dtype='L', name_long='!![en]Counter', counter=True,group=group,_sysfield=True)
                 default_order_by = '$_h_count' if hierarchical == 'pkey' else " COALESCE($_h_count,$%s) " %hierarchical.split(',')[0]
                 tbl.formulaColumn('_h_sortcol',default_order_by,_sysfield=True, group=group)
                 tbl.attributes.setdefault('order_by','$_h_sortcol')
             else:
-                self.sysFields_counter(tbl,'_row_count',counter=counter,group=group,name_long='!!Counter')
+                self.sysFields_counter(tbl,'_row_count',counter=counter,group=group,name_long='!![en]Counter')
                 tbl.attributes.setdefault('order_by','$_row_count')
         if counter_kwargs:
             for k,v in counter_kwargs.items():
-                self.sysFields_counter(tbl,'_row_count_%s' %k,counter=v,group=group,name_long='!!Counter %s' %k)
+                self.sysFields_counter(tbl,'_row_count_%s' %k,counter=v,group=group,name_long='!![en]Counter %s' %k)
         audit = tbl.attributes.get('audit')
         if audit:
             tbl.column('__version','L',name_long='Audit version',
@@ -360,20 +362,20 @@ class TableBase(object):
         if unifyRecordsTag:
             tbl.column('__moved_related','X',group=group,_sysfield=True)
         if diagnostic:
-            tbl.column('__warnings',name_long='!!Warnings',group=group,_sysfield=True)
-            tbl.column('__errors',name_long='!!Errors',group=group,_sysfield=True)
+            tbl.column('__warnings',name_long='!![en]Warnings',group=group,_sysfield=True)
+            tbl.column('__errors',name_long='!![en]Errors',group=group,_sysfield=True)
         if user_ins:
-            tbl.column('__ins_user', name_long='!!User Insert', onInserting='setCurrentUser', group=group,_sysfield=True)
+            tbl.column('__ins_user', name_long='!![en]User Insert', onInserting='setCurrentUser', group=group,_sysfield=True)
         if user_upd:
-            tbl.column('__mod_user', name_long='!!User Modify', onUpdating='setCurrentUser', onInserting='setCurrentUser', group=group,_sysfield=True)
+            tbl.column('__mod_user', name_long='!![en]User Modify', onUpdating='setCurrentUser', onInserting='setCurrentUser', group=group,_sysfield=True)
         if draftField:
             draftField = '__is_draft' if draftField is True else draftField
             tbl.attributes['draftField'] = draftField
-            tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group,_sysfield=True)
+            tbl.column(draftField, dtype='B', name_long='!![en]Is Draft',group=group,_sysfield=True)
         if invalidFields or invalidRelations:
             if invalidFields:
                 tbl.attributes['invalidFields'] = '__invalid_fields'
-                tbl.column('__invalid_fields',name_long='!!Invalids',group=group,_sysfield=True)
+                tbl.column('__invalid_fields',name_long='!![en]Invalids',group=group,_sysfield=True)
                 r = ['( $__invalid_fields IS NOT NULL )']
             else:
                 r = []
@@ -383,18 +385,18 @@ class TableBase(object):
             tbl.formulaColumn('__is_invalid', ' ( %s ) '  %' OR '.join(r), dtype='B',aggregator='OR')
         if df:
             self.sysFields_df(tbl)
-        tbl.formulaColumn('__protecting_reasons',sql_formula=True,group=group,name_long='!!Protecting reasons',_sysfield=True)
-        tbl.formulaColumn('__is_protected_row',"$__protecting_reasons!=''",group=group,name_long='!!Row Protected',_sysfield=True)
+        tbl.formulaColumn('__protecting_reasons',sql_formula=True,group=group,name_long='!![en]Protecting reasons',_sysfield=True)
+        tbl.formulaColumn('__is_protected_row',"$__protecting_reasons!=''",group=group,name_long='!![en]Row Protected',_sysfield=True)
 
-        tbl.formulaColumn('__invalid_reasons',sql_formula=True,group=group,name_long='!!Invalid reasons',_sysfield=True)
-        tbl.formulaColumn('__is_invalid_row',"$__invalid_reasons!=''",group=group,name_long='!!Invalid row',_sysfield=True)
+        tbl.formulaColumn('__invalid_reasons',sql_formula=True,group=group,name_long='!![en]Invalid reasons',_sysfield=True)
+        tbl.formulaColumn('__is_invalid_row',"$__invalid_reasons!=''",group=group,name_long='!![en]Invalid row',_sysfield=True)
 
         if filter(lambda r: r!='_release_' and r.startswith('_release_'), dir(self)):
             tbl.column('__release', dtype='L', name_long='Sys Version', group=group,_sysfield=True)
             
         if filter(lambda r: r!='sysRecord_' and r.startswith('sysRecord_'), dir(self)):
             tbl.column('__syscode',size=':20',unique=True,indexed=True,
-                _sysfield=True,group=group,name_long='!!Internal code')
+                _sysfield=True,group=group,name_long='!![en]Internal code')
             tbl.formulaColumn('__protected_by_syscode',
                                 """ ( CASE WHEN $__syscode IS NULL THEN NULL 
                                    ELSE NOT (',' || :env_userTags || ',' LIKE '%%,'|| :systag || ',%%')
@@ -414,7 +416,7 @@ class TableBase(object):
         return user_ins,user_upd
 
     def sysFields_protectionTag(self,tbl,protectionTag=None,group=None):
-        tbl.column('__protection_tag', name_long='!!Protection tag', group=group,_sysfield=True,_sendback=True,onInserting='setProtectionTag')
+        tbl.column('__protection_tag', name_long='!![en]Protection tag', group=group,_sysfield=True,_sendback=True,onInserting='setProtectionTag')
         tbl.formulaColumn('__protected_by_tag',""" ( CASE WHEN $__protection_tag IS NULL THEN NULL 
                                                     ELSE NOT (',' || :env_userTags || ',' LIKE '%%,'|| $__protection_tag || ',%%')
                                                     END ) """,dtype='B',_sysfield=True)
@@ -427,7 +429,7 @@ class TableBase(object):
         tbl.column('df_colswidth',group='_')
 
 
-    def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!!Counter'):
+    def sysFields_counter(self,tbl,fldname,counter=None,group=None,name_long='!![en]Counter'):
         tbl.column(fldname, dtype='L', name_long=name_long, onInserting='setRowCounter',counter=True,
                             _counter_fkey=counter,group=group,_sysfield=True)
     
@@ -487,7 +489,7 @@ class TableBase(object):
         else:
             sql_formula = "TRUE"
         return [dict(name='__allowed_for_partition',sql_formula=sql_formula or 'FALSE',
-                    dtype='B',name_long='!!Allowed for partition',group='_')]
+                    dtype='B',name_long='!![en]Allowed for partition',group='_')]
 
     def getPartitionAllowedUsers(self,recordOrPkey):
         partitionParameters = self.partitionParameters
@@ -1069,8 +1071,8 @@ class TableBase(object):
         if sequenceInfo.get('recycled'):
             result['wdg_color'] = 'darkblue'
             fieldname = self.column(field).name_long or field
-            fieldname.replace('!!','')
-            message = pars.get('message_recycle','!!%(fieldname)s promised value (recycled)')
+            fieldname.replace('!![en]','')
+            message = pars.get('message_recycle','!![en]%(fieldname)s promised value (recycled)')
             message = message %dict(fieldname=fieldname,sequence=sequence) 
             result['wdg_tip'] = message
         return result
@@ -1088,8 +1090,8 @@ class TableBase(object):
                 if sequenceInfo.get('recycled'):
                     kw['wdg_color'] = 'darkblue'
                     fieldname = self.column(field).name_long or field
-                    fieldname.replace('!!','')
-                    message = pars.get('message_recycle','!!%(fieldname)s promised value (recycled)')
+                    fieldname.replace('!![en]','')
+                    message = pars.get('message_recycle','!![en]%(fieldname)s promised value (recycled)')
                     loaded_message = recInfo.setdefault('loaded_message',[])
                     if not isinstance(loaded_message,list):
                         loaded_message = [loaded_message]
@@ -1197,12 +1199,17 @@ class AttachmentTable(GnrDboTable):
 
         self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id')
         tbl.column('id',size='22',group='_',name_long='Id')
-        tbl.column('filepath' ,name_long='!!Filepath',onDeleted='onDeletedAtc',onInserted='convertDocFile',onInserting='checkExternalUrl')
-        tbl.column('external_url', name_long='!!External url')
-        tbl.column('description' ,name_long='!!Description')
-        tbl.column('mimetype' ,name_long='!!Mimetype')
-        tbl.column('text_content',name_long='!!Content')
-        tbl.column('info' ,'X',name_long='!!Additional info')
+        tbl.column('filepath' ,name_long='!![en]Filepath',onDeleted='onDeletedAtc',
+                    onInserted='convertDocFile',
+                    onInserting='checkExternalUrl')
+        tbl.column('external_url', name_long='!![en]External url')
+        tbl.column('description' ,name_long='!![en]Description')
+        tbl.column('mimetype' ,name_long='!![en]Mimetype')
+        tbl.column('text_content',name_long='!![en]Content')
+        tbl.column('info' ,'X',name_long='!![en]Additional info')
+        tbl.column('is_foreign_document','B',
+                    name_long='!![en][Is foreign document]',
+                    name_short='!![en]Ext')
         tbl.column('maintable_id',size='22',group='*',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
                     mode='foreignkey', onDelete_sql='cascade',onDelete='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_',deferred=True)
@@ -1289,9 +1296,17 @@ class AttachmentTable(GnrDboTable):
             destStorageNode = site.storageNode(destFolder,destFilename)
         return destStorageNode
         
-    def addAttachment(self,maintable_id=None,origin_filepath=None,destFolder=None,
-                            description=None,mimetype=None,moveFile=False,copyFile=True,**kwargs):
+    def addAttachment(self,maintable_id=None,origin_filepath=None,
+                            destFolder=None,
+                            description=None,mimetype=None,
+                            moveFile=False,
+                            copyFile=True,
+                            is_foreign_document = False,
+                            **kwargs):
         site = self.db.application.site
+        if is_foreign_document:
+            moveFile = False
+            copyFile = False
         originStorageNode = site.storageNode(origin_filepath)
         mimetype = mimetype or mimetypes.guess_type(originStorageNode.path)[0]
         filename = originStorageNode.basename
@@ -1306,10 +1321,12 @@ class AttachmentTable(GnrDboTable):
                 originStorageNode.copy(destStorageNode)
         else:
             destStorageNode = originStorageNode
-        record = self.newrecord(maintable_id=maintable_id,
-                        mimetype=mimetype,
-                        description=destStorageNode.cleanbasename,
-                        filepath=destStorageNode.fullpath,**kwargs)
+        record = self.newrecord(maintable_id = maintable_id,
+                        mimetype = mimetype,
+                        description = description or destStorageNode.cleanbasename,
+                        filepath = destStorageNode.fullpath,
+                        is_foreign_document = is_foreign_document,
+                        **kwargs)
         self.insert(record)
         return record
     
@@ -1317,9 +1334,9 @@ class AttachmentTable(GnrDboTable):
         if not record.get('description') and 'external_url' in record:
             record['description'] = record['external_url']
 
-
     def trigger_convertDocFile(self,record,**kwargs):
-        if not record.get('filepath'):
+        if not record.get('filepath') or \
+            record.get('is_foreign_document'):
             return
         else:
             p,ext = os.path.splitext(record['filepath'])
@@ -1327,7 +1344,8 @@ class AttachmentTable(GnrDboTable):
                 self.insertPdfFromDocAtc(record)
 
     def trigger_onDeletedAtc(self,record,**kwargs):
-        if not record['filepath']:
+        if not record['filepath'] \
+            or record.get('is_foreign_document'):
             return
         snode = self._atcStorageNode(record)
         try:
@@ -1341,7 +1359,7 @@ class TotalizeTable(GnrDboTable):
         return 
     
     def sysFields_extra_totalize(self,tbl,**kwargs):
-        tbl.column('_refcount',dtype='L',name_long='!!Ref.Count',totalize_value=1,**kwargs)
+        tbl.column('_refcount',dtype='L',name_long='!![en]Ref.Count',totalize_value=1,**kwargs)
 
     def tt_totalize_pars(self):
         tot_keys = {}
@@ -1461,19 +1479,19 @@ class TotalizeTable(GnrDboTable):
 
 class Table_sync_event(TableBase):
     def config_db(self, pkg):
-        tbl =  pkg.table('sync_event',pkey='id',name_long='!!Sync event',
-                      name_plural='!!Sync event')
+        tbl =  pkg.table('sync_event',pkey='id',name_long='!![en]Sync event',
+                      name_plural='!![en]Sync event')
         self.sysFields(tbl)
-        tbl.column('tablename',name_long='!!Table') #uke.help
-        tbl.column('event_type',name_long='!!Event',values='I,U,D')
-        tbl.column('event_pkey',name_long='!!Pkey')
-        tbl.column('event_data','X',name_long='!!Data')
-        tbl.column('event_check_ts','H',name_long='!!Event check ts')
-        tbl.column('status','L',name_long='!!Status') #0 updated, 1 to send, -1 conflict
-        tbl.column('topic',name_long='!!Topic')
-        tbl.column('author',name_long='!!Author')
+        tbl.column('tablename',name_long='!![en]Table') #uke.help
+        tbl.column('event_type',name_long='!![en]Event',values='I,U,D')
+        tbl.column('event_pkey',name_long='!![en]Pkey')
+        tbl.column('event_data','X',name_long='!![en]Data')
+        tbl.column('event_check_ts','H',name_long='!![en]Event check ts')
+        tbl.column('status','L',name_long='!![en]Status') #0 updated, 1 to send, -1 conflict
+        tbl.column('topic',name_long='!![en]Topic')
+        tbl.column('author',name_long='!![en]Author')
         tbl.column('server_user',name_long='User')
-        tbl.column('server_ts','DH',name_long='!!Server timestamp')
+        tbl.column('server_ts','DH',name_long='!![en]Server timestamp')
 
     def onTableTrigger(self,tblobj,record,old_record=None,event=None):
         event_check_ts = None
@@ -1496,15 +1514,15 @@ class Table_counter(TableBase):
         """Configure the database, creating the database :ref:`table` and some :ref:`columns`
         
         :param pkg: the :ref:`package <packages>` object"""
-        tbl = pkg.table('counter', pkey='codekey', name_long='!!Counter', transaction=False)
+        tbl = pkg.table('counter', pkey='codekey', name_long='!![en]Counter', transaction=False)
         self.sysFields(tbl, id=False, ins=True, upd=True)
-        tbl.column('codekey', size=':32', readOnly='y', name_long='!!Codekey', indexed='y')
-        tbl.column('code', size=':12', readOnly='y', name_long='!!Code')
-        tbl.column('pkg', size=':12', readOnly='y', name_long='!!Package')
-        tbl.column('name', name_long='!!Name')
-        tbl.column('counter', 'L', name_long='!!Counter')
-        tbl.column('last_used', 'D', name_long='!!Counter')
-        tbl.column('holes', 'X', name_long='!!Holes')
+        tbl.column('codekey', size=':32', readOnly='y', name_long='!![en]Codekey', indexed='y')
+        tbl.column('code', size=':12', readOnly='y', name_long='!![en]Code')
+        tbl.column('pkg', size=':12', readOnly='y', name_long='!![en]Package')
+        tbl.column('name', name_long='!![en]Name')
+        tbl.column('counter', 'L', name_long='!![en]Counter')
+        tbl.column('last_used', 'D', name_long='!![en]Counter')
+        tbl.column('holes', 'X', name_long='!![en]Holes')
         
     def setCounter(self, name, pkg, code,
                    codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN',
