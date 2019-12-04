@@ -23,6 +23,9 @@ SYSFIELDS_DEFAULT = OrderedDict([('id',True), ('ins',True), ('upd',True),
                                     ('df',False)])
 
 
+
+
+
 class TableModuleWriter(BaseComponent):
     def bagToArgString(self,arguments,prefix=','):
         if not arguments:
@@ -52,12 +55,54 @@ class Table(object):
 """ 
         red = RedBaron(source_code)
         return red
-            
+
     def makeOneTable(self,filepath=None,table_data=None):
+        if os.path.exists(filepath):
+            maker=self.updateOneTable
+        else:
+            maker=self.createOneTable
+        return maker(filepath=filepath, table_data=table_data)
+
+    def _writePyCode(self, txt=None, indent=0, 
+            indentation_style='spaces',
+            indent_size=4):
+        if indentation_style=='tabs':
+            indent_base = '\t'
+        else:
+            indent_base = ' '*indent_size
+        return f"{indent_base*indent}{txt}"
+
+    def createOneTable(self,filepath=None,table_data=None):
+        module_lines = []
+        module_lines.append(self._writePyCode('# encoding: utf-8'))
+        module_lines.append(self._writePyCode('\n'))
+        module_lines.append(self._writePyCode('class Table(object):'))
+        module_lines.append(self._writePyCode('def config_db(self, pkg):', indent=1))
+        table = table_data.pop('name')
+        table_data['name_long'] = table_data['name_long'] or table
+        table_data['name_plural'] = table_data['name_plural'] or table
+        table_data['caption_field'] = table_data['caption_field'] or table_data['pkey']
+        sysFields = table_data.pop('_sysFields')
+        columns = table_data.pop('_columns') or Bag()
+        arguments = self.bagToArgString(table_data)
+        module_lines.append(self._writePyCode(f"tbl =  pkg.table('{table}'{arguments})""", indent=2))
+        if sysFields and sysFields.pop('_enabled'):
+            sysFieldsArguments = self.bagToArgString(self._sysFieldsArguments(sysFields))
+            module_lines.append(self._writePyCode(f'self.sysFields(tbl{sysFieldsArguments})', indent=2))
+        for col in columns.values():
+            relation = col.pop('_relation')
+            module_lines.append(self._writePyCode(self._columnPythonCode(col,relation), indent=2))
+        with open(filepath,'w') as f:
+            f.write('\n'.join(module_lines))
+            
+
+    def updateOneTable(self,filepath=None,table_data=None):
+
         red = self.get_redbaron(filepath)
         config_db_node = red.find('def','config_db')
         table = table_data.pop('name')
         table_data['name_long'] = table_data['name_long'] or table
+        print(f"Building {table_data['name_long']}")
         table_data['name_plural'] = table_data['name_plural'] or table
         table_data['caption_field'] = table_data['caption_field'] or table_data['pkey']
         sysFields = table_data.pop('_sysFields')
