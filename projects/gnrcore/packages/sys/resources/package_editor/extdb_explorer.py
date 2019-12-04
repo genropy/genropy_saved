@@ -304,7 +304,8 @@ class ExtDbExplorer(BaseComponent):
                     fkey = fkeys.get(column)
                     if colval:
                         relnode = colval.getNode('relation')
-                        cv['relate_to'] = relnode.attr['related_column']
+                        if relnode:
+                            cv['relate_to'] = relnode.attr['related_column']
                     if fkey and not cv.get('relate_to'):
                         cv['relate_to'] = '%s.%s' %(fkey['reltable'][1],fkey['pkey'])
                     tableval.setItem(column,None,**cv)
