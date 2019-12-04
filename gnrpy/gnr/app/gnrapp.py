@@ -1453,7 +1453,7 @@ class GnrApp(object):
                 colummn_legacy_name = c.attributes.get('legacy_name')
                 if colummn_legacy_name:
                     colummn_legacy_name = sourcedb.adapter.adaptSqlName(colummn_legacy_name)
-                    columns.append(" %s AS %s " %(colummn_legacy_name,k))
+                    columns.append(" %s AS %s " %(colummn_legacy_name,sourcedb.adapter.asTranslator(k)))
             columns = ', '.join(columns)
         columns = columns or '*'
         oldtbl = None
