@@ -1452,7 +1452,7 @@ class GnrApp(object):
             for k,c in list(destbl.columns.items()):
                 colummn_legacy_name = c.attributes.get('legacy_name')
                 if colummn_legacy_name:
-                    colummn_legacy_name = self.db.adapter.adaptSqlName(colummn_legacy_name)
+                    colummn_legacy_name = sourcedb.adapter.adaptSqlName(colummn_legacy_name)
                     columns.append(" %s AS %s " %(colummn_legacy_name,k))
             columns = ', '.join(columns)
         columns = columns or '*'
