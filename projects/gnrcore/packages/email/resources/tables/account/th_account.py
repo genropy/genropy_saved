@@ -9,16 +9,14 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('account_name',width='35em')
-        r.fieldcell('address',width='35em')
-        r.fieldcell('full_name',width='80em')
-        r.fieldcell('host',width='80em')
+        r.fieldcell('account_name',width='15em')
+        r.fieldcell('address',width='20em')
+        r.fieldcell('full_name',width='20em')
+        r.fieldcell('host',width='20em')
         r.fieldcell('port',width='7em')
-        r.fieldcell('protocol_code',width='35em')
+        r.fieldcell('protocol_code',width='10em')
         r.fieldcell('tls',width='7em')
         r.fieldcell('ssl',width='7em')
-        r.fieldcell('username',width='80em')
-        r.fieldcell('password',width='80em')
         r.fieldcell('last_uid',width='7em')
         r.fieldcell('schedulable',width='7em')
 
@@ -44,9 +42,9 @@ class Form(BaseComponent):
     def th_form(self, form):
         tc = form.center.tabContainer(margin='2px')
         bc = tc.borderContainer(title='Input')
-        top = bc.contentPane(region='top',height='50%', datapath='.record')
-        bottom = bc.contentPane(region='center')
-        fb = top.formbuilder(cols=2,border_spacing='4px')
+        top = bc.contentPane(region='top',datapath='.record')
+        fb = top.div(padding='10px').formbuilder(cols=2,border_spacing='4px',
+                                            fld_html_label=True)
         fb.field('account_name')
         fb.field('address')
         fb.field('full_name')
@@ -55,25 +53,25 @@ class Form(BaseComponent):
         #fb.field('protocol_code')
         fb.field('tls')
         fb.field('ssl')
-        fb.field('username')
+        fb.field('username',type='password')
         fb.field('password')
         fb.field('last_uid')
         fb.field('schedulable')
         fb.button('check email', action='PUBLISH check_email')
         fb.dataRpc('dummy', self.db.table('email.message').receive_imap, subscribe_check_email=True, account='=.id')
-        #self.account_messages(bottom)
-
-        bottom.inlineTableHandler(relation='@account_users',
+        center = bc.contentPane(region='center')
+        center.inlineTableHandler(relation='@account_users',
                                 viewResource=':ViewFromAccount',
                                 picker='user_id',title='!!Users',
                                 pbl_classes=True,margin='2px')
         
         out = tc.contentPane(title='Output',datapath='.record')
-        fb = out.div(padding='10px').formbuilder(cols=2,border_spacing='4px')
+        fb = out.div(padding='10px').formbuilder(cols=2,border_spacing='4px',
+                        fld_html_label=True)
         fb.field('smtp_host')
         fb.field('smtp_from_address')
         fb.field('smtp_username')
-        fb.field('smtp_password')
+        fb.field('smtp_password',type='password')
         fb.field('smtp_port')
         fb.field('smtp_tls')
         fb.field('smtp_ssl')
