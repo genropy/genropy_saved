@@ -129,6 +129,9 @@ class BagToHtml(object):
                     header_style = 'border-top:0mm;border-bottom:0mm;'
                 self.grid_columns.append(dict(mm_width=mm_width,name=name,header_style=header_style))
 
+    def localize(self, value):
+        return value
+
     def init(self, *args, **kwargs):
         """A ``init`` hook method"""
         pass
