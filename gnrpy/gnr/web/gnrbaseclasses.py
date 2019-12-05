@@ -25,6 +25,7 @@
 
 import os,sys,math
 from gnr.core.gnrbaghtml import BagToHtml
+from gnr.core.gnrhtml import GnrHtmlSrc
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrstring import  splitAndStrip, slugify,templateReplace
@@ -167,6 +168,27 @@ class BaseWebtool(object):
     """TODO"""
     pass
         
+class GnrTableScriptHtmlSrc(GnrHtmlSrc):
+    def cellFromField(self, field=None, width=0, 
+                content_class=None,
+             lbl=None, lbl_class=None, 
+             lbl_height=None, 
+             cell_border=None,
+             border_width=None, 
+             **kwargs):
+        tableScriptInstance = self.root._parentWrapper.parent
+        if field:
+            colobj = tableScriptInstance.tblobj.column(field)
+            content = tableScriptInstance.field(field)
+            lbl = lbl or colobj.attributes.get('name_long')
+        lbl = tableScriptInstance.localize(lbl)
+        self.cell(content=content, width=width, 
+                        content_class=content_class,
+                        lbl=lbl, lbl_class=lbl_class, 
+                        lbl_height=lbl_height, 
+                        cell_border=cell_border,
+                        border_width=border_width, 
+                        **kwargs)
 
 class TableScriptToHtml(BagToHtml):
     """TODO"""
@@ -182,7 +204,7 @@ class TableScriptToHtml(BagToHtml):
 
 
     def __init__(self, page=None, resource_table=None, parent=None, **kwargs):
-        super(TableScriptToHtml, self).__init__(**kwargs)
+        super(TableScriptToHtml, self).__init__(srcfactory=GnrTableScriptHtmlSrc,**kwargs)
         self.parent = parent
         self.page = page
         self.site = page.site

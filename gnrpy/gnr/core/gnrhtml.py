@@ -50,6 +50,7 @@ class GnrHtmlSrc(GnrStructData):
         
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in gnrNS]))
+    
         
     def __getattr__(self, func_name):
         func_namelower = func_name.lower()
@@ -60,6 +61,19 @@ class GnrHtmlSrc(GnrStructData):
             
         else:
             raise AttributeError, func_name
+
+    def makeRoot(cls, source=None,rootAttributes=None,parentWrapper=None):
+        """Build the root through the :meth:`makeRoot()
+        <gnr.core.gnrstructures.GnrStructData.makeRoot>` method and return it
+        
+        :param cls: the structure class
+        :param page: the webpage instance
+        :param source: the filepath of the xml file"""
+        root = GnrStructData.makeRoot(source=source, protocls=cls,rootAttributes=rootAttributes)
+        root._parentWrapper = parentWrapper
+        return root
+
+    makeRoot = classmethod(makeRoot)
 
     def defaultKwargs(self):
         return getattr(self.root,'default_kwargs',{})
@@ -283,7 +297,7 @@ class GnrHtmlBuilder(object):
         """TODO"""
         body_attributes = body_attributes or {}
         body_attributes.update(kwargs)
-        self.root = self.srcfactory.makeRoot()
+        self.root = self.srcfactory.makeRoot(parentWrapper=self)
         self.root.default_kwargs = self.default_kwargs
         self.root.builder = self
         self.htmlBag = self.root.html()
