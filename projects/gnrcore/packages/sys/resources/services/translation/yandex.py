@@ -20,20 +20,24 @@ class Main(TranslationService):
     def __init__(self, parent=None,api_key=None):
         self.parent = parent
         self.api_key = api_key
-        if not YandexTranslate:
-            raise GnrException('Missing YandexTranslate. hint: pip install yandex.translate')
         
-
     @property
     def translator(self):
         if not hasattr(self,'_translator'):
+            if not YandexTranslate:
+                raise GnrException('Missing YandexTranslate. hint: pip install yandex.translate')
+            if not self.api_key:
+                raise GnrException('Missing Yandex api key')
             self._translator = YandexTranslate(self.api_key)
         return self._translator
 
     @property
     def languages(self):
+        langs = ['it','en','fr','es']
+        if YandexTranslate and self.api_key:
+            langs = self.translator.langs
         if not hasattr(self,'_languages'):
-            self._languages =  dict([(k,k) for k in self.translator.langs])
+            self._languages =  dict([(k,k) for k in langs])
         return self._languages
 
 
