@@ -389,7 +389,7 @@ class TableScriptToHtml(BagToHtml):
                 field_getter = '%s_%s' %(field_getter,group_aggr)
             content_class = attr.get('cellClasses') or attr.get('content_class')
             lbl_class = attr.get('headerClasses') or attr.get('lbl_class')
-            pars = dict(field=field,name=self.page.localize(attr.get('name')),field_getter=field_getter,
+            pars = dict(field=field,name=self.localize(attr.get('name')),field_getter=field_getter,
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),subtotal=attr.get('subtotal'),
                         style=attr.get('style'), content_class = content_class, lbl_class=lbl_class,
@@ -417,6 +417,9 @@ class TableScriptToHtml(BagToHtml):
         if field!=col['field_getter']:
              col['sqlcolumn'] = '{} AS {}'.format(col['sqlcolumn'],col['field_getter'])
     
+    def localize(self, value):
+        return self.page.localize(value)
+
     def gridQueryParameters(self):
         #override
         return dict()
@@ -477,7 +480,7 @@ class TableScriptToHtml(BagToHtml):
         return ','.join(set([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')]))
                 
     def subtotalCaption(self,col_breaker,breaker_value):
-        return dict(caption='{} {} {}'.format(self.page.localize(self.subtotal_caption_prefix),
+        return dict(caption='{} {} {}'.format(self.localize(self.subtotal_caption_prefix),
                                                     col_breaker.get('name'),
                                                     breaker_value),
                     content_class='totalize_caption')
