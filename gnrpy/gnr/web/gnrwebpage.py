@@ -2577,7 +2577,9 @@ class GnrWebPage(GnrBaseWebPage):
         mode = kwargs.pop('mode',None)
         mode = mode or 'log'
         self.clientPublish('gnrServerLog',msg=msg,args=args,kwargs=kwargs)
-        print 'pagename:%s-:page_id:%s >>\n' %(self.pagename,self.page_id),args,kwargs
+        print('pagename:{pagename}-:page_id:{page_id} >>\n'.format(pagename=self.pagename,
+                                    page_id=self.page_id),
+                                    args,kwargs)
 
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated
