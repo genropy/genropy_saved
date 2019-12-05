@@ -37,6 +37,9 @@ function _px(v){
     return v;
 };
 function _T(str,lazy){
+    if(isNullOrBlank(str)){
+        return str;
+    }
     var locale = genro.locale() || 'en-EN';
     var language = locale.split('-')[0];
     var localekey = 'localsdict_'+language;
