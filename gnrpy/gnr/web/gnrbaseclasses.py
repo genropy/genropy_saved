@@ -439,8 +439,8 @@ class TableScriptToHtml(BagToHtml):
         if field!=col['field_getter']:
              col['sqlcolumn'] = '{} AS {}'.format(col['sqlcolumn'],col['field_getter'])
     
-    def localize(self, value):
-        return self.page.localize(value)
+    def localize(self, value,language=None):
+        return self.page.localize(value,language = language or self.parameter('language'))
 
     def gridQueryParameters(self):
         #override
