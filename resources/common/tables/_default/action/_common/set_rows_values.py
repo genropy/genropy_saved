@@ -42,7 +42,7 @@ class Main(BaseResourceAction):
             attr = v.attributes
             if attr.get('dtype') == 'X':
                 continue
-            if attr.get('_sysfield') and not (k=='__syscode' and self.isDeveloper()):
+            if not (k=='__syscode' and self.isDeveloper()):
                 continue
             kw = {}
             if attr.get('dtype')=='DH':
