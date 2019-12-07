@@ -60,7 +60,7 @@ class BagToHtml(object):
     grid_style_cell = None
     grid_columns =  []
     grid_columnsets = {}
-    grid_row_height = 5
+    grid_row_height = 4.5
     renderMode = None
     totalize_carry = False
     totalize_footer = False
@@ -1255,14 +1255,31 @@ class BagToHtml(object):
                             border-top-right-radius:2mm;
                         }
                         .totalizer_row{
-                            background:whitesmoke;
-                            color:#444;
+                            color:white;
+                            background:gray;
                         }
                         .totalize_caption{
                             text-align:right;
                             padding-right:2mm;
-                            font-weight: normal;
+                            font-weight: bold;
                             font-style:italic;
                         }
 
+                        .subtotal_00.totalizer_row{
+                            background:-webkit-linear-gradient(left, white, gray 30%); 
+                            background:linear-gradient(to right, white, gray 30%); 
+
+                        }
+                        .subtotal_01.totalizer_row{
+                            background:-webkit-linear-gradient(left, white, gray 50%);
+                            background:linear-gradient(to right, white, gray 50%); 
+                        }
+                        .subtotal_02.totalizer_row{
+                            background:-webkit-linear-gradient(left, white, gray 80%); 
+                            background:linear-gradient(to right, white, gray 80%); 
+                        }
+                        .subtotal_03.totalizer_row{
+                            background:-webkit-linear-gradient(left, white, gray 90%); 
+                            background:linear-gradient(to right, white, gray 90%); 
+                        }
                          """)
