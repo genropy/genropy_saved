@@ -2449,7 +2449,7 @@ class GnrWebPage(GnrBaseWebPage):
     
     def isDeveloper(self):
         """TODO"""
-        return True #self.hasTag('_DEV_')
+        return self.hasTag('_DEV_')
 
         
 
