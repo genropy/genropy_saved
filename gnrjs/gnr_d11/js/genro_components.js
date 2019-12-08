@@ -5191,8 +5191,8 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         if(!values){
             return;
         }
-        this.separator =  kw.separator || ',';
         var splitter = values.indexOf('\n')>=0? '\n':',';
+        this.separator =  kw.separator || splitter;
         var valuelist = splitStrip(values,splitter);
         var cols = objectPop(kw,'cols');
 
