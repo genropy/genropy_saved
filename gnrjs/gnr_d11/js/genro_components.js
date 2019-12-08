@@ -5192,9 +5192,9 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         if(!values){
             return;
         }
-        var splitter = values.indexOf('\n')>=0? '\n':',';
-        this.separator =  kw.separator || splitter;
-        var valuelist = splitStrip(values,splitter);
+        var defaultSep = values.indexOf('\n')>=0? '\n':',';
+        this.separator =  kw.separator || defaultSep;
+        var valuelist = splitStrip(values,this.separator);
         var cols = objectPop(kw,'cols');
 
         if(valuelist[0][0]=='/'){
