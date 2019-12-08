@@ -152,11 +152,11 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
         
     def adaptSqlName(self,name):
-        return '[%s]' %name
+        return f'[{name}]' 
 
 
     def asTranslator(self, as_):
-        return as_
+        return f'[{as_}]'
 
     def listElements(self, elType, **kwargs):
         """Get a list of element names

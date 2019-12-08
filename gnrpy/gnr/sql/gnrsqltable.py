@@ -486,6 +486,8 @@ class SqlTable(GnrObject):
                     record[k] = str(v if not isinstance(v,float) else int(v))
                 elif dtype == 'B' and not isinstance(v, basestring):
                     record[k] = bool(v)
+                elif dtype == 'O' and isinstance(v, bytes):
+                    record[k] = v
                 else:
                     if dtype and isinstance(v, basestring):
                         if dtype not in ['T', 'A', 'C']:
