@@ -66,7 +66,7 @@ class BagToHtml(object):
     grid_style_cell = None
     grid_columns =  []
     grid_columnsets = {}
-    grid_row_height = 5
+    grid_row_height = 4.5
     renderMode = None
     totalize_carry = False
     totalize_footer = False
@@ -103,13 +103,16 @@ class BagToHtml(object):
     def defaultKwargs(self):
         return dict(border_color = '#e0e0e0',border_width = .3)
 
-    def __init__(self, locale='en', encoding='utf-8', templates=None, templateLoader=None, **kwargs):
+    def __init__(self, locale='en', encoding='utf-8', templates=None, 
+                    templateLoader=None, 
+                    srcfactory=None,**kwargs):
         self.locale = locale
         self.encoding = encoding
         self.thermo_kwargs = None
         self.thermo_wrapper = None
         self.currentGrid = None
-        self.catalog = GnrClassCatalog() 
+        self.catalog = GnrClassCatalog()
+        self.srcfactory = srcfactory
         if templates:
             self.templates = templates
         if templateLoader:
@@ -134,6 +137,9 @@ class BagToHtml(object):
                     name = ''
                     header_style = 'border-top:0mm;border-bottom:0mm;'
                 self.grid_columns.append(dict(mm_width=mm_width,name=name,header_style=header_style))
+
+    def localize(self, value):
+        return value
 
     def init(self, *args, **kwargs):
         """A ``init`` hook method"""
@@ -212,7 +218,9 @@ class BagToHtml(object):
                                     page_margin_left=self.page_margin_left, page_margin_right=self.page_margin_right,
                                     page_debug=self.page_debug, print_button=self.print_button,
                                     htmlTemplate=self.htmlTemplate, css_requires=self.get_css_requires(),
-                                    showTemplateContent=self.showTemplateContent,default_kwargs=self.defaultKwargs(),parent=self)
+                                    showTemplateContent=self.showTemplateContent,
+                                    default_kwargs=self.defaultKwargs(),parent=self,
+                                    srcfactory=self.srcfactory)
         self.builder.initializeSrc(body_attributes=self.body_attributes)
         self.builder.styleForLayout()
 
@@ -1253,14 +1261,31 @@ class BagToHtml(object):
                             border-top-right-radius:2mm;
                         }
                         .totalizer_row{
-                            background:whitesmoke;
-                            color:#444;
+                            color:white;
+                            background:gray;
                         }
                         .totalize_caption{
                             text-align:right;
                             padding-right:2mm;
-                            font-weight: normal;
+                            font-weight: bold;
                             font-style:italic;
                         }
 
+                        .subtotal_00.totalizer_row{
+                            background:-webkit-linear-gradient(left, white, gray 30%); 
+                            background:linear-gradient(to right, white, gray 30%); 
+
+                        }
+                        .subtotal_01.totalizer_row{
+                            background:-webkit-linear-gradient(left, white, gray 50%);
+                            background:linear-gradient(to right, white, gray 50%); 
+                        }
+                        .subtotal_02.totalizer_row{
+                            background:-webkit-linear-gradient(left, white, gray 80%); 
+                            background:linear-gradient(to right, white, gray 80%); 
+                        }
+                        .subtotal_03.totalizer_row{
+                            background:-webkit-linear-gradient(left, white, gray 90%); 
+                            background:linear-gradient(to right, white, gray 90%); 
+                        }
                          """)

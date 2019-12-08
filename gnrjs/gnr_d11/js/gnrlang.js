@@ -37,6 +37,9 @@ function _px(v){
     return v;
 };
 function _T(str,lazy){
+    if(isNullOrBlank(str)){
+        return str;
+    }
     var locale = genro.locale() || 'en-EN';
     var language = locale.split('-')[0];
     var localekey = 'localsdict_'+language;
@@ -589,6 +592,9 @@ function objectAny(obj,cb) {
 }
 
 function mapConvertFromText(value){
+    if(isNullOrBlank(value)){
+        return value;
+    }
     if (value instanceof Array){
         return value.map(mapConvertFromText);
     }

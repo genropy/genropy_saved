@@ -953,8 +953,8 @@ class GnrWebPage(GnrBaseWebPage):
     def getRemoteTranslation(self, txt=None,language=None,**kwargs):
         return self.localizer.getTranslation(txt,language=language or self.locale)
 
-    def localize(self, txt):
-        return self.localizer.translate(txt,language=self.locale)
+    def localize(self, txt, language=None,**kwargs):
+        return self.localizer.translate(txt,language=language or self.locale)
     _ = localize
 
 
@@ -2584,7 +2584,9 @@ class GnrWebPage(GnrBaseWebPage):
         mode = kwargs.pop('mode',None)
         mode = mode or 'log'
         self.clientPublish('gnrServerLog',msg=msg,args=args,kwargs=kwargs)
-        print('pagename:%s-:page_id:%s >>\n' %(self.pagename,self.page_id),args,kwargs)
+        print('pagename:{pagename}-:page_id:{page_id} >>\n'.format(pagename=self.pagename,
+                                    page_id=self.page_id),
+                                    args,kwargs)
 
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated

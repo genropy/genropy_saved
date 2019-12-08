@@ -28,6 +28,7 @@ class BaseResourceBatch(object):
     dialog_width = '300px'
     virtual_columns = None
     batch_local_cache = True
+    batch_ask_options = True
 
     batch_selection_where = None
     batch_selection_kwargs = dict()

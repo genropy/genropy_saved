@@ -97,7 +97,7 @@ class TableScriptHandler(BaseComponent):
         pane.data('#table_script_runner.dialog_options',Bag())
 
         hasParameters = hasattr(self, 'table_script_parameters_pane')
-        hasOptions = hasattr(self, 'table_script_option_pane')
+        hasOptions = hasattr(self, 'table_script_option_pane') and batch_dict.get('batch_ask_options')
         dlgpars = pane.dialog(title='^.title',position='relative',
                             datapath='.dialog_pars',
                             connect_show="setTimeout(function(){genro.formById('_ts_parameters_').newrecord()},1)",
@@ -140,6 +140,8 @@ class TableScriptHandler(BaseComponent):
                                     _else="""FIRE #table_script_runner.confirm;""")  
             parsform.dataController("dlg.hide()",_fired="^.cancel",dlg=dlgpars.js_widget)  
         if hasOptions:
+            print(x)
+
             self.table_script_option_pane(optionsform.div(datapath='#table_script_runner.data.batch_options',childname='contentNode'),**batch_dict)
             self.table_script_option_footer(dlgoptions.div(left=0,right=0,position='absolute',bottom=0,childname='footerNode'),**batch_dict) 
             dlgoptions.dataController("""

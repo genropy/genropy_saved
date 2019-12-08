@@ -26,6 +26,7 @@
 from past.builtins import basestring
 import os,sys,math
 from gnr.core.gnrbaghtml import BagToHtml
+from gnr.core.gnrhtml import GnrHtmlSrc
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrstring import  splitAndStrip, slugify,templateReplace
@@ -168,6 +169,27 @@ class BaseWebtool(object):
     """TODO"""
     pass
         
+class GnrTableScriptHtmlSrc(GnrHtmlSrc):
+    def cellFromField(self, field=None, width=0, 
+                content_class=None,
+             lbl=None, lbl_class=None, 
+             lbl_height=None, 
+             cell_border=None,
+             border_width=None, 
+             **kwargs):
+        tableScriptInstance = self.root._parentWrapper.parent
+        if field:
+            colobj = tableScriptInstance.tblobj.column(field)
+            content = tableScriptInstance.field(field)
+            lbl = lbl or colobj.attributes.get('name_long')
+        lbl = tableScriptInstance.localize(lbl)
+        self.cell(content=content, width=width, 
+                        content_class=content_class,
+                        lbl=lbl, lbl_class=lbl_class, 
+                        lbl_height=lbl_height, 
+                        cell_border=cell_border,
+                        border_width=border_width, 
+                        **kwargs)
 
 class TableScriptToHtml(BagToHtml):
     """TODO"""
@@ -183,7 +205,7 @@ class TableScriptToHtml(BagToHtml):
 
 
     def __init__(self, page=None, resource_table=None, parent=None, **kwargs):
-        super(TableScriptToHtml, self).__init__(**kwargs)
+        super(TableScriptToHtml, self).__init__(srcfactory=GnrTableScriptHtmlSrc,**kwargs)
         self.parent = parent
         self.page = page
         self.site = page.site
@@ -390,7 +412,7 @@ class TableScriptToHtml(BagToHtml):
                 field_getter = '%s_%s' %(field_getter,group_aggr)
             content_class = attr.get('cellClasses') or attr.get('content_class')
             lbl_class = attr.get('headerClasses') or attr.get('lbl_class')
-            pars = dict(field=field,name=self.page.localize(attr.get('name')),field_getter=field_getter,
+            pars = dict(field=field,name=self.localize(attr.get('name')),field_getter=field_getter,
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),subtotal=attr.get('subtotal'),
                         style=attr.get('style'), content_class = content_class, lbl_class=lbl_class,
@@ -418,6 +440,9 @@ class TableScriptToHtml(BagToHtml):
         if field!=col['field_getter']:
              col['sqlcolumn'] = '{} AS {}'.format(col['sqlcolumn'],col['field_getter'])
     
+    def localize(self, value,language=None):
+        return self.page.localize(value,language = language or self.parameter('language'))
+
     def gridQueryParameters(self):
         #override
         return dict()
@@ -478,7 +503,7 @@ class TableScriptToHtml(BagToHtml):
         return ','.join(set([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')]))
                 
     def subtotalCaption(self,col_breaker,breaker_value):
-        return dict(caption='{} {} {}'.format(self.page.localize(self.subtotal_caption_prefix),
+        return dict(caption='{} {} {}'.format(self.localize(self.subtotal_caption_prefix),
                                                     col_breaker.get('name'),
                                                     breaker_value),
                     content_class='totalize_caption')
