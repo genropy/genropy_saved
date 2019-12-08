@@ -4975,7 +4975,6 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             rootNode = tb._('comboArrow')._('tooltipPane',{placingId:textBoxId,onOpening:onOpening})._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
         }else{
             table_kw['tooltip']=objectPop(kw,'tooltip');
-            console.log('table_kw',table_kw);
             objectExtract(originalKwargs,'table,values,cols,identifier,labelAttribute,popup') //belongs to cbtext
             objectUpdate(table_kw,originalKwargs);
         }

@@ -509,6 +509,8 @@ class GnrWebPage(GnrBaseWebPage):
         auth = AUTH_OK
         if method not in ('doLogin', 'onClosePage'):
             auth = self._checkAuth(method=method, **kwargs)
+            if auth == AUTH_OK:
+                auth = self._checkRootPage()
         try:
             self.db #init db property with env
             result = self.rpc(method=method, _auth=auth, **kwargs)
@@ -551,6 +553,11 @@ class GnrWebPage(GnrBaseWebPage):
         if not self.application.checkResourcePermission(pageTags, self.userTags):
             return AUTH_FORBIDDEN
         return AUTH_OK
+    
+    def _checkRootPage(self):
+        if self.root_page_id or not self.avatar or not self.avatar.avatar_rootpage:
+            return AUTH_OK
+        return AUTH_FORBIDDEN if self.avatar.avatar_rootpage != self.request.path_info else AUTH_OK
         
     def pageAuthTags(self,method=None,**kwargs):
         return getattr(self,'auth_%s' %method,self.defaultAuthTags if method=='main' else None)
@@ -2058,10 +2065,9 @@ class GnrWebPage(GnrBaseWebPage):
             self.mixinComponent('login:LoginComponent',safeMode=True,only_callables=False)
             self.loginDialog(root, **kwargs)
         elif _auth == AUTH_FORBIDDEN:
-            if hasattr(self,'forbidden_redirect'):
-                redirect = self.forbidden_redirect()
-                if redirect:
-                    return (page,dict(redirect=redirect))
+            redirect = self.forbiddenRedirectPage
+            if redirect:
+                return (page,dict(redirect=redirect))
             root.clear()
             self.forbiddenPage(root, **kwargs)
         #if self.wsk:
@@ -2429,6 +2435,13 @@ class GnrWebPage(GnrBaseWebPage):
     @property
     def permissionPars(self):
         return dict(user=self.user,user_group=getattr(self.avatar,'group_code',None))
+    
+    @property
+    def forbiddenRedirectPage(self):
+        if hasattr(self,'forbidden_redirect'):
+            return self.forbidden_redirect()
+        if self.avatar and self.avatar.avatar_rootpage:
+            return self.avatar.avatar_rootpage
 
     def isLocalizer(self):
         """TODO"""
@@ -2436,7 +2449,9 @@ class GnrWebPage(GnrBaseWebPage):
     
     def isDeveloper(self):
         """TODO"""
-        return self.hasTag('_DEV_')
+        return True #self.hasTag('_DEV_')
+
+        
 
     def hasTag(self,tag):
         if not self.userTags:
