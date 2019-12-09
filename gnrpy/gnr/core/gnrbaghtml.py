@@ -657,10 +657,13 @@ class BagToHtml(object):
         return rowData
 
     def subtotalCaption(self,col_breaker,breaker_value):
-        return dict(caption='{} {} {}'.format(self.subtotal_caption_prefix,
-                                                    col_breaker.get('name'),
-                                                    breaker_value),
-                    content_class='totalize_caption')
+        subtotal = col_breaker['subtotal']
+        subtotal_class = col_breaker.get('subtotal_class') or 'totalize_caption'
+        caption = '{caption_prefix} {breaker_name} {breaker_value}' if subtotal is True else subtotal
+        return dict(caption = subtotal.format(caption_prefix = self.localize(self.subtotal_caption_prefix),
+                                            breaker_name = col_breaker.get('name'),
+                                            breaker_value = breaker_value),
+                    content_class=subtotal_class)
     
     def onRunningTotals(self,rowData=None,lastPage=None):
         pass
