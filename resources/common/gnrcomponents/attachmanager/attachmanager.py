@@ -91,7 +91,7 @@ class Form(BaseComponent):
             self.atc_metadata(bc)
         iframe = bc.contentPane(region='center',overflow='hidden'
                         ).iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
-                                  src__nocache=True,
+                                  avoidCache=True,
                                     width='100%',border='0px',documentClasses=True,
                                     connect_onload="""
                                         if(this.domNode.getAttribute('src') && this.domNode.getAttribute('src').indexOf('.pdf')<0){
@@ -173,7 +173,7 @@ class AttachManager(BaseComponent):
 
         readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver',overflow='hidden')
         readerpane.dataController('SET .reader_url=fileurl',fileurl='^.view.grid.selectedId?fileurl')
-        readerpane.iframe(src='^.reader_url',height='100%',width='100%',src__nocache=True,
+        readerpane.iframe(src='^.reader_url',height='100%',width='100%',avoidCache=True,
                             border=0,documentClasses=True)
         return th
 
@@ -197,7 +197,7 @@ class AttachManager(BaseComponent):
         readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid #efefef',
                                 rounded=6,childname='atcviewer',overflow='hidden')
         readerpane.iframe(src='^.reader_url',height='100%',width='100%',
-                            src__nocache=True, border=0, documentClasses=True)
+                            avoidCache=True, border=0, documentClasses=True)
         readerpane.dataController('SET .reader_url=fileurl',fileurl='^.view.grid.selectedId?fileurl')
         bar = frame.top.slotToolbar('5,vtitle,*,delrowbtn',vtitle=title or '!!Attachments')
         bar.delrowbtn.slotButton('!!Delete attachment',iconClass='iconbox delete_row',
@@ -252,7 +252,7 @@ class AttachManager(BaseComponent):
         th.view.top.bar.replaceSlots('#','2,searchOn,*',toolbar=False,background='#DBDBDB',border_bottom='1px solid silver')
         readerpane = bc.contentPane(region='center',childname='atcviewer',overflow='hidden')
         iframe = readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0,documentClasses=True,
-                        src__nocache=True,
+                        avoidCache=True,
                         connect_onload="""
                             if(this.domNode.getAttribute('src') && this.domNode.getAttribute('src').indexOf('.pdf')<0){
                                 var cw = this.domNode.contentWindow;
