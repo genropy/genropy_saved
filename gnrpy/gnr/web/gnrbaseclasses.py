@@ -201,7 +201,7 @@ class TableScriptToHtml(BagToHtml):
     css_requires = 'print_stylesheet'
     client_locale = False
     row_relation = None
-    subtotal_caption_prefix = '!!Totals'
+    subtotal_caption_prefix = '!![en]Totals'
 
 
     def __init__(self, page=None, resource_table=None, parent=None, **kwargs):
@@ -412,15 +412,18 @@ class TableScriptToHtml(BagToHtml):
                 field_getter = '%s_%s' %(field_getter,group_aggr)
             content_class = attr.get('cellClasses') or attr.get('content_class')
             lbl_class = attr.get('headerClasses') or attr.get('lbl_class')
+            extra_kw = dictExtract(attr,'colextra_*')
             pars = dict(field=field,name=self.localize(attr.get('name')),field_getter=field_getter,
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
-                        white_space=attr.get('white_space','nowrap'),subtotal=attr.get('subtotal'),
+                        white_space=attr.get('white_space','nowrap'),
+                        subtotal=attr.get('subtotal'),
+                        subtotal_order_by=attr.get('subtotal_order_by'),
                         style=attr.get('style'), content_class = content_class, lbl_class=lbl_class,
                         sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
                         columnset=attr.get('columnset'),sheet=attr.get('sheet','*'),
                         totalize=attr.get('totalize'),formula=attr.get('formula'),
                         background=attr.get('background'),color=attr.get('color'),
-                        hidden=attr.get('hidden'))
+                        hidden=attr.get('hidden'),**extra_kw)
             if self.row_table:
                 self._calcSqlColumn(pars)
             grid_columns.append(pars)
@@ -446,6 +449,12 @@ class TableScriptToHtml(BagToHtml):
     def gridQueryParameters(self):
         #override
         return dict()
+    
+    def sortLines(self, lines):
+        if self.grid_subtotal_order_by:
+            return lines
+        return super(TableScriptToHtml, self).sortLines(lines)
+
 
     def gridTable(self):
         if self.row_table:
@@ -494,6 +503,8 @@ class TableScriptToHtml(BagToHtml):
         if hidden_columns:
             columns = '%s,%s' %(hidden_columns,columns)
         rowtblobj = self.db.table(self.row_table)
+        if self.grid_subtotal_order_by:
+            parameters['order_by'] = self.grid_subtotal_order_by
         return rowtblobj.query(columns=columns,where= ' AND '.join(where),**parameters
                                 ).selection(_aggregateRows=True).output('grid',recordResolver=False)
 
@@ -501,12 +512,11 @@ class TableScriptToHtml(BagToHtml):
     @property
     def grid_sqlcolumns(self):
         return ','.join(set([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')]))
-                
-    def subtotalCaption(self,col_breaker,breaker_value):
-        return dict(caption='{} {} {}'.format(self.localize(self.subtotal_caption_prefix),
-                                                    col_breaker.get('name'),
-                                                    breaker_value),
-                    content_class='totalize_caption')
+
+    @property
+    def grid_subtotal_order_by(self):
+        return ','.join(set([c['subtotal_order_by'] for c in self.gridColumnsInfo()['columns'] if c.get('subtotal_order_by')]))
+         
         
         
     def getHtmlPath(self, *args, **kwargs):
