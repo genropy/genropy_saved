@@ -2909,9 +2909,12 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var tools = objectPop(tools_kw,'tools');
         tools_kw = tools_kw || {};
         var tools_bar_class,container_class;
+        var centerkw = {region:'center',border:objectPop(kw,'border'),overflow:'hidden'};
+
         if(tools_kw.title){
             tools_bar_class = 'slotbar_toolbar_standard';
             tools_kw.position = 'TR';
+            centerkw.border_top = '1px solid silver';
         }
         var bckw = {height: objectPop(kw,'height'),
             width: objectPop(kw,'width'),_class:'quickgrid_container'}
@@ -2939,7 +2942,6 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var tools_position = objectPop(tools_kw,'position') || 'TR';
         var tool_region=(tools_position[0]=='T') ? 'top':'bottom';
 
-        var centerkw = {region:'center',border:objectPop(kw,'border'),overflow:'hidden'};
         var bc = sourceNode._('borderContainer',bckw);
         
         var tpane = bc._('contentPane',{region:tool_region,height:'22px',overflow:'hidden',datapath:'#WORKSPACE.tools',
