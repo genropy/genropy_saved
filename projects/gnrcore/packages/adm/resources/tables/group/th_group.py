@@ -25,9 +25,11 @@ class Form(BaseComponent):
 
     def th_form(self, form):
         bc = form.center.borderContainer()
-        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=2, border_spacing='4px')
+        fb = bc.contentPane(region='top',datapath='.record').formbuilder(cols=3, border_spacing='4px')
         fb.field('code')
         fb.field('description')
+        fb.field('rootpage')
+
         tc = bc.tabContainer(region='center',margin='2px')
         tc.contentPane(title='!!Users').plainTableHandler(relation='@users',picker=True,
                             picker_viewResource='ViewPicker',
