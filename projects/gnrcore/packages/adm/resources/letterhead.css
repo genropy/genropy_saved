@@ -1,0 +1,11 @@
+.selected_layout_top_left .printRegion.top_left,
+.selected_layout_top_center .printRegion.top_center,
+.selected_layout_top_right .printRegion.top_right,
+.selected_layout_bottom_left .printRegion.bottom_left,
+.selected_layout_bottom_center .printRegion.bottom_center,
+.selected_layout_bottom_right .printRegion.bottom_right,
+.selected_layout_center_left .printRegion.center_left,
+.selected_layout_center_center .printRegion.center_center,
+.selected_layout_center_right .printRegion.center_right{
+    background: rgba(236, 236, 170,.4);
+}
