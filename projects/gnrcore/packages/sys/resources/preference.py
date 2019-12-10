@@ -45,7 +45,9 @@ class AppPref(object):
 
 
         pdfpane = tc.borderContainer(title='Print')
-        fb = pdfpane.roundedGroup(title='Print Modes',region='top',height='70px')
+        fb = pdfpane.roundedGroup(title='Print Modes',
+                                    region='top',height='100px').formbuilder(cols=1, border_spacing='4px')
+        fb.checkbox(value='^.print.ask_options_enabled',label='!![en]Print Options Enabled')
         fb.checkBoxText(value='^.print.modes',values='pdf:PDF,server_print:Server Print,mail_pdf:PDF Mail,mail_deliver:Mail Deliver',lbl='Print modes')
         fb.checkbox(value='^.print.enable_pdfform',label='Enable pdf forms (Requires pdftk)')
         fb = pdfpane.roundedGroup(title='PDF Render',region='center').formbuilder(cols=1, border_spacing='4px',datapath='.pdf_render')
