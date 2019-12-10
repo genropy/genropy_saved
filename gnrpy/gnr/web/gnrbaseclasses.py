@@ -234,14 +234,13 @@ class TableScriptToHtml(BagToHtml):
         html_folder = self.getHtmlPath(autocreate=True)
         if locale:
             self.locale = locale #locale forced
-        self.language = language            
+        self.language = language    
         if self.language:
             self.language = self.language.lower()
-            self.locale = locale or '{language}_{languageUPPER}'.format(language=self.language,
+            self.locale = locale or '{language}-{languageUPPER}'.format(language=self.language,
                                         languageUPPER=self.language.upper())
         elif self.locale:
-            self.language = self.locale.split('_')[0].lower()
-            
+            self.language = self.locale.split('-')[0].lower()
         result = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
         if not result:
             return False
