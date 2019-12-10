@@ -222,7 +222,8 @@ class TableScriptToHtml(BagToHtml):
         self.record = None
         
 
-    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, resultAs=None,**kwargs):
+    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, resultAs=None,
+                    language=None,locale=None,**kwargs):
         if not record:
             return
         self.thermo_kwargs = thermo
@@ -232,6 +233,15 @@ class TableScriptToHtml(BagToHtml):
         else:
             record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
         html_folder = self.getHtmlPath(autocreate=True)
+        if locale:
+            self.locale = locale #locale forced
+        self.language = language    
+        if self.language:
+            self.language = self.language.lower()
+            self.locale = locale or '{language}-{languageUPPER}'.format(language=self.language,
+                                        languageUPPER=self.language.upper())
+        elif self.locale:
+            self.language = self.locale.split('-')[0].lower()
         result = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
         if not result:
             return False
@@ -444,7 +454,7 @@ class TableScriptToHtml(BagToHtml):
              col['sqlcolumn'] = '{} AS {}'.format(col['sqlcolumn'],col['field_getter'])
     
     def localize(self, value,language=None):
-        return self.page.localize(value,language = language or self.parameter('language'))
+        return self.page.localize(value,language = language or self.language)
 
     def gridQueryParameters(self):
         #override

@@ -24,7 +24,7 @@ class BaseResourcePrint(BaseResourceBatch):
     mail_address = ''
     mail_tags = 'admin'
     templates = '' #CONTROLLARE
-    batch_ask_options = False
+    batch_ask_options = 'sys.print.ask_options_enabled'
     batch_print_modes = ['pdf','server_print','mail_pdf','mail_deliver']
     batch_mail_modes = ['mail_pdf','mail_deliver']
     def __init__(self, *args, **kwargs):
