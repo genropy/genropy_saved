@@ -139,8 +139,6 @@ class TableScriptHandler(BaseComponent):
                                     _else="""FIRE #table_script_runner.confirm;""")  
             parsform.dataController("dlg.hide()",_fired="^.cancel",dlg=dlgpars.js_widget)  
         if hasOptions:
-            print(x)
-
             self.table_script_option_pane(optionsform.div(datapath='#table_script_runner.data.batch_options',childname='contentNode'),**batch_dict)
             self.table_script_option_footer(dlgoptions.div(left=0,right=0,position='absolute',bottom=0,childname='footerNode'),**batch_dict) 
             dlgoptions.dataController("""
