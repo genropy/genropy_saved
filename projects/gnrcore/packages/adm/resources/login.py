@@ -173,7 +173,7 @@ class LoginComponent(BaseComponent):
                 }
                 if(doLogin){
                     if(!closable_login){
-                        var rootpage = avatar.getItem('avatar_rootpage');
+                        var rootpage = avatar.getItem('avatar_rootpage') || avatar.get('singlepage');
                         if(rootpage){
                             genro.gotoURL(rootpage);
                         }else{
@@ -360,16 +360,22 @@ class LoginComponent(BaseComponent):
 
     @public_method
     def login_createNewUser(self,data=None,**kwargs):
+        tpl_userconfirm_id = self.loginPreference('tpl_userconfirm_id')
+        print(f'tplconferma {tpl_userconfirm_id}')
+        mailservice = self.getService('mail')
         try:
             data['status'] = 'new'
             self.db.table('adm.user').insert(data)
             data['link'] = self.externalUrlToken(self.site.homepage, userid=data['id'],max_usages=1)
             data['greetings'] = data['firstname'] or data['lastname']
             email = data['email']
-            body = self.loginPreference('confirm_user_tpl') or 'Dear $greetings to confirm click $link'
-            self.getService('mail').sendmail_template(data,to_address=email,
-                                body=body, subject=self.loginPreference('subject') or 'Confirm user',
-                                async_=False,html=True)
+            if tpl_userconfirm_id:
+                mailservice.sendUserTemplateMail(record_id=data,template_id=tpl_userconfirm_id)
+            else:
+                body = self.loginPreference('confirm_user_tpl') or 'Dear $greetings to confirm click $link'
+                mailservice.sendmail_template(data,to_address=email,
+                                    body=body, subject=self.loginPreference('subject') or 'Confirm user',
+                                    async_=False,html=True)
             self.db.commit()
         except Exception as e:
             return dict(error=str(e))
@@ -397,21 +403,23 @@ class LoginComponent(BaseComponent):
     def login_confirmUser(self, email=None,user_id=None, **kwargs):
         usertbl = self.db.table('adm.user')
         recordBag = usertbl.record(pkey=user_id,for_update=True).output('bag')
-
         userid = recordBag['id']
         oldrec = Bag(recordBag)
-
         recordBag['email'] = email
         recordBag['status'] = 'wait'
         usertbl.update(recordBag,oldrec)
         recordBag['link'] = self.externalUrlToken(self.site.homepage, userid=userid,max_usages=1)
         recordBag['greetings'] = recordBag['firstname'] or recordBag['lastname']
-        body = self.loginPreference('confirm_user_tpl') or 'Dear $greetings to confirm click $link'
-        self.getService('mail').sendmail_template(recordBag,to_address=email,
-                                body=body, subject=self.loginPreference('subject') or 'Password recovery',
-                                async_=False,html=True)
+        tpl_userconfirm_id = self.loginPreference('tpl_userconfirm_id')
+        mailservice = self.getService('mail')
+        if tpl_userconfirm_id:
+            mailservice.sendUserTemplateMail(record_id=recordBag,template_id=tpl_userconfirm_id)
+        else:
+            body = self.loginPreference('confirm_user_tpl') or 'Dear $greetings to confirm click $link'
+            mailservice.sendmail_template(recordBag,to_address=email,
+                                    body=body, subject=self.loginPreference('subject') or 'Password recovery',
+                                    async_=False,html=True)
         self.db.commit()
-
         return 'ok'
         
     @public_method
@@ -423,17 +431,22 @@ class LoginComponent(BaseComponent):
             users = usertbl.query(columns='$id', where='$email = :e', e=email).fetch()
         if not users:
             return 'err'
+        mailservice = self.getService('mail')
+        tpl_new_password_id = self.loginPreference('tpl_new_password_id')
         for u in users:
             userid = u['id']
             recordBag = usertbl.record(userid).output('bag')
             recordBag['link'] = self.externalUrlToken(self.site.homepage, userid=recordBag['id'],max_usages=1)
-            self.db.commit()
             recordBag['greetings'] = recordBag['firstname'] or recordBag['lastname']
             body = self.loginPreference('confirm_password_tpl') or 'Dear $greetings set your password $link'
+            if tpl_new_password_id:
+                mailservice.sendUserTemplateMail(record_id=recordBag,template_id=tpl_new_password_id,)
+            else:
+                mailservice.sendmail_template(recordBag,to_address=email,
+                                        body=body, subject=self.loginPreference('confirm_password_subject') or 'Password recovery',
+                                        async_=False,html=True)
+            self.db.commit()
 
-            self.getService('mail').sendmail_template(recordBag,to_address=email,
-                                    body=body, subject=self.loginPreference('confirm_password_subject') or 'Password recovery',
-                                    async_=False,html=True)
         return 'ok'
             #self.sendMailTemplate('confirm_new_pwd.xml', recordBag['email'], recordBag)
 

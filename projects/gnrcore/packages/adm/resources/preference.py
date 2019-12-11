@@ -60,12 +60,29 @@ class AppPref(object):
         self._auth_new_password_template(center.borderContainer(title='!!Confirm new password template'))
 
     def _auth_email_confirm_template(self,bc):
-        bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px').textbox(value='^.confirm_user_subject',width='30em',lbl='!!Subject')
-        bc.contentPane(region='center').simpleTextArea(value='^.confirm_user_tpl',editor=True)
+        fb = bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px')
+        fb.dbSelect(value='^.tpl_userconfirm_id',lbl='!![en]Confirm user template',
+                        dbtable='adm.userobject',
+                        condition='$objtype=:tp AND $tbl=:searchtbl',
+                        condition_tp='template',
+                        condition_searchtbl='adm.user',
+                        hasDownArrow=True)
+        fb.textbox(value='^.confirm_user_subject',width='30em',lbl='!!Subject',
+                                                hidden='^.tpl_userconfirm_id')
+        bc.contentPane(region='center').simpleTextArea(value='^.confirm_user_tpl',
+                                                            hidden='^.tpl_userconfirm_id',
+                                                            editor=True)
 
     def _auth_new_password_template(self,bc):
-        bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px').textbox(value='^.confirm_password_subject',width='30em',lbl='!!Subject')
-        bc.contentPane(region='center').simpleTextArea(value='^.confirm_password_tpl',editor=True)
+        fb = bc.contentPane(region='top').formbuilder(cols=1,border_spacing='3px')
+        fb.dbSelect(value='^.tpl_new_password_id',lbl='!![en]New password template',
+                        dbtable='adm.userobject',
+                        condition='$objtype=:tp AND $tbl=:searchtbl',
+                        condition_tp='template',
+                        condition_searchtbl='adm.user',
+                        hasDownArrow=True)
+        fb.textbox(value='^.confirm_password_subject',width='30em',lbl='!!Subject', hidden='^.tpl_new_password_id')
+        bc.contentPane(region='center').simpleTextArea(value='^.confirm_password_tpl',editor=True,hidden='^.tpl_new_password_id')
 
 
     def _auth_messages(self,pane):

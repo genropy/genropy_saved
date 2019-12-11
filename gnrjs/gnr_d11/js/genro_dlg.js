@@ -742,7 +742,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var dlg = this.quickDialog(title,kw,sourceNode);
         uploaderKw.height = uploaderKw.height || '300px';
         uploaderKw.width =uploaderKw.width || '500px';
-        uploaderKw.nodeId =uploaderKw.nodeId || 'uploaderDialog_'+genro.getCounter();
+        uploaderKw.nodeId =uploaderKw.nodeId || 'multiuploader_'+genro.getCounter();
         var onResult = objectPop(uploaderKw,'onResult') || function(result){};
         uploaderKw.onResult = function(result){
             funcApply(onResult,{result:result},this);

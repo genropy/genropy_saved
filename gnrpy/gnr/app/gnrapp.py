@@ -1081,6 +1081,7 @@ class GnrApp(object):
                 user_id = attrs.pop('user_id', key)
                 kw = dict(attrs)
                 kw.update(kwargs)
+                kw['avatar_rootpage'] = kw.get('avatar_rootpage')
                 return self.makeAvatar(user=user, user_name=user_name, user_id=user_id,
                                        login_pwd=password, authenticate=authenticate,
                                        group_code=kw.pop('group_code','xml_group'),

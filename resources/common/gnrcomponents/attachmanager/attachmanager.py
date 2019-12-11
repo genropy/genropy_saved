@@ -31,7 +31,7 @@ IMAGES_EXT = ('.png','.jpg','.jpeg','.gif')
 class AttachManagerViewBase(BaseComponent):
 
     def th_hiddencolumns(self):
-        return '$fileurl'
+        return '$fileurl,$is_foreign_document'
 
     def th_struct(self,struct):
         r = struct.view().rows()
@@ -48,7 +48,6 @@ class AttachManagerView(AttachManagerViewBase):
         #tbl.column('filepath' ,name_long='!!Filepath')
         r.fieldcell('description',edit=True,width='20em')
         #r.fieldcell('mimetype')
-        r.fieldcell('fileurl',hidden=True)
         if hasattr(r.tblobj,'atc_types'):
             r.fieldcell('atc_type',edit=True,name='Type')
         if hasattr(r.tblobj,'atc_download'):
@@ -90,14 +89,16 @@ class Form(BaseComponent):
         bc = sc.borderContainer()
         if hasattr(self,'atc_metadata'):
             self.atc_metadata(bc)
-        iframe = bc.contentPane(region='center',overflow='hidden').iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
-                                                width='100%',border='0px',documentClasses=True,
-                        connect_onload="""
-                            if(this.domNode.getAttribute('src') && this.domNode.getAttribute('src').indexOf('.pdf')<0){
-                                var cw = this.domNode.contentWindow;
-                                cw.document.body.style.zoom = GET #FORM.currentPreviewZoom;
-                            }
-                            """)
+        iframe = bc.contentPane(region='center',overflow='hidden'
+                        ).iframe(src='^.fileurl',_virtual_column='fileurl',height='100%',
+                                  avoidCache=True,
+                                    width='100%',border='0px',documentClasses=True,
+                                    connect_onload="""
+                                        if(this.domNode.getAttribute('src') && this.domNode.getAttribute('src').indexOf('.pdf')<0){
+                                            var cw = this.domNode.contentWindow;
+                                            cw.document.body.style.zoom = GET #FORM.currentPreviewZoom;
+                                        }
+                                        """)
         da = sc.contentPane().div(position='absolute',top='10px',left='10px',right='10px',bottom='10px',
             text_align='center',border='3px dotted #999',rounded=8)
         upload_message = '!!Drag here or double click to upload' if not self.isMobile else "!!Double click to upload"
@@ -172,23 +173,9 @@ class AttachManager(BaseComponent):
 
         readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid silver',overflow='hidden')
         readerpane.dataController('SET .reader_url=fileurl',fileurl='^.view.grid.selectedId?fileurl')
-        readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0,documentClasses=True)
+        readerpane.iframe(src='^.reader_url',height='100%',width='100%',avoidCache=True,
+                            border=0,documentClasses=True)
         return th
-
-    @struct_method
-    def at_slotbar_screenshot(self,pane,**kwargs):
-        pane.slotButton('"Snapshot',iconClass='iconbox photo',action="""FIRE .takeSnapshot;""")
-        pane.dataController("""
-                        var attachment_table = this.getInheritedAttributes()['table'];
-                        var kw = {attachment_table:attachment_table,maintable_id:fkey,onUploadingMethod:onUploadingMethod,uploaderId:'attachmentManager'};
-                        var fm = genro.getParentGenro().framedIndexManager;
-                        if(fm){
-                            fm.callOnCurrentIframe('dev','takePicture',[kw]);
-                        }else{
-                            genro.dev.takePicture(kw);
-                        }
-            """,_fired='^.takeSnapshot',fkey='=#FORM.pkey',onUploadingMethod=self.onUploadingAttachment)
-
 
     @struct_method
     def at_attachmentPane(self,pane,title=None,searchOn=False,pbl_classes=True,
@@ -207,18 +194,29 @@ class AttachManager(BaseComponent):
         th.view.grid.attributes.update(dropTarget_grid='Files',onDrop='AttachManager.onDropFiles(this,files);',
                                         dropTypes='Files',_uploader_fkey='=#FORM.pkey',
                                         _uploader_onUploadingMethod=self.onUploadingAttachment)
-
-
-        readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid #efefef',rounded=6,childname='atcviewer',overflow='hidden')
-        readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0,documentClasses=True)
+        readerpane = bc.contentPane(region='center',datapath=datapath,margin='2px',border='1px solid #efefef',
+                                rounded=6,childname='atcviewer',overflow='hidden')
+        readerpane.iframe(src='^.reader_url',height='100%',width='100%',
+                            avoidCache=True, border=0, documentClasses=True)
         readerpane.dataController('SET .reader_url=fileurl',fileurl='^.view.grid.selectedId?fileurl')
         bar = frame.top.slotToolbar('5,vtitle,*,delrowbtn',vtitle=title or '!!Attachments')
         bar.delrowbtn.slotButton('!!Delete attachment',iconClass='iconbox delete_row',
                         action='gr.publish("delrow")',gr=th.view.grid)
         return frame
 
-
-
+    @struct_method
+    def at_slotbar_screenshot(self,pane,**kwargs):
+        pane.slotButton('"Snapshot',iconClass='iconbox photo',action="""FIRE .takeSnapshot;""")
+        pane.dataController("""
+                        var attachment_table = this.getInheritedAttributes()['table'];
+                        var kw = {attachment_table:attachment_table,maintable_id:fkey,onUploadingMethod:onUploadingMethod,uploaderId:'attachmentManager'};
+                        var fm = genro.getParentGenro().framedIndexManager;
+                        if(fm){
+                            fm.callOnCurrentIframe('dev','takePicture',[kw]);
+                        }else{
+                            genro.dev.takePicture(kw);
+                        }
+            """,_fired='^.takeSnapshot',fkey='=#FORM.pkey',onUploadingMethod=self.onUploadingAttachment)
 
     @struct_method
     def at_attachmentGallery(self,pane,title=None,searchOn=False,
@@ -254,6 +252,7 @@ class AttachManager(BaseComponent):
         th.view.top.bar.replaceSlots('#','2,searchOn,*',toolbar=False,background='#DBDBDB',border_bottom='1px solid silver')
         readerpane = bc.contentPane(region='center',childname='atcviewer',overflow='hidden')
         iframe = readerpane.iframe(src='^.reader_url',height='100%',width='100%',border=0,documentClasses=True,
+                        avoidCache=True,
                         connect_onload="""
                             if(this.domNode.getAttribute('src') && this.domNode.getAttribute('src').indexOf('.pdf')<0){
                                 var cw = this.domNode.contentWindow;

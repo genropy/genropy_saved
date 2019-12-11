@@ -270,14 +270,14 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if(genro.startArgs.aux_instance){
             content.aux_instance = genro.startArgs.aux_instance;
         }
-        
+        var req_dbstore = genro.getData('current.context_dbstore');
         if(sourceNode){
-            var req_dbstore = sourceNode.inheritedAttribute('context_dbstore');
-            if (req_dbstore){
-                kw.url = '/'+req_dbstore+kw.url;
-            }else if(req_dbstore===false){
-                content.temp_dbstore = '_main_db';
-            }
+            req_dbstore = req_dbstore || sourceNode.inheritedAttribute('context_dbstore');
+        }
+        if (req_dbstore){
+            kw.url = '/'+req_dbstore+kw.url;
+        }else if(req_dbstore===false){
+            content.temp_dbstore = '_main_db';
         }
         if (genro.startArgs._avoid_module_cache){
             content._avoid_module_cache = true;
@@ -651,11 +651,14 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if (avoidCache != false) {
             currParams._no_cache_ = genro.getCounter();
         }
+        var req_dbstore = genro.getData('current.context_dbstore');
         if(sourceNode){
-            var req_dbstore = sourceNode.inheritedAttribute('context_dbstore');
-            if (req_dbstore){
-                currParams.temp_dbstore = req_dbstore;
-            }
+            req_dbstore = req_dbstore || sourceNode.inheritedAttribute('context_dbstore');
+        }
+        if (req_dbstore){
+            currParams.temp_dbstore = req_dbstore;
+        }else if(req_dbstore===false){
+            currParams.temp_dbstore = '_main_db';
         }
         return objectUpdate(currParams, this.serializeParameters(genro.src.dynamicParameters(kwargs, sourceNode)));
     },

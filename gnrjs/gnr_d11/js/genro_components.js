@@ -2909,9 +2909,12 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var tools = objectPop(tools_kw,'tools');
         tools_kw = tools_kw || {};
         var tools_bar_class,container_class;
+        var centerkw = {region:'center',border:objectPop(kw,'border'),overflow:'hidden'};
+
         if(tools_kw.title){
             tools_bar_class = 'slotbar_toolbar_standard';
             tools_kw.position = 'TR';
+            centerkw.border_top = '1px solid silver';
         }
         var bckw = {height: objectPop(kw,'height'),
             width: objectPop(kw,'width'),_class:'quickgrid_container'}
@@ -2939,7 +2942,6 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var tools_position = objectPop(tools_kw,'position') || 'TR';
         var tool_region=(tools_position[0]=='T') ? 'top':'bottom';
 
-        var centerkw = {region:'center',border:objectPop(kw,'border'),overflow:'hidden'};
         var bc = sourceNode._('borderContainer',bckw);
         
         var tpane = bc._('contentPane',{region:tool_region,height:'22px',overflow:'hidden',datapath:'#WORKSPACE.tools',
@@ -4975,7 +4977,6 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
             rootNode = tb._('comboArrow')._('tooltipPane',{placingId:textBoxId,onOpening:onOpening})._('div',{padding:'5px',overflow:'auto',max_height:'300px',min_width:'200px'});
         }else{
             table_kw['tooltip']=objectPop(kw,'tooltip');
-            console.log('table_kw',table_kw);
             objectExtract(originalKwargs,'table,values,cols,identifier,labelAttribute,popup') //belongs to cbtext
             objectUpdate(table_kw,originalKwargs);
         }
@@ -5192,9 +5193,9 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         if(!values){
             return;
         }
-        this.separator =  kw.separator || ',';
-        var splitter = values.indexOf('\n')>=0? '\n':',';
-        var valuelist = splitStrip(values,splitter);
+        var defaultSep = values.indexOf('\n')>=0? '\n':',';
+        this.separator =  kw.separator || defaultSep;
+        var valuelist = splitStrip(values,this.separator);
         var cols = objectPop(kw,'cols');
 
         if(valuelist[0][0]=='/'){

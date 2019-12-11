@@ -407,7 +407,8 @@ class TableHandler(BaseComponent):
     @struct_method
     def th_inlineTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
                             readOnly=False,hider=False,saveMethod=None,autoSave=False,statusColumn=None,
-                            default_kwargs=None,defaultPrompt=None,semaphore=None,saveButton=None,configurable=False,height=None,width=None,**kwargs):
+                            default_kwargs=None,defaultPrompt=None,semaphore=None,saveButton=None,
+                            configurable=False,height=None,width=None,**kwargs):
         """ JBE We must document the parameters here please  """
         kwargs['tag'] = 'ContentPane'
         saveMethod = saveMethod or 'app.saveEditedRows'
