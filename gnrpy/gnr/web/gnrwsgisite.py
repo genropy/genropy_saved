@@ -297,6 +297,9 @@ class GnrWsgiSite(object):
     @property
     def mainpackage(self):
         return self.config['wsgi?mainpackage'] or self.gnrapp.packages.keys()[-1]
+    
+    def getAuxInstance(self,name):
+        return self._main_gnrapp.getAuxInstance(name)
 
     def siteConfigPath(self):
         siteConfigPath = os.path.join(self.site_path,'siteconfig.xml')
