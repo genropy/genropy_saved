@@ -117,6 +117,9 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         
         return DictConnectionWrapper(conn, False, False)
         
+    def adaptSqlName(self,name):
+        return f'[{name}]' 
+
 
 
     def prepareSqlText(self, sql, kwargs):
