@@ -223,6 +223,12 @@ def safe_dict(d):
     :param d: a dict"""
     return dict([(str(k), v) for k, v in d.items()])
     
+def position(v, list_or_string):
+    try:
+        return list_or_string.index(v)
+    except ValueError:
+        return -1
+
 def uniquify(seq):
     """TODO
     
