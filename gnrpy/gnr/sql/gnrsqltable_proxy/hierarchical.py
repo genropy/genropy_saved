@@ -216,7 +216,17 @@ class HierarchicalHandler(object):
         for r in f:
             result = result.union(r['hrelpk'].split('/'))
         return list(result)
-
+    
+    def variantColumn_hlv(self,field,name=None,**kwargs):
+        name = name or '{field}_hlv'.format(field=field)
+        where = """#THIS.hierarchical_pkey LIKE $hierarchical_pkey || '%%'  AND ${field} IS NOT NULL""".format(field=field)
+        select = dict(table=self.tblobj.fullname,columns='${field}'.format(field=field),
+                    where=where,limit=1, order_by='$hierarchical_pkey desc')
+        colattr = self.tblobj.column(field).attributes
+        kwargs.setdefault('name_long','{name_long}_hlv'.format(name_long=colattr.get('name_long')))
+        kwargs.setdefault('dtype',colattr.get('dtype'))
+        kwargs.setdefault('format',colattr.get('format'))
+        return [dict(name=name,select=select,**kwargs)]
 
 
     def trigger_before(self,record,old_record=None):

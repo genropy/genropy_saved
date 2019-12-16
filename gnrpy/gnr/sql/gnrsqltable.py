@@ -443,6 +443,10 @@ class SqlTable(GnrObject):
     def counterColumns(self):
         return
 
+    def variantColumn_egvariant(self,field,**kwargs):
+        #for documentation
+        pass
+
     @property
     def availablePermissions(self):
         default_table_permissions = ['ins','upd','del','archive','export','import','print','mail','action']
