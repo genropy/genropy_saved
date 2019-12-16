@@ -514,8 +514,12 @@ class TableScriptToHtml(BagToHtml):
         rowtblobj = self.db.table(self.row_table)
         if self.grid_subtotal_order_by:
             parameters['order_by'] = self.grid_subtotal_order_by
-        return rowtblobj.query(columns=columns,where= ' AND '.join(where),**parameters
-                                ).selection(_aggregateRows=True).output('grid',recordResolver=False)
+        sel = rowtblobj.query(columns=columns,where= ' AND '.join(where),**parameters
+                                ).selection(_aggregateRows=True)
+
+        if not parameters.get('order_by') and self.record['selectionPkeys']: #same case of line 493
+            sel.data.sort(key = lambda r : position(r['pkey'], self.record['selectionPkeys']))
+        return sel.output('grid',recordResolver=False)
 
 
     @property
