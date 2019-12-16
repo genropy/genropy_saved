@@ -363,6 +363,9 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             result = result[0]
         return result
         
+    def adaptSqlName(self,name):
+        return '[{name}]'.format(name=name)
+        
     def getWhereTranslator(self):
         return GnrWhereTranslator(self.dbroot)
     

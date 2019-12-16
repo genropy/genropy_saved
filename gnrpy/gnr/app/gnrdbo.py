@@ -558,6 +558,12 @@ class TableBase(object):
             result.setItem(k,'%(fieldcaption)s:%(error)s' %v)
         return result
 
+    def variantColumn_hlv(self,field,**kwargs):
+        """hierarchical_last_value"""
+        if not self.hierarchicalHandler:
+            raise Exception('hlv variant only for hierarchical table')
+        return self.hierarchicalHandler.variantColumn_hlv(field,**kwargs)
+
     def trigger_hierarchical_before(self,record,fldname,old_record=None,**kwargs):
         self.hierarchicalHandler.trigger_before(record,old_record=old_record)
 
