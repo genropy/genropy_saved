@@ -1335,6 +1335,10 @@ class AttachmentTable(GnrDboTable):
                         **kwargs)
         self.insert(record)
         return record
+        
+    def listAttachments(self,maintable_id):
+        atcf = self.query(where="$filepath IS NOT NULL AND $maintable_id=:mid",mid=maintable_id).fetch()
+        return [r['filepath'] for r in atcf]
     
     def trigger_checkExternalUrl(self,record,**kwargs):
         if not record.get('description') and 'external_url' in record:
