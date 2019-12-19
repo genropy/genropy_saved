@@ -35,7 +35,7 @@ class Table(object):
             where="$task_id=#THIS.id AND $start_ts IS NOT NULL AND $end_ts IS NULL",
             columns='COUNT(*)'
         ),dtype='N',name_long='N.Active workers')
-        tbl.formulaColumn('last_execution_ts',
+        tbl.formulaColumn('last_result_ts',
             select=dict(table='sys.task_result',
             columns='MAX($start_time)', where='$task_id = #THIS.id'),
             name_long='!!Last Execution')
