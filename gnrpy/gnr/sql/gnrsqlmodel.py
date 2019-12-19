@@ -24,6 +24,7 @@
 import logging
 from datetime import datetime,timedelta
 from gnr.core.gnrstring import boolean
+from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrlang import moduleDict,uniquify
@@ -395,13 +396,14 @@ class DbModelSrc(GnrStructData):
                           pkey=pkey, lastTS=lastTS, rowcaption=rowcaption, pkg=pkg,
                           fullname='%s.%s' %(pkg,name),
                           **kwargs)
-                          
+
+    @extract_kwargs(variant=dict(slice_prefix=False)) 
     def column(self, name, dtype=None, size=None,
                default=None, notnull=None, unique=None, indexed=None,
                sqlname=None, comment=None,
                name_short=None, name_long=None, name_full=None,
                group=None, onInserting=None, onUpdating=None, onDeleting=None,
-               **kwargs):
+               variant=None,variant_kwargs=None,**kwargs):
         """Insert a :ref:`column` into a :ref:`table`
         
         :param name: the column name. You can specify both the name and the :ref:`datatype`
@@ -427,14 +429,18 @@ class DbModelSrc(GnrStructData):
             name, dtype = name.split('::')
         if not 'columns' in self:
             self.child('column_list', 'columns')
+        kwargs.update(variant_kwargs)
         return self.child('column', 'columns.%s' % name, dtype=dtype, size=size,
                           comment=comment, sqlname=sqlname,
                           name_short=name_short, name_long=name_long, name_full=name_full,
                           default=default, notnull=notnull, unique=unique, indexed=indexed,
                           group=group, onInserting=onInserting, onUpdating=onUpdating, onDeleting=onDeleting,
-                          **kwargs)
-                          
-    def virtual_column(self, name, relation_path=None, sql_formula=None,select=None,exists=None, py_method=None, _override=None, **kwargs):
+                          variant=variant,**kwargs)
+    
+    @extract_kwargs(variant=dict(slice_prefix=True))
+    def virtual_column(self, name, relation_path=None, sql_formula=None,
+                        select=None,exists=None, py_method=None, _override=None,
+                        variant=None,variant_kwargs=None,**kwargs):
         """Insert a related alias column into a :ref:`table`. The virtual_column is
         a child of the table created with the :meth:`table()` method
         
@@ -455,10 +461,11 @@ class DbModelSrc(GnrStructData):
             else:
                 raise GnrSqlException('Column {name} already defined in this table as a real column. Use _override to override it'.format(name=name))
                 
+        kwargs.update(variant_kwargs)
         return self.child('virtual_column', 'virtual_columns.%s' % name,
                           relation_path=relation_path,select=select,exists=exists,
                           sql_formula=sql_formula, py_method=py_method,
-                          virtual_column=True, **kwargs)
+                          virtual_column=True, variant=variant,**kwargs)
                           
     def aliasColumn(self, name, relation_path, **kwargs):
         """Insert an aliasColumn into a :ref:`table`, that is a column with a relation path.
@@ -902,10 +909,10 @@ class DbTableObj(DbModelObj):
             for node in local_virtual_columns:
                 obj = DbVirtualColumnObj(structnode=node,parent=virtual_columns)
                 virtual_columns.children[obj.name.lower()] = obj
-
         for node in self.dynamic_columns:
             obj = DbVirtualColumnObj(structnode=node,parent=virtual_columns)
             virtual_columns.children[obj.name.lower()] = obj
+        self._handle_variant_columns(virtual_columns=virtual_columns)
         self._virtual_columns = virtual_columns
         self._last_virtual_columns_ts = datetime.now()
         return virtual_columns
@@ -937,6 +944,28 @@ class DbTableObj(DbModelObj):
                 virtual_columns.children[obj.name.lower()] = obj
         return virtual_columns
     
+        
+    def _handle_variant_columns(self,virtual_columns=None):
+        variant_columns = Bag()
+        for colname,colobj in self.columns.items()+virtual_columns.items():
+            colattr = colobj.attributes
+            variant = colattr.get('variant')
+            if not variant:
+                continue
+            for variant_name in variant.split(','):
+                variant_kwargs = dictExtract(colattr,'variant_{variant_name}_'.format(variant_name=variant_name))
+                r = getattr(self.dbtable,'variantColumn_{variant_name}'.format(variant_name=variant_name)
+                        )(colname,**variant_kwargs)
+                if not isinstance(r,list):
+                    r = [r]
+                for c in r:
+                    kw = dict(c)
+                    kw['tag'] = 'virtual_column'
+                    kw['virtual_column'] = True
+                    variant_columns.setItem(kw.pop('name'),None,**kw)
+        for node in variant_columns:
+            obj = DbVirtualColumnObj(structnode=node,parent=virtual_columns)
+            virtual_columns.children[obj.name.lower()] = obj
         
     def _get_table_aliases(self):
         """Returns an DbTblAliasListObj"""

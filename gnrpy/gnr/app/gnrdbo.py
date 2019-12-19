@@ -521,6 +521,12 @@ class TableBase(object):
             result.setItem(k,'%(fieldcaption)s:%(error)s' %v)
         return result
 
+    def variantColumn_hlv(self,field,**kwargs):
+        """hierarchical_last_value"""
+        if not self.hierarchicalHandler:
+            raise Exception('hlv variant only for hierarchical table')
+        return self.hierarchicalHandler.variantColumn_hlv(field,**kwargs)
+
     def trigger_hierarchical_before(self,record,fldname,old_record=None,**kwargs):
         self.hierarchicalHandler.trigger_before(record,old_record=old_record)
 
@@ -1329,6 +1335,10 @@ class AttachmentTable(GnrDboTable):
                         **kwargs)
         self.insert(record)
         return record
+        
+    def listAttachments(self,maintable_id):
+        atcf = self.query(where="$filepath IS NOT NULL AND $maintable_id=:mid",mid=maintable_id).fetch()
+        return [r['filepath'] for r in atcf]
     
     def trigger_checkExternalUrl(self,record,**kwargs):
         if not record.get('description') and 'external_url' in record:
