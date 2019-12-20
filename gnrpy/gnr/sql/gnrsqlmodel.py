@@ -459,7 +459,10 @@ class DbModelSrc(GnrStructData):
             if _override:
                 columns.popNode(name)
             else:
-                raise GnrSqlException('Column {name} already defined in this table as a real column. Use _override to override it'.format(name=name))
+                error = """Column {colname} already defined in table {tablename} as a real column. 
+                            Use _override to override it""".format(colname=name,
+                            tablename=self.attributes.get('fullname'))
+                raise GnrSqlException(error)
                 
         kwargs.update(variant_kwargs)
         return self.child('virtual_column', 'virtual_columns.%s' % name,
