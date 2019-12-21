@@ -615,9 +615,9 @@ class BagToHtml(object):
                 if not lastspanfield:
                     lastspanfield = field
                     self._caption_column = self._caption_column or field
-                    result['%s_colspan' %field] = 0
+                    result['{field}_colspan'.format(field=field)] = 0
                 else:
-                    result['%s_colspan' %lastspanfield] +=1
+                    result['{lastspanfield}_colspan'.format(lastspanfield=lastspanfield)] +=1
         return result
     
     def gridRunningTotals(self,lastPage=None):
