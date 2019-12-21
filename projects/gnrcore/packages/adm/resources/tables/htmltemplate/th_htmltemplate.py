@@ -21,6 +21,7 @@ class View(BaseComponent):
         return dict(column='name',op='contains', val='')
 
 class Form(BaseComponent):
+    css_requires = 'letterhead'
     py_requires = "gnrcomponents/attachmanager/attachmanager:AttachManager"
     def th_form(self, form):
         bc = form.center.borderContainer()
@@ -48,16 +49,23 @@ class Form(BaseComponent):
         layers.div('^#FORM.backgroundLetterhead',position='absolute',top=0,left=0,right=0,bottom=0,
                     _class='backgroundLetterhead',visible='^#FORM.showBackground')
         layer_1 = layers.div(position='absolute',top=0,left=0,right=0,bottom=0,z_index=1)
-
+        layer_1.dataController('SET #FORM.currentEditedArea = "dummy";',_fired='^#FORM.controller.loaded')
         bc = layer_1.borderContainer(position='absolute',
                                   top='^.main.page.top',
                                   bottom='^.main.page.bottom',
                                   left='^.main.page.left',
                                   right='^.main.page.right',
-                                  connect_onclick="""
+                                  connect_ondblclick="""
+                                    var that = this;
                                     var clickedNode = dijit.getEnclosingWidget($1.target).sourceNode;
+                                    
                                     if(clickedNode){
-                                        SET #FORM.currentEditedArea = clickedNode.absDatapath();
+                                        let abspath = clickedNode.absDatapath();
+                                        this.getDomNode().parentElement.setAttribute('class','selected_'+abspath.split('.').slice(-3).join('_'))
+                                        SET #FORM.currentEditedArea = 'dummy';
+                                        setTimeout(function(){
+                                            that.setRelativeData('#FORM.currentEditedArea',abspath);
+                                        },1);
                                     }
                                 """,
                                   #_class='hideSplitter',
@@ -75,7 +83,7 @@ class Form(BaseComponent):
                                       _class='hideSplitter', datapath='.layout.%s' % region,
                                       regions='^.regions')
         for subregion in subregions[design]:
-            bc.contentPane(region=subregion, _class='printRegion', splitter=(subregion != 'center'),
+            bc.contentPane(region=subregion, _class='printRegion {region}_{subregion}'.format(region=region,subregion=subregion), splitter=(subregion != 'center'),
                            datapath='#FORM.record.data.layout.%s.%s' % (region, subregion)).div(innerHTML='^.html')
 
     def htmltemplate_controllers(self, pane):
@@ -102,7 +110,8 @@ class Form(BaseComponent):
         self.htmltemplate_form(bc.borderContainer(region='top', height='230px',splitter=True))
         
         center = bc.roundedGroupFrame(region='center',datapath='^#FORM.currentEditedArea',overflow='hidden')
-        center.center.contentPane(overflow='hidden').ckEditor(value='^.html',nodeId='htmlEditor',toolbar='standard')
+        center.center.contentPane(overflow='hidden').ckEditor(value='^.html',nodeId='htmlEditor',
+                    readOnly='^#FORM.currentEditedArea?=isNullOrBlank(#v)||#v=="dummy"',toolbar='standard')
         bottom = center.bottom
         bar = bottom.slotBar('picker_flib,5,atcPalette,*,5,showBackground,5,zoomfactor,5',_class='pbl_roundedGroupBottom')
         bar.showBackground.div(margin_top='1px').checkbox(value='^#FORM.showBackground',label='Background letterheads',default=True)
