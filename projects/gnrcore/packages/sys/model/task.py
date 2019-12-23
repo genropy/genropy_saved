@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 from __future__ import print_function
-from builtins import str
 from builtins import range
 from builtins import object
 from datetime import datetime
@@ -70,7 +69,7 @@ class Table(object):
         if not hmlist:
             return False
         key_hm = max(hmlist)
-        result = '-'.join([str(y),str(m),str(d),str(key_hm/60),str(key_hm%60)])
+        result = '-'.join([str(y),str(m),str(d),str(int(key_hm/60)),str(key_hm%60)])
         return result
 
     def findTasks(self, timestamp=None):
