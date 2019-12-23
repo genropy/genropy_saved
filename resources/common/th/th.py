@@ -709,7 +709,7 @@ class MultiButtonForm(BaseComponent):
                 table_order_by = '$%s' %(tblobj.attributes.get('caption_field') or tblobj.pkey)
         store_kwargs.setdefault('order_by',table_order_by)
         if store_kwargs['order_by']:
-            columnslist.append(store_kwargs['order_by'])
+            columnslist.append([c.strip() for c in store_kwargs['order_by'].split(' ')][0])
         store_kwargs['columns'] = ','.join(columnslist)
         mb.store(table=table,condition=condition,**store_kwargs)
         frame.multiButtonView = mb

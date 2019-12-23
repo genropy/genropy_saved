@@ -596,6 +596,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 widget:defaultPrompt.fields,
                 dflt:new gnr.GnrBag(kw.default_kw),
                 cols:defaultPrompt.cols,
+                datapath:'.controller.defaultPrompt',
                 action:function(result){
                     objectUpdate(kw.default_kw,result.asDict());
                     if(defaultPrompt.doSave && that.store.table){
@@ -604,7 +605,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                         that.doload_store(kw);
                     }
                 }
-            });
+            },this.sourceNode);
             return;
         }
         this.doload_store(kw);
