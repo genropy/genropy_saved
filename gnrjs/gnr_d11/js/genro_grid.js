@@ -496,7 +496,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
 
         filler.style.height = delta+'px';
-        var totalWidth = vn.clientWidth;
+        var totalWidth = vn.clientWidth-1;
         var tdlist = [];
         var colinfo = this.getColumnInfo();
         var cellinfo;
