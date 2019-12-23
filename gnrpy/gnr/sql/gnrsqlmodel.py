@@ -35,7 +35,7 @@ from gnr.core.gnrlang import moduleDict,uniquify
 from gnr.core.gnrstructures import GnrStructObj, GnrStructData
 from gnr.sql.gnrsqlutils import SqlModelChecker, ModelExtractor
 from gnr.sql.gnrsqltable import SqlTable
-from gnr.sql.gnrsql_exceptions import GnrSqlMissingField, GnrSqlMissingTable,\
+from gnr.sql.gnrsql_exceptions import GnrSqlException, GnrSqlMissingField, GnrSqlMissingTable,\
     GnrSqlMissingColumn, GnrSqlRelationError
 import threading
 
@@ -443,7 +443,7 @@ class DbModelSrc(GnrStructData):
     
     @extract_kwargs(variant=dict(slice_prefix=True))
     def virtual_column(self, name, relation_path=None, sql_formula=None,
-                        select=None,exists=None, py_method=None, 
+                        select=None,exists=None, py_method=None, _override=None,
                         variant=None,variant_kwargs=None,**kwargs):
         """Insert a related alias column into a :ref:`table`. The virtual_column is
         a child of the table created with the :meth:`table()` method
@@ -454,9 +454,20 @@ class DbModelSrc(GnrStructData):
                               check the :ref:`relation_path` section
         :param sql_formula: TODO
         :param py_method: TODO"""
+
         if '::' in name: name, dtype = name.split('::')
         if not 'virtual_columns' in self:
             self.child('virtual_columns_list', 'virtual_columns')
+        columns = self['columns']
+        if columns and name in columns:
+            if _override:
+                columns.popNode(name)
+            else:
+                error = """Column {colname} already defined in table {tablename} as a real column. 
+                            Use _override to override it""".format(colname=name,
+                            tablename=self.attributes.get('fullname'))
+                raise GnrSqlException(error)
+                
         kwargs.update(variant_kwargs)
         return self.child('virtual_column', 'virtual_columns.%s' % name,
                           relation_path=relation_path,select=select,exists=exists,

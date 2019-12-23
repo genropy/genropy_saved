@@ -497,7 +497,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var cols = objectPop(kw,'cols') || 1;
         genro.dlg.prompt_counter = genro.dlg.prompt_counter || 0;
         genro.dlg.prompt_counter++;
-        var prompt_datapath = 'gnr.promptDlg.prompt_'+genro.dlg.prompt_counter;
+        var prompt_datapath = kw.datapath || 'gnr.promptDlg.prompt_'+genro.dlg.prompt_counter;
+        if(sourceNode){
+            prompt_datapath = sourceNode.absDatapath(prompt_datapath);
+        }
         var promptvalue_path = prompt_datapath+'.promptvalue';
         genro.setData(promptvalue_path,dflt || null);
         dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:prompt_datapath,_class:'dlg_prompt',autoSize:true},dlg_kw);

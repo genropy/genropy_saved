@@ -168,6 +168,8 @@ class TableHandlerForm(BaseComponent):
             form.attributes['_lazyBuild'] = options.pop('lazyBuild')
         if 'excludeCols' in options:
             form.attributes['excludeCols'] = options.pop('excludeCols')
+        if 'fkeyfield' in options:
+            form.attributes['fkeyfield'] = options.pop('fkeyfield')
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
         hierarchical = options.pop('hierarchical',None)   

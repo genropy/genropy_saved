@@ -182,6 +182,7 @@ def import_db(filepath):
 
 if __name__ == '__main__':
     app, storename = get_app()
+    errordb = []
     if storename == '*':
         stores = [None] + sorted(app.db.dbstores.keys())
     else:
@@ -199,15 +200,22 @@ if __name__ == '__main__':
         elif options.import_file:
             import_db(options.import_file)
         else:
-            changes = check_db(app)
-            if changes:
-                print('APPLYING CHANGES TO DATABASE...')
-                app.db.model.applyModelChanges()
-                print('CHANGES APPLIED TO DATABASE')
-            app.db.model.checker.addExtesions()
+            try:
+                changes = check_db(app)
+                if changes:
+                    print('APPLYING CHANGES TO DATABASE...')
+                    app.db.model.applyModelChanges()
+                    print('CHANGES APPLIED TO DATABASE')
+                app.db.model.checker.addExtesions()
+            except Exception as e:
+                print('Error in dbsetup')
+                errordb.append(storename)
+            
         app.pkgBroadcast('onDbSetup,onDbSetup_*')
         if options.upgrade:
             app.pkgBroadcast('onDbUpgrade,onDbUpgrade_*')
             app.db.table('sys.upgrade').runUpgrades()
             app.db.commit()
         app.db.closeConnection()
+    if errordb:
+        print('ERROR db',errordb)

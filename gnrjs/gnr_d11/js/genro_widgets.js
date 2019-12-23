@@ -4804,8 +4804,6 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
     },
     
     encodeUrl:function(parsedUrl,dropFormatters){
-        console.log('parsedUrl',parsedUrl)
-
         var kw = objectUpdate({},parsedUrl.params);
         var baseUrl;
         if(window.location.protocol.replace(':','')==parsedUrl.protocol && window.location.hostname == parsedUrl.host && window.location.port == parsedUrl.port){

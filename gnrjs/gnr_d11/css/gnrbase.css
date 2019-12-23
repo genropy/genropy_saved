@@ -1839,6 +1839,10 @@ div.dojoxDock {
     background: #feffb4 url(icons/base12/smallpopup.gif) no-repeat right !important;
 }
 
+.floatingPopupFixed {
+    background: url(icons/base12/smallpopup.gif) no-repeat right !important;
+}
+
 
 .helperField {
     position: absolute;

@@ -42,7 +42,7 @@ class Main(BaseResourcePrint):
                                     localizer=self.page.localizer,
                                     urlformatter=self.page.externalUrl)
         result = self.htmlMaker(htmlContent=htmlContent,
-                                filename='%s.html' %record['id'],
+                                filename='{pkey}.html'.format(pkey=record[str(self.tblobj.pkey)]),
                                 record=record, thermo=thermo, pdf=self.pdf_make,
                                 **self.batch_parameters)
         if result:
