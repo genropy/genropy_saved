@@ -230,7 +230,7 @@
 <en_auth_tags fr="balises Auth" en="Auth tags" de="Auth-Tags" it="Tag di autorizzazione" base="Auth tags"></en_auth_tags>
 <en_private fr="Privé" de="Privat" en="Private" it="Privato" base="Private"></en_private>
 <en_quicklist fr="Quicklist" de="Quicklist" en="Quicklist" it="QuickList" base="Quicklist"></en_quicklist>
-<en_flags fr="Drapeaux" de="Flags" en="Flags" it="Bandiere" base="Flags"></en_flags></userobject></model>
+<en_flags fr="Drapeaux" de="Flags" en="Flags" it="Flags" base="Flags"></en_flags></userobject></model>
 <resources><frameindex path="resources/frameindex.py" ext="py"><en_invalid_access fr="Accès non valide" de="Ungültige Zugang" en="Invalid Access" it="Accesso non valido" base="Invalid Access"></en_invalid_access>
 <en_add_to_favorites fr="Ajouter aux Favoris" de="Zu den Favoriten hinzufügen" en="Add to favorites" it="Aggiungi ai preferiti" base="Add to favorites"></en_add_to_favorites>
 <en_set_as_start_page fr="Définir comme page de démarrage" de="Als Startseite festlegen" en="Set as start page" it="Imposta come pagina iniziale" base="Set as start page"></en_set_as_start_page>
@@ -280,7 +280,7 @@
 <en_wrong_password fr="Mauvais mot de passe" de="Falsches Passwort" en="Wrong password" it="Password errata" base="Wrong password"></en_wrong_password></login>
 <preference path="resources/preference.py" ext="py"><en_general fr="Général" de="General" en="General" it="Generale" base="General"></en_general>
 <en_instance_data fr="Les données d'instance" de="Instanzdaten" en="Instance data" it="Dati di istanza" base="Instance data"></en_instance_data>
-<en_mail_options fr="Options de messagerie" de="Mail-Optionen" en="Mail options" it="Opzioni di posta" base="Mail options"></en_mail_options>
+<en_mail_options fr="Options de messagerie" de="Mail-Optionen" en="Mail options" it="Opzioni Email" base="Mail options"></en_mail_options>
 <en_backups fr="Sauvegardes" de="Backups" en="Backups" it="Backup" base="Backups"></en_backups>
 <en_screenlock_timeout_minutes_ fr="ScreenLock timeout (minutes)" de="Screenlock Timeout (Minuten)" en="Screenlock timeout (minutes)" it="Screenlock timeout (minuti)" base="Screenlock timeout (minutes)"></en_screenlock_timeout_minutes_>
 <en_authentication_messages fr="messages d'authentification" de="Authentifizierungsnachrichten" en="Authentication messages" it="Messaggi di autenticazione" base="Authentication messages"></en_authentication_messages>

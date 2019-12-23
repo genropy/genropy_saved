@@ -425,11 +425,11 @@
 <en_version fr="Version" de="Version" en="Version" it="Versione" base="Version"></en_version>
 <en_date fr="Date" de="Datum" en="Date" it="Data" base="Date"></en_date>
 <en_print fr="Imprimer" de="Druck" en="Print" it="Stampa" base="Print"></en_print>
-<en_mail fr="Courrier" de="Post" en="Mail" it="Posta" base="Mail"></en_mail>
+<en_mail fr="Courrier" de="Post" en="Email" it="Email" base="Mail"></en_mail>
 <en_row fr="Rangée" en="Row" de="Reihe" it="Riga" base="Row"></en_row>
 <en_letterhead fr="Tête" de="Briefkopf" en="Letterhead" it="Carta intestata" base="Letterhead"></en_letterhead>
 <en_summary fr="Résumé" de="Zusammenfassung" en="Summary" it="Sommario" base="Summary"></en_summary>
-<en_flags fr="Drapeaux" de="Flags" en="Flags" it="Bandiere" base="Flags"></en_flags>
+<en_flags fr="Drapeaux" de="Flags" en="Flags" it="Flags" base="Flags"></en_flags>
 <en_variables fr="Variables" de="Variablen" en="Variables" it="Variabili" base="Variables"></en_variables>
 <en_parameters fr="Paramètres" de="Parameter" en="Parameters" it="Parametri" base="Parameters"></en_parameters>
 <en_fields fr="Les champs" de="Felder" en="Fields" it="Campi" base="Fields"></en_fields>
