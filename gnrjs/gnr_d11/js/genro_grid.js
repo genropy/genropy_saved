@@ -2960,10 +2960,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         return result;
     },
 
-    mixin_getSelectedProtectedPkeys:function(){
+    mixin_getSelectedProtectedPkeys:function(reason){
         var that = this;
         var protectPkeys = [];
         this.getSelectedNodes().forEach(function(n){
+            if(reason=='delete' && n.attr._protect_delete===false){
+                protectPkeys.push(that.rowIdentity(n.attr)); //it could be read_only but deletable
+                return;
+            };
             if(n.attr._protect_delete || n.attr._is_readonly_row){
                 protectPkeys.push(that.rowIdentity(n.attr));
             }
@@ -4299,7 +4303,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var pkeys = this.getSelectedPkeys();
         var protectPkeys;
         if(this.collectionStore().allowLogicalDelete){
-            protectPkeys = this.getSelectedProtectedPkeys();
+            protectPkeys = this.getSelectedProtectedPkeys('delete');
         }
         if(this.gridEditor){
             this.gridEditor.deleteSelectedRows(pkeys,protectPkeys);

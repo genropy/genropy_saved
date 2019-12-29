@@ -36,6 +36,7 @@ body.tundra.mimi {
     padding: 2px 9px;
 }
 
+
 .tundra .smallTabs .dijitTabInnerDiv {
     padding: 2px 9px;
 }
@@ -302,7 +303,7 @@ body.tundra.mimi {
     font-size: 1em;
     background:#c2d0e9;
     background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
-    color: #333;
+    color: #444;
 	text-indent: 2px;
 }
 .pbl_roundedGroupVertical {
@@ -363,7 +364,7 @@ body.tundra.mimi {
     padding-top: 5px;
     background:#c2d0e9;
     background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
-    color: #333;
+    color: #444;
 }
 
 .pbl_rectGroupBottom {
@@ -535,7 +536,7 @@ body.tundra.mimi {
     background:#c2d0e9;
     background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
     margin-right: 2px;
-    color: #333;
+    color: #444;
     font-weight: plain;
     /*background-image:-webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));
   background-image:-moz-linear-gradient(top, bottom,from(rgba(104,133,142,0.99)), to(rgba(223,223,223,0.99)));*/
@@ -551,13 +552,16 @@ body.tundra.mimi {
     border-bottom: 0;
     padding:3px 5px 3px 5px;
 }
+._common_d11 .dijitTabLabels-left-h .dijitTabInnerDiv {
+    padding:4px 5px 4px 10px;
 
+}
 ._common_d11 .dijitTabCheckedHover {
     opacity: 1;
 }
 
 ._common_d11 .dijitTabChecked {
-    border-bottom-color: #efefef;
+    border-bottom-color: transparent;
     color: #ccc;
     background-color: white;
 }
@@ -586,8 +590,7 @@ body.tundra.mimi {
 }
 
 ._common_d11 .dijitTabLabels-right-h.dijitAlignRight,._common_d11 .dijitTabLabels-left-h.dijitAlignLeft{
-    background: #999;
-    padding-top: 15px;
+    padding-top: 3px;
 
 }
 ._common_d11 .dijitTabLabels-left-h.dijitAlignLeft{
@@ -621,23 +624,27 @@ body.tundra.mimi {
     border-top-right-radius: 0px;
     border-bottom-left-radius: 0px;
     border-top-left-radius: 0px;*/
-    background-color: transparent;
-
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top-left-radius:4px;
+    border-bottom-left-radius:4px;
+    border:1px solid #ccc;
+    margin-left: 3px;
     text-align: right;
-    margin-bottom: 1px;
-    border-width: 0;
-    color:white;
+    margin-bottom: 2px;
+    color:#444;
 }
 ._common_d11 .dijitTabLabels-left-h .dijitTab.dijitTabChecked {
-    color:RGBA(254, 255, 29, 1.00);
+    color:#444;
+    background:linear-gradient(to bottom, #fffff3,  #fcf8c5);
+
 }
 
-._common_d11 .dijitTabLabels-left-h .dijitTabInnerDiv {
-    padding: 3px 4px;
-}
 
 ._common_d11 .dijitTabLabels-left-h  .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked {
-    border-right-color: whitesmoke;
+    border-right-color: transparent;
+    background:white;
+    border-bottom-color: #ccc;
 }
 
 /* @end */
