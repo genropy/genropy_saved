@@ -3135,7 +3135,9 @@ dojo.declare("gnr.widgets.CheckBox", gnr.widgets.baseDojo, {
     },
     created: function(widget, savedAttrs, sourceNode) {
         if(sourceNode._gnrcheckbox_wrapper){
-            sourceNode._gnrcheckbox_wrapper.parentNode.removeChild(sourceNode._gnrcheckbox_wrapper);
+            if(sourceNode._gnrcheckbox_wrapper.parentNode){
+                sourceNode._gnrcheckbox_wrapper.parentNode.removeChild(sourceNode._gnrcheckbox_wrapper);
+            }
             delete sourceNode._gnrcheckbox_wrapper;
         }
         var label = savedAttrs['label'];
