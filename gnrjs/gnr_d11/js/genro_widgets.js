@@ -3547,6 +3547,11 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
         }
         return this.validator(this.textbox.value, this.sourceNode._parseDict) || this.validator(this.textbox.value, this.constraints);
     },
+    cell_onCreating:function(gridEditor,colname,colattr){
+        if(colattr._formats){
+            colattr.format = colattr.format || colattr._formats.format;
+        }
+    }
 
 });
 dojo.declare("gnr.widgets.CurrencyTextBox", gnr.widgets.NumberTextBox, {
