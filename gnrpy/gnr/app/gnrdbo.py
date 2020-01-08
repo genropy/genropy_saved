@@ -1223,6 +1223,9 @@ class HostedTable(GnrDboTable):
 class AttachmentTable(GnrDboTable):
     """AttachmentTable"""
 
+    def use_dbstores(self, **kwargs):
+        return self.db.table(tblname=self.fullname[0:-4]).use_dbstores()
+
     def config_db(self,pkg):
         tblname = self._tblname
         tbl = pkg.table(tblname,pkey='id')

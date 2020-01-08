@@ -152,7 +152,7 @@ class BaseResourcePrint(BaseResourceBatch):
         print(x)
         
     def result_handler_pdf(self, resultAttr):
-        save_as = slugify(self.print_options.get('save_as') or self.batch_title)
+        save_as = slugify(self.print_options.get('save_as') or self.batch_parameters.get('save_as') or self.batch_title)
         outputFileNode=self.page.site.storageNode('user:output', 'pdf', save_as,autocreate=-1)
         zipped =  self.print_options.get('zipped')
         immediate_mode = self.batch_immediate

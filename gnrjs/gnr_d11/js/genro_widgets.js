@@ -3135,7 +3135,9 @@ dojo.declare("gnr.widgets.CheckBox", gnr.widgets.baseDojo, {
     },
     created: function(widget, savedAttrs, sourceNode) {
         if(sourceNode._gnrcheckbox_wrapper){
-            sourceNode._gnrcheckbox_wrapper.parentNode.removeChild(sourceNode._gnrcheckbox_wrapper);
+            if(sourceNode._gnrcheckbox_wrapper.parentNode){
+                sourceNode._gnrcheckbox_wrapper.parentNode.removeChild(sourceNode._gnrcheckbox_wrapper);
+            }
             delete sourceNode._gnrcheckbox_wrapper;
         }
         var label = savedAttrs['label'];
@@ -3545,6 +3547,11 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
         }
         return this.validator(this.textbox.value, this.sourceNode._parseDict) || this.validator(this.textbox.value, this.constraints);
     },
+    cell_onCreating:function(gridEditor,colname,colattr){
+        if(colattr._formats){
+            colattr.format = colattr.format || colattr._formats.format;
+        }
+    }
 
 });
 dojo.declare("gnr.widgets.CurrencyTextBox", gnr.widgets.NumberTextBox, {

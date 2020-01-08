@@ -751,7 +751,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             funcApply(onResult,{result:result},this);
             dlg.close_action();
         };
-        dlg.center._('DropUploaderGrid',uploaderKw);
+        uploaderKw.storepath = uploaderKw.storepath || '^gnr.multiupload_store';
+        genro.setData('gnr.multiupload_store',new gnr.GnrBag());
+        var g = dlg.center._('DropUploaderGrid',uploaderKw);
         dlg.show_action();
         var actionCb = function(){
             genro.nodeById(uploaderKw.nodeId).publish('doUpload');
