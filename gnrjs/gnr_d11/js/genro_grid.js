@@ -1339,12 +1339,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         return result;
     },
     structFromBag_cellFormatter :function(sourceNode, cell,formatOptions, cellClassCB) {
-        var opt = objectUpdate({}, formatOptions);
         var cellClassFunc;
         if (cellClassCB) {
             cellClassFunc = funcCreate(cellClassCB, 'cell,v,inRowIndex,originalValue',this);
         }
         return function(v, inRowIndex) {
+            var opt = objectUpdate({}, formatOptions);
             var renderedRow = this.grid.currRenderedRow;
             if(!objectNotEmpty(renderedRow)){
                 return '<div class="cellContent">' + '&nbsp;' + '</div>';
@@ -1409,11 +1409,18 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if (this.grid.gridEditor) {
                 this.grid.gridEditor.onFormatCell(this,inRowIndex,renderedRow);
             }
-            var v = genro.format(v, opt);
+            for(let k in opt){
+                let vopt = opt[k];
+                if(typeof(vopt)=='string' && vopt.startsWith('#ROW.')){
+                    vopt = renderedRow[vopt.slice(5)];
+                }
+                opt[k] = vopt;
+            }
+            v = genro.format(v, opt);
             if (v == null) {
                 v = '&nbsp;';
             }
-            var template = opt['template'];
+            var template = opt.template;
             if (template) {
                 if(template.indexOf('$'+cell.field)>=0){
                     v = dataTemplate(template,renderedRow);
@@ -1422,8 +1429,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 }
                 
             }
-            if (opt['js']) {
-                v = opt['js'](v, this.grid.storebag().getNodes()[inRowIndex]);
+            if (opt.js) {
+                v = opt.js(v, this.grid.storebag().getNodes()[inRowIndex]);
             }
             var zoomAttr = objectExtract(opt,'zoom_*',true);
             var draggable = this.draggable ? ' draggable=true ' : '';
@@ -1591,6 +1598,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 formats['falseclass'] = ' ';
                 formats['trueclass'] = 'yellowLight';
             }
+            objectUpdate(formats,objectExtract(rowBasedAttr,'format_*'));
             cell._formats = formats;
             cell.formatter = this.structFromBag_cellFormatter(sourceNode,cell,formats, cellClassCB);
             delete cell.tag;
