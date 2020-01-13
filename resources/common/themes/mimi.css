@@ -1,8 +1,11 @@
 /*vico*/
+
+
 body.tundra.mimi {
     font:14px "SF Pro Text","Myriad Set Pro","SF Pro Icons","Apple Legacy Chevron","Helvetica Neue","Helvetica","Arial",sans-serif;
     color:#555;
 }
+
 .frameindexroot{
     background:linear-gradient(to right, #ffffff, #bacbdf);    
 }
@@ -125,8 +128,8 @@ body.tundra.mimi {
 .mimi .pbl_root_top {
     height: 24px;
     vertical-align: middle;
-    color:rgba(30, 48, 85, 1);
-    background-color:rgba(234, 203, 110, 1);
+    color:var(--root-top-color);
+    background:var(--root-top-background);
 }
 .mimi .pbl_root_top .gnrfieldlabel{
     color:rgba(30, 48, 85, 1);
@@ -134,7 +137,7 @@ body.tundra.mimi {
 
 .mimi.theme_variant_green .pbl_root_top{
     background-color: #50c9c3;
-      background: linear-gradient(to bottom, #1d976c, #37ce99);  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: linear-gradient(to bottom, #1d976c, #37ce99);  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 
     color:white;
 
@@ -1071,7 +1074,8 @@ body.tundra.mimi {
 
 .framedindex_tablist{
     background-image: none;
-    background-image: linear-gradient(to right top, #172b51, #1b3058, #20345e, #243965, #293e6c);
+    background-image:var(--frameindex-tablist-background);
+    color:var(--frameindex-tablist-color);
     min-height: 34px;
 }
 .mimi .framedindex_tablist .button_block.iframetab{ 
