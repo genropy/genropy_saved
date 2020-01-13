@@ -174,6 +174,8 @@ class GnrWebPage(GnrBaseWebPage):
                             self.site.config['dojo?pagetemplate'] or 'standard.tpl'
         self.css_theme = request_kwargs.pop('css_theme', None) or getattr(self, 'css_theme', None) \
                         or self.site.config['gui?css_theme']
+        self.css_theme_variant = request_kwargs.pop('css_theme_variant', None) or getattr(self, 'css_theme_variant', None) \
+                        or self.site.config['gui?css_theme_variant'] or 'base'
         self.css_icons = request_kwargs.pop('css_icons', None) or getattr(self, 'css_icons', None)\
                         or self.site.config['gui?css_icons'] or 'retina/gray'
         self.dojo_theme = request_kwargs.pop('dojo_theme', None) or getattr(self, 'dojo_theme', None)
@@ -1440,6 +1442,13 @@ class GnrWebPage(GnrBaseWebPage):
         :ref:`webpages_css_theme` webpage variable"""
         return self.css_theme
 
+        
+    def get_css_theme_variant(self):
+        """Get the css_theme and return it. The css_theme get is the one defined the :ref:`siteconfig_gui`
+        tag of your :ref:`sites_siteconfig` or in a single :ref:`webpage` through the
+        :ref:`webpages_css_theme` webpage variable"""
+        return self.css_theme_variant
+
     def get_css_icons(self):
         """Get the css_icons and return it. The css_icons get is the one defined the :ref:`siteconfig_gui`
         tag of your :ref:`sites_siteconfig` or in a single :ref:`webpage` through the
@@ -1457,8 +1466,12 @@ class GnrWebPage(GnrBaseWebPage):
         requires = [r for r in (requires or self.css_requires) if r]
         css_theme = self.get_css_theme() or 'ludo'
         css_icons = self.get_css_icons()
+        css_theme_variant =  self.get_css_theme_variant()
         if css_theme:
             requires.append('themes/%s' %css_theme)
+        requires.append('themes/{css_theme}/{css_theme_variant}'.format(css_theme=css_theme,css_theme_variant=css_theme_variant))
+        if self.dbstore:
+            requires.append('multidb_{dbstore}/theme_variant'.format(dbstore=self.dbstore))
         if css_icons:
             requires.append('css_icons/%s/icons' %css_icons)
         self.onServingCss(requires)

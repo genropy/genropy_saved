@@ -204,9 +204,15 @@ class GridCustomizer(BaseComponent):
             colsdict = dict([(d['field'],dict(d)) for d in printInstance.grid_columns])
             for v in list(customizerBag.values()):
                 d = colsdict.get(v['field']) or {}
-                custattr = dict(field=v['field'],name=v['name'],mm_width=v['mm_width'],format=v['format'],style=v['style'])
+                custattr = dict(field=v['field'],name=v['name'],
+                                mm_width=v['mm_width'],
+                                format=v['format'],
+                                style=v['style'],
+                                totalize=v['totalize'])
                 d.update(custattr)
-                if not v['enabled']:
+                if v['enabled']:
+                    d['hidden'] = False
+                else:
                     d['hidden'] = True
                 filtered_grid_columns.append(d)
             printInstance.grid_columns = filtered_grid_columns

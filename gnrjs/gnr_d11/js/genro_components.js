@@ -1808,7 +1808,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         databag.setItem('menu_dtypes', searchDtypes);
         databag.setItem('caption', defaultLabel);
         databag.setItem('searchDelay',1000);
-        this._prepareSearchBoxMenu(searchOn, databag);
+        this._prepareSearchBoxMenu(searchOn, databag,sourceNode);
         databag.setItem('value', '');
         sourceNode.setRelativeData(null, databag);
         var searchbox = sourceNode._('form',{autocomplete:'false',action:'javascript:void(0);'})._('table', {nodeId:nodeId})._('tbody')._('tr');
@@ -1837,11 +1837,11 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
                          parentForm:false,width:objectPop(kw,'width') || '6em',
                          tabindex:"-1",connect_focus:function(){this.domNode.select()}});
         sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
-            menubag = this._prepareSearchBoxMenu(searchOn, sourceNode.getRelativeData());
+            menubag = this._prepareSearchBoxMenu(searchOn, sourceNode.getRelativeData(),sourceNode);
         });
         return searchbox;
     },
-    _prepareSearchBoxMenu: function(searchOn, databag) {
+    _prepareSearchBoxMenu: function(searchOn, databag,sourceNode) {
         var menubag = new gnr.GnrBag();
         var i = 0;
         if (searchOn === true) {
@@ -1857,7 +1857,9 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
                     col = col[1];
                 }
                 col = col.replace(/[.@]/g, '_');
-                menubag.setItem('r_' + i, null, {col:col,caption:caption,child:''});
+                let attr = {col:col,caption:caption,child:''};
+                attr = sourceNode.evaluateOnNode(attr);
+                menubag.setItem('r_' + i, null, attr);
                 i++;
             });
         }
