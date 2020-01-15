@@ -1242,7 +1242,7 @@ var gnrformatter = {
             r.reverse();
             return r.join(' ')
         }
-        return ('currency' in formatKw ? dojo.currency:dojo.number).format(value, objectUpdate(opt, formatKw))
+        return (formatKw.currency ? dojo.currency:dojo.number).format(value, objectUpdate(opt, formatKw))
     },
     format_X:function(value,format,formatKw){
         return value.getFormattedValue(format);
