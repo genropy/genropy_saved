@@ -762,7 +762,7 @@ class BagToHtml(object):
             if not self._currSpanCell.attributes['colspan_count']: 
                 self._currSpanCell = None
             return
-        handler = getattr(self, 'renderGridCell_%s' % col, self.renderGridCell_default)
+        handler = getattr(self, 'renderGridCell_%s' % col['field'], self.renderGridCell_default)
         cell = handler(col=col, rowData=rowData, parentRow=parentRow, **cell_kwargs)
         if colspan>1:
             self._currSpanCell = cell
