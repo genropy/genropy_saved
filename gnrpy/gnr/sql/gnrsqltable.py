@@ -456,8 +456,8 @@ class SqlTable(GnrObject):
 
     def variantColumn_age(self, field, dateArg=None, **kwargs):
         dref = dateArg or ':env_workdate'
-        return dict(name='{field}_age'.format(field=field), 
-                                            sql_formula='age(${field},{dref})'.format(field=field, dref=dref),
+        return dict(name='{field}_age'.format(field=field), dtype='T',
+                                            sql_formula='CAST(age(${field},{dref}) as TEXT)'.format(field=field, dref=dref),
                                             **kwargs)
 
     @property
