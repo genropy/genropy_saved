@@ -149,6 +149,10 @@ class BaseComponent(object):
         
         loader = currentSite().resource_loader
         return loader.py_requires_iterator(cls, target_class)
+
+class BagFieldForm(BaseComponent):
+    pass
+
         
 class BaseResource(GnrObject):
     """Base class for a webpage resource"""
