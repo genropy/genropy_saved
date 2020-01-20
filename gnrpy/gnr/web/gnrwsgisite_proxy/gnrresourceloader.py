@@ -253,7 +253,7 @@ class ResourceLoader(object):
         else:
             pagesPath = os.path.join(self.site_path, 'pages')
             packageResourcePath = None
-        #curdir = os.path.dirname(os.path.join(pagesPath, path))
+        curdir = os.path.dirname(os.path.join(pagesPath, path))
         #resourcePkg = None
         result = [] # result is now empty
         fpath = os.path.join(self.site_path, 'resources')
@@ -265,12 +265,11 @@ class ResourceLoader(object):
         
         fpath = os.path.join(self.site_path, '_resources')
         self._appendPathIfExists(result, fpath) # we add a custom resource folder for common package
-            
-        #while curdir.startswith(pagesPath):
-        #    fpath = os.path.join(curdir, '_resources')
-        #    if os.path.isdir(fpath):
-        #        result.append(fpath)
-        #    curdir = os.path.dirname(curdir) # we add a resource folder for folder 
+        while curdir.startswith(pagesPath):
+            fpath = os.path.join(curdir, '_resources')
+            if os.path.isdir(fpath):
+                result.append(fpath)
+            curdir = os.path.dirname(curdir) # we add a resource folder for folder 
             # of current page
         #if resourcePkg:
         #    for rp in resourcePkg.split(','):

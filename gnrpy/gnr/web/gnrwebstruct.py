@@ -705,7 +705,10 @@ class GnrDomSrc(GnrStructData):
         
         :param content: the <script> content"""
         return self.child('script', childcontent=content, **kwargs)
-        
+    
+    def bagField(self,value=None,method=None,**kwargs):
+        return self.child('bagField',value=value,methodname=method,**kwargs)
+
     def remote(self, method=None, lazy=True, cachedRemote=None,**kwargs):
         """TODO
         

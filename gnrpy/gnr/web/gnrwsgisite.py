@@ -642,7 +642,7 @@ class GnrWsgiSite(object):
    #sitemap = property(_get_sitemap)
 
     def getPackageFolder(self,pkg):
-        return os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
+        return self.gnrapp.packages[pkg].packageFolder
 
     def callExternalUrl(self,url,method=None,**kwargs):
         kwargs = kwargs or dict()

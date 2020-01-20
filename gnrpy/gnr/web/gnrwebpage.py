@@ -2191,6 +2191,35 @@ class GnrWebPage(GnrBaseWebPage):
         if (resultAs is None or resultAs=='path') and os.path.exists(result):
             return open(result,'r')
         return result
+
+    @public_method
+    def bagFieldDispatcher(self,pane,resource=None,module=None,table=None,
+                        methodname=None,field=None,version=None,**kwargs):
+        if methodname:
+            handlername = methodname
+        else:
+            handlername = 'bf_{field}'.format(field=field)
+            
+        if not module:
+            module = self.pagename if not table else table.split('.')[1]
+            if version:
+                module = '{module}_{version}'.format(module=module,version=version)
+            module = 'bf_{module}'.format(module=module)
+        if not hasattr(self,handlername):
+            if resource:
+                resource = '{resource}/{module}'.format(resource=resource,module=module)
+            else:
+                resource = module
+        if resource:
+            if ':' not in resource:
+                resource = '{resource}:BagField_{field}'.format(resource=resource,field=field)
+                handlername = 'bf_content'
+            if table:
+                self.mixinTableResource(table,'bagfields/{resource}'.format(resource=resource))
+            else:
+                self.mixinComponent(resource)
+        return getattr(self,handlername)(pane,**kwargs)
+        
     
     @public_method                                 
     def remoteBuilder(self, handler=None,tag=None, py_requires=None,_inheritedAttributes=None,**kwargs):
