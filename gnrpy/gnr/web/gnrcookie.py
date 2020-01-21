@@ -225,10 +225,6 @@ class SignedCookie(Cookie):
 
         secret = self.__data__["secret"].encode()
         name = self.name.encode()
-        print(secret)
-        print(type(secret))
-        print(name)
-        print(type(name))
         _hmac = hmac.new(secret, name)
         _hmac.update(str)
         return _hmac.hexdigest()

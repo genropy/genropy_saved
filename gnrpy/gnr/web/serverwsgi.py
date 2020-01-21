@@ -21,7 +21,7 @@ CONN_STRING_RE=r"(?P<ssh_user>\w*)\:?(?P<ssh_password>\w*)\@(?P<ssh_host>(\w|\.)
 CONN_STRING = re.compile(CONN_STRING_RE)
 
 log = logging.getLogger('werkzeug')
-log.setLevel(logging.INFO)
+log.setLevel(logging.ERROR)
 
 wsgi_options = dict(
         port=8080,
@@ -331,6 +331,8 @@ class Server(object):
         if self.debug:
             gnrServer = GnrDebuggedApplication(gnrServer, evalex=True, pin_security=False)
         port = int(self.options.port)
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')
+        print(f'[{now}]\tStarting server - listening on http://127.0.0.1:{port}')
         run_simple(self.options.host, port, gnrServer, use_reloader=self.reloader, threaded=True,
             reloader_type='stat')
         

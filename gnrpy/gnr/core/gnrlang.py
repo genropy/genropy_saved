@@ -952,7 +952,6 @@ def serializedFuncName(func, cls=None):
     proxy_name=getattr(func, 'proxy_name', None)
     cls = cls or func.__self__.__class__
     _gnrPublicName = getattr(cls,'_gnrPublicName',None)
-    print(_gnrPublicName)
     if _gnrPublicName:
         proxy_name = _gnrPublicName
     if cls.__name__=='SqlTable':
