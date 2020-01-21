@@ -245,7 +245,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         from subprocess import call
         dbname = dbname or self.dbroot.dbname
         if filename.endswith('.pgd'):
-            call(['pg_restore',filename,'--dbname',dbname])
+            call(['pg_restore','--dbname',dbname,'-U',self.dbroot.user,filename])
         else:
             return call(['psql', "dbname=%s user=%s password=%s" % (dbname, self.dbroot.user, self.dbroot.password), '-f', filename])
         
