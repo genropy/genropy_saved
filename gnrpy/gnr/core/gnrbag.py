@@ -1949,7 +1949,8 @@ class Bag(GnrObject):
         "mode" to xml, vcard or pickle and returns it with \"source\" and \"fromFile\""""
         originalsource = source
         #source = six.ensure_binary(source, 'utf-8', 'replace')
-        if source.startswith('<') or '<?xml' in source:
+        if (isinstance(source,bytes) and (source.startswith(b'<') or b'<?xml' in source)) or\
+            (isinstance(source,str) and (source.startswith('<') or '<?xml' in source)):
             return source, False, 'xml'
         if len(source) > 300:
             #if source is longer than 300 chars it cannot be a path or an URI
