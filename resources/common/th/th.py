@@ -852,12 +852,20 @@ class ThLinker(BaseComponent):
     def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,
                     formUrl=None,newRecordOnly=None,openIfEmpty=None,
                     _class='pbl_roundedGroup',label=None,template_kwargs=None,
-                    margin=None,editEnabled=True,clientTemplate=False,center_class=None,table=None,**kwargs):
+                    margin=None, editEnabled=True, addEnabled=True, 
+                    clientTemplate=False,center_class=None,table=None,**kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
         if pane.attributes.get('tag') == 'ContentPane':
             pane.attributes['overflow'] = 'hidden'
         frame = pane.framePane(frameCode=frameCode,_class=_class,margin=margin)
-        linkerBar = frame.top.linkerBar(field=field,formResource=formResource,formUrl=formUrl,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,table=table,**kwargs)
+        linkerBar = frame.top.linkerBar(field=field,
+                                        formResource=formResource,
+                                        formUrl=formUrl,
+                                        newRecordOnly=newRecordOnly,
+                                        openIfEmpty=openIfEmpty,
+                                        addEnabled=addEnabled,
+                                        label=label,
+                                        table=table,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
         center_class = center_class or 'linkerCenter'
@@ -882,9 +890,9 @@ class ThLinker(BaseComponent):
         return frame
 
     @struct_method          
-    def th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs):
+    def th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True, addEnabled=None, **kwargs):
         bar = pane.slotBar('lbl,*,linkerslot,5',height='20px',_class=_class)
-        linker = bar.linkerslot.linker(field=field,newRecordOnly=newRecordOnly,**kwargs)
+        linker = bar.linkerslot.linker(field=field,newRecordOnly=newRecordOnly, addEnabled=addEnabled, **kwargs)
         bar.linker = linker
         label = label or self.db.table(linker.attributes['table']).name_long
         bar.lbl.div(label)
