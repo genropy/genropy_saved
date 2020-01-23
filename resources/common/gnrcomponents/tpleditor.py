@@ -177,7 +177,7 @@ class TemplateEditorBase(BaseComponent):
                     tbody = t.xpath('tbody')[0]
                     tbody_lastrow = tbody.getchildren()[-1]
                     tbody.replace(tbody_lastrow,HT.etree.Comment('TEMPLATEROW:$%s' %subname))
-                    subtemplate=HT.tostring(tbody_lastrow).replace('%s.'%subname,'').replace('%24','$')
+                    subtemplate=HT.tostring(tbody_lastrow).decode().replace('%s.'%subname,'').replace('%24','$')
                     compiled.setItem(subname.replace('.','_'),subtemplate)
             cmain = TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),HT.tostring(doc).decode().replace('%24','$'))
         compiled.setItem('main', cmain,
