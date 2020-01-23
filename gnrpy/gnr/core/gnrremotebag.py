@@ -90,7 +90,6 @@ class RemoteBagServerBase(object):
         self.identifiers = dict()        
         self.name = name
         self.parent = parent
-        print(parent)
         if parent is not None:
             self.daemon = parent.daemon
 

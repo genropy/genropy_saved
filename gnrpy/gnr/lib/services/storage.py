@@ -147,6 +147,7 @@ class LocalPath(object):
     def __exit__(self, exc, value, tb):
         pass
 
+
 class ServiceType(BaseServiceType):
     
     def conf_home(self):
@@ -340,6 +341,15 @@ class StorageNode(object):
     def mimetype(self):
         """Returns the file mime type"""
         return self.service.mimetype(self.path)
+
+    def get_metadata(self):
+        """Returns the file metadata"""
+        return self.service.get_metadata(self.path)
+
+    def set_metadata(self, metadata):
+        """Sets the file metadata"""
+        self.service.set_metadata(self.path, metadata)
+
 
 class StorageService(GnrBaseService):
 
@@ -756,7 +766,8 @@ class StorageResolver(BagResolver):
         result = Bag()
         self.storageNode = self._page.site.storageNode(self.storageNode)
         try:
-            directory = sorted(self.storageNode.children() or [])
+            directory = self.storageNode.children() or []
+            directory.sort(key=lambda s:s.basename)
         except OSError:
             directory = []
         if not self.invisible:
@@ -844,6 +855,12 @@ class StorageResolver(BagResolver):
 
         :param path: TODO"""
         return None
+
+    def get_metadata(self, path):
+        pass
+
+    def set_metadata(self, path, metadata):
+        pass
 
 
 class TxtStorageResolver(BagResolver):
