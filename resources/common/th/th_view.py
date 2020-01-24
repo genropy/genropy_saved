@@ -650,6 +650,29 @@ class TableHandlerView(BaseComponent):
             return allsection+sections if allPosition!='last' else sections+allsection
         return sections
  
+    def th_monthlySections(self,column=None,dtstart=None,count=3,allPosition=True,over='>=',**kwargs):
+        sections = []
+        import datetime
+        from dateutil import rrule
+        for idx,dt in enumerate(rrule.rrule(rrule.MONTHLY, 
+                                dtstart=dtstart or self.workdate, 
+                                count=count)):
+            currdate = dt.date()
+            offsetchunk = "+ interval '{idx} month'".format(idx=idx) if idx else ''
+            condition = "to_char({column},'YYYY-MM')=to_char(:currdate {offsetchunk},'YYYY-MM')"\
+                        .format(column=column,offsetchunk=offsetchunk)
+            sections.append(dict(code='s{idx}'.format(idx=idx),
+                            condition=condition,
+                            condition_currdate=currdate,
+                            isDefault=idx==0,
+                            caption=self.toText(currdate,format='MMMM')))
+
+        endlast = datetime.date(currdate.year,currdate.month+1,1)
+        if over:
+            sections.append(dict(code='after',condition='{column}>=:endlast'.format(column=column),
+                                condition_endlast=endlast,
+                                caption='!![en]Next months'))
+        return sections
 
     @struct_method
     def th_slotbar_stats(self,pane,**kwargs):
