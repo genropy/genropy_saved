@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><metadata><email><subject _T="NN"></subject>
+<to_address _T="NN"></to_address>
+<from_address _T="NN"></from_address>
+<cc_address _T="NN"></cc_address>
+<bcc_address _T="NN"></bcc_address>
+<attachments _T="NN"></attachments></email></metadata>
+<varsbag><fk40njrbex _pkey="fk40njrbex"><fieldpath>@regione.nome</fieldpath>
+<dtype dtype="::NN">A</dtype>
+<fieldname dtype="::NN">Regione/Nome</fieldname>
+<varname dtype="::NN">regione_nome</varname>
+<virtual_column _T="NN"></virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></fk40njrbex>
+<fk40nlvfdt _pkey="fk40nlvfdt"><fieldpath>sigla</fieldpath>
+<dtype dtype="::NN">A</dtype>
+<fieldname dtype="::NN">Sigla</fieldname>
+<varname dtype="::NN">sigla</varname>
+<virtual_column _T="NN"></virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></fk40nlvfdt>
+<fk40nohr7t _pkey="fk40nohr7t"><fieldpath>tot_superficie</fieldpath>
+<dtype dtype="::NN">L</dtype>
+<fieldname dtype="::NN">Superficie</fieldname>
+<varname dtype="::NN">superficie</varname>
+<virtual_column _T="B">True</virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></fk40nohr7t>
+<fk40o607z5 _pkey="fk40o607z5"><fieldpath>nome</fieldpath>
+<dtype dtype="::NN">A</dtype>
+<fieldname dtype="::NN">Nome</fieldname>
+<varname dtype="::NN">nome</varname>
+<virtual_column _T="NN"></virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></fk40o607z5>
+<fk40om14ht _pkey="fk40om14ht"><fieldpath>numero_abitanti</fieldpath>
+<dtype dtype="::NN">L</dtype>
+<fieldname dtype="::NN">N.Abitanti</fieldname>
+<varname dtype="::NN">n_abitanti</varname>
+<virtual_column _T="B">True</virtual_column>
+<required_columns _T="NN"></required_columns>
+<df_template _T="NN"></df_template>
+<format _T="NN" dtype="::NN"></format>
+<mask _T="NN" dtype="::NN"></mask>
+<editable _T="NN" dtype="::NN"></editable></fk40om14ht></varsbag>
+<content>&lt;div&gt;
+	&lt;strong&gt;Regione:&amp;nbsp;&lt;/strong&gt;$regione_nome&lt;/div&gt;
+&lt;div&gt;
+	&lt;strong&gt;Sigla:&amp;nbsp;&lt;/strong&gt;$sigla &lt;strong&gt;Nome:&lt;/strong&gt;&lt;b&gt;&amp;nbsp;$nome&lt;/b&gt;&lt;/div&gt;
+&lt;div&gt;
+	&lt;b&gt;Superficie:&amp;nbsp;&lt;/b&gt;$superficie &lt;strong&gt;Abitanti:&lt;/strong&gt;&lt;b&gt;&amp;nbsp;&lt;/b&gt;$n_abitanti&lt;/div&gt;
+</content>
+<compiled><main maintable="glbl.provincia" locale="it" virtual_columns="tot_superficie,numero_abitanti" columns="@regione.nome,$sigla,$tot_superficie,$nome,$numero_abitanti" formats="{}::JS" masks="{}::JS" editcols="{}::JS" df_templates="{}::JS" dtypes='{"regione_nome": "A", "sigla": "A", "superficie": "L", "nome": "A", "n_abitanti": "L"}::JS'>&lt;html&gt;&lt;body&gt;&lt;div&gt;
+	&lt;strong&gt;Regione:&amp;#160;&lt;/strong&gt;$@regione.nome&lt;/div&gt;
+&lt;div&gt;
+	&lt;strong&gt;Sigla:&amp;#160;&lt;/strong&gt;$sigla &lt;strong&gt;Nome:&lt;/strong&gt;&lt;b&gt;&amp;#160;$nome&lt;/b&gt;&lt;/div&gt;
+&lt;div&gt;
+	&lt;b&gt;Superficie:&amp;#160;&lt;/b&gt;$tot_superficie &lt;strong&gt;Abitanti:&lt;/strong&gt;&lt;b&gt;&amp;#160;&lt;/b&gt;$numero_abitanti&lt;/div&gt;
+&lt;/body&gt;&lt;/html&gt;</main></compiled></GenRoBag>

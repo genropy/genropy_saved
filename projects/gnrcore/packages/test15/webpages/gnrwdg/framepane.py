@@ -20,10 +20,14 @@ class GnrCustomWebPage(object):
         frame = pane.framePane(frameCode='frame0',height='200px',width='300px',shadow='3px 3px 5px gray',
                                border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
                                center_background='gray')
-        top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px')
-        bottom = frame.bottom.slotBar(slots='btoh,*,|,bt2,30',height='30px')
-        bottom.btoh.slotButton(label='Ok',action='alert("Hello!")')
-        bottom.bt2.slotButton(label='ciao ciao',action='alert("Hello again!")')
+
+        top = frame.top.slotToolbar(slots='3,curr_user,*,add_btn,5',height='20px')
+        top.curr_user.div('^gnr.avatar.user')
+        top.add_btn.button('Add new element')
+
+        bottom = frame.bottom.slotBar(slots='5,cancel_btn,*,|,*,save_btn,5',height='30px')
+        bottom.cancel_btn.slotButton(label='Cancel',action='alert("Cancel!")')
+        bottom.save_btn.slotButton(label='Save',action='alert("Saving")')
         
     def test_1_slotbar_sidebar(self,pane):
         """Design: sidebar"""

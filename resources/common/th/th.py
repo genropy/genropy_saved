@@ -853,7 +853,7 @@ class ThLinker(BaseComponent):
                     formUrl=None,newRecordOnly=None,openIfEmpty=None,
                     _class='pbl_roundedGroup',label=None,template_kwargs=None,
                     margin=None, editEnabled=True, addEnabled=True, 
-                    clientTemplate=False,center_class=None,table=None,**kwargs):
+                    clientTemplate=False,center_class=None, **kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
         if pane.attributes.get('tag') == 'ContentPane':
             pane.attributes['overflow'] = 'hidden'
@@ -865,21 +865,23 @@ class ThLinker(BaseComponent):
                                         openIfEmpty=openIfEmpty,
                                         addEnabled=addEnabled,
                                         label=label,
-                                        table=table,**kwargs)
+                                        **kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
         center_class = center_class or 'linkerCenter'
+        table = linker.attributes['table']
+        related_tblobj = self.db.table(table)
         if clientTemplate:
-            template = frame.center.contentPane(_class=center_class).templateChunk(template=template,table=linker.attributes['table'],
+            template = frame.center.contentPane(_class=center_class).templateChunk(template=template,table=table,
                                       datasource='^.@%s' %field,
                                       visible=currpkey,margin='4px',
                                       **template_kwargs)
         else:
-            template = frame.center.contentPane(_class=center_class).templateChunk(template=template,table=linker.attributes['table'],
+            template = frame.center.contentPane(_class=center_class).templateChunk(template=template,table=table,
                                       record_id='^.%s' %field,
                                       visible=currpkey,margin='4px',
                                       **template_kwargs)
-        related_tblobj = self.db.table(linker.attributes.get('table'))
+        
         forbudden_dbstore = self.dbstore and (related_tblobj.attributes.get('multidb') or related_tblobj.use_dbstores() is False)
         if editEnabled and formResource or formUrl:
             footer = frame.bottom.slotBar('*,linker_edit',height='20px')
@@ -890,7 +892,7 @@ class ThLinker(BaseComponent):
         return frame
 
     @struct_method          
-    def th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True, addEnabled=None, **kwargs):
+    def th_linkerBar(self,pane,field=None, label=None, _class='pbl_roundedGroupLabel',newRecordOnly=True, addEnabled=None, **kwargs):
         bar = pane.slotBar('lbl,*,linkerslot,5',height='20px',_class=_class)
         linker = bar.linkerslot.linker(field=field,newRecordOnly=newRecordOnly, addEnabled=addEnabled, **kwargs)
         bar.linker = linker

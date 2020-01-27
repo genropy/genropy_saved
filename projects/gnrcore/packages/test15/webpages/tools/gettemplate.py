@@ -53,6 +53,14 @@ class GnrCustomWebPage(object):
                     height='100px',dataProvider=rpc,editable=True)
 
 
+    def test_6_templateChunk_provincia(self,pane):
+        pane.dbSelect(dbtable='glbl.provincia',value='^.pkey',_class='gnrfield')
+        rpc = pane.dataRecord('.record','glbl.provincia',pkey='^.pkey')
+        pane.templateChunk(template='custom',table='glbl.provincia',datasource='^.record',
+                            height='100px',record_id='^.record.sigla')
+
+
+
     def test_7_templateChunk_provincia(self,pane):
         pane.dbSelect(dbtable='glbl.provincia',value='^.pkey',_class='gnrfield')
         rpc = pane.dataRecord('.record','glbl.provincia',pkey='^.pkey')
