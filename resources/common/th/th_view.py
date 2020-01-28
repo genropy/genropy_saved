@@ -658,9 +658,8 @@ class TableHandlerView(BaseComponent):
                                 dtstart=dtstart or self.workdate, 
                                 count=count)):
             currdate = dt.date()
-            offsetchunk = "+ interval '{idx} month'".format(idx=idx) if idx else ''
-            condition = "to_char({column},'YYYY-MM')=to_char(:currdate {offsetchunk},'YYYY-MM')"\
-                        .format(column=column,offsetchunk=offsetchunk)
+            condition = "to_char({column},'YYYY-MM')=to_char(:currdate,'YYYY-MM')"\
+                        .format(column=column)
             sections.append(dict(code='s{idx}'.format(idx=idx),
                             condition=condition,
                             condition_currdate=currdate,
