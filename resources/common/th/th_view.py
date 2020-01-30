@@ -654,8 +654,10 @@ class TableHandlerView(BaseComponent):
         sections = []
         import datetime
         from dateutil import rrule
+        dtstart = dtstart or self.workdate
+        dtstart = datetime.date(dtstart.year,dtstart.month,1)
         for idx,dt in enumerate(rrule.rrule(rrule.MONTHLY, 
-                                dtstart=dtstart or self.workdate, 
+                                dtstart=dtstart, 
                                 count=count)):
             currdate = dt.date()
             condition = "to_char({column},'YYYY-MM')=to_char(:currdate,'YYYY-MM')"\
