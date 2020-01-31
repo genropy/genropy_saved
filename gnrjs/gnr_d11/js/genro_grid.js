@@ -4448,6 +4448,10 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             return;
         }
         let remoteEdit = cell.remoteEdit;
+        let store = this.collectionStore();
+        if (store.locked){
+            return;
+        }
         if(remoteEdit===true){
             remoteEdit = {value:`^.${cell.field}`,lbl:cell.original_name};
         }
