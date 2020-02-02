@@ -901,6 +901,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             this.changedFocus(false); 
             this.sourceNode.publish('onBlur',{});
         });
+        dojo.connect(widget,'onCellDblClick',function(evt){
+            if(evt.cell.remoteEdit){
+                this.remoteCellEdit(evt.cell,evt.rowIndex);
+            }
+        });
         dojo.connect(widget,'onCellClick',function(evt){
             this.sourceNode.publish('onCellClick',{evt:evt,cellNode:evt.cellNode});
         });
@@ -4439,7 +4444,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         });
         return struct;
     },
-    mixin_remoteCellEdit:function(pkey,cell,rowIndex){
+    mixin_remoteCellEdit:function(cell,rowIndex){
         const table = this.sourceNode.attr.table; 
         if(!table){
             return
@@ -4462,6 +4467,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         let row = this.rowByIndex(rowIndex);
         promptkw.dflt = new gnr.GnrBag(row);
         promptkw.widget = remoteEdit;
+        var pkey = this.rowIdentity(row);
         promptkw.action = function(result){
             genro.serverCall('app.updateRecord',{'pkey':pkey,'table':table,
                                                 'record':result},

@@ -148,7 +148,7 @@ class FormHandler(BaseComponent):
                                                 if(rowIndex>-1 && selectedRows.length==1){
                                                     let pkey = this.widget.rowIdByIndex(rowIndex);
                                                     if(cell && cell.remoteEdit){
-                                                        this.widget.remoteCellEdit(pkey,cell,rowIndex);
+                                                        //this.widget.remoteCellEdit(pkey,cell,rowIndex);
                                                         return;
                                                     }
                                                     this.publish('editrow',{pkey:pkey});
