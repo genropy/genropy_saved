@@ -79,7 +79,13 @@ class TableHandlerMain(BaseComponent):
         multidb = self.tblobj.multidb
         if not self.dbstore:
             if multidb is True:
-                bar = form.top.bar.replaceSlots(',*,',',*,cb_default_sub,10,')
+                spacers = form.top.bar.attributes.get('slots').split('*')
+                if not spacers:
+                    bar = form.top.bar.replaceSlots('#','2,cb_default_sub,#')
+                else:
+                    first_chunk=spacers[0]
+                    bar = form.top.bar.replaceSlots('{first_chunk}*'.format(first_chunk=first_chunk),
+                                                    '{first_chunk}*,cb_default_sub,10'.format(first_chunk=first_chunk))
                 bar.cb_default_sub.checkbox(value='^#FORM.record.__multidb_default_subscribed',
                                         label='!!Subscribed by default',margin_top='1px',
                                         label_color='#666',label_font_size='.9em',

@@ -901,6 +901,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             this.changedFocus(false); 
             this.sourceNode.publish('onBlur',{});
         });
+        dojo.connect(widget,'onCellDblClick',function(evt){
+            if(evt.cell.remoteEdit){
+                this.remoteCellEdit(evt.cell,evt.rowIndex);
+            }
+        });
         dojo.connect(widget,'onCellClick',function(evt){
             this.sourceNode.publish('onCellClick',{evt:evt,cellNode:evt.cellNode});
         });
@@ -1381,7 +1386,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(cellCustomClass){
                 this.customClasses.push(cellCustomClass);
             }
-            if(this.edit){
+            if(this.edit || this.remoteEdit){
                 this.customClasses.push('cell_editable');    
                 if(this.editDisabled){
                     if(this.grid.sourceNode.currentFromDatasource(this.editDisabled)){ 
@@ -4438,5 +4443,36 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             n.attr.q_width = Math.round10(headerList[idx].clientWidth/totalWidth)
         });
         return struct;
+    },
+    mixin_remoteCellEdit:function(cell,rowIndex){
+        const table = this.sourceNode.attr.table; 
+        if(!table){
+            return
+        }
+        if (cell.customClasses.indexOf('cell_disabled')>=0){
+            return;
+        }
+        let remoteEdit = cell.remoteEdit;
+        let store = this.collectionStore();
+        if (store.locked){
+            return;
+        }
+        if(remoteEdit===true){
+            remoteEdit = {value:`^.${cell.field}`,lbl:cell.original_name};
+        }
+        if (!(remoteEdit instanceof Array)){
+            remoteEdit = [remoteEdit];
+        }
+        let promptkw = {};
+        let row = this.rowByIndex(rowIndex);
+        promptkw.dflt = new gnr.GnrBag(row);
+        promptkw.widget = remoteEdit;
+        var pkey = this.rowIdentity(row);
+        promptkw.action = function(result){
+            genro.serverCall('app.updateRecord',{'pkey':pkey,'table':table,
+                                                'record':result},
+                                                function(){});
+        }
+        genro.dlg.prompt(_T('Edit'),promptkw);
     }
 });

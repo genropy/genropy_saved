@@ -690,6 +690,11 @@ class MultiButtonForm(BaseComponent):
                 """,
                 pkey='^.value',
                 frm=form,_if='pkey',caption_field=caption_field,store='=.store')
+            bar.dataController("""
+            if(_node.label=='store' && !(store && store.len()>0)){
+                SET .value = '*norecord*';
+            }
+            """,store='^.store',frm=form.js_form)
             form.dataController("""
                 if(mb.form){
                     mb.form.childForms[this.form.formId] = this.form;
@@ -700,7 +705,7 @@ class MultiButtonForm(BaseComponent):
                 mb.setRelativeData('.value',pkey=='*newrecord*'?'_newrecord_':pkey);
                 """,formsubscribe_onCancel=True,mb=mb,pkey='=.pkey')
         store_kwargs['_if'] = store_kwargs.pop('if',None) or store_kwargs.pop('_if',None)
-        store_kwargs['_else'] = "this.store.clear();"
+        store_kwargs['_else'] = "this.store.clear(); SET .value = '*norecord*'"
         tblobj = self.db.table(table)
         table_order_by = tblobj.attributes.get('order_by')
         if not table_order_by:
@@ -712,7 +717,7 @@ class MultiButtonForm(BaseComponent):
         if store_kwargs['order_by']:
             columnslist.append([c.strip() for c in store_kwargs['order_by'].split(' ')][0])
         store_kwargs['columns'] = ','.join(columnslist)
-        mb.store(table=table,condition=condition,**store_kwargs)
+        rpc = mb.store(table=table,condition=condition,**store_kwargs)
         frame.multiButtonView = mb
         return frame
 
