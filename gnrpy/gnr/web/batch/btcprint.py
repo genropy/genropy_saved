@@ -154,7 +154,7 @@ class BaseResourcePrint(BaseResourceBatch):
         if not save_as:
             if len(self.results)>1:
                 save_as = slugify(self.batch_title)
-            else:
+            elif self.results:
                 save_as =  self.page.site.storageNode(self.results['#0']).cleanbasename
         save_as = save_as or self.batch_title
         outputFileNode=self.page.site.storageNode('user:output', 'pdf', save_as,autocreate=-1)
