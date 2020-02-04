@@ -34,7 +34,7 @@ import os
 import re
 
 from gnr.core import gnrstring
-from gnr.core.gnrlang import GnrObject,getUuid,uniquify
+from gnr.core.gnrlang import GnrObject,getUuid,uniquify, MinValue
 from gnr.core.gnrdecorator import deprecated,extract_kwargs
 from gnr.core.gnrbag import Bag, BagCbResolver
 from gnr.core.gnrdict import dictExtract
@@ -1109,7 +1109,8 @@ class SqlTable(GnrObject):
             elif aggregator=='CNT':
                 data = len(data) if data else 0
         else:
-            data.sort()
+            # data.sort()
+            data.sort(key=lambda x: MinValue if x is None else x)
             data = (aggregator or ',').join(uniquify([gnrstring.toText(d) for d in data]))
         return data
 

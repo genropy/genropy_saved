@@ -38,7 +38,7 @@ import hashlib
 from collections import OrderedDict
 from xml.sax import saxutils
 from gnr.core.gnrdict import dictExtract
-from gnr.core.gnrlang import deprecated, uniquify
+from gnr.core.gnrlang import deprecated, uniquify, MinValue
 import tempfile
 from gnr.core.gnrdate import decodeDatePeriod
 from gnr.core.gnrlist import GnrNamedList
@@ -63,6 +63,7 @@ BAGCOLSEXPFINDER = re.compile(r"#BAGCOLS\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*\)(\s*AS\
 ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
 PREFFINDER = re.compile(r"#PREF\(([^,)]+)(,[^),]+)?\)")
 THISFINDER = re.compile(r'#THIS\.([\w\.@]+)')
+
 
 class SqlCompiledQuery(object):
     """SqlCompiledQuery is a private class used by the :class:`SqlQueryCompiler` class.
@@ -1300,7 +1301,8 @@ class SqlSelection(object):
                     for col in mixColumns:
                         if d[col] not in masterRow[col]:
                             masterRow[col].append(d[col])
-                            masterRow[col].sort()
+                            # masterRow[col].sort()
+                            masterRow[col].sort(key=lambda x: MinValue if x is None else x)
                     if aggregateDict:
                         for k,v in list(aggregateDict.items()):
                             subfld = v[0]

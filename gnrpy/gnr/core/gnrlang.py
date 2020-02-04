@@ -47,7 +47,18 @@ except NameError:
 
 thread_ws = dict()
 _mixincount = 0
- 
+
+from functools import total_ordering
+
+@total_ordering
+class MinType(object):
+    def __le__(self, other):
+        return True
+
+    def __eq__(self, other):
+        return (self is other)
+
+MinValue = MinType()
 
 def getmixincount():
     global _mixincount
