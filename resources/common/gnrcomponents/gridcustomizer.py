@@ -40,6 +40,7 @@ class GridCustomizer(BaseComponent):
         r.cell('name', name='!!Header',width='25em', edit=True)
         r.cell('width', name='!!Width',edit=True)
         r.cell('format', name='!!Format',edit=True)
+        r.cell('caption_field', name='!!Caption field',edit=True,width='15em')
         r.cell('style', name='!!Style',edit=True,width='100%')
 
     def gc_gridPrintCostomizerConfig_struct(self, struct):
