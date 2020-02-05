@@ -43,9 +43,10 @@ class Main(BaseResourceBatch):
 
     def step_dumpmain(self):
         """Dump main db"""
-        options = self.batch_parameters['options']
-        self.filelist.append(self.db.dump(os.path.join(self.folderpath,'mainstore'),
-                    excluded_schemas=self.getExcluded(), options=options))
+        if not self.batch_parameters['storeonly']:
+            options = self.batch_parameters['options']
+            self.filelist.append(self.db.dump(os.path.join(self.folderpath,'mainstore'),
+                        excluded_schemas=self.getExcluded(), options=options))
 
     def step_dumpaux(self):
         """Dump aux db"""
@@ -143,6 +144,7 @@ class Main(BaseResourceBatch):
         fb.checkBox(value='^.clean', label='Clean', row_visible='^.plain_text')
         fb.checkBox(value='^.if_exists', label='If exists', row_visible='^.plain_text')
         fb.checkBox(value='^.create', label='Create', row_visible='^.plain_text')
+        fb.checkBox(value='^.storeonly', label='Store only')
 
     def table_script_parameters_pane(self, pane, **kwargs):
         tc = pane.tabContainer(height='500px',width='700px')
