@@ -43,8 +43,8 @@ class Main(BaseResourceBatch):
 
     def step_dumpmain(self):
         """Dump main db"""
-        if not self.batch_parameters['storeonly']:
-            options = self.batch_parameters['options']
+        options = self.batch_parameters['options']
+        if not options.get('storeonly'):
             self.filelist.append(self.db.dump(os.path.join(self.folderpath,'mainstore'),
                         excluded_schemas=self.getExcluded(), options=options))
 
@@ -140,11 +140,12 @@ class Main(BaseResourceBatch):
         fb.checkBox(value='^.schema_only', label='Schema Only')
         fb.checkBox(value='^.no_privileges', label='No Privileges')
         fb.checkBox(value='^.quote_all_identifiers', label='Quote all identifiers')
+        fb.checkBox(value='^.storeonly', label='Store only')
+
         fb.checkBox(value='^.plain_text', label='Plain text')
         fb.checkBox(value='^.clean', label='Clean', row_visible='^.plain_text')
         fb.checkBox(value='^.if_exists', label='If exists', row_visible='^.plain_text')
         fb.checkBox(value='^.create', label='Create', row_visible='^.plain_text')
-        fb.checkBox(value='^.storeonly', label='Store only')
 
     def table_script_parameters_pane(self, pane, **kwargs):
         tc = pane.tabContainer(height='500px',width='700px')
