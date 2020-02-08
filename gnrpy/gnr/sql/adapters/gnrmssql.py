@@ -47,7 +47,7 @@ class DictCursorWrapper(Cursor):
     def fetchall(self):
         if self._query_executed:
             self._build_index()
-        return [GnrNamedList(self.index, values=values) for values in [tuple([row[r] for r in sorted(row.keys()) if \
+        return [GnrNamedList(self.index, values=values) for values in [tuple([row[r] for r in sorted(row.keys(), key=lambda k:str(k)) if \
                     type(r) == int]) for row in self._source._conn]]
         #GnrNamedList(obj.index,values=obj.cursor.read_tuple())
 
