@@ -20,7 +20,7 @@ class Table(object):
         tbl.column('expiry_date', 'D', name_long='!!Expire Date')
 
     def generate_code(self):
-        code = ''.join(random.Random().sample(string.letters + string.digits, 8)).upper()
+        code = ''.join(random.Random().sample(string.ascii_letters + string.digits, 8)).upper()
         for c in (('0', 'M'), ('1', 'N'), ('O', 'X'), ('L', 'Y'), ('I', 'Z')):
             code = code.replace(c[0], c[1])
         return code
