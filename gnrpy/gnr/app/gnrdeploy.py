@@ -1106,8 +1106,8 @@ class GunicornDeployBuilder(object):
 
         self.create_dirs()
         import multiprocessing
-        self.default_workers = multiprocessing.cpu_count()* 2 + 1
-        self.default_workers = 4
+        self.default_workers = multiprocessing.cpu_count() + 1
+        #self.default_workers = 4
         self.default_max_requests = 300
         self.default_max_requests_jitter = 50
         self.options = kwargs
