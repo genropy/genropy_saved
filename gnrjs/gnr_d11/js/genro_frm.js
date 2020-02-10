@@ -2108,8 +2108,6 @@ dojo.declare("gnr.GnrValidator", null, {
             }
             sourceNode.widget._lastValueReported = null;
             return result;
-        }else if(sourceNode.form){
-            sourceNode.form.checkInvalidFields();
         }
     },
 
