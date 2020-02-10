@@ -23,7 +23,7 @@ from future import standard_library
 standard_library.install_aliases()
 #from builtins import object
 #import gnr.web.gnrcookie as Cookie
-from werkzeug.contrib.securecookie import SecureCookie
+from gnr.web.secure_cookie.securecookie import SecureCookie
 #from six.moves.http_cookies import SimpleCookie
 import marshal
 # import apache
