@@ -128,6 +128,13 @@ class FormHandler(BaseComponent):
             """
             else:
                 gridattr['connect_%(event)s' %link_kwargs] = """
+                                            if($1.cell && $1.cell.cellAction){
+                                                funcApply($1.cell.cellAction,{
+                                                    'cell':$1.cell
+                                                },this);
+                                                return;
+                                            }
+                                            
                                             if($1.cellIndex>=0){
                                                 var cell = this.widget.getCell(arguments[0].cellIndex);
                                                 if(cell.edit){
@@ -135,10 +142,16 @@ class FormHandler(BaseComponent):
                                                 }
                                             }
                                             var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
+                                            var cell = $1.cell;
                                             genro.callAfter(function(){
                                                 var selectedRows = this.widget.getSelectedRowidx() || [];
                                                 if(rowIndex>-1 && selectedRows.length==1){
-                                                    this.publish('editrow',{pkey:this.widget.rowIdByIndex(rowIndex)});
+                                                    let pkey = this.widget.rowIdByIndex(rowIndex);
+                                                    if(cell && cell.remoteEdit){
+                                                        //this.widget.remoteCellEdit(pkey,cell,rowIndex);
+                                                        return;
+                                                    }
+                                                    this.publish('editrow',{pkey:pkey});
                                                 }else{
                                                     this.publish('editrow',{pkey:'*norecord*'});
                                                 }

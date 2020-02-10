@@ -40,6 +40,7 @@ class GridCustomizer(BaseComponent):
         r.cell('name', name='!!Header',width='25em', edit=True)
         r.cell('width', name='!!Width',edit=True)
         r.cell('format', name='!!Format',edit=True)
+        r.cell('caption_field', name='!!Caption field',edit=True,width='15em')
         r.cell('style', name='!!Style',edit=True,width='100%')
 
     def gc_gridPrintCostomizerConfig_struct(self, struct):
@@ -204,9 +205,15 @@ class GridCustomizer(BaseComponent):
             colsdict = dict([(d['field'],dict(d)) for d in printInstance.grid_columns])
             for v in customizerBag.values():
                 d = colsdict.get(v['field']) or {}
-                custattr = dict(field=v['field'],name=v['name'],mm_width=v['mm_width'],format=v['format'],style=v['style'])
+                custattr = dict(field=v['field'],name=v['name'],
+                                mm_width=v['mm_width'],
+                                format=v['format'],
+                                style=v['style'],
+                                totalize=v['totalize'])
                 d.update(custattr)
-                if not v['enabled']:
+                if v['enabled']:
+                    d['hidden'] = False
+                else:
                     d['hidden'] = True
                 filtered_grid_columns.append(d)
             printInstance.grid_columns = filtered_grid_columns

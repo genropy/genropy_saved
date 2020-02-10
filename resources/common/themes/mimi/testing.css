@@ -1,0 +1,6 @@
+:root{
+    --root-top-background: linear-gradient(to bottom, #7474bf, #348ac7);
+    --root-top-color: #ffffff;
+    --frameindex-tablist-background:linear-gradient(to bottom, #a73737, #7a2828);
+    --frameindex-tablist-color:#ffffff;
+}

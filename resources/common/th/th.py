@@ -156,6 +156,7 @@ class TableHandler(BaseComponent):
             form_kwargs.setdefault('dfltoption_form_add',addrow) 
             form_kwargs.setdefault('dfltoption_form_delete',delrow) 
             form_kwargs.setdefault('dfltoption_form_archive',archive)
+            form_kwargs.setdefault('fkeyfield',fkeyfield)
             if fkeyfield:
                 form_kwargs.setdefault('excludeCols',fkeyfield)
 
@@ -406,7 +407,8 @@ class TableHandler(BaseComponent):
     @struct_method
     def th_inlineTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
                             readOnly=False,hider=False,saveMethod=None,autoSave=False,statusColumn=None,
-                            default_kwargs=None,defaultPrompt=None,semaphore=None,saveButton=None,configurable=False,height=None,width=None,**kwargs):
+                            default_kwargs=None,defaultPrompt=None,semaphore=None,saveButton=None,
+                            configurable=False,height=None,width=None,**kwargs):
         """ JBE We must document the parameters here please  """
         kwargs['tag'] = 'ContentPane'
         saveMethod = saveMethod or 'app.saveEditedRows'
@@ -687,6 +689,11 @@ class MultiButtonForm(BaseComponent):
                 """,
                 pkey='^.value',
                 frm=form,_if='pkey',caption_field=caption_field,store='=.store')
+            bar.dataController("""
+            if(_node.label=='store' && !(store && store.len()>0)){
+                SET .value = '*norecord*';
+            }
+            """,store='^.store',frm=form.js_form)
             form.dataController("""
                 if(mb.form){
                     mb.form.childForms[this.form.formId] = this.form;
@@ -697,7 +704,7 @@ class MultiButtonForm(BaseComponent):
                 mb.setRelativeData('.value',pkey=='*newrecord*'?'_newrecord_':pkey);
                 """,formsubscribe_onCancel=True,mb=mb,pkey='=.pkey')
         store_kwargs['_if'] = store_kwargs.pop('if',None) or store_kwargs.pop('_if',None)
-        store_kwargs['_else'] = "this.store.clear();"
+        store_kwargs['_else'] = "this.store.clear(); SET .value = '*norecord*'"
         tblobj = self.db.table(table)
         table_order_by = tblobj.attributes.get('order_by')
         if not table_order_by:
@@ -707,9 +714,9 @@ class MultiButtonForm(BaseComponent):
                 table_order_by = '$%s' %(tblobj.attributes.get('caption_field') or tblobj.pkey)
         store_kwargs.setdefault('order_by',table_order_by)
         if store_kwargs['order_by']:
-            columnslist.append(store_kwargs['order_by'])
+            columnslist.append([c.strip() for c in store_kwargs['order_by'].split(' ')][0])
         store_kwargs['columns'] = ','.join(columnslist)
-        mb.store(table=table,condition=condition,**store_kwargs)
+        rpc = mb.store(table=table,condition=condition,**store_kwargs)
         frame.multiButtonView = mb
         return frame
 
@@ -770,13 +777,16 @@ class ThLinker(BaseComponent):
     def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,
                     openIfEmpty=None,embedded=True,excludeLinked=False,dialog_kwargs=None,
                     default_kwargs=None,auxColumns=None,hiddenColumns=None,addEnabled=None,**kwargs):
+        fkeyfield = None
         if not table:
             if '.' in field:
                 fldlst = field.split('.')
                 table = '.'.join(fldlst[0:2])
                 field = fldlst[2]
             else:
-                table = pane.getInheritedAttributes().get('table') or self.maintable
+                inattr = pane.getInheritedAttributes()
+                table = inattr.get('table') or self.maintable
+                fkeyfield = inattr.get('fkeyfield')
         tblobj = self.db.table(table)
         related_tblobj = tblobj.column(field).relatedColumn().table    
         related_table = related_tblobj.fullname
@@ -828,8 +838,13 @@ class ThLinker(BaseComponent):
                                    linker.linkerManager.openLinker(false);""",linker=linker,
                                 currvalue='^#FORM.record.%s' %field,_if='!currvalue',
                                 _else='linker.linkerManager.closeLinker()')          
+        selectvisible = None
         if newRecordOnly:
-            linker.attributes.update(visible='^#FORM.record?_newrecord')
+            selectvisible = '^#FORM.record?_newrecord'
+        if fkeyfield==field:
+            selectvisible = False
+        if selectvisible is not None:
+            linker.attributes.update(visible=selectvisible)
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
                     connect_onBlur='this.getParentNode().publish("disable");',
                     _class='th_linkerField',background='white',auxColumns=auxColumns,hiddenColumns=hiddenColumns,

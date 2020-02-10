@@ -18,6 +18,7 @@ class View(BaseComponent):
         r.fieldcell('frequency',width='7em')
         r.fieldcell('run_asap',width='5em',name='ASAP')
         r.fieldcell('last_execution_ts',width='14em')
+        r.fieldcell('last_result_ts',width='14em')
         r.fieldcell('last_error_ts',width='14em')
 
         #r.fieldcell('month',width='20em')

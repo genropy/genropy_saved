@@ -52,6 +52,8 @@ class TableHandlerGroupBy(BaseComponent):
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
         if linkedNode is None:
             self.subscribeTable(table,True,subscribeMode=True)
+        else:
+            store_kwargs['subscribe_{linkedTo}_grid_onNewDatastore'.format(linkedTo=linkedTo)] = True
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         datapath = datapath or '.%s' %frameCode
         rootNodeId = frameCode

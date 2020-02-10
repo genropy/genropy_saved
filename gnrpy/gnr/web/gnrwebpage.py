@@ -168,6 +168,8 @@ class GnrWebPage(GnrBaseWebPage):
                             self.site.config['dojo?pagetemplate'] or 'standard.tpl'
         self.css_theme = request_kwargs.pop('css_theme', None) or getattr(self, 'css_theme', None) \
                         or self.site.config['gui?css_theme']
+        self.css_theme_variant = request_kwargs.pop('css_theme_variant', None) or getattr(self, 'css_theme_variant', None) \
+                        or self.site.config['gui?css_theme_variant'] or 'base'
         self.css_icons = request_kwargs.pop('css_icons', None) or getattr(self, 'css_icons', None)\
                         or self.site.config['gui?css_icons'] or 'retina/gray'
         self.dojo_theme = request_kwargs.pop('dojo_theme', None) or getattr(self, 'dojo_theme', None)
@@ -946,8 +948,8 @@ class GnrWebPage(GnrBaseWebPage):
     def getRemoteTranslation(self, txt=None,language=None,**kwargs):
         return self.localizer.getTranslation(txt,language=language or self.locale)
 
-    def localize(self, txt):
-        return self.localizer.translate(txt,language=self.locale)
+    def localize(self, txt, language=None,**kwargs):
+        return self.localizer.translate(txt,language=language or self.locale)
     _ = localize
 
 
@@ -1426,6 +1428,13 @@ class GnrWebPage(GnrBaseWebPage):
         :ref:`webpages_css_theme` webpage variable"""
         return self.css_theme
 
+        
+    def get_css_theme_variant(self):
+        """Get the css_theme and return it. The css_theme get is the one defined the :ref:`siteconfig_gui`
+        tag of your :ref:`sites_siteconfig` or in a single :ref:`webpage` through the
+        :ref:`webpages_css_theme` webpage variable"""
+        return self.css_theme_variant
+
     def get_css_icons(self):
         """Get the css_icons and return it. The css_icons get is the one defined the :ref:`siteconfig_gui`
         tag of your :ref:`sites_siteconfig` or in a single :ref:`webpage` through the
@@ -1443,8 +1452,12 @@ class GnrWebPage(GnrBaseWebPage):
         requires = [r for r in (requires or self.css_requires) if r]
         css_theme = self.get_css_theme() or 'ludo'
         css_icons = self.get_css_icons()
+        css_theme_variant =  self.get_css_theme_variant()
         if css_theme:
             requires.append('themes/%s' %css_theme)
+        requires.append('themes/{css_theme}/{css_theme_variant}'.format(css_theme=css_theme,css_theme_variant=css_theme_variant))
+        if self.dbstore:
+            requires.append('multidb_{dbstore}/theme_variant'.format(dbstore=self.dbstore))
         if css_icons:
             requires.append('css_icons/%s/icons' %css_icons)
         self.onServingCss(requires)
@@ -1765,6 +1778,10 @@ class GnrWebPage(GnrBaseWebPage):
         return result
 
     def clientPublish(self,topic,nodeId=None,iframe=None,parent=None,page_id=None,**kwargs):
+        for k,v in kwargs.items():
+            if isinstance(v,Bag):
+                v = self.catalog.asTypedText(v)
+                kwargs[k] = v
         if self.wsk:
             self.wsk.publishToClient(page_id or self.page_id,topic=topic,data=kwargs,nodeId=nodeId,iframe=iframe)
         else:
@@ -1776,6 +1793,14 @@ class GnrWebPage(GnrBaseWebPage):
             if parent:
                 value['parent'] = parent
             self.setInClientData('gnr.publisher',value=value,page_id=page_id,fired=True)
+
+    def setInClientRecord(self,tblobj=None,record=None,fields=None,silent=True):
+        updater = Bag()
+        for field in fields.split(','):
+            updater[field] = record[field]
+        self.clientPublish('setInClientRecord',table=tblobj.fullname,
+                            pkey=record[tblobj.pkey],silent=silent,
+                            updater=updater)
         
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, replace=False,public=None,**kwargs):
@@ -1954,7 +1979,7 @@ class GnrWebPage(GnrBaseWebPage):
                             nodePath="^gnr.serverEvent.refreshNode")
                             
         page.dataController("""if(kw){
-                                genro.publish(kw)
+                                genro.publish(kw);
                              };""", kw='^gnr.publisher')
 
         page.dataController('if(url){genro.download(url)};', url='^gnr.downloadurl')
@@ -2153,6 +2178,35 @@ class GnrWebPage(GnrBaseWebPage):
         if (resultAs is None or resultAs=='path') and os.path.exists(result):
             return file(result,'r')
         return result
+
+    @public_method
+    def bagFieldDispatcher(self,pane,resource=None,module=None,table=None,
+                        methodname=None,field=None,version=None,**kwargs):
+        if methodname:
+            handlername = methodname
+        else:
+            handlername = 'bf_{field}'.format(field=field)
+            
+        if not module:
+            module = self.pagename if not table else table.split('.')[1]
+            if version:
+                module = '{module}_{version}'.format(module=module,version=version)
+            module = 'bf_{module}'.format(module=module)
+        if not hasattr(self,handlername):
+            if resource:
+                resource = '{resource}/{module}'.format(resource=resource,module=module)
+            else:
+                resource = module
+        if resource:
+            if ':' not in resource:
+                resource = '{resource}:BagField_{field}'.format(resource=resource,field=field)
+                handlername = 'bf_content'
+            if table:
+                self.mixinTableResource(table,'bagfields/{resource}'.format(resource=resource))
+            else:
+                self.mixinComponent(resource)
+        return getattr(self,handlername)(pane,**kwargs)
+        
     
     @public_method                                 
     def remoteBuilder(self, handler=None,tag=None, py_requires=None,_inheritedAttributes=None,**kwargs):
@@ -2565,7 +2619,9 @@ class GnrWebPage(GnrBaseWebPage):
         mode = kwargs.pop('mode',None)
         mode = mode or 'log'
         self.clientPublish('gnrServerLog',msg=msg,args=args,kwargs=kwargs)
-        print 'pagename:%s-:page_id:%s >>\n' %(self.pagename,self.page_id),args,kwargs
+        print('pagename:{pagename}-:page_id:{page_id} >>\n'.format(pagename=self.pagename,
+                                    page_id=self.page_id),
+                                    args,kwargs)
 
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated

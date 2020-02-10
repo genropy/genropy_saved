@@ -496,7 +496,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
 
         filler.style.height = delta+'px';
-        var totalWidth = vn.clientWidth;
+        var totalWidth = vn.clientWidth-1;
         var tdlist = [];
         var colinfo = this.getColumnInfo();
         var cellinfo;
@@ -900,6 +900,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         dojo.connect(widget,'onBlur',function(){
             this.changedFocus(false); 
             this.sourceNode.publish('onBlur',{});
+        });
+        dojo.connect(widget,'onCellDblClick',function(evt){
+            if(evt.cell.remoteEdit){
+                this.remoteCellEdit(evt.cell,evt.rowIndex);
+            }
         });
         dojo.connect(widget,'onCellClick',function(evt){
             this.sourceNode.publish('onCellClick',{evt:evt,cellNode:evt.cellNode});
@@ -1339,12 +1344,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         return result;
     },
     structFromBag_cellFormatter :function(sourceNode, cell,formatOptions, cellClassCB) {
-        var opt = objectUpdate({}, formatOptions);
         var cellClassFunc;
         if (cellClassCB) {
             cellClassFunc = funcCreate(cellClassCB, 'cell,v,inRowIndex,originalValue',this);
         }
         return function(v, inRowIndex) {
+            var opt = objectUpdate({}, formatOptions);
             var renderedRow = this.grid.currRenderedRow;
             if(!objectNotEmpty(renderedRow)){
                 return '<div class="cellContent">' + '&nbsp;' + '</div>';
@@ -1381,7 +1386,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(cellCustomClass){
                 this.customClasses.push(cellCustomClass);
             }
-            if(this.edit){
+            if(this.edit || this.remoteEdit){
                 this.customClasses.push('cell_editable');    
                 if(this.editDisabled){
                     if(this.grid.sourceNode.currentFromDatasource(this.editDisabled)){ 
@@ -1409,11 +1414,18 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if (this.grid.gridEditor) {
                 this.grid.gridEditor.onFormatCell(this,inRowIndex,renderedRow);
             }
-            var v = genro.format(v, opt);
+            for(let k in opt){
+                let vopt = opt[k];
+                if(typeof(vopt)=='string' && vopt.startsWith('#ROW.')){
+                    vopt = renderedRow[vopt.slice(5)];
+                }
+                opt[k] = vopt;
+            }
+            v = genro.format(v, opt);
             if (v == null) {
                 v = '&nbsp;';
             }
-            var template = opt['template'];
+            var template = opt.template;
             if (template) {
                 if(template.indexOf('$'+cell.field)>=0){
                     v = dataTemplate(template,renderedRow);
@@ -1422,8 +1434,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 }
                 
             }
-            if (opt['js']) {
-                v = opt['js'](v, this.grid.storebag().getNodes()[inRowIndex]);
+            if (opt.js) {
+                v = opt.js(v, this.grid.storebag().getNodes()[inRowIndex]);
             }
             var zoomAttr = objectExtract(opt,'zoom_*',true);
             var draggable = this.draggable ? ' draggable=true ' : '';
@@ -1591,6 +1603,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 formats['falseclass'] = ' ';
                 formats['trueclass'] = 'yellowLight';
             }
+            objectUpdate(formats,objectExtract(rowBasedAttr,'format_*'));
             cell._formats = formats;
             cell.formatter = this.structFromBag_cellFormatter(sourceNode,cell,formats, cellClassCB);
             delete cell.tag;
@@ -2224,7 +2237,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             }
             return dataTemplate(this.rowTemplate,new gnr.GnrBag(rowdata),null,null,{formats:formats});
         }else{
-            return rowdata[this.field_getter]
+            return rowdata[this.field_getter]; 
         }
         //return this._customGetter ? this._customGetter.call(this, rowdata,inRowIndex) : ;
     },
@@ -2960,10 +2973,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         return result;
     },
 
-    mixin_getSelectedProtectedPkeys:function(){
+    mixin_getSelectedProtectedPkeys:function(reason){
         var that = this;
         var protectPkeys = [];
         this.getSelectedNodes().forEach(function(n){
+            if(reason=='delete' && n.attr._protect_delete===false){
+                protectPkeys.push(that.rowIdentity(n.attr)); //it could be read_only but deletable
+                return;
+            };
             if(n.attr._protect_delete || n.attr._is_readonly_row){
                 protectPkeys.push(that.rowIdentity(n.attr));
             }
@@ -4299,7 +4316,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var pkeys = this.getSelectedPkeys();
         var protectPkeys;
         if(this.collectionStore().allowLogicalDelete){
-            protectPkeys = this.getSelectedProtectedPkeys();
+            protectPkeys = this.getSelectedProtectedPkeys('delete');
         }
         if(this.gridEditor){
             this.gridEditor.deleteSelectedRows(pkeys,protectPkeys);
@@ -4426,5 +4443,36 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             n.attr.q_width = Math.round10(headerList[idx].clientWidth/totalWidth)
         });
         return struct;
+    },
+    mixin_remoteCellEdit:function(cell,rowIndex){
+        const table = this.sourceNode.attr.table; 
+        if(!table){
+            return
+        }
+        if (cell.customClasses.indexOf('cell_disabled')>=0){
+            return;
+        }
+        let remoteEdit = cell.remoteEdit;
+        let store = this.collectionStore();
+        if (store.locked){
+            return;
+        }
+        if(remoteEdit===true){
+            remoteEdit = {value:`^.${cell.field}`,lbl:cell.original_name};
+        }
+        if (!(remoteEdit instanceof Array)){
+            remoteEdit = [remoteEdit];
+        }
+        let promptkw = {};
+        let row = this.rowByIndex(rowIndex);
+        promptkw.dflt = new gnr.GnrBag(row);
+        promptkw.widget = remoteEdit;
+        var pkey = this.rowIdentity(row);
+        promptkw.action = function(result){
+            genro.serverCall('app.updateRecord',{'pkey':pkey,'table':table,
+                                                'record':result},
+                                                function(){});
+        }
+        genro.dlg.prompt(_T('Edit'),promptkw);
     }
 });

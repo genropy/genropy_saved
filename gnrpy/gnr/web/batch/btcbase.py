@@ -25,6 +25,7 @@ class BaseResourceBatch(object):
     dialog_width = '300px'
     virtual_columns = None
     batch_local_cache = True
+    batch_ask_options = True
 
     batch_selection_where = None
     batch_selection_kwargs = dict()
@@ -70,7 +71,7 @@ class BaseResourceBatch(object):
         except Exception, e:
             if task_execution_record:
                 task_execution_record['is_error'] = True
-                task_execution_record['errorbag'] = tracebackBag()
+                task_execution_record['errorbag'] = Bag(dict(error=str(e))) # tracebackBag()
             elif self.page.isDeveloper():
                 raise
             else:
@@ -294,18 +295,19 @@ class BaseResourceBatch(object):
         wherebag.walk(fillpar)
 
 
-    def get_records(self,for_update=None,virtual_columns=None):
+    def get_records(self,for_update=None,virtual_columns=None,output=None):
         """TODO"""
         pkeys = self.get_selection_pkeys()
         for pkey in pkeys:
-            yield self.get_record(pkey,for_update=for_update,virtual_columns=virtual_columns)
+            yield self.get_record(pkey,for_update=for_update,virtual_columns=virtual_columns,output=output)
 
-    def get_record(self, pkey, virtual_columns=None,for_update=None):
+    def get_record(self, pkey, virtual_columns=None,for_update=None,output=None):
         """TODO
         
         :param pkey: the record :ref:`primary key <pkey>`
         :param virtual_columns: the :ref:`virtual_columns` webpage variable"""
-        return self.tblobj.record(pkey=pkey, virtual_columns=virtual_columns or self.virtual_columns,for_update=for_update).output('bag')
+        output = output or 'bag'
+        return self.tblobj.record(pkey=pkey, virtual_columns=virtual_columns or self.virtual_columns,for_update=for_update).output(output)
 
     def get_selection_pkeys(self):
         """TODO"""

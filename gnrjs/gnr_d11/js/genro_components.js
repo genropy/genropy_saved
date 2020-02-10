@@ -1808,7 +1808,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         databag.setItem('menu_dtypes', searchDtypes);
         databag.setItem('caption', defaultLabel);
         databag.setItem('searchDelay',1000);
-        this._prepareSearchBoxMenu(searchOn, databag);
+        this._prepareSearchBoxMenu(searchOn, databag,sourceNode);
         databag.setItem('value', '');
         sourceNode.setRelativeData(null, databag);
         var searchbox = sourceNode._('form',{autocomplete:'false',action:'javascript:void(0);'})._('table', {nodeId:nodeId})._('tbody')._('tr');
@@ -1837,11 +1837,11 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
                          parentForm:false,width:objectPop(kw,'width') || '6em',
                          tabindex:"-1",connect_focus:function(){this.domNode.select()}});
         sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
-            menubag = this._prepareSearchBoxMenu(searchOn, sourceNode.getRelativeData());
+            menubag = this._prepareSearchBoxMenu(searchOn, sourceNode.getRelativeData(),sourceNode);
         });
         return searchbox;
     },
-    _prepareSearchBoxMenu: function(searchOn, databag) {
+    _prepareSearchBoxMenu: function(searchOn, databag,sourceNode) {
         var menubag = new gnr.GnrBag();
         var i = 0;
         if (searchOn === true) {
@@ -1857,7 +1857,9 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
                     col = col[1];
                 }
                 col = col.replace(/[.@]/g, '_');
-                menubag.setItem('r_' + i, null, {col:col,caption:caption,child:''});
+                let attr = {col:col,caption:caption,child:''};
+                attr = sourceNode.evaluateOnNode(attr);
+                menubag.setItem('r_' + i, null, attr);
                 i++;
             });
         }
@@ -2806,6 +2808,27 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         grid.addRows([{'label':label,iframe_src:iframe_src}]);
     }
 });
+dojo.declare("gnr.widgets.BagField",gnr.widgets.gnrwdg,{
+
+    createContent:function(sourceNode, kw,children,subTagItems) {
+        value = objectPop(kw,'value')        
+        var valuepath = value?sourceNode.absDatapath(value):null;
+        kw.remote_field = objectPop(kw,'field') || valuepath.split('.').slice(-1)[0];
+        kw.remote_resource = objectPop(kw,'resource');
+        kw.remote_table = objectPop(kw,'table');
+        kw.remote_methodname = objectPop(kw,'methodname');
+        kw.remote_version = objectPop(kw,'version');
+        if (kw.remote_resource){
+            kw.remote__if='resource'
+        }
+        kw.datapath = valuepath;
+        kw.overflow = 'hidden';
+        kw.remote = 'bagFieldDispatcher'
+        kw.min_height= kw.min_height || '1px';
+        kw.min_width = kw.min_width || '1px';
+        return sourceNode._('div','bagFieldRemote',kw);
+    }
+});
 
 dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     subtags : {column:true,
@@ -2909,9 +2932,12 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var tools = objectPop(tools_kw,'tools');
         tools_kw = tools_kw || {};
         var tools_bar_class,container_class;
+        var centerkw = {region:'center',border:objectPop(kw,'border'),overflow:'hidden'};
+
         if(tools_kw.title){
             tools_bar_class = 'slotbar_toolbar_standard';
             tools_kw.position = 'TR';
+            centerkw.border_top = '1px solid silver';
         }
         var bckw = {height: objectPop(kw,'height'),
             width: objectPop(kw,'width'),_class:'quickgrid_container'}
@@ -2939,7 +2965,6 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var tools_position = objectPop(tools_kw,'position') || 'TR';
         var tool_region=(tools_position[0]=='T') ? 'top':'bottom';
 
-        var centerkw = {region:'center',border:objectPop(kw,'border'),overflow:'hidden'};
         var bc = sourceNode._('borderContainer',bckw);
         
         var tpane = bc._('contentPane',{region:tool_region,height:'22px',overflow:'hidden',datapath:'#WORKSPACE.tools',
@@ -5192,9 +5217,9 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         if(!values){
             return;
         }
-        this.separator =  kw.separator || ',';
-        var splitter = values.indexOf('\n')>=0? '\n':',';
-        var valuelist = splitStrip(values,splitter);
+        var defaultSep = values.indexOf('\n')>=0? '\n':',';
+        this.separator =  kw.separator || defaultSep;
+        var valuelist = splitStrip(values,this.separator);
         var cols = objectPop(kw,'cols');
 
         if(valuelist[0][0]=='/'){

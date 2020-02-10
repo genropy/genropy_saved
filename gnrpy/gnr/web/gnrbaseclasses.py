@@ -25,6 +25,7 @@
 
 import os,sys,math
 from gnr.core.gnrbaghtml import BagToHtml
+from gnr.core.gnrhtml import GnrHtmlSrc
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrstring import  splitAndStrip, slugify,templateReplace
@@ -148,6 +149,10 @@ class BaseComponent(object):
         
         loader = currentSite().resource_loader
         return loader.py_requires_iterator(cls, target_class)
+
+class BagFieldForm(BaseComponent):
+    pass
+
         
 class BaseResource(GnrObject):
     """Base class for a webpage resource"""
@@ -167,6 +172,27 @@ class BaseWebtool(object):
     """TODO"""
     pass
         
+class GnrTableScriptHtmlSrc(GnrHtmlSrc):
+    def cellFromField(self, field=None, width=0, 
+                content_class=None,
+             lbl=None, lbl_class=None, 
+             lbl_height=None, 
+             cell_border=None,
+             border_width=None, 
+             **kwargs):
+        tableScriptInstance = self.root._parentWrapper.parent
+        if field:
+            colobj = tableScriptInstance.tblobj.column(field)
+            content = tableScriptInstance.field(field)
+            lbl = lbl or colobj.attributes.get('name_long')
+        lbl = tableScriptInstance.localize(lbl)
+        self.cell(content=content, width=width, 
+                        content_class=content_class,
+                        lbl=lbl, lbl_class=lbl_class, 
+                        lbl_height=lbl_height, 
+                        cell_border=cell_border,
+                        border_width=border_width, 
+                        **kwargs)
 
 class TableScriptToHtml(BagToHtml):
     """TODO"""
@@ -178,11 +204,11 @@ class TableScriptToHtml(BagToHtml):
     css_requires = 'print_stylesheet'
     client_locale = False
     row_relation = None
-    subtotal_caption_prefix = '!!Totals'
+    subtotal_caption_prefix = '!![en]Totals'
 
 
     def __init__(self, page=None, resource_table=None, parent=None, **kwargs):
-        super(TableScriptToHtml, self).__init__(**kwargs)
+        super(TableScriptToHtml, self).__init__(srcfactory=GnrTableScriptHtmlSrc,**kwargs)
         self.parent = parent
         self.page = page
         self.site = page.site
@@ -199,7 +225,8 @@ class TableScriptToHtml(BagToHtml):
         self.record = None
         
 
-    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, resultAs=None,**kwargs):
+    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, resultAs=None,
+                    language=None,locale=None,**kwargs):
         if not record:
             return
         self.thermo_kwargs = thermo
@@ -209,6 +236,15 @@ class TableScriptToHtml(BagToHtml):
         else:
             record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
         html_folder = self.getHtmlPath(autocreate=True)
+        if locale:
+            self.locale = locale #locale forced
+        self.language = language    
+        if self.language:
+            self.language = self.language.lower()
+            self.locale = locale or '{language}-{languageUPPER}'.format(language=self.language,
+                                        languageUPPER=self.language.upper())
+        elif self.locale:
+            self.language = self.locale.split('-')[0].lower()
         result = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
         if not result:
             return False
@@ -387,14 +423,20 @@ class TableScriptToHtml(BagToHtml):
             group_aggr = attr.get('group_aggr')
             if group_aggr:
                 field_getter = '%s_%s' %(field_getter,group_aggr)
-            pars = dict(field=field,name=self.page.localize(attr.get('name')),field_getter=field_getter,
+            content_class = attr.get('cellClasses') or attr.get('content_class')
+            lbl_class = attr.get('headerClasses') or attr.get('lbl_class')
+            extra_kw = dictExtract(attr,'colextra_*')
+            pars = dict(field=field,name=self.localize(attr.get('name')),field_getter=field_getter,
                         mm_width=attr.get('mm_width'),format=attr.get('format'),
-                        white_space=attr.get('white_space','nowrap'),subtotal=attr.get('subtotal'),
-                        style=attr.get('style'),sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
+                        white_space=attr.get('white_space','nowrap'),
+                        subtotal=attr.get('subtotal'),
+                        subtotal_order_by=attr.get('subtotal_order_by'),
+                        style=attr.get('style'), content_class = content_class, lbl_class=lbl_class,
+                        sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
                         columnset=attr.get('columnset'),sheet=attr.get('sheet','*'),
                         totalize=attr.get('totalize'),formula=attr.get('formula'),
                         background=attr.get('background'),color=attr.get('color'),
-                        hidden=attr.get('hidden'))
+                        hidden=attr.get('hidden'),**extra_kw)
             if self.row_table:
                 self._calcSqlColumn(pars)
             grid_columns.append(pars)
@@ -414,9 +456,18 @@ class TableScriptToHtml(BagToHtml):
         if field!=col['field_getter']:
              col['sqlcolumn'] = '{} AS {}'.format(col['sqlcolumn'],col['field_getter'])
     
+    def localize(self, value,language=None):
+        return self.page.localize(value,language = language or self.language)
+
     def gridQueryParameters(self):
         #override
         return dict()
+    
+    def sortLines(self, lines):
+        if self.grid_subtotal_order_by:
+            return lines
+        return super(TableScriptToHtml, self).sortLines(lines)
+
 
     def gridTable(self):
         if self.row_table:
@@ -465,19 +516,24 @@ class TableScriptToHtml(BagToHtml):
         if hidden_columns:
             columns = '%s,%s' %(hidden_columns,columns)
         rowtblobj = self.db.table(self.row_table)
-        return rowtblobj.query(columns=columns,where= ' AND '.join(where),**parameters
-                                ).selection(_aggregateRows=True).output('grid',recordResolver=False)
+        if self.grid_subtotal_order_by:
+            parameters['order_by'] = self.grid_subtotal_order_by
+        sel = rowtblobj.query(columns=columns,where= ' AND '.join(where),**parameters
+                                ).selection(_aggregateRows=True)
+
+        if not parameters.get('order_by') and self.record['selectionPkeys']: #same case of line 493
+            sel.data.sort(key = lambda r : position(r['pkey'], self.record['selectionPkeys']))
+        return sel.output('grid',recordResolver=False)
 
 
     @property
     def grid_sqlcolumns(self):
         return ','.join(set([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')]))
-                
-    def subtotalCaption(self,col_breaker,breaker_value):
-        return dict(caption='{} {} {}'.format(self.page.localize(self.subtotal_caption_prefix),
-                                                    col_breaker.get('name'),
-                                                    breaker_value),
-                    content_class='totalize_caption')
+
+    @property
+    def grid_subtotal_order_by(self):
+        return ','.join(set([c['subtotal_order_by'] for c in self.gridColumnsInfo()['columns'] if c.get('subtotal_order_by')]))
+         
         
         
     def getHtmlPath(self, *args, **kwargs):

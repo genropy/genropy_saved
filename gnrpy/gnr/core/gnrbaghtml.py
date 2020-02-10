@@ -60,7 +60,7 @@ class BagToHtml(object):
     grid_style_cell = None
     grid_columns =  []
     grid_columnsets = {}
-    grid_row_height = 5
+    grid_row_height = 4.5
     renderMode = None
     totalize_carry = False
     totalize_footer = False
@@ -97,13 +97,16 @@ class BagToHtml(object):
     def defaultKwargs(self):
         return dict(border_color = '#e0e0e0',border_width = .3)
 
-    def __init__(self, locale='en', encoding='utf-8', templates=None, templateLoader=None, **kwargs):
+    def __init__(self, locale='en', encoding='utf-8', templates=None, 
+                    templateLoader=None, 
+                    srcfactory=None,**kwargs):
         self.locale = locale
         self.encoding = encoding
         self.thermo_kwargs = None
         self.thermo_wrapper = None
         self.currentGrid = None
-        self.catalog = GnrClassCatalog() 
+        self.catalog = GnrClassCatalog()
+        self.srcfactory = srcfactory
         if templates:
             self.templates = templates
         if templateLoader:
@@ -128,6 +131,9 @@ class BagToHtml(object):
                     name = ''
                     header_style = 'border-top:0mm;border-bottom:0mm;'
                 self.grid_columns.append(dict(mm_width=mm_width,name=name,header_style=header_style))
+
+    def localize(self, value):
+        return value
 
     def init(self, *args, **kwargs):
         """A ``init`` hook method"""
@@ -205,7 +211,9 @@ class BagToHtml(object):
                                     page_margin_left=self.page_margin_left, page_margin_right=self.page_margin_right,
                                     page_debug=self.page_debug, print_button=self.print_button,
                                     htmlTemplate=self.htmlTemplate, css_requires=self.get_css_requires(),
-                                    showTemplateContent=self.showTemplateContent,default_kwargs=self.defaultKwargs(),parent=self)
+                                    showTemplateContent=self.showTemplateContent,
+                                    default_kwargs=self.defaultKwargs(),parent=self,
+                                    srcfactory=self.srcfactory)
         self.builder.initializeSrc(body_attributes=self.body_attributes)
         self.builder.styleForLayout()
 
@@ -607,9 +615,9 @@ class BagToHtml(object):
                 if not lastspanfield:
                     lastspanfield = field
                     self._caption_column = self._caption_column or field
-                    result['%s_colspan' %field] = 0
+                    result['{field}_colspan'.format(field=field)] = 0
                 else:
-                    result['%s_colspan' %lastspanfield] +=1
+                    result['{lastspanfield}_colspan'.format(lastspanfield=lastspanfield)] +=1
         return result
     
     def gridRunningTotals(self,lastPage=None):
@@ -649,10 +657,13 @@ class BagToHtml(object):
         return rowData
 
     def subtotalCaption(self,col_breaker,breaker_value):
-        return dict(caption='{} {} {}'.format(self.subtotal_caption_prefix,
-                                                    col_breaker.get('name'),
-                                                    breaker_value),
-                    content_class='totalize_caption')
+        subtotal = col_breaker['subtotal']
+        subtotal_class = col_breaker.get('subtotal_class') or 'totalize_caption'
+        caption = '{caption_prefix} {breaker_name} {breaker_value}' if subtotal is True else subtotal
+        return dict(caption = caption.format(caption_prefix = self.localize(self.subtotal_caption_prefix),
+                                            breaker_name = col_breaker.get('name'),
+                                            breaker_value = breaker_value),
+                    content_class=subtotal_class)
     
     def onRunningTotals(self,rowData=None,lastPage=None):
         pass
@@ -745,7 +756,7 @@ class BagToHtml(object):
             if not self._currSpanCell.attributes['colspan_count']: 
                 self._currSpanCell = None
             return
-        handler = getattr(self, 'renderGridCell_%s' % col, self.renderGridCell_default)
+        handler = getattr(self, 'renderGridCell_%s' % col['field'], self.renderGridCell_default)
         cell = handler(col=col, rowData=rowData, parentRow=parentRow, **cell_kwargs)
         if colspan>1:
             self._currSpanCell = cell
@@ -756,7 +767,8 @@ class BagToHtml(object):
         value = self.getGridCellValue(col,rowData)
         cell_kwargs['align_class'] = cell_kwargs.get('align_class') or self._guessAlign(value=value)
         ac = cell_kwargs['align_class']
-        cc = cell_kwargs.get('content_class',None)
+        gridLayout_content_class = parentRow.layout.content_class
+        cc = cell_kwargs.get('content_class', gridLayout_content_class)
         cell_kwargs['content_class'] = '%s %s' %(cc,ac) if cc else ac    
         cell_kwargs['white_space'] = cell_kwargs.get('white_space') or 'nowrap'
         cell_kwargs['width'] = cell_kwargs.pop('mm_width',None)
@@ -1246,14 +1258,31 @@ class BagToHtml(object):
                             border-top-right-radius:2mm;
                         }
                         .totalizer_row{
-                            background:whitesmoke;
-                            color:#444;
+                            color:white;
+                            background:gray;
                         }
                         .totalize_caption{
                             text-align:right;
                             padding-right:2mm;
-                            font-weight: normal;
+                            font-weight: bold;
                             font-style:italic;
                         }
 
+                        .subtotal_00.totalizer_row{
+                            background:-webkit-linear-gradient(left, white, gray 30%); 
+                            background:linear-gradient(to right, white, gray 30%); 
+
+                        }
+                        .subtotal_01.totalizer_row{
+                            background:-webkit-linear-gradient(left, white, gray 50%);
+                            background:linear-gradient(to right, white, gray 50%); 
+                        }
+                        .subtotal_02.totalizer_row{
+                            background:-webkit-linear-gradient(left, white, gray 80%); 
+                            background:linear-gradient(to right, white, gray 80%); 
+                        }
+                        .subtotal_03.totalizer_row{
+                            background:-webkit-linear-gradient(left, white, gray 90%); 
+                            background:linear-gradient(to right, white, gray 90%); 
+                        }
                          """)

@@ -443,6 +443,23 @@ class SqlTable(GnrObject):
     def counterColumns(self):
         return
 
+    def variantColumn_egvariant(self,field,**kwargs):
+        #for documentation
+        pass
+
+    def variantColumn_age_day(self, field, dateArg=None, **kwargs):
+        sql_formula=self.db.adapter.ageAtDate(field, dateArg=dateArg, timeUnit='day')
+        return dict(name='{field}_age_day'.format(field=field), 
+                                            sql_formula=sql_formula,
+                                            dtype='L',
+                                            **kwargs)
+
+    def variantColumn_age(self, field, dateArg=None, **kwargs):
+        dref = dateArg or ':env_workdate'
+        return dict(name='{field}_age'.format(field=field), dtype='T',
+                                            sql_formula='CAST(age(${field},{dref}) as TEXT)'.format(field=field, dref=dref),
+                                            **kwargs)
+
     @property
     def availablePermissions(self):
         default_table_permissions = ['ins','upd','del','archive','export','import','print','mail','action']

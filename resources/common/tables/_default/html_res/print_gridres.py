@@ -9,6 +9,7 @@
 from gnr.web.gnrbaseclasses import TableScriptToHtml
 from gnr.core.gnrstring import templateReplace
 from gnr.core.gnrnumber import decimalRound
+from gnr.core.gnrlang import position
 
 
 from gnr.core.gnrbag import Bag
@@ -129,7 +130,11 @@ class Main(TableScriptToHtml):
         if limit:
             selection_kwargs['limit'] = limit
         selection_kwargs['columns'] = self.grid_sqlcolumns
-        return self.tblobj.query(where=where,**selection_kwargs).selection()
+        result = self.tblobj.query(where=where,**selection_kwargs).selection()
+        if not selection_kwargs.get('order_by') and selection_kwargs.get('selectionPkeys'):
+            pkeys = selection_kwargs.get('selectionPkeys')
+            result.data.sort(key = lambda r : position(r['pkey'], pkeys))
+        return result
         
     def _selection_from_savedQuery_fill_parameters(self,wherebag):
         wherepars = self.parameter('wherepars')
@@ -146,4 +151,4 @@ class Main(TableScriptToHtml):
         row.cell(self.getData('print_title'), content_class='caption')    
 
     def outputDocName(self, ext=''):
-        return '%s.%s' %(self.getData('print_title') or self.page.getUuid() ,ext)
+        return '%s.%s' %(self.parameter('print_title') or self.page.getUuid() ,ext)

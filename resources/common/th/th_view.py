@@ -650,6 +650,30 @@ class TableHandlerView(BaseComponent):
             return allsection+sections if allPosition!='last' else sections+allsection
         return sections
  
+    def th_monthlySections(self,column=None,dtstart=None,count=3,allPosition=True,over='>=',**kwargs):
+        sections = []
+        import datetime
+        from dateutil import rrule
+        dtstart = dtstart or self.workdate
+        dtstart = datetime.date(dtstart.year,dtstart.month,1)
+        for idx,dt in enumerate(rrule.rrule(rrule.MONTHLY, 
+                                dtstart=dtstart, 
+                                count=count)):
+            currdate = dt.date()
+            condition = "to_char({column},'YYYY-MM')=to_char(:currdate,'YYYY-MM')"\
+                        .format(column=column)
+            sections.append(dict(code='s{idx}'.format(idx=idx),
+                            condition=condition,
+                            condition_currdate=currdate,
+                            isDefault=idx==0,
+                            caption=self.toText(currdate,format='MMMM')))
+
+        endlast = datetime.date(currdate.year,currdate.month+1,1)
+        if over:
+            sections.append(dict(code='after',condition='{column}>=:endlast'.format(column=column),
+                                condition_endlast=endlast,
+                                caption='!![en]Next months'))
+        return sections
 
     @struct_method
     def th_slotbar_stats(self,pane,**kwargs):
@@ -1005,6 +1029,7 @@ class TableHandlerView(BaseComponent):
         """,_runQueryDo='^.runQueryDo',viewPage='=.viewPage')
         store_kwargs.setdefault('weakLogicalDeleted',options.get('weakLogicalDeleted'))
         multiStores = store_kwargs.pop('multiStores',None)
+        frame.data('.query.limit',store_kwargs.pop('limit',None))
         store = frame.grid.selectionStore(table=table,
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where',

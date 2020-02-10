@@ -479,9 +479,10 @@ class SqlDbAdapter(object):
     def addForeignKeySql(self, c_name, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del, init_deferred):
         statement = 'ALTER TABLE %s.%s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s.%s (%s)' % (
         m_pkg, m_tbl, c_name, m_fld, o_pkg, o_tbl, o_fld)
+        drop_statement = 'ALTER TABLE %s.%s DROP CONSTRAINT IF EXISTS %s;' % (m_pkg, m_tbl, c_name)
         for on_command, on_value in (('ON DELETE', on_del), ('ON UPDATE', on_up)):
             if on_value: statement += ' %s %s' % (on_command, on_value)
-        statement = '%s %s' % (statement, init_deferred or '')
+        statement = '%s %s %s' % (drop_statement,statement, init_deferred or '')
         return statement
 
     def addUniqueConstraint(self, pkg, tbl, fld):

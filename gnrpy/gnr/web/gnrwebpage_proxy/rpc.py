@@ -182,5 +182,3 @@ class GnrWebRpc(GnrBaseProxy):
                                **kwargs)
         return file_url
 
-
-

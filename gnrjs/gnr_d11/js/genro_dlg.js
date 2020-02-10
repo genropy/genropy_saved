@@ -497,7 +497,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var cols = objectPop(kw,'cols') || 1;
         genro.dlg.prompt_counter = genro.dlg.prompt_counter || 0;
         genro.dlg.prompt_counter++;
-        var prompt_datapath = 'gnr.promptDlg.prompt_'+genro.dlg.prompt_counter;
+        var prompt_datapath = kw.datapath || 'gnr.promptDlg.prompt_'+genro.dlg.prompt_counter;
+        if(sourceNode){
+            prompt_datapath = sourceNode.absDatapath(prompt_datapath);
+        }
         var promptvalue_path = prompt_datapath+'.promptvalue';
         genro.setData(promptvalue_path,dflt || null);
         dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:prompt_datapath,_class:'dlg_prompt',autoSize:true},dlg_kw);
@@ -742,13 +745,15 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var dlg = this.quickDialog(title,kw,sourceNode);
         uploaderKw.height = uploaderKw.height || '300px';
         uploaderKw.width =uploaderKw.width || '500px';
-        uploaderKw.nodeId =uploaderKw.nodeId || 'uploaderDialog_'+genro.getCounter();
+        uploaderKw.nodeId =uploaderKw.nodeId || 'multiuploader_'+genro.getCounter();
         var onResult = objectPop(uploaderKw,'onResult') || function(result){};
         uploaderKw.onResult = function(result){
             funcApply(onResult,{result:result},this);
             dlg.close_action();
         };
-        dlg.center._('DropUploaderGrid',uploaderKw);
+        uploaderKw.storepath = uploaderKw.storepath || '^gnr.multiupload_store';
+        genro.setData('gnr.multiupload_store',new gnr.GnrBag());
+        var g = dlg.center._('DropUploaderGrid',uploaderKw);
         dlg.show_action();
         var actionCb = function(){
             genro.nodeById(uploaderKw.nodeId).publish('doUpload');

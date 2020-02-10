@@ -37,6 +37,9 @@ function _px(v){
     return v;
 };
 function _T(str,lazy){
+    if(isNullOrBlank(str)){
+        return str;
+    }
     var locale = genro.locale() || 'en-EN';
     var language = locale.split('-')[0];
     var localekey = 'localsdict_'+language;
@@ -589,6 +592,9 @@ function objectAny(obj,cb) {
 }
 
 function mapConvertFromText(value){
+    if(isNullOrBlank(value)){
+        return value;
+    }
     if (value instanceof Array){
         return value.map(mapConvertFromText);
     }
@@ -1236,7 +1242,7 @@ var gnrformatter = {
             r.reverse();
             return r.join(' ')
         }
-        return ('currency' in formatKw ? dojo.currency:dojo.number).format(value, objectUpdate(opt, formatKw))
+        return (formatKw.currency ? dojo.currency:dojo.number).format(value, objectUpdate(opt, formatKw))
     },
     format_X:function(value,format,formatKw){
         return value.getFormattedValue(format);

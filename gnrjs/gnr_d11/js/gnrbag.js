@@ -174,11 +174,16 @@ dojo.declare("gnr.GnrBagNode", null, {
     },
     getFormattedValue: function(kw,mode) {
         var v = this.getValue(mode);
-        var kw = kw || {};
+        kw = kw || {};
         kw.joiner = kw.joiner || '<br/>';
         kw.omitEmpty = 'omitEmpty' in kw? kw.omitEmpty : true;
         if(v instanceof gnr.GnrBag){
-            v = v.getFormattedValue(kw,mode);
+            if(this.attr._autoTable){
+                v = v.asHtmlTable(objectUpdate(kw,{headers:true,cells:true}));
+            }else{
+                v = v.getFormattedValue(kw,mode);
+            }
+            
         }else{
             v = this.attr._formattedValue || this.attr._displayedValue || v;
         }
@@ -711,7 +716,9 @@ dojo.declare("gnr.GnrBag", null, {
         var rows = [];
         this.forEach(function(n){
             var v =  n.getValue(mode);
-            v = v instanceof gnr.GnrBag? v.asNestedTable(kw,mode):v;
+            if(v instanceof gnr.GnrBag){
+                v = n.attr._autoTable?v.asHtmlTable({headers:true,cells:true}):v.asNestedTable(kw,mode);
+            }
             if(kw.omitEmpty && isNullOrBlank(v)){
                 return;
             }

@@ -36,3 +36,22 @@ def floatToDecimal(f,places=None,rounding=None):
     if places:
         return decimalRound(result,places=places,rounding=rounding)
     return result
+
+def partitionTotals(totals,quotes,places=2,rounding=None):
+    if not isinstance(totals,list):
+        totals = [totals]
+    totals = map(Decimal,totals)
+    quotes = map(Decimal,quotes)
+    residues = list(totals)
+    tot_quotes = sum(quotes)
+    n_quotes = len(quotes)
+    for idx,q in enumerate(quotes):
+        if idx+1==n_quotes:
+            yield (decimalRound(r,places=places,rounding=rounding) for r in residues)
+            return
+        result = []
+        for j,tot in enumerate(totals):
+            tot = decimalRound(tot*q/tot_quotes)
+            result.append(tot)
+            residues[j] = residues[j]-tot
+        yield result

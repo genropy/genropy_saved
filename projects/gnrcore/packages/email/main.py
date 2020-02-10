@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from gnr.core.gnrstring import boolean
 from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage
 
 class Package(GnrDboPackage):
@@ -21,5 +22,8 @@ class Package(GnrDboPackage):
         
 class Table(GnrDboTable):
     def use_dbstores(self,forced_dbstore=None, env_forced_dbstore=None,**kwargs):
-        return forced_dbstore or env_forced_dbstore or False
+        result = forced_dbstore or \
+                env_forced_dbstore or \
+                boolean(self.pkg.attributes.get('use_dbstores','f'))
+        return result
 

@@ -63,6 +63,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.formParentNode = this.sourceNode.getParentNode();
         }
         this.subscribe('save,reload,load,goToRecord,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer,message,shortcut_save');
+        this.sourceNode.registerSubscription('setInClientRecord',this,this.setInClientRecord);
         this._register = {};
         this._status_list = ['ok','error','changed','readOnly','noItem'];
         //this.store=new.....
@@ -595,6 +596,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 widget:defaultPrompt.fields,
                 dflt:new gnr.GnrBag(kw.default_kw),
                 cols:defaultPrompt.cols,
+                datapath:'.controller.defaultPrompt',
                 action:function(result){
                     objectUpdate(kw.default_kw,result.asDict());
                     if(defaultPrompt.doSave && that.store.table){
@@ -603,7 +605,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                         that.doload_store(kw);
                     }
                 }
-            });
+            },this.sourceNode);
             return;
         }
         this.doload_store(kw);
@@ -1247,6 +1249,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
         }
     },
+    
+    setInClientRecord:function(kw){
+        var table = this.getControllerData('table');
+        var that = this;
+        if(kw.table == table && kw.pkey == this.getCurrentPkey() && !this.opStatus){
+            var updater = convertFromText(kw.updater);
+            updater.getNodes().forEach(function(n){
+                that.externalChange(n.label,n.getValue(),!kw.silent);
+            });
+        }
+    },
 
     setKeptData:function(valuepath,value,set){
         var keptData = this.keptData || {};
@@ -1284,8 +1297,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
 
-    externalChange:function(field,value){
-        this.sourceNode.setRelativeData(this.formDatapath+'.'+field,value,{_loadedValue:value});
+    externalChange:function(field,value,triggerChanges){
+        this.sourceNode.setRelativeData(this.formDatapath+'.'+field,value,triggerChanges?{}:{_loadedValue:value});
     },
 
     getFormData: function() {

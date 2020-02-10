@@ -1246,7 +1246,8 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
         var ds = genro.dialogStack;
         var parentDialog = ds.length>1?ds[ds.length-2]:null;
         this.adjustDialogSize(parentDialog);
-        this.resize();
+        var that = this;
+        setTimeout(function(){that.resize()},1);
     },
 
     mixin_autoSize:function(){
@@ -1566,6 +1567,18 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
         },1);
     },
 
+    connectFocus: function(widget, savedAttrs, sourceNode) {
+        if (sourceNode.attr._autoselect && !genro.isMobile) {
+            dojo.connect(widget, 'onFocus', widget, function(e) {
+                setTimeout(dojo.hitch(this, 'selectAllInputText'), 1);
+            });
+        }
+    },
+
+    mixin_selectAllInputText: function() {
+        dijit.selectInputText(this.focusNode);
+    },
+
     creating:function(attributes, sourceNode) {
         var savedAttrs = objectExtract(attributes, 'value,shortcuts');
         return savedAttrs;
@@ -1586,13 +1599,13 @@ dojo.declare("gnr.widgets.SimpleTextarea", gnr.widgets.baseDojo, {
         }));
         dojo.connect(sourceNode,'setValidationError',function(result){
             newobj.state = result.error?'Error':null;
-
         })
+        this.connectFocus(newobj, savedAttrs, sourceNode);
     },
 
     cell_onCreating:function(gridEditor,colname,colattr){
         colattr['z_index']= 1;
-        colattr['position'] = 'fixed';
+        //colattr['position'] = 'fixed';
         colattr['height'] = colattr['height'] || '100px';
     },
 
@@ -3122,7 +3135,9 @@ dojo.declare("gnr.widgets.CheckBox", gnr.widgets.baseDojo, {
     },
     created: function(widget, savedAttrs, sourceNode) {
         if(sourceNode._gnrcheckbox_wrapper){
-            sourceNode._gnrcheckbox_wrapper.parentNode.removeChild(sourceNode._gnrcheckbox_wrapper);
+            if(sourceNode._gnrcheckbox_wrapper.parentNode){
+                sourceNode._gnrcheckbox_wrapper.parentNode.removeChild(sourceNode._gnrcheckbox_wrapper);
+            }
             delete sourceNode._gnrcheckbox_wrapper;
         }
         var label = savedAttrs['label'];
@@ -3532,6 +3547,11 @@ dojo.declare("gnr.widgets.NumberTextBox", gnr.widgets._BaseTextBox, {
         }
         return this.validator(this.textbox.value, this.sourceNode._parseDict) || this.validator(this.textbox.value, this.constraints);
     },
+    cell_onCreating:function(gridEditor,colname,colattr){
+        if(colattr._formats){
+            colattr.format = colattr.format || colattr._formats.format;
+        }
+    }
 
 });
 dojo.declare("gnr.widgets.CurrencyTextBox", gnr.widgets.NumberTextBox, {
@@ -4599,13 +4619,20 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
                         genro.dlg.alert("Missing info to upload the image",'Warning');
                         return false;
                     }
-
-                    genro.rpc.uploadMultipart_oneFile(data,null,{uploadPath:sourceNode.currentFromDatasource(uploadAttr.folder),
-                                  filename:filename,
-                                  onResult:function(result){
-                                      var url = this.responseText;
-                                      sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,url).formattedUrl);
-                                   }});
+                    if(uploadAttr.folder=='*'){
+                        var reader = new FileReader();
+                        reader.onload = function(event){
+                            sourceNode.setRelativeData(src,event.target.result);
+                        }
+                        reader.readAsDataURL(data);
+                    }else{
+                        genro.rpc.uploadMultipart_oneFile(data,null,{uploadPath:sourceNode.currentFromDatasource(uploadAttr.folder),
+                            filename:filename,
+                            onResult:function(result){
+                                var url = this.responseText;
+                                sourceNode.setRelativeData(src,that.decodeUrl(sourceNode,url).formattedUrl);
+                             }});
+                    }
                  }
                 sourceNode._('input','fakeinput',{hidden:true,type:'file',
                 connect_onchange:function(evt){
@@ -4677,6 +4704,9 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
         var currUrl = sourceNode.getAttributeFromDatasource('src');
         if(currUrl){
             var parsedUrl = parseURL(currUrl);
+            if(parsedUrl.protocol=='data'){
+                return;
+            }
             var params = parsedUrl.params;
             params = objectUpdate(params,{'v_y':margin_top,'v_x':margin_left});
             var url = this.encodeUrl(parsedUrl);
@@ -4787,6 +4817,9 @@ dojo.declare("gnr.widgets.uploadable", gnr.widgets.baseHtml, {
             baseUrl = parsedUrl.path;
         }else{
             baseUrl = parsedUrl.protocol+'://'+parsedUrl.host+parsedUrl.path;
+        }
+        if(parsedUrl.protocol=='data'){
+            return baseUrl;
         }
         if (dropFormatters){
             objectExtract(kw,'v_*');
@@ -4922,6 +4955,10 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
             this.onPositionCall(sourceNode,kw.center,function(center){
                 kw.center=center;
                 sourceNode.map=new google.maps.Map(sourceNode.domNode,kw);
+                var events = objectExtract(kw,'event_*');
+                for(let k in events){
+                    sourceNode.map.addListener(k,funcCreate(events[k],'kw',sourceNode));
+                }
                 var centerMarker = sourceNode.attr.centerMarker;
                 if(centerMarker){
                     that.setMarker(sourceNode,'center_marker',kw.center,centerMarker==true?{}:centerMarker);

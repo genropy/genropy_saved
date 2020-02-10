@@ -28,7 +28,7 @@ class Table(object):
     
     
     def storeTransaction(self,tbl=None,data=None,description=None,send_ts=None):
-        transaction_class = self.db.table(tbl).lgcy_transactionDescriptior()
+        transaction_class = self.db.table(tbl).lgcy_transactionDescriptor()
         if not transaction_class:
             return
         try:
@@ -41,7 +41,7 @@ class Table(object):
     
     def loadTransaction(self,transaction_id):
         record = self.recordAs(transaction_id,'record')
-        return self.db.table(record['tbl']).lgcy_transactionDescriptior(record['data'])
+        return self.db.table(record['tbl']).lgcy_transactionDescriptor(record['data'])
     
     def writeTransaction(self,transaction_id):
         with self.recordToUpdate(transaction_id) as rec:
