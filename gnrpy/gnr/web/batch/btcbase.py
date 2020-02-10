@@ -71,7 +71,7 @@ class BaseResourceBatch(object):
         except Exception, e:
             if task_execution_record:
                 task_execution_record['is_error'] = True
-                task_execution_record['errorbag'] = tracebackBag()
+                task_execution_record['errorbag'] = Bag(dict(error=str(e))) # tracebackBag()
             elif self.page.isDeveloper():
                 raise
             else:
