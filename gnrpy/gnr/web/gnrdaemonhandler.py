@@ -272,9 +272,13 @@ class GnrDaemon(object):
         proc.start()
         return proc
     
-    def hasSysPackage(self,sitename):
+    def hasSysPackageAndIsPrimary(self,sitename):
         instanceconfig = PathResolver().get_instanceconfig(sitename)
-        return instanceconfig and 'gnrcore:sys' in instanceconfig['packages']
+        if instanceconfig:
+            has_sys = 'gnrcore:sys' in instanceconfig['packages']
+            secondary = has_sys and instanceconfig['packages'].getAttr('gnrcore:sys').get('secondary')
+            return has_sys and not secondary
+        return False
 
     def addSiteRegister(self,sitename,storage_path=None,autorestore=False,port=None):
         if not sitename in self.siteregisters:
@@ -294,7 +298,8 @@ class GnrDaemon(object):
             childprocess.daemon = True
             childprocess.start()
             siteregister_processes_dict['register'] = childprocess
-            if self.hasSysPackage(sitename):
+
+            if self.hasSysPackageAndIsPrimary(sitename):
                 taskScheduler = Process(name='ts_%s' %sitename, target=createTaskScheduler,kwargs=dict(sitename=sitename))
                 taskScheduler.daemon = True
                 taskScheduler.start()

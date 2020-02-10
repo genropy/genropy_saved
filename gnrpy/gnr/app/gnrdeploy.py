@@ -1085,6 +1085,7 @@ class GunicornDeployBuilder(object):
         self.site_path = self.path_resolver.site_name_to_path(site_name)
         self.instance_path = self.path_resolver.instance_name_to_path(site_name)
         self.site_config = self.path_resolver.get_siteconfig(site_name)
+        self.instance_config = self.path_resolver.get_instanceconfig(site_name)
         if os.path.exists(os.path.join(self.site_path,'siteconfig.xml')):
             self.config_folder = self.site_path #oldconfig
         else:
@@ -1155,6 +1156,10 @@ class GunicornDeployBuilder(object):
     
     def taskWorkersConf(self,group):
         taskworkers = self.site_config.getAttr('taskworkers') or {'count':'1'}
+        has_sys = 'gnrcore:sys' in self.instance_config['packages']
+        secondary = has_sys and self.instance_config['packages'].getAttr('gnrcore:sys').get('secondary')
+        if not has_sys or secondary:
+            return
         if taskworkers:
             tw_base = group.section('program','%s_taskworkers' %self.site_name)
             nice = taskworkers.pop('nice',None)
