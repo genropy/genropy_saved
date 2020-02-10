@@ -42,7 +42,10 @@ from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import SiteRegisterClient
 from gnr.web.gnrwsgisite_proxy.gnrwebsockethandler import WsgiWebSocketHandler
 import pdb
-from werkzeug import EnvironBuilder
+try:
+    from werkzeug import EnvironBuilder
+except ImportError:
+    from werkzeug.test import EnvironBuilder
 from gnr.web.gnrheadlesspage import GnrHeadlessPage
 
 import warnings
