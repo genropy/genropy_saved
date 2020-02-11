@@ -44,8 +44,9 @@ class Main(BaseResourceBatch):
     def step_dumpmain(self):
         """Dump main db"""
         options = self.batch_parameters['options']
-        self.filelist.append(self.db.dump(os.path.join(self.folderpath,'mainstore'),
-                    excluded_schemas=self.getExcluded(), options=options))
+        if not options.get('storeonly'):
+            self.filelist.append(self.db.dump(os.path.join(self.folderpath,'mainstore'),
+                        excluded_schemas=self.getExcluded(), options=options))
 
     def step_dumpaux(self):
         """Dump aux db"""
@@ -139,6 +140,8 @@ class Main(BaseResourceBatch):
         fb.checkBox(value='^.schema_only', label='Schema Only')
         fb.checkBox(value='^.no_privileges', label='No Privileges')
         fb.checkBox(value='^.quote_all_identifiers', label='Quote all identifiers')
+        fb.checkBox(value='^.storeonly', label='Store only')
+
         fb.checkBox(value='^.plain_text', label='Plain text')
         fb.checkBox(value='^.clean', label='Clean', row_visible='^.plain_text')
         fb.checkBox(value='^.if_exists', label='If exists', row_visible='^.plain_text')
