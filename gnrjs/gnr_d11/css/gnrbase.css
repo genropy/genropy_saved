@@ -4693,7 +4693,10 @@ div[disabled='true'], div[disabled='disabled']{
 .treegrid .dijitTreeContent{
     position: relative;
     height: 15px;
-    left:20px;
+}
+
+.treegrid.branchtree .dijitTreeContent{
+    margin-left: 20px;
 }
 
 .treegrid .dijitTreeLabel{
@@ -4834,8 +4837,9 @@ div[disabled='true'], div[disabled='disabled']{
     min-height: 0;
     padding-bottom: 2px;
     padding-top: 0;
-    margin-left: 0px;
+    margin-left: 0;
 }
+
 .branchtree .dijitTreeNode {
     background: none;
     margin-left: 10px;
