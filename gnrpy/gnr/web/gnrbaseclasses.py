@@ -521,8 +521,9 @@ class TableScriptToHtml(BagToHtml):
         sel = rowtblobj.query(columns=columns,where= ' AND '.join(where),**parameters
                                 ).selection(_aggregateRows=True)
 
+
         if not parameters.get('order_by') and self.record['selectionPkeys']: #same case of line 493
-            sel.data.sort(key = lambda r : position(r['pkey'], self.record['selectionPkeys']))
+            sel.data.sort(key = lambda r : self.record['selectionPkeys'].index(r['pkey']))
         return sel.output('grid',recordResolver=False)
 
 
