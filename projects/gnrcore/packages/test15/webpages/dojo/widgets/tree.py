@@ -34,17 +34,24 @@ class GnrCustomWebPage(object):
                       labelAttribute='nodecaption')
 
     def test_2_treegrid(self,pane):
-        resolver= DirectoryResolver('/')
+        resolver= DirectoryResolver('/users')
         pane.data('.root.genropy',resolver())
         box=pane.div(height='400px',margin='60px',border='1px solid silver',position='relative')
         tg = box.treeGrid(storepath='.root.genropy',headers=True)
         tg.column('nodecaption',header='Name')
-        tg.column('rel_path',dtype='T',header='Rel Path',size=150)
-        tg.column('mtime',dtype='DH',header='mtime',size=100,format='short')
-        tg.column('atime',dtype='DH',header='atime',size=100,format='short')
-        tg.column('ctime',dtype='DH',header='ctime',size=100,format='short')
-        tg.column('size',dtype='L',header='size',size=100,format='bytes')
+       #tg.column('rel_path',dtype='T',header='Rel Path',size=150)
+       #tg.column('mtime',dtype='DH',header='mtime',size=100,format='short')
+       #tg.column('atime',dtype='DH',header='atime',size=100,format='short')
+       #tg.column('ctime',dtype='DH',header='ctime',size=100,format='short')
+       #tg.column('size',dtype='L',header='size',size=100,format='bytes')
 
+    def test_29_treegrid(self,pane):
+        resolver= DirectoryResolver('/users')
+        pane.data('.root.genropy',resolver())
+        box=pane.div(height='400px',margin='60px',border='1px solid silver',position='relative')
+        box.tree(storepath='.root.genropy',_class='branchtree noIcon')
+        #tg.column('nodecaption',header='Name')
+  
 
     def test_3_tree_searchOn(self,pane):
         pane.dataRemote('.tree',self.relationExplorer,table='glbl.provincia',omit='_*',
