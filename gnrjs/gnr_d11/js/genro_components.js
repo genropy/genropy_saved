@@ -1128,7 +1128,10 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var uploadPath = objectPop(kw,'uploadPath');
         var filename = objectPop(kw,'filename');
         var maxsize = objectPop(kw,'maxsize');
-        gnrwdg.filename = filename || frameCode+'latest';
+        var keepFilename = objectPop(kw,'keepFilename');
+        if (!keepFilename){
+            gnrwdg.filename = filename || frameCode+'latest';
+        }
         gnrwdg.uploadPath = uploadPath;
         kw.height = kw.height || '400px';
         kw.width = kw.width || '650px';
