@@ -362,8 +362,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             currIdx = idx+colspan;
             item._class = (item._class) || '' +' groupcontent';
             item.selfsubscribe_clickAndHold = function(kw){
-                console.log('clickAndHold',this,kw);
-                if(sourceNode.attr.configurable){
+                if(sourceNode.attr.configurable && kw.event.shiftKey){
                     //inside cellHeader
                     sourceNode.widget.configuratorColsetTooltip(this.attr,kw.event);
                 }
@@ -775,7 +774,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
         sourceNode.subscribe('clickAndHold',function(kw){
             var event = kw.event;
-            if(this.attr.configurable){
+            if(this.attr.configurable && event.shiftKey){
                 //inside cellHeader
                 this.widget.configuratorCellTooltip(event);
             }
