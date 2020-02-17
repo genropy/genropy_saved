@@ -100,9 +100,10 @@ class TableHandlerForm(BaseComponent):
             fbname = kwargs.pop('fbname',None)
             if fbname:
                 fb = form.getFormBuilder(fbname,table=table)
-            if fb is None:
+            elif fb is None:
                 fb = mainfb
-            fb.field(f,**kwargs)
+            if fb is not None:
+                fb.field(f,**kwargs)
 
     def _th_getPluggedCols(self,table):
         tblobj = self.db.table(table)
