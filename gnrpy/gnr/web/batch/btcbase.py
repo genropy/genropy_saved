@@ -8,7 +8,6 @@
 
 from gnr.core.gnrbag import Bag
 from datetime import datetime
-from gnr.core.gnrlang import tracebackBag
 
 
 class BaseResourceBatch(object):
