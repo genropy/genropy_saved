@@ -100,7 +100,7 @@ class TableHandlerForm(BaseComponent):
             fbname = kwargs.pop('fbname',None)
             if fbname:
                 fb = form.getFormBuilder(fbname,table=table)
-            elif fb is None:
+            else:
                 fb = mainfb
             if fb is not None:
                 fb.field(f,**kwargs)
