@@ -942,7 +942,7 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         method.__mixin_path = __mixin_path
         k = instmethod(method, obj, obj.__class__)
         curr_prefix = prefix
-        name_as =getattr(method,'instance_mixin_as',getattr(method,'mixin_as',name))
+        name_as =getattr(method,'instance_mixin_as',name)
         if mangling_kwargs and '_' in name:
             splitted_name=name.split('_',1)
             mangling = mangling_kwargs.get(splitted_name[0],None)
@@ -953,18 +953,11 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
             name_as = '%s_%s' % (curr_prefix, name)
         if suffix:
             name_as = '%s_%s' % (name_as, suffix)
-        if '#' not in name_as:
-            if hasattr(obj, name_as):
-                original = getattr(obj, name_as)
-                setattr(obj, name_as + '_', original)
-        else:
-            id_new = str(id(k))
-            name_as = name_as.replace('#',id_new)
-            if not hasattr(obj,name_as):
-                k.__dict__['__order'] =  getmixincount()
+        if hasattr(obj, name_as):
+            original = getattr(obj, name_as)
+            setattr(obj, name_as + '_', original)
         setattr(obj, name_as, k)
         _mixined.append(name_as)
-
     if not only_callables:
         attributes = [k for k in source_dir if
                       not callable(getattr(source, k)) and not k.startswith('_') and not k in exclude]
