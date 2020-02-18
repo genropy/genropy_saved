@@ -263,7 +263,7 @@ class MultidbTable(object):
                 if record.get(f):
                     relcol = self.column(f)
                     relatedTable = relcol.relatedTable().dbtable
-                    if relatedTable.attributes.get('multidb_allRecords') or \
+                    if relatedTable.multidb=='*' or relatedTable.attributes.get('multidb_allRecords') or \
                       (not relcol.relatedColumnJoiner().get('foreignkey')):
                         continue
                     relatedTable.setColumns(record[f],__multidb_default_subscribed=True)
