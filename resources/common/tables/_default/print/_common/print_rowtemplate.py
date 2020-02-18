@@ -5,6 +5,7 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 from gnr.web.batch.btcprint import BaseResourcePrint
+from gnr.core.gnrbag import Bag
 
 tags='user'
 caption = '!!Template row'
@@ -31,8 +32,10 @@ class Main(BaseResourcePrint):
         self.batch_parameters['grid_row_height'] = tpl['metadata.row_height']
         virtual_columns= tpl['compiled.main?virtual_columns'] 
         self.batch_parameters['rows'] = selection.output('records',virtual_columns=virtual_columns)
-        self.print_record(record='*',storagekey='x')
-        
+        self.htmlMaker.row_table = self.tblobj.fullname
+        self.print_record(record=Bag(dict(selectionPkeys=self.get_selection_pkeys())),
+                              storagekey='__mainrecord__',idx=0)
+
     def table_script_parameters_pane(self,pane,extra_parameters=None,record_count=None,table=None,**kwargs):
         pkg,tbl= table.split('.')
         pane = pane.div(padding='10px',min_height='60px')        
