@@ -23,18 +23,18 @@ class View(BaseComponent):
 
 
 
+
 class Form(BaseComponent):
 
     def th_form(self, form):
         pane = form.record
-        fb = pane.formbuilder(cols=2, border_spacing='4px')
+        fb = pane.div(margin_right='10px').formbuilder(cols=2, border_spacing='4px', width='100%', fld_width='100%')
         fb.field('lg_table_id' )
         fb.field('name' )
-        fb.field('data_type' )
-        fb.field('description' )
-        fb.field('notes' )
-        fb.field('group' )
-
+        fb.field('data_type')
+        fb.field('group')
+        fb.field('description', colspan=2 )
+        fb.field('notes', tag='simpleTextArea', height='90px')
 
     def th_options(self):
         return dict(dialog_height='400px', dialog_width='600px' )

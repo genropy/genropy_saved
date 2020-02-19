@@ -22,7 +22,7 @@ class Table(object):
         tbl.column('notes', name_long='Notes')
         tbl.column('group', name_long='Group', batch_assign=True)
         
-        tbl.column('multidb', name_long='Multi DB')
+        tbl.column('multidb', name_long='Multi DB', values='*:Replicated on all databases,one:Replicated on one specific database,true:Only subscripted records')
 
     @public_method
     def importTable(self, pkg_code=None,  tblobj=None, import_mode=None):

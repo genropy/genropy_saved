@@ -17,11 +17,10 @@ class Table(object):
                                                                         meta_thmode='dialog')
         tbl.column('name', size=':40', name_long='Name')
         tbl.column('full_name', name_long='Full Name')
-        tbl.column('data_type', size=':10', name_long='Data Type')#.relation('data_type.code',
-                                                                  #          relation_name='columns')
+        tbl.column('data_type', size=':10', name_long='Data Type')
         tbl.column('description', name_long='Description')
         tbl.column('notes', name_long='Notes')
-        tbl.column('group', name_long='Group')
+        tbl.column('group', name_long='Group', batch_assign=True)
 
 
     def importColumn(self, tbl_id, colobj, import_mode=None):
