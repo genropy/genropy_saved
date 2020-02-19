@@ -467,13 +467,17 @@ service_classes = dict([(c.service_label,c) for c_name,c in inspect.getmembers(s
 
 
 def main():
-    aws = AWSManager()
+    aws_access_key_id = "AKIAIEVYIV5WZAIS5UGQ"
+    aws_secret_access_key = "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"
+    
+    aws = AWSManager(aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key)
     #softwell_user = aws.IAM.create_user(username='user')
     #keypairs = aws.IAM.create_user_key_pair(username='user')
     #print keypairs
-    bucket = aws.S3.create_s3_for_user(username='user', bucket='bkt-user')
-
-    #print ec2.EC2.get_instances()
+    #bucket = aws.S3.create_s3_for_user(username='user', bucket='bkt-user')
+    print(aws.EC2.get_instances())
+    print(aws.Route53.get_hosted_zones())
     #print aws.EC2.get_key_pairs()
     #print aws.EC2.get_images()
     #print aws.EC2.get_instances()

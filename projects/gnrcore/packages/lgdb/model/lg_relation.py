@@ -21,8 +21,7 @@ class Table(object):
         tbl.column('rel_on_delete',  name_long='onDelete')
 
     def importRelation(self, column_name, relation_name=None,  related_column=None, mode=None, onDelete=None, **kwargs):
-        print column_name, relation_name
-        #self.deleteSelection(where='$relation_column=:column_name', column_name=column_name)
+        self.deleteSelection(where='$relation_column=:column_name', column_name=column_name)
         sr = related_column.split('.')
         if len(sr) == 2:
             related_column='{pkg}.{related_column}'.format(pkg = column_name.split('.')[0], related_column=related_column)

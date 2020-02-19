@@ -56,6 +56,9 @@ class Service(CloudManager):
         return self.aws_manager.S3.allow_s3_folder_for_user(username=username,
             bucket=bucket, folder=folder)
 
+    def get_hosted_zones(self):
+        return self.aws_manager.Route53.get_hosted_zones()
+
 class ServiceParameters(BaseComponent):
     def service_parameters(self,pane,datapath=None,**kwargs):
         fb = pane.formbuilder(datapath=datapath)
