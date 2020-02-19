@@ -23,9 +23,23 @@ class View(BaseComponent):
         return dict(column='name', op='contains', val='')
 
     def th_top_sup(self,top):
-        top.slotToolbar('*,sections@lg_pkg,*',
+        top.slotToolbar('5,sections@lg_pkg,*,sections@groups,5',
                        childname='superiore',
+                       sections_groups_remote=self.sectionGroups,
                        _position='<bar',gradient_from='#999',gradient_to='#666')
+
+    @public_method
+    def sectionGroups(self):
+        groups= self.db.table('lgdb.lg_table').query('$group',distinct=True, 
+                                                where= '$group IS NOT NULL').fetch()
+        
+        result=[]
+        result.append(dict(code='all', caption='All'))
+        for g in groups:
+            result.append(dict(code=g['group'], caption=g['group'], condition='$group= :gr', condition_gr=g['group']))
+        result.append(dict(code='no_group', caption='No group', condition='$group IS NULL'))
+        return result
+
 
 class ViewFromPackage(BaseComponent):
     
@@ -48,13 +62,17 @@ class Form(BaseComponent):
     def th_form(self, form):
         bc = form.center.borderContainer()
         top = bc.contentPane(region='top',datapath='.record')
-        fb = top.formbuilder(cols=2, border_spacing='4px')
+        fb = top.div(margin_right='10px').formbuilder(cols=2,
+                                                      border_spacing='4px',
+                                                      width='100%',
+                                                      fld_width='100%',
+                                                      colswidth='auto')
         fb.field('lg_pkg')
         fb.field('name')
-        fb.field('description')
-        fb.field('notes')
         fb.field('group')
-        fb.field('multidb')
+        fb.field('description', colspan=2)
+        fb.field('multidb', colspan=2)
+        fb.field('notes', tag='simpleTextArea',colspan=2, height='90px')
         tc = bc.tabContainer(region='center')
 
         tc.contentPane(title='Columns').inlineTableHandler(relation='@columns')

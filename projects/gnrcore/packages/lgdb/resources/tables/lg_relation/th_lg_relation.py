@@ -8,11 +8,12 @@ class View(BaseComponent):
 
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('rel_name', width='8em')
-        r.fieldcell('relation_column',  width='15em')
-        r.fieldcell('related_column', width='15em')
+        
+        r.fieldcell('relation_column', name='From column', width='20em')
+        r.fieldcell('related_column', width='20em', name='To column')
+        r.fieldcell('rel_name', name='Relation name', width='8em')
         r.fieldcell('rel_mode')
-        r.fieldcell('rel_on_delete', width='8em',)
+        r.fieldcell('rel_on_delete', width='8em')
 
     def th_order(self):
         return 'relation_column'
