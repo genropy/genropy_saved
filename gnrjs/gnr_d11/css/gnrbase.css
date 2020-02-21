@@ -5773,3 +5773,17 @@ div[disabled='true'], div[disabled='disabled']{
 
 .gnrgridlineno .cellContent{
 }
+
+.smalliconbox{
+	height:14px;
+    width: 14px;
+    cursor: pointer;
+}
+
+.center_box{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+}
