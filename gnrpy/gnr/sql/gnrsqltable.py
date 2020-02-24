@@ -837,12 +837,13 @@ class SqlTable(GnrObject):
         howmany = howmany or 1
         original_record = self.recordAs(recordOrKey,mode='dict')
         record = dict(original_record)
-        pkey = record.pop(self.pkey,None)
+        pkey = record.get(self.pkey,None)
+        record[self.pkey] = None
         for colname,obj in self.model.columns.items():
             if colname == self.draftField or colname == 'parent_id':
                 continue
             if obj.attributes.get('unique') or obj.attributes.get('_sysfield'):
-                record.pop(colname,None)
+                record[colname] = None
         if hasattr(self,'onDuplicating'):
             self.onDuplicating(record)
         for i in range(howmany):
