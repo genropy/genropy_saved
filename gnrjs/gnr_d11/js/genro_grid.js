@@ -333,11 +333,15 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var value = objectPop(item,'value');
             if(item.footerCell && !value){
                 if(cell.totalize){
-                    value = '^'+cell.totalize;
-                    item._totalized_value = value;
-                    item._filtered_totalized_value = '^.filtered_totalize.'+cell.field;
-                    item.text_align = 'right';
-                    item.innerHTML = '==_filtered_totalized_value!==null?_filtered_totalized_value:_totalized_value';
+                    if(isNumericType(cell.dtype)){
+                        value = '^'+cell.totalize;
+                        item._totalized_value = value;
+                        item._filtered_totalized_value = '^.filtered_totalize.'+cell.field;
+                        item.text_align = 'right';
+                        item.innerHTML = '==_filtered_totalized_value!==null?_filtered_totalized_value:_totalized_value';
+                    }else{
+                        item.innerHTML = cell.totalize;
+                    }
                 }else if(sum_columns && sum_columns.getItem(cell.field)){
                     //nothing
                 }else{
@@ -3413,7 +3417,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             }else if (this.changeManager){
                 this.changeManager.delFormulaColumn(cellmap[k].field);
             }
-            if(cell.totalize){
+            if(cell.totalize && isNumericType(cell.dtype)){
                 var snode = genro.nodeById(this.sourceNode.attr.store+'_store');
                 var virtualStore = snode.attr.selectionName && snode.attr.row_count;
                 var selectionStore = snode.attr.method == 'app.getSelection';
