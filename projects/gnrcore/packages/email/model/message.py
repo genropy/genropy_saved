@@ -123,6 +123,12 @@ class Table(object):
         if weak_attachments and isinstance(weak_attachments,list):
             site = self.db.application.site
             weak_attachments = ','.join([site.storageNode(p).fullpath for p in weak_attachments])
+        use_dbstores = self.use_dbstores()
+        dbstore = self.db.currentEnv.get('storename')
+        multidb = self.multidb
+        envkw = {}
+        if dbstore and self.multidb and use_dbstores:
+            envkw['storename'] = self.db.rootstore
         message_to_dispatch = self.newrecord(in_out='O',
                             account_id=account_id,
                             to_address=to_address,
@@ -133,13 +139,8 @@ class Table(object):
                             extra_headers=extra_headers,
                             message_type=message_type,
                             weak_attachments=weak_attachments,
-                            html=html,**kwargs)
+                            html=html,dbstore=dbstore,**kwargs)
         message_atc = self.db.table('email.message_atc')
-        envkw = {}
-        use_dbstores = self.use_dbstores()
-        multidb = self.multidb
-        if self.multidb and use_dbstores:
-            envkw['storename'] = self.db.rootstore
         with self.db.tempEnv(autoCommit=True,**envkw):
             self.insert(message_to_dispatch)
             if attachments:
