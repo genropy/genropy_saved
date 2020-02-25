@@ -29,7 +29,7 @@ from dateutil import parser as dtparser
 import datetime
 from decimal import Decimal
 from gnr.core.gnrdecorator import public_method
-from xmlrpclib import dumps as xmlrpcdumps,loads as xmlrpcloads, Marshaller, Fault
+from xmlrpc.client import dumps as xmlrpcdumps,loads as xmlrpcloads, Marshaller, Fault
 from gnr.core.gnrbag import TraceBackResolver
 
 def dump_decimal(self,value, write):
