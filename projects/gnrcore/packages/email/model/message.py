@@ -135,7 +135,12 @@ class Table(object):
                             weak_attachments=weak_attachments,
                             html=html,**kwargs)
         message_atc = self.db.table('email.message_atc')
-        with self.db.tempEnv(autoCommit=True):
+        envkw = {}
+        use_dbstores = self.use_dbstores()
+        multidb = self.multidb
+        if self.multidb and use_dbstores:
+            envkw['storename'] = self.db.rootstore
+        with self.db.tempEnv(autoCommit=True,**envkw):
             self.insert(message_to_dispatch)
             if attachments:
                 for r in attachments:
