@@ -174,10 +174,11 @@ class Table(object):
     def sendMessage(self,pkey=None):
         site = self.db.application.site
         mail_handler = site.getService('mail')
-        with self.recordToUpdate(pkey,for_update='SKIP LOCKED') as message:
+        with self.recordToUpdate(pkey,for_update='SKIP LOCKED',ignoreMissing=True) as message:
+            if not message:
+                return
             if message['send_date']:
                 return
-            print 'sending message',pkey
             message['extra_headers'] = Bag(message['extra_headers'])
             extra_headers = message['extra_headers']
             extra_headers['message_id'] = extra_headers['message_id'] or 'GNR_%(id)s' %message
