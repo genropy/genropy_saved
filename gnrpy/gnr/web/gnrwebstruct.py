@@ -2053,14 +2053,14 @@ class GnrFormBuilder(object):
                 rc[0] = str(self.row)
             elif rc[0] == '+':
                 rc[0] = str(self.row + 1)
-            row, col = int(rc[0]), int(rc[1])
-                
-        if row is None:
-            row = self.row
-            col = self.col
-        if col < 0:
-            col = self.colmax + col
-        self.row, self.col = self.nextCell(row, col)
+            self.row, self.col = int(rc[0]), int(rc[1])
+        else:
+            if row is None:
+                row = self.row
+                col = self.col
+            if col < 0:
+                col = self.colmax + col
+            self.row, self.col = self.nextCell(row, col)
         if 'fld' in field:
             fld_dict = self.tbl.getField(field.pop('fld'))
             fld_dict.update(field)
@@ -2114,7 +2114,11 @@ class GnrFormBuilder(object):
         if self.lblpos == 'L':
             return self.tbl['r_%i' % r]
         else:
-            return (self.tbl['r_%i_l' % r], self.tbl['r_%i_f' % r])
+            rl = self.tbl['r_%i_l' % r]
+            rf = self.tbl['r_%i_f' % r]
+            if r>=0 and not rl:
+                rl.attributes['hidden'] = True
+            return (rl,rf)
                 
     def nextCell(self, r, c):
         """Get the current row (*r* attribute) and the current cell (*c* attribute)
@@ -2326,7 +2330,10 @@ class GnrFormBuilder(object):
                 lbl_kwargs['_class'] = self.lblclass + ' ' + lbl_kwargs['_class']
             else:
                 lbl_kwargs['_class'] = self.lblclass
+            
             row[0].td(childname='c_%i' % c, childcontent=lbl, align=lblalign, vertical_align=lblvalign, **lbl_kwargs)
+            if lbl:
+                row[0].attributes.pop('hidden',None)
             td = row[1].td(childname='c_%i' % c, align=fldalign, vertical_align=fldvalign, **kwargs)
             for k, v in list(row_attributes.items()):
                 # TODO: warn if row_attributes already contains the attribute k (and it has a different value)
