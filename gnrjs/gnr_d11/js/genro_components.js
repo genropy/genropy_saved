@@ -2819,12 +2819,12 @@ dojo.declare("gnr.widgets.BagField",gnr.widgets.gnrwdg,{
         kw.remote_field = objectPop(kw,'field') || valuepath.split('.').slice(-1)[0];
         kw.remote_resource = objectPop(kw,'resource');
         kw.remote_table = objectPop(kw,'table');
-        kw.remote_methodname = objectPop(kw,'methodname');
+        kw.remote_bfhandler = objectPop(kw,'bfhandler');
         kw.remote_version = objectPop(kw,'version');
         if (kw.remote_resource){
             kw.remote__if='resource'
         }
-        kw.datapath = valuepath;
+        kw.remote_valuepath = valuepath;
         kw.overflow = 'hidden';
         kw.remote = 'bagFieldDispatcher'
         kw.min_height= kw.min_height || '1px';

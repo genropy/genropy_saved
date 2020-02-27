@@ -2194,31 +2194,20 @@ class GnrWebPage(GnrBaseWebPage):
 
     @public_method
     def bagFieldDispatcher(self,pane,resource=None,module=None,table=None,
-                        methodname=None,field=None,version=None,**kwargs):
-        if methodname:
-            handlername = methodname
+                        bfhandler=None,field=None,version=None,valuepath=None,**kwargs):
+        if bfhandler:
+            handlername = bfhandler
         else:
             handlername = 'bf_{field}'.format(field=field)
-            
-        if not module:
-            module = self.pagename if not table else table.split('.')[1]
-            if version:
-                module = '{module}_{version}'.format(module=module,version=version)
-            module = 'bf_{module}'.format(module=module)
-        if not hasattr(self,handlername):
-            if resource:
-                resource = '{resource}/{module}'.format(resource=resource,module=module)
-            else:
-                resource = module
         if resource:
             if ':' not in resource:
                 resource = '{resource}:BagField_{field}'.format(resource=resource,field=field)
-                handlername = 'bf_content'
+                handlername = 'bf_main'
             if table:
                 self.mixinTableResource(table,'bagfields/{resource}'.format(resource=resource))
             else:
                 self.mixinComponent(resource)
-        return getattr(self,handlername)(pane,**kwargs)
+        return getattr(self,handlername)(pane.contentPane(datapath=valuepath),**kwargs)
         
     
     @public_method                                 
