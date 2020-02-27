@@ -16,10 +16,11 @@ class Main(BaseResourceAction):
     
     def do(self):
         for message_id in self.get_selection_pkeys():
-            try:
-                self.message_tbl.sendMessage(pkey=message_id)
+            if True:
+                self.tblobj.sendMessage(pkey=message_id)
             except Exception as e:
-                self.batch_log_id('Error sending mail message {message_id}'.format(message_id=message_id))
+                log_msg = 'Error sending mail message {message_id}'.format(message_id=message_id)
+                self.batch_log_write(log_msg)
 
     def table_script_parameters_pane(self, pane, **kwargs):
         pass
