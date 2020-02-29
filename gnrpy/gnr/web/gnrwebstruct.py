@@ -2047,6 +2047,9 @@ class GnrFormBuilder(object):
             elif rc[0] == '+':
                 rc[0] = str(self.row + 1)
             self.row, self.col = int(rc[0]), int(rc[1])
+        elif ('pos_r' in field) or ('pos_c' in field):
+            self.row = field.get('pos_r',self.row)
+            self.col = field.get('pos_c',self.col)
         else:
             if row is None:
                 row = self.row
