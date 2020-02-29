@@ -628,7 +628,11 @@ class SqlTable(GnrObject):
         return translator.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=self)
 
     def cachedKey(self,topic):
-        return '%s.%s.%s' %(self.db.currentStorename,topic,self.fullname)
+        if self.multidb=='*' or not self.use_dbstores() is False:
+            storename = self.db.rootstore
+        else:
+            storename = self.db.currentStorename
+        return '%s.%s.%s' %(storename,topic,self.fullname)
 
     def tableCachedData(self,topic,cb,**kwargs):
         currentPage = self.db.currentPage
