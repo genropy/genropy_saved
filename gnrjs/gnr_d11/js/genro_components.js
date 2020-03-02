@@ -2829,7 +2829,7 @@ dojo.declare("gnr.widgets.BagField",gnr.widgets.gnrwdg,{
         kw.remote = 'bagFieldDispatcher'
         kw.min_height= kw.min_height || '1px';
         kw.min_width = kw.min_width || '1px';
-        return sourceNode._('div','bagFieldRemote',kw);
+        return sourceNode._('contentPane','bagFieldRemote',kw);
     }
 });
 
@@ -3936,7 +3936,6 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
 
         var gnrwdg = sourceNode.gnrwdg;
         if(storepath){
-            console.warn('use items attr instead of');
             sourceNode.registerDynAttr('items');
             items = '^'+storepath;
         }
@@ -3982,6 +3981,9 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         items = items || '^#WORKSPACE.items';
         sourceNode.registerDynAttr('items');
         if(deleteAction){
+            if (deleteAction===true){
+                deleteAction = "this._value.getNode('store').gnrwdg.store.deleteAsk([value])"
+            }
             gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption',gnrwdg.sourceNode);
             gnrwdg.deleteSelectedOnly = objectPop(kw,'deleteSelectedOnly');
         }

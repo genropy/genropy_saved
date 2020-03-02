@@ -47,7 +47,8 @@ class Main(GnrBaseService):
         try :
             source_rst = source_rst.replace('[tr-off]','').replace('[tr-on]','')
             result = renderRst(source_rst, writer_name='html',
-                              settings_overrides=settings_overrides)
+                              settings_overrides=settings_overrides
+                              ).decode()
             if result:
                 if scripts:
                     l = []
@@ -61,4 +62,4 @@ class Main(GnrBaseService):
             #result = result.replace('class="document"','class="rst-content"')
             return result
         except Exception as e:
-            return str(e)
+           return str(e)
