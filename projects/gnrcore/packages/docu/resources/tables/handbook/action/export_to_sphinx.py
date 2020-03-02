@@ -78,7 +78,7 @@ class Main(BaseResourceBatch):
             if not source:
                 continue
             with self.examplesDirNode.child(relpath).open('wb') as f:
-                f.write(source)
+                f.write(source.encode())
 
     def step_buildHtmlDocs(self):
         "Build HTML docs"
@@ -95,7 +95,7 @@ class Main(BaseResourceBatch):
         customStyles = self.handbook_record['custom_styles'] or ''
         customStyles = '%s\n%s' %(customStyles,self.defaultCssCustomization())
         with self.sourceDirNode.child(self.customCssPath).open('wb') as cssfile:
-            cssfile.write(customStyles)
+            cssfile.write(customStyles.encode())
         with self.sourceDirNode.child(self.customJSPath).open('wb') as jsfile:
             jsfile.write(self.defaultJSCustomization())
         self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
