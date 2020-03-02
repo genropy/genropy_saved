@@ -170,6 +170,7 @@ class GnrHtmlSrc(GnrStructData):
         layout.width = float(width or 0)
         layout.height = float(height or 0)
         layout.rowborder_total_height = 0
+        layout.last_row_border_height = 0
         layout.border_width = float(border_width or 0)
         layout.border_color = border_color
         layout.border_style = border_style
