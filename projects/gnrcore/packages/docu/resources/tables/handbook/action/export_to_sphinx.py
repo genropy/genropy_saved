@@ -97,7 +97,7 @@ class Main(BaseResourceBatch):
         with self.sourceDirNode.child(self.customCssPath).open('wb') as cssfile:
             cssfile.write(customStyles.encode())
         with self.sourceDirNode.child(self.customJSPath).open('wb') as jsfile:
-            jsfile.write(self.defaultJSCustomization())
+            jsfile.write(self.defaultJSCustomization().encode())
         self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
 
 
