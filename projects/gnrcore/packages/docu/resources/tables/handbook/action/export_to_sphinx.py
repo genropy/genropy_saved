@@ -245,7 +245,7 @@ class Main(BaseResourceBatch):
     def createFile(self, pathlist=None, name=None, title=None, rst=None, hname=None, tocstring=None, footer=''):
         reference_label='.. _%s:\n' % hname if hname else ''
         title = title or name
-        content = '\n'.join([reference_label, title, '='*len(title), tocstring, '\n\n', rst, footer])
+        content = '\n'.join([reference_label, title, '='*len(title), tocstring, '\n\n', rst, footer]).decode()
         storageNode = self.page.site.storageNode('/'.join([self.sourceDirNode.internal_path]+pathlist))
         with storageNode.child('%s.rst' % name).open('wb') as f:
             f.write(content)
