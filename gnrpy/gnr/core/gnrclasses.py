@@ -437,7 +437,9 @@ class GnrClassCatalog(object):
         :param workdate: the :ref:`workdate`"""
         if txt != '0000-00-00':
             if txt and ISO_MATCH.match(txt):
-                return datetime.date(*[int(el) for el in gnrstring.wordSplit(txt)[0:3]])
+                year, month, day = gnrstring.wordSplit(txt)[0:3]
+                return datetime.date(int(year), int(month), int(day[:2]))
+                
             else:
                 return decodeDatePeriod(txt, workdate=workdate, returnDate=True)
                 
