@@ -1307,10 +1307,11 @@ class SqlTable(GnrObject):
             record = {self.pkey: record}
         return self.db.adapter.existsRecord(self, record)
     
-    def checkDuplicate(self,excludeDraft=None,**kwargs):
+    def checkDuplicate(self,excludeDraft=None,ignorePartition=None,**kwargs):
         """TODO"""
-        where = ' AND '.join(['$%s=:%s' % (k, k) for k in list(kwargs.keys())])
-        return self.query(where=where,excludeDraft=excludeDraft,**kwargs).count()>0
+        where = ' AND '.join(['$%s=:%s' % (k, k) for k in kwargs.keys()])
+        return self.query(where=where,excludeDraft=excludeDraft,
+                        ignorePartition=ignorePartition,**kwargs).count()>0
     
     def insertOrUpdate(self, record):
         """Insert a single record if it doesn't exist, else update it
