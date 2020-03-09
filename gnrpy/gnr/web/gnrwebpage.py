@@ -589,8 +589,9 @@ class GnrWebPage(GnrBaseWebPage):
                       :ref:`package <packages>` to which the table belongs to)
         :param path: the table resource path"""
         pkg,table = table.split('.')
-        self.mixinComponent('tables/%s/%s' %(table,path),**kwargs)
+        result = self.mixinComponent('tables/%s/%s' %(table,path),**kwargs)
         self.mixinComponent('tables/_packages/%s/%s/%s' %(pkg,table,path),safeMode=True,**kwargs)
+        return result
 
         
     def mixinComponent(self, *path,**kwargs):
@@ -600,11 +601,11 @@ class GnrWebPage(GnrBaseWebPage):
         safeMode = kwargs.pop('safeMode',None)
         if safeMode:
             try:
-                self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
+                return self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
             except GnrMixinNotFound:
                 pass
         else:
-            self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
+            return self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
 
 
     def zoomLink(self,table=None,pkey=None,formResource=None,caption=None,zoomMode=None,zoomUrl=None,title=None):
@@ -2204,10 +2205,12 @@ class GnrWebPage(GnrBaseWebPage):
                 resource = '{resource}:BagField_{field}'.format(resource=resource,field=field)
                 handlername = 'bf_main'
             if table:
-                self.mixinTableResource(table,'bagfields/{resource}'.format(resource=resource))
+                mixinedClass = self.mixinTableResource(table,'bagfields/{resource}'.format(resource=resource))
             else:
-                self.mixinComponent(resource)
-        return getattr(self,handlername)(pane.contentPane(datapath=valuepath),**kwargs)
+                mixinedClass = self.mixinComponent(resource)
+        bagfieldmodule = getattr(mixinedClass,'__top_mixined_module',None)
+        box = pane.contentPane(datapath=valuepath,bagfieldmodule=bagfieldmodule)
+        return getattr(self,handlername)(box,**kwargs)
         
     
     @public_method                                 

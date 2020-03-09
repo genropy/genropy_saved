@@ -385,12 +385,14 @@ class ResourceLoader(object):
             modName, clsName = path, '*'
         modName = '%s%s'%(drive, modName)
         modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
+        modPath = None
         if modPathList:
             modPathList.reverse()
             for modPath in modPathList:
                 classMixin(kls, '%s:%s' % (modPath, clsName), only_callables=False, site=self)
         else:
             raise GnrMixinNotFound('Not found component %s' % modName)
+        return modPath
             
     def py_requires_iterator(self, source_class, target_class):
         """TODO
@@ -456,7 +458,8 @@ class ResourceLoader(object):
         else:
             resourceDirs = lookupDirs = page.resourceDirs
         resource_class.resourceDirs = resourceDirs
-        self.mixinResource(resource_class, lookupDirs, *path)
+        top_mixined_module = self.mixinResource(resource_class, lookupDirs, *path)
+        setattr(resource_class,'__top_mixined_module', top_mixined_module)
         return resource_class
 
     def loadResource(self, *path, **kwargs):
@@ -470,7 +473,7 @@ class ResourceLoader(object):
         pkg=kwargs.pop('pkg', None)
         pkgOnly=kwargs.pop('pkgOnly', False)
         pluginId=kwargs.pop('pluginId', None)
-        component=self.loadResource(*path, page=page, pkg=pkg, pkgOnly=pkgOnly, pluginId=pluginId)
+        component = self.loadResource(*path, page=page, pkg=pkg, pkgOnly=pkgOnly, pluginId=pluginId)
         setattr(component,'__mixin_pkg', pkg)
         setattr(component, '__mixin_path' ,'/'.join(path))
         css_requires = getattr(component,'css_requires',[])
@@ -485,6 +488,7 @@ class ResourceLoader(object):
         if not hasattr(page,'mixin_set'):
             page.mixin_set = set()
         page.mixin_set.add(((tuple(path),tuple(kwargs.items()))))
+        return component
         
     def _loadTableScript_getclass(self,modPathList,class_name):
         modPathList.reverse()

@@ -2829,7 +2829,21 @@ dojo.declare("gnr.widgets.BagField",gnr.widgets.gnrwdg,{
         kw.remote = 'bagFieldDispatcher'
         kw.min_height= kw.min_height || '1px';
         kw.min_width = kw.min_width || '1px';
-        return sourceNode._('contentPane','bagFieldRemote',kw);
+        kw.remote_async = true;
+        kw.remote__waitingMessage = true;
+        var root = sourceNode;
+        if(genro.isDeveloper){
+            root = sourceNode._('tabContainer');
+            kw.pageName = 'view';
+            kw.title = 'View';
+            kw.remote__onRemote = "this.setRelativeData('.$_source',this._value.getNode('#0').attr.bagfieldmodule)"
+        }
+        var result = root._('contentPane','bagFieldRemote',kw);
+        if(genro.isDeveloper){
+            root._('contentPane',{pageName:'edit',title:'Edit',overflow:'hidden'}
+                    )._('codeEditor',{'value':'^.$_source',height:'100%',readOnly:false});
+        }
+        return result;
     }
 });
 
