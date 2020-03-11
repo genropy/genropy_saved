@@ -1984,7 +1984,7 @@ class Bag(GnrObject):
                 return originalsource, False, 'unknown' #short string of unknown type
         urlobj = urllib.request.urlopen(source)
         info = urlobj.info()
-        contentType = info.gettype().lower()
+        contentType = info.get_content_type().lower()
         if 'xml' in contentType or 'html' in contentType:
             return urlobj.read(), False, 'xml' #it is an url of type xml
         #elif 'xsd' in contentType:
