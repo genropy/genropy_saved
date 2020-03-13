@@ -1348,6 +1348,7 @@ class AttachmentTable(GnrDboTable):
                             moveFile=False,
                             copyFile=True,
                             is_foreign_document = False,
+                            filename=None,
                             **kwargs):
         site = self.db.application.site
         if is_foreign_document:
@@ -1355,7 +1356,7 @@ class AttachmentTable(GnrDboTable):
             copyFile = False
         originStorageNode = site.storageNode(origin_filepath)
         mimetype = mimetype or mimetypes.guess_type(originStorageNode.path)[0]
-        filename = originStorageNode.basename
+        filename = filename or originStorageNode.basename
         if copyFile or moveFile:
             if destFolder:
                 destStorageNode = site.storageNode(destFolder,filename)

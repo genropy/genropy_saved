@@ -16,7 +16,7 @@ class Main(BaseResourceAction):
     
     def do(self):
         for message_id in self.get_selection_pkeys():
-            if True:
+            try:
                 self.tblobj.sendMessage(pkey=message_id)
             except Exception as e:
                 log_msg = 'Error sending mail message {message_id}'.format(message_id=message_id)
