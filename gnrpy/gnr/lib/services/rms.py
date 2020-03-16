@@ -37,22 +37,27 @@ from gnr.app.gnrconfig import getRmsOptions,setRmsOptions
 class RMS(object):
     def __init__(self):
         self.options = getRmsOptions() or {}
+        self.code = self.options.get('code')
+        self.token = self.options.get('token')
+        self.url = self.options.get('url')
+        self.customer_code = self.options.get('customer_code')
+
     
     def __getattr__(self,attr):
         return self.options.get(attr)
 
     def registerPod(self):
-        if self['url'] and not self['token']:
-            result =  NetBag(self['url'],'register_pod',code=self['code'],
-                                customer_code=self['customer_code'])()
+        if self.url and not self.token:
+            result =  NetBag(self.url,'register_pod',code=self.code,
+                                customer_code=self.customer_code)()
             if result and result.get('client_token'):
                 setRmsOptions(token=result['client_token'])
     
 
     @property
     def authenticatedUrl(self):
-        sp = urllib.parse.urlsplit(self['url'])
-        return '%s://%s:%s@%s%s' %(sp.scheme,'gnrtoken',self['token'],sp.netloc,sp.path)
+        sp = urllib.parse.urlsplit(self.url)
+        return '%s://%s:%s@%s%s' %(sp.scheme,'gnrtoken',self.token,sp.netloc,sp.path)
 
     def buildRmsService(self,instancename,rmskw,rmspath):
         app = GnrApp(instancename,enabled_packages=['gnrcore:sys','gnrcore:adm'])
@@ -79,7 +84,7 @@ class RMS(object):
 
 
     def registerInstance(self,name):
-        if not (self['url'] and self['token']):
+        if not (self.url and self.token):
             return
         p = PathResolver()
         siteconfig = p.get_siteconfig(name)
@@ -94,7 +99,7 @@ class RMS(object):
         rms_instance_attr = rmsbag.getAttr('rms')
         result =  NetBag(self.authenticatedUrl,'register_instance',code=name,
                             domain=rms_instance_attr.get('domain'),
-                            pod_token=self['token'],
+                            pod_token=self.token,
                             instance_token= rms_instance_attr['token'],
-                            customer_code=rms_instance_attr.get('customer_code') or self['customer_code'])()
+                            customer_code=rms_instance_attr.get('customer_code') or self.customer_code)()
         
