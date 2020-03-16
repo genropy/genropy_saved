@@ -1194,9 +1194,10 @@ class GunicornDeployBuilder(object):
         gnrasync = group.section('program','%s_gnrasync' %self.site_name)
         gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
         self.taskWorkersConf(group)
-
         if self.supervisord_monitor_parameters:
             self.xmlRpcServerConf(root)
+        rms = group.section('program','%s_rms' %self.site_name)
+        rms.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrrms'),self.site_name))
         root.toPython(self.supervisor_conf_path_py)
         root.toIniConf(self.supervisor_conf_path_ini)
 
