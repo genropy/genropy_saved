@@ -50,4 +50,8 @@ class Table(object):
                             isreserved=True,hierarchical_code='_DOC_')
 
 
+    @metadata(mandatory=True)
+    def sysRecord__SYSTEM_(self):
+        return self.newrecord(code='_SYSTEM_',description='System',
+                            isreserved=True,hierarchical_code='_SYSTEM_')
 

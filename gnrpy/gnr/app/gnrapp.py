@@ -640,8 +640,8 @@ class GnrApp(object):
     >>> testgarden = GnrApp('testgarden')
     >>> testgarden.db.table('showcase.person').query().count()
     12"""
-    def __init__(self, instanceFolder=None, custom_config=None, forTesting=False, 
-                debug=False, restorepath=None,**kwargs):
+    def __init__(self, instanceFolder=None,custom_config=None, forTesting=False, 
+                debug=False, restorepath=None,enabled_packages=None,**kwargs):
         self.aux_instances = {}
         self.gnr_config = getGnrConfig(set_environment=True)
         self.debug=debug
@@ -649,6 +649,7 @@ class GnrApp(object):
         self.instanceFolder = ''
         self.instanceName = ''
         self.project_packages_path = None
+        self.enabled_packages = enabled_packages
         if instanceFolder:
             if '@' in instanceFolder:
                 instanceFolder,self.remote_db  = instanceFolder.split('@',1)
@@ -718,7 +719,10 @@ class GnrApp(object):
             if config['packages']:
                 packages = Bag()
                 for n in config['packages']:
-                    packages.setItem(n.attr.get('pkgcode') or n.label, n.value, n.attr)
+                    pkgid = n.attr.get('pkgcode') or n.label
+                    if self.enabled_packages and pkgid not in self.enabled_packages:
+                        continue
+                    packages.setItem(pkgid, n.value, n.attr)
                 config['packages']  = packages
             return config
         instance_config_path = os.path.join(self.instanceFolder, 'instanceconfig.xml')
@@ -775,8 +779,6 @@ class GnrApp(object):
         dbattrs['application'] = self
         self.db = GnrSqlAppDb(debugger=getattr(self, 'sqlDebugger', None), **dbattrs)
         
-        
-
         for pkgid,pkgattrs,pkgcontent in self.config['packages'].digest('#k,#a,#v'):
             self.addPackage(pkgid,pkgattrs=pkgattrs,pkgcontent=pkgcontent)
 
