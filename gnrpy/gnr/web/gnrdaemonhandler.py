@@ -12,11 +12,12 @@ import logging
 from multiprocessing import Process, log_to_stderr, get_logger, Manager
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import GnrSiteRegisterServer
 from gnr.core.gnrlang import gnrImport
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,NetBag
 from gnr.core.gnrsys import expandpath
 from gnr.app.gnrconfig import gnrConfigPath
 from gnr.app.gnrdeploy import PathResolver
 from gnr.core.gnrstring import boolean
+from gnr.lib.services.rms import RMS
 import atexit
 import os
 import time
@@ -113,6 +114,7 @@ class GnrDaemonProxy(object):
         else:
             self.uri = 'PYRO:GnrDaemon@%s:%s' %(options.get('host') or PYRO_HOST,options.get('port') or PYRO_PORT)
 
+
     def proxy(self):
         proxy = Pyro4.Proxy(self.uri)
         proxy._pyroHmacKey = self.hmac_key
@@ -135,8 +137,9 @@ class GnrDaemon(object):
     def start(self,use_environment=False,**kwargs):
         if use_environment:
             options =  getFullOptions(options=kwargs)
+        rms = RMS()
+        rms.registerPod()
         self.do_start(**options)
-
 
     def do_start(self, host=None, port=None, socket=None, hmac_key=None,
                       debug=False,compression=False,timeout=None,
