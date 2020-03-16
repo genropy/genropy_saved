@@ -36,7 +36,7 @@ from gnr.app.gnrconfig import getRmsOptions,setRmsOptions
 
 class RMS(object):
     def __init__(self):
-        self.options = getRmsOptions()
+        self.options = getRmsOptions() or {}
     
     def __getattr__(self,attr):
         return self.options.get(attr)
