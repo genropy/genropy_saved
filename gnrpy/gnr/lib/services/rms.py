@@ -23,7 +23,10 @@
 
 import os
 
-import urlparse
+from future import standard_library
+standard_library.install_aliases()
+
+import urllib.parse
 from gnr.app.gnrconfig import gnrConfigPath
 
 from gnr.core.gnrbag import Bag,NetBag
@@ -48,7 +51,7 @@ class RMS(object):
 
     @property
     def authenticatedUrl(self):
-        sp = urlparse.urlsplit(self['url'])
+        sp = urllib.parse.urlsplit(self['url'])
         return '%s://%s:%s@%s%s' %(sp.scheme,'gnrtoken',self['token'],sp.netloc,sp.path)
 
     def buildRmsService(self,instancename,rmskw,rmspath):
