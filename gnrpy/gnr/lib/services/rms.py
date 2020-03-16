@@ -68,7 +68,6 @@ class RMS(object):
             servicetbl = service_tbl.addService(service_type='rms',name=instancename,
                                                             token=deploy_token,
                                                             domain=domain)
-
         rmsbag = Bag()
         rmsbag.setItem('rms',None,token=deploy_token,domain=domain,instance_name=instancename)
         rmsbag.toXml(rmspath)
@@ -80,8 +79,11 @@ class RMS(object):
         p = PathResolver()
         siteconfig = p.get_siteconfig(name)
         rmspath = os.path.join(gnrConfigPath(),'rms','{name}.xml'.format(name=name))
+        siteattr = siteconfig.getAttr('rms')
+        if not siteattr.get('domain'):
+            return
         if not os.path.exists(rmspath):
-            rmsbag = self.buildRmsService(name,siteconfig.getAttr('rms'),rmspath)
+            rmsbag = self.buildRmsService(name,siteattr,rmspath)
         else:
             rmsbag = Bag(rmspath)
         rms_instance_attr = rmsbag.getAttr('rms')
