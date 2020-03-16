@@ -79,6 +79,8 @@ class RMS(object):
 
 
     def registerInstance(self,name):
+        if not (self['url'] and self['token']):
+            return
         p = PathResolver()
         siteconfig = p.get_siteconfig(name)
         rmspath = os.path.join(gnrConfigPath(),'rms','{name}.xml'.format(name=name))
