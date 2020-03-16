@@ -30,7 +30,7 @@ setup(
                  '../scripts/gnrwsgiserve', '../scripts/gnrmkapachesite','../scripts/gnrdaemon',
                  '../scripts/gnrdbsetupparallel', '../scripts/gnrtrdaemon', '../scripts/gnrsync4d', 
                  '../scripts/gnrmkproject', '../scripts/gnrsyncstorage', '../scripts/gnrasync',
-                 '../scripts/gnrtaskworker', '../scripts/gnrupdate','../scripts/gnrdeploybuilder',
+                 '../scripts/gnrtaskworker', '../scripts/gnrupdate','../scripts/gnrdeploybuilder','../scripts/gnrrms',
                  '../scripts/gnrrms'],
         packages=['gnr', 'gnr.core', 'gnr.app', 'gnr.web', 'gnr.sql'],
         data_files=data_files,
