@@ -48,7 +48,7 @@ function _T(str,lazy){
         return str;
     }
     var localsdict = genro.getFromStorage('local',localekey) || {};
-    if(!(str in localsdict)){
+    if(isNullOrBlank(localsdict[str])){
         var toTranslate = noLocMarker?'!!'+str:str;
         var result = genro.serverCall('getRemoteTranslation',{txt:toTranslate,language:language}) || {};
         var localizedString = result['translation'];
