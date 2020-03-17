@@ -347,11 +347,11 @@ class TableScriptToHtml(BagToHtml):
                         gridPars.get('left',0) - gridPars.get('right',0)
         grid_width = grid_width or gridPars.get('width') or calcGridWidth
         columns = struct['view_0.rows_0'].digest('#a')
-        min_grid_width =  sum([(col.get('mm_width') or col.get('mm_min_width') or  20) for col in columns])
+        min_grid_width =  sum([(col.get('mm_width') or col.get('mm_min_width') or  15) for col in columns])
         extra_space = grid_width-min_grid_width
         if extra_space>=0:
             return
-        head_col_total_width = sum([(col.get('mm_width') or col.get('mm_min_width') or  20) for col in columns if col.get('headColumn')]) 
+        head_col_total_width = sum([(col.get('mm_width') or col.get('mm_min_width') or  15) for col in columns if col.get('headColumn')]) 
         grid_free_width = grid_width-head_col_total_width
         net_min_grid_width = min_grid_width-head_col_total_width
         sheet_count = int(math.ceil(float(net_min_grid_width)/grid_free_width))
