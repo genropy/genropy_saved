@@ -87,7 +87,7 @@ class RMS(object):
         print(result)
     
     def authping(self):
-        result =  NetBag(self.url,'authping')()
+        result =  NetBag(self.authenticatedUrl,'authping')()
         print(result)
 
     def registerInstance(self,name):
