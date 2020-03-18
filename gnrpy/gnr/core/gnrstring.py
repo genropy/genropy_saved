@@ -596,7 +596,15 @@ def splitAndStrip(myString, sep=',', n=-1, fixed=0):
     >>> splitAndStrip('cola, beer, milk', n=2)
     ['cola', 'beer, milk']
     """
-    myString = myString.strip().strip(sep)
+    myString = myString.strip()
+    lensep = len(sep)
+    if lensep==1:
+        myString = myString.strip(sep)
+    else:
+        if myString.startswith(sep):
+            myString = myString[lensep:]
+        if myString.endswith(sep):
+            myString = myString[:-lensep]
     r = myString.split(sep, n)
     result = [x.strip() for x in r]
     delta = abs(fixed) - len(result)

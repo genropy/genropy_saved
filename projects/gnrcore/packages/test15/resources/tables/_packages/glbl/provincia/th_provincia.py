@@ -65,7 +65,8 @@ class TestFormInlineComune(BaseComponent):
         fb = top.formbuilder(cols=1,border_spacing='3px')
         fb.field('sigla')
         fb.field('nome')
-        bc.contentPane(region='center').inlineTableHandler(relation='@comuni',viewResource='TestViewVotoRadio')
+        bc.contentPane(region='center').inlineTableHandler(relation='@comuni',
+                            viewResource='TestViewVotoRadio')
 
     def th_options(self):
         return dict(autoSave=True)

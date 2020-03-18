@@ -82,6 +82,13 @@ class RMS(object):
         db.commit()
         return rmsbag
 
+    def ping(self):
+        result =  NetBag(self.url,'ping')()
+        print(result)
+    
+    def authping(self):
+        result =  NetBag(self.url,'authping')()
+        print(result)
 
     def registerInstance(self,name):
         if not (self.url and self.token):
@@ -102,4 +109,4 @@ class RMS(object):
                             pod_token=self.token,
                             instance_token= rms_instance_attr['token'],
                             customer_code=rms_instance_attr.get('customer_code') or self.customer_code)()
-        
+
