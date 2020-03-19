@@ -27,14 +27,16 @@ class BaseResourcePrint(BaseResourceBatch):
     batch_ask_options = 'sys.print.ask_options_enabled'
     batch_print_modes = ['pdf','server_print','mail_pdf','mail_deliver']
     batch_mail_modes = ['mail_pdf','mail_deliver']
+
     def __init__(self, *args, **kwargs):
         super(BaseResourcePrint, self).__init__(**kwargs)
         batch_print_modes = self.db.application.getPreference('.print.modes',pkg='sys')
+        self.print_res  = self.html_res or self.rlab_res
         if batch_print_modes:
             self.batch_print_modes = batch_print_modes.split(',')
-        if self.html_res:
+        if self.print_res:
             self.htmlMaker = self.page.site.loadTableScript(page=self.page, table=getattr(self,'maintable',None),
-                                                        respath=self.html_res, class_name='Main')
+                                                            respath=self.print_res, class_name='Main')
         else:
             self.htmlMaker = None
         if not hasattr(self, 'mail_tags'):

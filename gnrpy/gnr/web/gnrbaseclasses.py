@@ -154,7 +154,46 @@ class BaseComponent(object):
 class BagFieldForm(BaseComponent):
     pass
 
-        
+
+class BaseForm(BaseComponent):
+    """BaseForm class is the one used to define any FormResource"""
+    
+    pass
+
+class BaseView(BaseComponent):
+    """BaseView class is the one used to define any ViewResource"""
+    
+
+    def th_struct(self, struct):
+        """Hook method that defines the structure of the tablehandler's grid.
+           At least one method starting with namespace "th_struct" must be implemented.
+           It's possible to define more than one structure implementing callables starting
+           with the namespace "th_struct". I.E. th_struct_large, th_struct_small
+           
+           :param struct: this is the struct where the grid columns will be defined
+           
+           The grid structure must be composed with at least:
+           * one view
+           * one row
+           * one cell (cell, fieldcell, checkboxcolumn)
+
+           **Example**
+           r = struct.view().rows()
+           r.fieldcell('name',width='10em')
+           r.fieldcell('age',width='7em')
+        """
+        raise Exception('th_struct method should be overridden') #maybe we could use a more specific Exception class (NotImplementedException)
+
+    def th_order(self):
+        """Hook method that defines the columns of the tablehandler's grid
+        """
+        pass
+
+    def th_options(self):
+        """#DANILO: cosa ci devo mettere?"""
+        pass
+
+
 class BaseResource(GnrObject):
     """Base class for a webpage resource"""
     def __init__(self, **kwargs):
@@ -194,6 +233,7 @@ class GnrTableScriptHtmlSrc(GnrHtmlSrc):
                         cell_border=cell_border,
                         border_width=border_width, 
                         **kwargs)
+
 
 class TableScriptToHtml(BagToHtml):
     """TODO"""
