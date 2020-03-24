@@ -3979,6 +3979,9 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         items = items || '^#WORKSPACE.items';
         sourceNode.registerDynAttr('items');
         if(deleteAction){
+            if (deleteAction===true){
+                deleteAction = "this._value.getNode('store').gnrwdg.store.deleteAsk([value])"
+            }
             gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption',gnrwdg.sourceNode);
             gnrwdg.deleteSelectedOnly = objectPop(kw,'deleteSelectedOnly');
         }
