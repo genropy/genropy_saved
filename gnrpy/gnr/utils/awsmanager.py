@@ -58,7 +58,7 @@ class BaseAwsService(object):
         self.aws_access_key_id=aws_access_key_id
         self.aws_secret_access_key=aws_secret_access_key
         self.aws_session_token=aws_session_token
-        self.region_name=None
+        self.region_name=region_name
         self.parent = parent
         self.services = dict()
 
@@ -231,7 +231,7 @@ class EC2Manager(BaseAwsService):
 
     def create_ec2_instance(self, image_id=None, subnet_id=None,
         key_name=None, user_data=None, instance_type=None, security_group_ids=None,
-        instance_name=None, file_system_id=None):
+        instance_name=None, file_system_id=None, dry_run=None):
         ec2 = self.resource
         instance_type=instance_type or 't3.small'
         key_name = key_name or 'image_genro'
@@ -254,7 +254,8 @@ class EC2Manager(BaseAwsService):
             SecurityGroupIds=security_group_ids,
             TagSpecifications=tags
         )
-        #ec2_parameters['DryRun']=True
+        if dry_run:
+            ec2_parameters['DryRun']=True
         instances = ec2.create_instances(**ec2_parameters)
         return instances[0].instance_id
 
@@ -306,13 +307,13 @@ class S3Manager(BaseAwsService):
         return json.dumps(policy, indent=2)
 
 
-    def create_s3_for_user(self, username=None, bucket=None, region=None):
+    def create_s3_for_user(self, username=None, bucket=None, region_name=None):
         s3 = self.resource
-        region = region or 'eu-central-1'
+        region_name = region_name or 'eu-central-1'
         bucket = bucket or username
         s3.create_bucket(Bucket=bucket, 
             CreateBucketConfiguration={
-                'LocationConstraint': region})
+                'LocationConstraint': region_name})
         #user = self.IAM.get_user(username)
         access_policy = self.get_s3_policy(bucket=bucket)
         self.IAM.put_user_policy(username=username, 
@@ -396,13 +397,13 @@ class ELBV2Manager(BaseAwsService):
 
     def get_target_groups(self):
         def get_target_group_dict(t):
-            r = dict(
+            return dict(
                 targetgroup_arn=t['TargetGroupArn'],
                 targetgroup_name=t['TargetGroupName'],
             )
         elbv2 = self.client
         target_groups = elbv2.describe_target_groups()['TargetGroups']
-        return dict([(t['TargetGroupName'], t) for t in target_groups])
+        return dict([(t['TargetGroupName'], get_target_group_dict(t)) for t in target_groups])
 
     def create_target_group(self, name=None, protocol=None, 
             port=None, healthcheck_protocol=None, vpc_id=None,
@@ -438,7 +439,27 @@ class Route53Manager(BaseAwsService):
     def get_hosted_zones(self):
         r53 = self.client
         hosted_zones = r53.list_hosted_zones()['HostedZones']
-        return dict([(h.Name.lower().rstrip('.'), h.Id) for h in hosted_zones])
+        return dict([(h['Name'].lower().rstrip('.'), h['Id']) for h in hosted_zones])
+
+    def get_resource_records(self, hosted_zone_id=None):
+        def geolocation_dict(georecord):
+            if georecord:
+                return dict(continent_code=georecord.get('ContinentCode'),
+                country_code=georecord.get('CountryCode'),
+                subdivision_code=georecord.get('SubdivisionCode'))
+        def record_to_dict(record):
+            return dict(name=record['Name'], type=record['Type'],
+                set_identifier=record.get('SetIdentifier'),
+                region_name=record.get('Region'),
+                geolocation=geolocation_dict(record.get('GeoLocation')),
+                failover=record.get('Failover'),
+                multivalue_answer=record.get('MultiValueAnswer'),
+                resource_records=[r['Value'] for r in record.get('ResourceRecords',[])],
+                TTL=record.get('TTL'))#others
+        r53 = self.client
+        resource_records=r53.list_resource_record_sets(
+            HostedZoneId=hosted_zone_id)['ResourceRecordSets']
+        return dict([(r['Name'].lower(), record_to_dict(r)) for r in resource_records])
 
     def update_record(self, hosted_zone_id=None, name=None, 
         type=None, target=None, ttl=360):
@@ -467,20 +488,22 @@ service_classes = dict([(c.service_label,c) for c_name,c in inspect.getmembers(s
 
 
 def main():
-    aws = AWSManager()
-    #softwell_user = aws.IAM.create_user(username='user')
-    #keypairs = aws.IAM.create_user_key_pair(username='user')
-    #print keypairs
-    bucket = aws.S3.create_s3_for_user(username='user', bucket='bkt-user')
+    aws = AWSManager(region_name='eu-west-1')
+    user = aws.IAM.create_user(username='user')
+    keypairs = aws.IAM.create_user_key_pair(username='user')
+    print(keypairs)
+    bucket = aws.S3.create_s3_for_user(username='user', bucket='bucket',
+        region_name='eu-west-1')
 
     #print ec2.EC2.get_instances()
     #print aws.EC2.get_key_pairs()
     #print aws.EC2.get_images()
     #print aws.EC2.get_instances()
     #print aws.EC2.get_vpcs()
-
+    print(aws.Route53.get_hosted_zones())
+    print(aws.Route53.get_resource_records(hosted_zone_id='/hostedzone/<ID>'))
     #print aws.ELBV2.get_listeners(load_balancer_name='load-ld')
-    print(aws.ELBV2.get_target_groups())
+    #print(aws.ELBV2.get_target_groups())
     #ec2.create_ec2_instance(image_id='ami-1112223333',
     #    instance_name='test-site', file_system_id='fs-44333929')
 
