@@ -185,7 +185,8 @@ class MultidbTable(object):
         do_multidb_trigger = not self.db.currentEnv.get('avoid_trigger_multidb')
         if do_multidb_trigger:
             self.trigger_onUpdating_multidb(record,old_record=old_record)
-        self.db.raw_update(self, record,old_record=old_record,pkey=old_record.get(self.pkey),**kwargs)
+        kwargs.setdefault('pkey',old_record.get(self.pkey))
+        self.db.raw_update(self, record,old_record=old_record,**kwargs)
         if do_multidb_trigger:
             self.trigger_onUpdated_multidb(record,old_record=old_record)
 
