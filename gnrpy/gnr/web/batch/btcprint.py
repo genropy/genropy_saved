@@ -31,7 +31,7 @@ class BaseResourcePrint(BaseResourceBatch):
     def __init__(self, *args, **kwargs):
         super(BaseResourcePrint, self).__init__(**kwargs)
         batch_print_modes = self.db.application.getPreference('.print.modes',pkg='sys')
-        self.print_res  = self.html_res or self.rlab_res
+        self.print_res  = getattr(self,'html_res', None) or getattr(self,'rlab_res', None)
         if batch_print_modes:
             self.batch_print_modes = batch_print_modes.split(',')
         if self.print_res:
