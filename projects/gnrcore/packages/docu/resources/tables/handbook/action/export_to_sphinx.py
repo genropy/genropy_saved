@@ -7,8 +7,16 @@ from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
 from json import dumps
 import re
-import urllib
 import os
+import sys
+
+if sys.version_info[0] == 3:
+    from urllib.request import urlopen
+else:
+    # Not Python 3 - today, it is most likely to be Python 2
+    # But note that this might need an update when Python 4
+    # might be around one day
+    from urllib import urlopen
 
 caption = 'Export to sphinx'
 description = 'Export to sphinx'
@@ -33,7 +41,13 @@ class Main(BaseResourceBatch):
         self.sphinxNode = self.handbookNode.child('sphinx')
         self.sphinxNode.delete()
         self.sourceDirNode = self.sphinxNode.child('source')
-        self.page.site.storageNode('rsrc:pkg_docu','sphinx_env','default_conf.py').copy(self.page.site.storageNode(self.sourceDirNode.child('conf.py')))
+        confSn = self.sourceDirNode.child('conf.py')
+        self.page.site.storageNode('rsrc:pkg_docu','sphinx_env','default_conf.py').copy(self.page.site.storageNode(confSn))
+        theme = self.handbook_record['theme'] or 'sphinx_rtd_theme'
+        theme_path = self.page.site.storageNode('rsrc:pkg_docu','sphinx_env','themes').internal_path
+        extra_conf = """html_theme = '%s'\nhtml_theme_path = ['%s/']"""%(theme, theme_path)
+        with confSn.open('a') as confFile:
+            confFile.write(extra_conf)
         self.imagesDict = dict()
         self.imagesPath='_static/images'
         self.examplesPath='_static/_webpages'
@@ -73,7 +87,7 @@ class Main(BaseResourceBatch):
             source_url = self.page.externalUrl(v) if v.startswith('/') else v
             child = self.sourceDirNode.child(k)
             with child.open('wb') as f:
-                f.write(urllib.urlopen(source_url).read())
+                f.write(urlopen(source_url).read())
         for relpath,source in self.examplesDict.items():
             if not source:
                 continue
@@ -85,13 +99,19 @@ class Main(BaseResourceBatch):
         self.resultNode = self.sphinxNode.child('build')
         build_args = dict(project=self.handbook_record['title'],
                           version=self.handbook_record['version'],
-                          author=self.handbook_record['author'],
+                          #author=self.handbook_record['author'],
+                          author="Pippo",
                           release=self.handbook_record['release'],
-                          lang=self.handbook_record['language'])
+        # DAVIDE modificato mapping 'release' che non era utilizzato e verrà utilizzato invece nel tema per l'autore
+                          language=self.handbook_record['language'])
+        template_variables = dict()
         args = []
         for k,v in build_args.items():
             if v:
                 args.extend(['-D', '%s=%s' % (k,v)])
+        for k,v in template_variables.items():
+            if v:
+                args.extend(['-A', '%s=%s' % (k,v)])
         customStyles = self.handbook_record['custom_styles'] or ''
         customStyles = '%s\n%s' %(customStyles,self.defaultCssCustomization())
         with self.sourceDirNode.child(self.customCssPath).open('wb') as cssfile:
@@ -150,11 +170,15 @@ class Main(BaseResourceBatch):
             if self.examples_root and self.curr_sourcebag:
                 rst = EXAMPLE_FINDER.sub(self.fixExamples, rst)
             rst=rst.replace('[tr-off]','').replace('[tr-on]','')
+            if record['author']:
+                footer = '\n.. sectionauthor:: %s\n'%record['author']
+            else:
+                footer= ''
             self.createFile(pathlist=self.curr_pathlist, name=name,
                             title=lbag['title'], 
                             rst=rst,
                             tocstring=tocstring,
-                            hname=record['hierarchical_name'])
+                            hname=record['hierarchical_name'], footer=footer)
         return result
 
     def fixExamples(self, m):
@@ -259,6 +283,7 @@ class Main(BaseResourceBatch):
 
     def defaultCssCustomization(self):
         return """/* override table width restrictions */
+
 @media screen and (min-width: 767px) {
 
    .wy-table-responsive table td {
