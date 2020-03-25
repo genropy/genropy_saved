@@ -90,6 +90,14 @@ class RMS(object):
         result =  NetBag(self.authenticatedUrl,'authping')()
         print(result)
 
+    def ping(self):
+        result =  NetBag(self.url,'ping')()
+        print(result)
+    
+    def authping(self):
+        result =  NetBag(self.authenticatedUrl,'authping')()
+        print(result)
+
     def registerInstance(self,name):
         if not (self.url and self.token):
             return

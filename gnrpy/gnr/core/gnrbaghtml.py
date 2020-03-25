@@ -79,6 +79,7 @@ class BagToHtml(object):
     body_attributes = None
     sheets_counter = 1
     splittedPages = 0
+    remainingLines = 1
     watermark_draft_class = 'document_draft'
     subtotal_caption_prefix = 'Totals'
 
@@ -557,10 +558,10 @@ class BagToHtml(object):
         if hasattr(self, 'thermo_wrapper') and self.thermo_kwargs:
             nodes = self.thermo_wrapper(nodes, **self.thermo_kwargs)
         carry_height = self.totalizeCarryHeight()
-
+        self.remainingLines = len(nodes)
         for lineno,rowDataNode,rowheight,row_kw,extra_row_height,subtotal_rows in self.lineIterator(nodes):
             bodyUsed = self.copyValue('grid_body_used')
-
+            self.remainingLines-=1
             gridNetHeight = self.grid_height - self.calcGridHeaderHeight() - self.calcGridFooterHeight() -\
                             carry_height - self.totalizeFooterHeight() - self.grid_row_height
             availableSpace = gridNetHeight-bodyUsed-self.grid_body_adjustment
@@ -572,6 +573,7 @@ class BagToHtml(object):
                 self.sheet = sheet
                 if doNewPage:
                     self._newPage()
+                    self.grid_height = None
                 if not self.rowData:
                     continue
                 row = self.copyValue('body_grid').row(height=rowheight, **row_kw)

@@ -650,8 +650,13 @@ class GnrSqlDb(GnrObject):
         deferredId = kwargs.pop('_deferredId',None)
         if not deferredId:
             deferredId = getUuid()
+        deferkw = kwargs
         if deferredId not in deferreds:
-            deferreds.setItem(deferredId,(cb,args,kwargs))
+            deferreds.setItem(deferredId,(cb,args,deferkw))
+        else:
+            cb,args,deferkw = deferreds[deferredId]
+        return deferkw
+        
 
     def systemDbEvent(self):
         return self.currentEnv.get('_systemDbEvent',False)
