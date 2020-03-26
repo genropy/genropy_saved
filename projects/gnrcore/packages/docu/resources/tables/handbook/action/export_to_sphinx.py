@@ -45,7 +45,8 @@ class Main(BaseResourceBatch):
         self.page.site.storageNode('rsrc:pkg_docu','sphinx_env','default_conf.py').copy(self.page.site.storageNode(confSn))
         theme = self.handbook_record['theme'] or 'sphinx_rtd_theme'
         theme_path = self.page.site.storageNode('rsrc:pkg_docu','sphinx_env','themes').internal_path
-        extra_conf = """html_theme = '%s'\nhtml_theme_path = ['%s/']\nsitemap_url_scheme = '%s/{link}'"""%(theme, theme_path,self.handbook_record['name'])
+        html_baseurl =self.db.application.getPreference('.sphinx_baseurl',pkg='docu')
+        extra_conf = """html_theme = '%s'\nhtml_theme_path = ['%s/']\nhtml_baseurl='%s'\nsitemap_url_scheme = '%s/{link}'"""%(theme, theme_path, html_baseurl,self.handbook_record['name'])
         with confSn.open('a') as confFile:
             confFile.write(extra_conf)
         self.imagesDict = dict()
