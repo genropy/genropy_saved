@@ -28,6 +28,7 @@ class AppPref(object):
         pane = parent.contentPane(**kwargs)
         fb = pane.formbuilder(cols=1,border_spacing='3px')
         fb.textbox('^.sphinx_path', lbl='Sphinx project path')
+        fb.textbox('^.sphinx_baseurl', lbl='Sphinx baseurl')
 
 class UserPref(object):
     pass
