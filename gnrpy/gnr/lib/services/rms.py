@@ -103,7 +103,10 @@ class RMS(object):
             return
         p = PathResolver()
         siteconfig = p.get_siteconfig(name)
-        rmspath = os.path.join(gnrConfigPath(),'rms','{name}.xml'.format(name=name))
+        rmsfolder = os.path.join(gnrConfigPath(),'rms')
+        if not os.path.isdir(rmsfolder):
+            os.mkdir(rmsfolder)
+        rmspath = os.path.join(rmsfolder,'{name}.xml'.format(name=name))
         siteattr = siteconfig.getAttr('rms')
         if not siteattr.get('domain'):
             return
