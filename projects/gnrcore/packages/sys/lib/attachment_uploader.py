@@ -14,7 +14,7 @@ import time
 from datetime import date
 import shutil
 import os
-from cStringIO import StringIO
+from io import StringIO
 
 class GnrAttachmentEventHandler(FileSystemEventHandler):
     
