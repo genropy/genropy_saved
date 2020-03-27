@@ -1118,13 +1118,13 @@ var gnrformatter = {
         }
         var opt = {selector:'date'};
         var standard_format = 'long,short,medium,full';
-        var week_format = 'W,w,WD'
+        var week_format = ['-W','-w','-WD']
         var result = '';
         if(format){
             if(standard_format.indexOf(format)>=0){
                 opt.formatLength = format;
             }else if (week_format.indexOf(format)>=0){
-                return ''+deltaWeeks(null,value,format);;
+                return ''+deltaWeeks(null,value,format.slice(1));;
             }else{
                 opt.datePattern = format;
             }
@@ -1151,9 +1151,12 @@ var gnrformatter = {
         }
         var opt = {selector:'datetime'};
         var standard_format = 'long,short,medium,full';
+        var week_format = ['-W','-w','-WD']
         if(format){
             if(standard_format.indexOf(format)>=0){
                 opt.formatLength = format;
+            }else if (week_format.indexOf(format)>=0){
+                return ''+deltaWeeks(null,value,format.slice(1));
             }else{
                 format = format.split('|');
                 opt.datePattern = format[0];
