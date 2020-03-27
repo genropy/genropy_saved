@@ -182,6 +182,7 @@ class MultidbTable(object):
         do_multidb_trigger = not self.db.currentEnv.get('avoid_trigger_multidb')
         if do_multidb_trigger:
             self.trigger_onUpdating_multidb(record,old_record=old_record)
+        kwargs.setdefault('pkey',old_record.get(self.pkey))
         self.db.raw_update(self, record,old_record=old_record,**kwargs)
         if do_multidb_trigger:
             self.trigger_onUpdated_multidb(record,old_record=old_record)
@@ -480,7 +481,7 @@ class MultidbTable(object):
     def onSubscriberTrigger(self,record,old_record=None,event=None):
         subscribedStores = self.getSubscribedStores(record=record)
         mergeUpdate = self.attributes.get('multidb_onLocalWrite')=='merge'
-        pkey = record[self.pkey]
+        pkey = old_record[self.pkey] if old_record else record[self.pkey]
         tblsub = self.db.table('multidb.subscription')
         for storename in subscribedStores:
             tblsub.syncStore(event=event,storename=storename,tblobj=self,pkey=pkey,

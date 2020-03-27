@@ -1117,15 +1117,18 @@ var gnrformatter = {
             return '';
         }
         var opt = {selector:'date'};
-        var standard_format = 'long,short,medium,full'
+        var standard_format = 'long,short,medium,full';
+        var week_format = ['-W','-w','-WD']
+        var result = '';
         if(format){
             if(standard_format.indexOf(format)>=0){
                 opt.formatLength = format;
+            }else if (week_format.indexOf(format)>=0){
+                return ''+deltaWeeks(null,value,format.slice(1));;
             }else{
                 opt.datePattern = format;
             }
         }
-        var result = '';
         return dojo.date.locale.format(value, objectUpdate(opt, formatKw));
     },
     
@@ -1141,16 +1144,22 @@ var gnrformatter = {
         }
         return dojo.date.locale.format(value, objectUpdate(opt, formatKw));
     },
-    
+    format_DHZ:function(value,format,formatKw){
+        return this.format_DH(value,format,formatKw);
+    },
+
     format_DH:function(value,format,formatKw){
         if (typeof(value)=="number"){
             value=new Date(value)
         }
         var opt = {selector:'datetime'};
         var standard_format = 'long,short,medium,full';
+        var week_format = ['-W','-w','-WD']
         if(format){
             if(standard_format.indexOf(format)>=0){
                 opt.formatLength = format;
+            }else if (week_format.indexOf(format)>=0){
+                return ''+deltaWeeks(null,value,format.slice(1));
             }else{
                 format = format.split('|');
                 opt.datePattern = format[0];
@@ -1787,6 +1796,20 @@ function funcApply(fnc, parsobj, scope,argNames,argValues,showError) {
     }
     return fnc.apply(scope, argValues);
 }
+function deltaWeeks(dateStart,dateEnd,format){
+    var today = new Date();
+    var dd = deltaDays(dateStart || today,dateEnd || today);
+    format = format || 'w';
+    if (format=='W'){
+        return Math.trunc(dd/7);
+    }
+    if (format=='w'){
+        return Math.round10(dd/7,-2);
+    }
+    if (format=='WD'){
+        return `${Math.trunc(dd/7)}w${dd%7}d`
+    }
+};
 
 function deltaDays(dateStart,dateEnd,excludeWD){
     var excludeWD = excludeWD || '';
