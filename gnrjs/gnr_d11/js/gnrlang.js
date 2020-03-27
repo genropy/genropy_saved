@@ -1144,7 +1144,10 @@ var gnrformatter = {
         }
         return dojo.date.locale.format(value, objectUpdate(opt, formatKw));
     },
-    
+    format_DHZ:function(value,format,formatKw){
+        return this.format_DH(value,format,formatKw);
+    },
+
     format_DH:function(value,format,formatKw){
         if (typeof(value)=="number"){
             value=new Date(value)
