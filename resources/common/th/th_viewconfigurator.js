@@ -239,6 +239,7 @@ var genro_plugin_grid_configurator = {
                     }
                     fb.addField(objectPop(wdgkw,'tag'),wdgkw);
                 });
+                fb.addField('textbox',{value:'^.?format',lbl:'Format'});
                 fb.addField('div',{'innerHTML':'&nbsp;',font_weight:'bold',border_top:'1px solid silver'});
                 genro.dom.styleFields(fb,{parentFb:true,prefix:'?',blacklist:['height','width']});
             });
