@@ -1714,11 +1714,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                         }
                     },'static');
                     rows.push(row);
-                    if(sourceNode.attr.sortedBy && cellsort.length){
-                        sourceNode.setRelativeData(sourceNode.attr.sortedBy,cellsort.join(','),null,null,'sorting',1);
-                    }
                 }
-
+                if(sourceNode.attr.sortedBy && cellsort.length){
+                    sourceNode.setRelativeData(sourceNode.attr.sortedBy,cellsort.join(','),null,null,'sorting',1);
+                }
                 view.rows = rows;
                 result.push(view);
             }
