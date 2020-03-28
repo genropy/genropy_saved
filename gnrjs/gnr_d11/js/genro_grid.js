@@ -1704,12 +1704,19 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     }
 
                     var that = this;
+                    var cellsort = [];
                     rowBag.forEach(function(n){
                         cell = that.structFromBag_cell(sourceNode,n,columnsets);
                         row.push(cell);
                         cellmap[cell.field] = cell;
+                        if(cell.sort){
+                            cellsort.push(`${cell.field_getter}:${cell.sort}`);
+                        }
                     },'static');
                     rows.push(row);
+                    if(sourceNode.attr.sortedBy && cellsort.length){
+                        sourceNode.setRelativeData(sourceNode.attr.sortedBy,cellsort.join(','),null,null,'sorting',1);
+                    }
                 }
 
                 view.rows = rows;
