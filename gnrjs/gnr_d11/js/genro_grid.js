@@ -1624,7 +1624,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var formats, dtype, editor;
             var view, viewnode, rows, rowsnodes, i, k, j, cellsnodes, row, cell, rowattrs, rowBag;
             var editorPars = sourceNode.attr.gridEditorPars;
-            for (var i = 0; i < bagnodes.length; i++) {
+            var cellsort = [];
+
+            for (let i = 0; i < bagnodes.length; i++) {
                 viewnode = bagnodes[i];
                 if(viewnode.label=='info'){
                     continue;
@@ -1704,7 +1706,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     }
 
                     var that = this;
-                    var cellsort = [];
                     rowBag.forEach(function(n){
                         cell = that.structFromBag_cell(sourceNode,n,columnsets);
                         row.push(cell);
@@ -1716,7 +1717,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     rows.push(row);
                 }
                 if(sourceNode.attr.sortedBy && cellsort.length){
-                    sourceNode.setRelativeData(sourceNode.attr.sortedBy,cellsort.join(','),null,null,'sorting',1);
+                    console.log('cellsort',cellsort)
+                    sourceNode.setRelativeData(sourceNode.attr.sortedBy,cellsort.join(','),null,null,false);
                 }
                 view.rows = rows;
                 result.push(view);
