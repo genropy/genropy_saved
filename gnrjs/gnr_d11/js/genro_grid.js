@@ -1717,8 +1717,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     rows.push(row);
                 }
                 if(sourceNode.attr.sortedBy && cellsort.length){
-                    console.log('cellsort',cellsort)
-                    sourceNode.setRelativeData(sourceNode.attr.sortedBy,cellsort.join(','),null,null,false);
+                    sourceNode.setRelativeData(sourceNode.attr.sortedBy,cellsort.join(','));
                 }
                 view.rows = rows;
                 result.push(view);
