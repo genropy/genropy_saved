@@ -239,6 +239,8 @@ var genro_plugin_grid_configurator = {
                     }
                     fb.addField(objectPop(wdgkw,'tag'),wdgkw);
                 });
+                fb.addField('textbox',{value:'^.?format',lbl:'Format'});
+                fb.addField('filteringSelect',{value:'^.?sort',lbl:'Sort',values:'a:Asc,d:Desc'});
                 fb.addField('div',{'innerHTML':'&nbsp;',font_weight:'bold',border_top:'1px solid silver'});
                 genro.dom.styleFields(fb,{parentFb:true,prefix:'?',blacklist:['height','width']});
             });
@@ -404,6 +406,8 @@ var genro_plugin_grid_configurator = {
         grid._('column',{name:'T',field:'totalize',dtype:'B',edit:true,
                         editDisabled:'=#ROW.dtype?="NRFLI".indexOf(#v)<0',width:'4em'});
         grid._('column',{name:_T('Format'),field:'format',edit:true,width:'8em'});
+        grid._('column',{name:_T('Sort'),field:'sort',edit:{tag:'filteringSelect',values:'a:Asc,d:Desc'},width:'4em'});
+
         this._subBagCell(grid,'styles_cells','Cell styles',genro.dom.styleFields,{blacklist:['height','border']});
         if(gridNode.widget.collectionStore().storeNode.attr.groupByStore){
             this._subBagCell(grid,'group_pars','Grouping Pars',function(pane){

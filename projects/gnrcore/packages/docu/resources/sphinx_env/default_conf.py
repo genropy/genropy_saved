@@ -36,7 +36,8 @@ def setup(app):
 extensions = ['sphinx_sitemap']
 
 # Sitemap html_baseurl required by: https://pypi.org/project/sphinx-sitemap/
-html_baseurl = '/docs/'
+#html_baseurl = '/docs/'
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

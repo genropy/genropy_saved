@@ -632,6 +632,9 @@ class SqlDbAdapter(object):
     def createDbSql(self, dbname, encoding):
         pass
 
+    def unaccentFormula(self, field):
+        return field
+
     def getWhereTranslator(self):
         return GnrWhereTranslator(self.dbroot)
 
