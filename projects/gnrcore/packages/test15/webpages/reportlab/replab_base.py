@@ -9,7 +9,7 @@ from io import BytesIO
 
 
 class GnrCustomWebPage(object):
-    py_requires = "gnrcomponents/testhandler:TestHandlerBase"
+    py_requires = "gnrcomponents/testhandler:TestHandlerFull"
 
     @public_method
     def createTempPdf(self, rlab_method = None , **kwargs):
