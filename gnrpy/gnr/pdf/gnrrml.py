@@ -79,6 +79,7 @@ class GnrRmlSrc(GnrStructData):
         if (fname != fnamelower) and hasattr(self, fnamelower):
             return getattr(self, fnamelower)
         elif fnamelower in self.genroNameSpace:
+            print(fnamelower)
             return GnrRmlElem(self, '%s' % (self.genroNameSpace[fnamelower]))
         else:
             raise AttributeError("object has no attribute '%s'" % fname)
@@ -95,7 +96,7 @@ class GnrRmlSrc(GnrStructData):
         return self.toXml(filename=filename, encoding=encoding, typeattrs=False, autocreate=True,
                           omitUnknownTypes=True, omitRoot=True, forcedTagAttr='tag', addBagTypeAttr=False)
                           
-    def __content(self, content):
+    def _content(self, content):
         self.child('__flatten__', content=content)
         
     def content(self, content):
@@ -120,8 +121,6 @@ class GnrRmlSrc(GnrStructData):
         um = kwargs.pop('um', None)
         if um:
             self._um = um
-        if 'name' in kwargs:
-            kwargs['_name'] = kwargs.pop('name')
         kwargs = optArgs(**kwargs)
         return super(GnrRmlSrc, self).child(tag, *args, **kwargs)
         
@@ -878,8 +877,8 @@ class GnrPdf(object):
             self.root.setAttr('#0', filename=os.path.basename(filename))
             output = open(expandpath(filename), 'wb')
         else:
-            output = io.StringIO()
-        root = etree.fromstring(self.toRml())
+            output = io.BytesIO()
+        root = etree.fromstring(self.toRml().encode())
         pdf = pdfdoc.Document(root)
         pdf.process(output)
         if not filename:

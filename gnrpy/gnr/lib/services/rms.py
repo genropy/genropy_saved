@@ -72,7 +72,7 @@ class RMS(object):
         service_tbl = db.table('sys.service')
         if not service_tbl.checkDuplicate(service_name=instancename,service_type='rms'):
             domain = rmskw.get('domain')
-            deploy_token = db.table('sys.external_token').create_token(exec_user=user_rec['username'])
+            deploy_token = db.table('sys.external_token').create_token(exec_user='DEPLOY_SERVER')
             servicetbl = service_tbl.addService(service_type='rms',service_name=instancename,
                                                             token=deploy_token,
                                                             domain=domain)
@@ -90,12 +90,23 @@ class RMS(object):
         result =  NetBag(self.authenticatedUrl,'authping')()
         print(result)
 
+    def ping(self):
+        result =  NetBag(self.url,'ping')()
+        print(result)
+    
+    def authping(self):
+        result =  NetBag(self.authenticatedUrl,'authping')()
+        print(result)
+
     def registerInstance(self,name):
         if not (self.url and self.token):
             return
         p = PathResolver()
         siteconfig = p.get_siteconfig(name)
-        rmspath = os.path.join(gnrConfigPath(),'rms','{name}.xml'.format(name=name))
+        rmsfolder = os.path.join(gnrConfigPath(),'rms')
+        if not os.path.isdir(rmsfolder):
+            os.mkdir(rmsfolder)
+        rmspath = os.path.join(rmsfolder,'{name}.xml'.format(name=name))
         siteattr = siteconfig.getAttr('rms')
         if not siteattr.get('domain'):
             return

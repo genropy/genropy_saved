@@ -29,26 +29,24 @@ class Form(BaseComponent):
         top = bc.contentPane(region='top',datapath='.record')
         fb = top.div(margin='10px',margin_right='20px').formbuilder(cols=2,border_spacing='6px',
                                                     fld_width='100%',
-                                                    max_width='700px',
+                                                    max_width='1000px',
                                                     width='100%',colswidth='auto')
         fb.field('name')
         fb.br()
-        fb.field('title',colspan=2)
+        fb.field('title')
         fb.field('docroot_id', hasDownArrow=True, validate_notnull=True, tag='hdbselect', folderSelectable=True)
-        fb.checkBoxText(value='^.toc_roots',#values='MI:Milano,CO:Como,SO:Sondrio')
+        fb.checkBoxText(value='^.toc_roots',
                         table='docu.documentation', popup=True, cols=4,lbl='TOC roots',
                         condition='$parent_id = :docroot_id', condition_docroot_id='^.docroot_id' )
 
 
         fb.field('language')
         fb.field('version')
-        fb.field('release')
         fb.field('author')
+        themesSn = self.site.storageNode('rsrc:pkg_docu','sphinx_env','themes')
+        themes = ','.join([s.basename for s in themesSn.children() if s.isdir and not s.basename.startswith('.')])
+        fb.field('theme', values=themes, tag='filteringSelect')
         fb.field('sphinx_path')
-
-        fb.field('examples_site')
-        fb.field('examples_local_site')
-        fb.field('examples_directory')
 
         fb.field('custom_styles',tag='simpleTextArea',colspan=2,height='300px')
         example_pars_fb = top.div(margin='10px',margin_right='20px').formbuilder(cols=2,border_spacing='6px',

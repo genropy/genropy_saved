@@ -68,8 +68,6 @@ class GnrCustomWebPage(object):
         c.drawString(0.3*inch, -inch, mytext)
 
 
-    
-
     #@public_method
     #def createTempPdf_file(self, testo=None, **kwargs):
     #    pdfSn = self.site.storageNode('temp:test_rlab.pdf')

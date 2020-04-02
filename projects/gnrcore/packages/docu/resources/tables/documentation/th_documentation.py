@@ -183,9 +183,8 @@ class Form(BaseComponent):
         fb.field('publish_date',width='7em')
 
         fb.field('base_language',width='4em')
-        fb.field('doctype',disabled='^.doctype',width='20em')
-        fb.field('ext_ref',width='10em')
         fb.field('revision', width='7em')
+        fb.field('author', width='10em')
         fb.field('sphinx_toc')
         #fb.div('Old html',hidden='^.old_html?=!#v').tooltipPane().div(height='150px',width='200px',overflow='auto',_class='selectable').div('^.old_html')
 
