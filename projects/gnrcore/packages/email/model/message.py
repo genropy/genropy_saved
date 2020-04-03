@@ -197,10 +197,11 @@ class Table(object):
                 message['send_date'] = datetime.now()
                 message['bcc_address'] = bcc_address
             except Exception as e:
-                sending_attempt = message['sending_attempt'] = message['sending_attempt'] or Bag()
-                ts = datetime.now()
-                sending_attempt.setItem('r_%i' %len(sending_attempt),None,ts=ts,error=str(e))
-                message['sending_attempt'] = sending_attempt
+                raise
+                #sending_attempt = message['sending_attempt'] = message['sending_attempt'] or Bag()
+                #ts = datetime.now()
+                #sending_attempt.setItem('r_%i' %len(sending_attempt),None,ts=ts,error=str(e))
+                #message['sending_attempt'] = sending_attempt
         self.db.commit()
         
     

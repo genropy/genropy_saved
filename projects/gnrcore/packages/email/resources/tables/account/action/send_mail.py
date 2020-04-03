@@ -31,7 +31,8 @@ class Main(BaseResourceAction):
             try:
                 self.message_tbl.sendMessage(pkey=email['id'])
             except Exception as e:
-                self.batch_log_write('Error sending mail message {message_id}'.format(message_id=email['id']))
+                raise
+                #self.batch_log_write('Error sending mail message {message_id}'.format(message_id=email['id']))
 
     def table_script_parameters_pane(self, pane, **kwargs):
         pass
