@@ -21,7 +21,9 @@ class Main(BaseResourceAction):
             self.sendEmailsForAccount(account)
     
     def sendEmailsForAccount(self,account):
-        email_to_send = self.message_tbl.query(where='$in_out=:out AND $send_date IS NULL AND $account_id=:acid',
+        email_to_send = self.message_tbl.query(where="""$in_out=:out AND $send_date IS NULL 
+                                                        AND $account_id=:acid 
+                                                        AND $error_msg IS NULL""",
                                         out='O',order_by='$__ins_ts',
                                         limit=account['send_limit'],
                                         acid=account['id'],
@@ -31,7 +33,8 @@ class Main(BaseResourceAction):
             try:
                 self.message_tbl.sendMessage(pkey=email['id'])
             except Exception as e:
-                self.batch_log_write('Error sending mail message {message_id}'.format(message_id=email['id']))
+                raise
+                #self.batch_log_write('Error sending mail message {message_id}'.format(message_id=email['id']))
 
     def table_script_parameters_pane(self, pane, **kwargs):
         pass

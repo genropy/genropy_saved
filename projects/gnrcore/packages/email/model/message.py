@@ -1,5 +1,5 @@
 # encoding: utf-8
-from smtplib import SMTPException
+from smtplib import SMTPException,SMTPConnectError
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace
@@ -43,6 +43,9 @@ class Table(object):
         tbl.column('weak_attachments', name_long='!!Weak attachments')
         tbl.column('reply_message_id',size='22', group='_', name_long='!!Reply message id'
                     ).relation('email.message.id', relation_name='replies', mode='foreignkey', onDelete='setnull')
+        tbl.column('error_msg', name_long='Error message')
+        tbl.column('error_ts', name_long='Error Timestamp')
+        tbl.column('connection_retry', dtype='L')
 
     def trigger_onInserting(self, record_data):
         self.explodeAddressRelations(record_data)
@@ -196,14 +199,27 @@ class Table(object):
                                 scheduler=False,headers_kwargs=extra_headers.asDict(ascii=True))
                 message['send_date'] = datetime.now()
                 message['bcc_address'] = bcc_address
+            except SMTPConnectError as e:
+                message['connection_retry'] = (message['connection_retry'] or 0) + 1
+                if message['connection_retry'] > 10:
+                    message['error_msg'] = 'Connection failed more than 10 times'
+            
             except Exception as e:
-                sending_attempt = message['sending_attempt'] = message['sending_attempt'] or Bag()
+                error_msg = str(e)
                 ts = datetime.now()
-                sending_attempt.setItem('r_%i' %len(sending_attempt),None,ts=ts,error=str(e))
-                message['sending_attempt'] = sending_attempt
+                message['error_ts'] = ts
+                message['error_msg'] = error_msg
+                message['sending_attempt'] = message['sending_attempt'] or  Bag()
+                message['sending_attempt'].child('attempt', ts=ts, error= error_msg)
         self.db.commit()
         
-    
+    @public_method
+    def clearErrors(self, pkey):
+        with self.recordToUpdate(pkey) as message:
+            message['error_ts'] = None
+            message['error_msg'] = None
+        self.db.commit()
+
     def atc_getAttachmentPath(self,pkey):
         return self.folderPath(self.recordAs(pkey))
 
