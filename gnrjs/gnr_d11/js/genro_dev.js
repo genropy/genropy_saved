@@ -1031,6 +1031,62 @@ dojo.declare("gnr.GnrDevHandler", null, {
         return resolver;
     },
 
+    translateQueryPars: function(currwhere) {
+        var parslist = [];
+        var cb = function(node, parslist, idx) {
+            if (node.attr.value_caption) {
+                if(node.attr.value_caption[0]=='?'){
+                    var relpath = node.getFullpath('static', currwhere);
+                    var result = objectUpdate({}, node.attr);
+                    var value_caption = node.attr.value_caption.slice(1);
+                    var vl = value_caption.split('|');
+                    result.lbl = vl[0];
+                    result.dflt = vl[1];
+                    result.relpath = relpath;
+                    result.parcode = flattenString(result.lbl,['.',' ']);
+                    parslist.push(result);
+                }else if(node.attr.value_caption && node.attr.value_caption.indexOf('set:')==0){
+                    return;
+                }else{
+                    node.setValue(node.attr.value_caption);
+                }
+            }
+        };
+        currwhere.walk(cb, 'static', parslist);
+        return parslist;
+    },
+
+    dynamicQueryParsFb:function(sourceNode,wherebag,parslist,cols){
+        parslist = parslist || this.translateQueryPars(wherebag);
+        var queryform = genro.dev.formbuilder(sourceNode,cols || 1,{border_spacing:'3px',onEnter:confirm,margin_top:'6px'});
+        var tr, attrs;
+        for (var i = 0; i < parslist.length; i++) {
+            attrs = parslist[i];
+            var lbl = attrs.lbl || attrs.value_caption.slice(1);
+            var dflt;
+
+            if(!('dflt' in attrs)){
+                if(lbl.indexOf('|')){
+                    var l = lbl.split('|');
+                    lbl=l[0];
+                    dflt = l[1] ;
+                }
+            }else{
+                dflt = attrs.dflt;
+            }
+            
+            if(dflt){
+                wherebag.setItem(attrs.relpath,dflt);
+            }
+            if(attrs.column_relationTo){
+                var ro = attrs.column_relationTo.split('.');
+                queryform.addField('dbselect',{lbl:lbl,value:'^.' + attrs.relpath, width:'12em',dbtable:ro[0]+'.'+ro[1]});
+            }else{
+                queryform.addField('textbox',{lbl:lbl,value:'^.' + attrs.relpath, width:'12em'});
+            }
+        }
+    },
+
 
     addError:function(error,error_type,show){
         var msg = "<div style='text-align:center;font-size:1em;font-weight:bold;'>"+error_type.toUpperCase()+" Error "+_F(new Date(),'short')+"</div>"+error;

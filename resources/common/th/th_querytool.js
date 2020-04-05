@@ -759,30 +759,9 @@ dojo.declare("gnr.QueryManager", null, {
         }
     },
     translateQueryPars: function() {
-        var currwhere = genro._(this.wherepath);
-        var parslist = [];
-        var cb = function(node, parslist, idx) {
-            if (node.attr.value_caption) {
-                if(node.attr.value_caption[0]=='?'){
-                    var relpath = node.getFullpath('static', currwhere);
-                    var result = objectUpdate({}, node.attr);
-                    var value_caption = node.attr.value_caption.slice(1);
-                    var vl = value_caption.split('|');
-                    result.lbl = vl[0];
-                    result.dflt = vl[1];
-                    result.relpath = relpath;
-                    result.parcode = flattenString(result.lbl,['.',' ']);
-                    parslist.push(result);
-                }else if(node.attr.value_caption && node.attr.value_caption.indexOf('set:')==0){
-                    return;
-                }else{
-                    node.setValue(node.attr.value_caption);
-                }
-            }
-        };
-        currwhere.walk(cb, 'static', parslist);
-        return parslist;
+        return genro.dev.translateQueryPars(genro._(this.wherepath));
     },
+
     onQueryCalling:function(querybag,filteringPkeys){
         var parslist=[];
         var sourceNode = this.sourceNode;
@@ -855,31 +834,9 @@ dojo.declare("gnr.QueryManager", null, {
         var count = function(){
             sourceNode.fireEvent('.showQueryCountDlg');
         };
-
         var center = dlg.center._('div',{padding:'10px'});
         var bottom = dlg.bottom._('slotBar',{'slots':'cancel,*,confirm'});
-        var queryform = genro.dev.formbuilder(center,1,{border_spacing:'3px',onEnter:confirm,margin_top:'6px'});
-        var tr, attrs;
-        for (var i = 0; i < parslist.length; i++) {
-            attrs = parslist[i];
-            var lbl = attrs.value_caption.slice(1);
-            var dflt;
-            if(lbl.indexOf('|')){
-                var l = lbl.split('|');
-                lbl=l[0];
-                dflt = l[1] ;
-            }
-            if(dflt){
-                sourceNode.setRelativeData(this.wherepath+'.'+attrs.relpath,dflt);
-            }
-            if(attrs.column_relationTo){
-                var ro = attrs.column_relationTo.split('.');
-                queryform.addField('dbselect',{lbl:lbl,value:'^.' + attrs.relpath, width:'12em',dbtable:ro[0]+'.'+ro[1]});
-            }else{
-                queryform.addField('textbox',{lbl:lbl,value:'^.' + attrs.relpath, width:'12em'});
-            }
-            
-        }
+        genro.dev.dynamicQueryParsFb(center,sourceNode.getRelativeData(this.wherepath),parslist,1);
         bottom._('button', 'cancel',{label:'Cancel',baseClass:'bottom_btn',action:cancel});
         bottom._('button', 'confirm',{label:'Confirm',baseClass:'bottom_btn',action:confirm});
         //bottom._('button', 'countbtn',{label:'Count',baseClass:'bottom_btn',action:count});

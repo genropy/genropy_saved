@@ -4845,7 +4845,9 @@ dojo.declare("gnr.widgets.PackageSelect", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.TableSelect", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw,childSourceNode){
         kw.hasDownArrow = true;
-        kw.pkg = kw.pkg.replace('^','=')
+        if (kw.pkg){
+            kw.pkg = kw.pkg.replace('^','=');
+        }
         kw.onCreating = function(attributes){
             var that = this;
             genro.serverCall('app.getTablesTree',{},function(result){
@@ -5333,8 +5335,6 @@ dojo.declare("gnr.widgets.RadioButtonText", gnr.widgets.CheckBoxText, {
         return attributes;
     }
 });
-
-
 
 dojo.declare("gnr.widgets.FieldsTree", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode, attributes) {
@@ -6695,7 +6695,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             }
             gnr.getGridColumns(this.storeNode);
             var newColumns = this.cleanColumns(this.storeNode._currentColumns);
-            var previousColumns = this.cleanColumns(this.storeNode._previousColumns);
+            var previousColumns = this.cleanColumns(this.storeNode._previousColumns) || {};
             var addedColumns = [];            
             for(var k in newColumns){
                 if(k in previousColumns){
