@@ -15,7 +15,7 @@ class Service(PdfFormService):
         templateSn = self.parent.storageNode(template)
         with templateSn.local_path() as template_path:
             fields = pypdftk.dump_data_fields(template_path)
-        return [f['FieldName'] for f in fields if f['FieldFlags']!='0']
+        return [f['FieldName'] for f in fields]# if f['FieldFlags']!='0']
 
     def fillForm(self,template=None, values=None, output=None):
         if not template:
