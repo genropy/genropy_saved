@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# 
-"""replab_base"""
+
+"""replab_2_graphics_and_text"""
 
 from builtins import object
 from reportlab.pdfgen import canvas
@@ -9,8 +9,8 @@ from io import BytesIO
 
 
 class GnrCustomWebPage(object):
-    py_requires = "gnrcomponents/testhandler:TestHandlerFull"
-
+    py_requires="gnrcomponents/testhandler:TestHandlerFull, gnrcomponents/source_viewer/source_viewer:SourceViewer"
+    
     @public_method
     def createTempPdf(self, rlab_method = None , **kwargs):
         pdf = BytesIO()
@@ -31,19 +31,19 @@ class GnrCustomWebPage(object):
         bc.contentPane(region='center').iframe(height='100%', width='100%', rpcCall='createTempPdf', 
                                                 rpc_rlab_method='hello', rpc_mytext='^.text')
 
-        
+
     def rlab_hello(self, mytext=None, **kwargs):
         mytext = mytext or 'Hello world'
         self.canvas.drawString(100,100, mytext)
 
-    
+
     def test_2_rect(self, pane):
         bc = pane.borderContainer(height='500px')
         bc.contentPane(region='top', height='100px').textbox('^.text')
         bc.contentPane(region='center').iframe(height='100%', width='100%', rpcCall='createTempPdf', 
                                                 rpc_rlab_method='rect', rpc_mytext='^.text')
 
-        
+
     def rlab_rect(self, mytext=None, **kwargs):
         mytext = mytext or 'rectangle!'
         from reportlab.lib.units import inch
@@ -67,6 +67,8 @@ class GnrCustomWebPage(object):
         # say hello (note after rotate the y coord needs to be negative!)
         c.drawString(0.3*inch, -inch, mytext)
 
+
+    
 
     #@public_method
     #def createTempPdf_file(self, testo=None, **kwargs):

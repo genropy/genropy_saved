@@ -1156,7 +1156,7 @@ dojo.declare('gnr.GenroClient', null, {
         if( f.dtype=='P'){
             return genro.formatter.asText(v,f);
         }
-        if (v instanceof Date) {
+        if (v instanceof Date && !f.format) {
             var opt = objectUpdate({}, f);
             if (opt['time']) {
                 opt.selector = 'time';

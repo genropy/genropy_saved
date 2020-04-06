@@ -605,6 +605,11 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def getWhereTranslator(self):
         return GnrWhereTranslatorPG(self.dbroot)
 
+    def unaccentFormula(self, field):
+        return 'unaccent({prefix}{field})'.format(field=field, 
+                                                  prefix = '' if field[0] in ('@','$') else '$')
+
+
 
 
 class GnrDictConnection(_connection):
@@ -681,7 +686,7 @@ class GnrDictCursor(_cursor):
                     self.index[desc] = i
                     i+=1
             self._query_executed = 0
-
+    
 class GnrWhereTranslatorPG(GnrWhereTranslator):
     def op_similar(self, column, value, dtype, sqlArgs,tblobj):
         "!!Similar"

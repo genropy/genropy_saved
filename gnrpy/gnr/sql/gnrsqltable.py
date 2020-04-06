@@ -451,6 +451,31 @@ class SqlTable(GnrObject):
     def counterColumns(self):
         return
 
+    def variantColumn_unaccent(self, field, **kwargs):
+        sql_formula=self.db.adapter.unaccentFormula(field)
+        return dict(name='{field}_unaccent'.format(field=field), 
+                                            sql_formula=sql_formula,
+                                            **kwargs)
+
+    #def variantColumn_repaccent(self, field, **kwargs):
+    #    sql_formula= u"""unaccent(REGEXP_REPLACE(   
+    #                                REGEXP_REPLACE(
+    #                                   REGEXP_REPLACE(
+    #                                      REGEXP_REPLACE(
+    #                                          REGEXP_REPLACE(
+    #                                              REGEXP_REPLACE(${field},'ò$','o''')
+    #                                          ,'ì','i''')
+    #                                      ,'à','a''')
+    #                                   ,'é','e''')
+    #                                ,'è','e''')
+    #                            ,'ù','u''')
+    #                            )""".format(field=field)
+
+    #    return dict(name='{field}_repaccent'.format(field=field), 
+    #                                        sql_formula=sql_formula,
+    #                                        **kwargs)
+
+
     def variantColumn_egvariant(self,field,**kwargs):
         #for documentation
         pass
