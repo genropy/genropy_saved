@@ -251,6 +251,9 @@ class SqlDbAdapter(object):
     def adaptSqlName(self,name):
         return name
 
+    def adaptSqlSchema(self,name):
+        return name
+
     def asTranslator(self, as_):
         return '"%s"'%as_
 
