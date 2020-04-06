@@ -54,7 +54,7 @@ class TableHandlerView(BaseComponent):
                                  selectedPage='^.viewPage',resourceOptions=options,
                                  **kwargs)
         
-        if virtualStore and queryBySample:
+        if queryBySample:
             self._th_handleQueryBySample(view,table=table,pars=queryBySample)
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=frameCode,asDict=True)
@@ -173,7 +173,6 @@ class TableHandlerView(BaseComponent):
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
                        unlinkdict=None,searchOn=True,count=None,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
                        store_kwargs=None,parentForm=None,liveUpdate=None,bySample=None,resourceOptions=None,**kwargs):
-        extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         page_hooks = self._th_hook('page',mangler=frameCode,asDict=True)
         if condition:
@@ -187,7 +186,6 @@ class TableHandlerView(BaseComponent):
         statsSlot = 'stats' if statsEnabled else False
 
         if extendedQuery:
-            virtualStore = True
             if 'adm' in self.db.packages and not self.isMobile:
                 templateManager = 'templateManager'
             else:
@@ -220,7 +218,7 @@ class TableHandlerView(BaseComponent):
             top_kwargs['slots']= base_slots
         #top_kwargs['height'] = top_kwargs.get('height','20px')
         top_kwargs['_class'] = 'th_view_toolbar'
-        grid_kwargs.setdefault('gridplugins', 'configurator,chartjs,print' if virtualStore else 'configurator,chartjs,export_xls,print')
+        grid_kwargs.setdefault('gridplugins', 'configurator,chartjs,print' if extendedQuery else 'configurator,chartjs,export_xls,print')
         grid_kwargs['item_name_singular'] = self.db.table(table).name_long
         grid_kwargs['item_name_plural'] = self.db.table(table).name_plural or grid_kwargs['item_name']
         grid_kwargs.setdefault('loadingHider',loadingHider)

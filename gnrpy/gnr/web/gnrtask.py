@@ -83,6 +83,7 @@ class GnrTaskWorker(object):
         if self.code:
             wherelist.append('$task_worker_code=:wcode')
         self.where = ' AND '.join(['( %s )' %c for c in wherelist])
+        print('inited')
     
     def taskToExecute(self):
         f = True
@@ -90,6 +91,7 @@ class GnrTaskWorker(object):
             f = self.tblobj.query(where=self.where,wcode=self.code,for_update='SKIP LOCKED',
                                     limit=1,order_by='$__ins_ts').fetch()
             if f:
+                print('.')
                 rec = f[0]
                 oldrec = dict(rec)
                 rec['start_ts'] = datetime.now()
@@ -117,6 +119,7 @@ class GnrTaskWorker(object):
     def start(self):
         while True:
             for te_pkey in self.taskToExecute():
+                print('eseguo task', te_pkey)
                 with self.tblobj.recordToUpdate(te_pkey,for_update='SKIP LOCKED',
                                                 virtual_columns='$task_table,$task_name.$task_parameters,$task_command') as task_execution:
                     self.runTask(task_execution)
