@@ -41,12 +41,22 @@ class View(BaseComponent):
         top.slotToolbar('5,sections@in_out,*,sections@sendingstatus',
                         childname='upper',_position='<bar')
 
+    def th_struct_sending_error(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('subject',width='30em')
+        r.fieldcell('to_address',width='18em')
+        r.fieldcell('cc_address',width='18em')
+        r.fieldcell('bcc_address',width='18em')
+        r.fieldcell('error_msg',width='10em')
+        r.fieldcell('error_ts',width='8em')
+        #r.fieldcell('user_id',width='35em')
+        r.fieldcell('account_id',width='12em')
 
-    @metadata(isMain=True,_if='inout=="o"',_if_inout='^.in_out.current')
+    @metadata(isMain=True,_if='inout=="o"',_if_inout='^.in_out.current', variable_struct=True)
     def th_sections_sendingstatus(self):
         return [dict(code='drafts',caption='!!Drafts',condition="$__is_draft IS TRUE",includeDraft=True),
-                dict(code='to_send',caption='!!Ready to send',isDefault=True,condition='$send_date IS NULL AND $sending_attempt IS NULL'),
-                dict(code='sending_error',caption='!!Sending error',condition='$send_date IS NULL AND $sending_attempt IS NOT NULL'),
+                dict(code='to_send',caption='!!Ready to send',isDefault=True,condition='$send_date IS NULL AND $error_msg IS NULL'),
+                dict(code='sending_error',caption='!!Sending error',condition='$error_msg IS NOT NULL', struct='sending_error'),
                 dict(code='sent',caption='!!Sent',includeDraft=False,condition='$send_date IS NOT NULL'),
                 dict(code='all',caption='All',includeDraft=True)]
 
@@ -57,11 +67,11 @@ class ViewOutOnly(View):
         top.slotToolbar('5,sections@sendingstatus,*,sections@msg_type',
                         childname='upper',_position='<bar')
 
-    @metadata(isMain=True)
+    @metadata(isMain=True, variable_struct=True)
     def th_sections_sendingstatus(self):
         return [dict(code='drafts',caption='!!Drafts',condition="$__is_draft IS TRUE",includeDraft=True),
-                dict(code='to_send',caption='!!Ready to send',isDefault=True,condition='$send_date IS NULL AND $sending_attempt IS NULL'),
-                dict(code='sending_error',caption='!!Sending error',condition='$send_date IS NULL AND $sending_attempt IS NOT NULL'),
+                dict(code='to_send',caption='!!Ready to send',isDefault=True,condition='$send_date IS NULL AND $error_msg IS NULL'),
+                dict(code='sending_error',caption='!!Sending error',condition='$error_msg IS NOT NULL', struct='sending_error'),
                 dict(code='sent',caption='!!Sent',includeDraft=False,condition='$send_date IS NOT NULL'),
                 dict(code='all',caption='All',includeDraft=True)]
 
@@ -130,26 +140,34 @@ class Form(BaseComponent):
         top = bc.contentPane(region='top',datapath='.record')
         fb = top.div(margin_right='20px').formbuilder(cols=4,border_spacing='3px',
                                                     fld_width='100%',
-                                                    width='100%',colswidth='auto')
-        fb.field('to_address',colspan=4)
-        fb.field('from_address',colspan=4)
-        fb.field('cc_address',colspan=4)
-        fb.field('bcc_address',colspan=4)
+                                                    width='100%',
+                                                    colswidth='auto')
+        fb.field('to_address',colspan=2)
+        fb.field('from_address',colspan=2)
+        fb.field('cc_address',colspan=2)
+        fb.field('bcc_address',colspan=2)
         fb.field('subject',colspan=4)
 
         fb.field('uid')
         fb.field('send_date')
         fb.field('sent',html_label=True)
         fb.field('html',html_label=True)
-        fb.field('user_id')
-        fb.field('account_id')
 
+        fb.field('user_id')
+        fb.field('account_id', colspan=2)
         fb.field('__is_draft', lbl='Draft')
-        fb.button('Send message',hidden='^.send_date',fire='#FORM.send_message')
-        fb.dataRpc(None,self.db.table('email.message').sendMessage,_fired='^#FORM.send_message',pkey='=#FORM.record.id')
+
+        fb.field('error_msg', colspan=2)
+        fb.field('error_ts', colspan=2)
 
         
 
+        fb.button('Send message', hidden='^.send_date',fire='#FORM.send_message')
+        fb.button('Clear errors', hidden='^.send_date',fire='#FORM.clear_errors')
+
+        fb.dataRpc(None,self.db.table('email.message').sendMessage, _fired='^#FORM.send_message',pkey='=#FORM.record.id')
+        fb.dataRpc(None,self.db.table('email.message').clearErrors, _fired='^#FORM.clear_errors',pkey='=#FORM.record.id')
+        
         tc = bc.tabContainer(region='center',margin='2px')
         tc.contentPane(title='Body').simpleTextArea(value='^.record.body',editor=True)
         sc = tc.stackContainer(title='Attachments')
