@@ -30,7 +30,7 @@ from gnr.sql.adapters._gnrbaseadapter import SqlDbAdapter as SqlDbBaseAdapter
 from gnr.sql.adapters._gnrbaseadapter import GnrWhereTranslator as GnrWhereTranslator_base
 from gnr.core.gnrlist import GnrNamedList
 from gnr.core.gnrbag import Bag
-
+from gnr.sql.gnrsql_exceptions import GnrNonExistingDbException
 #DBAPI.paramstyle = 'pyformat'
 RE_SQL_PARAMS = re.compile(":(\w*)(\W|$)")
 
@@ -87,13 +87,14 @@ class DictConnectionWrapper(Connection):
 
 class SqlDbAdapter(SqlDbBaseAdapter):
     typesDict = {'nvarchar': 'A', 'nchar': 'C', 'ntext': 'T',
-                 'BOOLEAN': 'B', 'datetime': 'D', 'datetime': 'H', 'datetime': 'DH',
-                 'datetime': 'DH',
+                 'BIT': 'B', 'datetime': 'D', 'datetime': 'H', 'datetime': 'DH',
+                 'datetime': 'DH', 'decimal':'N',
                  'int': 'I', 'bigint': 'L', 'smallint': 'I','tinyint': 'I', 'real': 'R', 'float': 'R', 'binary': 'O'}
 
     revTypesDict = {'A': 'nvarchar', 'T': 'ntext', 'C': 'nchar',
-                    'X': 'ntext', 'P': 'ntext', 'Z': 'ntext',
-                    'B': 'BOOLEAN', 'D': 'datetime', 'H': 'datetime', 'DH': 'datetime',
+                    'X': 'ntext', 'P': 'ntext', 'Z': 'ntext', 'serial':'int',
+                    'N':'decimal',
+                    'B': 'BIT', 'D': 'datetime', 'H': 'datetime', 'DH': 'datetime',
                     'I': 'int', 'L': 'bigint', 'R': 'real', 'O': 'binary'}
 
 
@@ -113,8 +114,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         #kwargs['charset']='utf8'
         #conn = pymssql.connect(**kwargs)
         kwargs['server']=kwargs.pop('host')
-        conn = _mssql.connect(**kwargs)
-        
+        try:
+            conn = _mssql.connect(**kwargs)
+        except Exception as e:
+            raise GnrNonExistingDbException(kwargs['database'])
         return DictConnectionWrapper(conn, False, False)
         
     def adaptSqlName(self,name):
@@ -131,22 +134,25 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         :returns: tuple (sql, kwargs)"""
         return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
 
-    def _managerConnection(self):
+    def _managerConnection(self, **kwargs):
         dbroot = self.dbroot
-        kwargs = dict(host=dbroot.host, database='master', user=dbroot.user,
-                      password=dbroot.password, port=dbroot.port, as_dict=True)
-        kwargs = dict([(k, v) for k, v in list(kwargs.items()) if v != None])
-        #conn =  psycopg2.connect(**kwargs)
-        conn = pymssql.connect(**kwargs)
-        #conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        conn_kwargs = dict(host=dbroot.host, database='master', user=dbroot.user,
+                      password=dbroot.password, port=dbroot.port, as_dict=True, **kwargs)
+        conn_kwargs = dict([(k, v) for k, v in list(conn_kwargs.items()) if v != None])
+        conn = pymssql.connect(**conn_kwargs)
         return conn
 
-    def createDb(self, name, encoding='unicode'):
-        conn = self._managerConnection()
+    def createDb(self, dbname=None, encoding='unicode'):
+        if not dbname:
+            dbname = self.dbroot.get_dbname()
+        conn = self._managerConnection(autocommit=True)
         curs = conn.cursor()
-        curs.execute("CREATE DATABASE %s ENCODING '%s';" % (name, encoding))
+        curs.execute(self.createDbSql(dbname, encoding))
         curs.close()
         conn.close()
+
+    def createDbSql(self, dbname, encoding):
+        return """CREATE DATABASE "%s";""" % (dbname)
 
     def dropDb(self, name):
         conn = self._managerConnection()
@@ -185,8 +191,15 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @param kwargs: schema, table
         @return: list of object names"""
         query = getattr(self, '_list_%s' % elType)()
+        query_generator = getattr(self, '_list_%s' % elType,None)
+        if not query_generator:
+            return []
+        query = query_generator()
         result = self.dbroot.execute(query, kwargs).fetchall()
         return [r[0] for r in result]
+
+    def _list_enabled_extensions(self):
+        return ''
 
     def _list_schemata(self):
         return """SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA 
