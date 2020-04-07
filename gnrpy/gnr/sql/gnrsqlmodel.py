@@ -730,7 +730,7 @@ class DbPackageObj(DbModelObj):
             return '%s_%s' % (sqlprefix, tblobj.name)
             
     def _get_sqlschema(self):
-        return self.attributes.get('sqlschema', self.dbroot.main_schema)
+        return self.db.adapter.adaptSqlSchema(self.attributes.get('sqlschema', self.dbroot.main_schema))
             
     sqlschema = property(_get_sqlschema)
             

@@ -124,6 +124,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         return '[{name}]'.format(name=name)
 
 
+    def adaptSqlSchema(self,name):
+        if name.lower() == 'sys':
+            name = 'gnrsys'
+        return name
 
     def prepareSqlText(self, sql, kwargs):
         """Change the format of named arguments in the query from ':argname' to '%(argname)s'.

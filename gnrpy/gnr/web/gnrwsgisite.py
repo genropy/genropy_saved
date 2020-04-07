@@ -1050,20 +1050,15 @@ class GnrWsgiSite(object):
         kwargs['environ'] = environ
         kwargs['response'] = response
         result = tool(*args, **kwargs)
-        content_type = getattr(tool, 'content_type', None)
-        if content_type:
-            response.content_type = content_type
+        content_type = getattr(tool, 'content_type', 'text/plain')
+        response.mimetype = content_type
         headers = getattr(tool, 'headers', [])
         for header_name, header_value in headers:
             response.add_header(header_name, header_value)
-
-        if isinstance(result, str):
-            response.content_type = 'text/plain'
-            response.unicode_body = result
-        elif isinstance(result, basestring):
-            response.body = result
-        elif isinstance(result, Response):
+        if isinstance(result, Response):
             response = result
+        else:
+            response.data=result
         return response(environ, start_response)
 
     def load_webtool(self, tool_name):

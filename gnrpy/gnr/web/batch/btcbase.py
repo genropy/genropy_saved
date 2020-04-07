@@ -71,6 +71,7 @@ class BaseResourceBatch(object):
             self.btc.batch_aborted()
             self.batch_log_write('Batch Aborted')
         except Exception as e:
+            raise
             if task_execution_record:
                 task_execution_record['is_error'] = True
                 task_execution_record['errorbag'] = Bag(dict(error=str(e))) # tracebackBag()
