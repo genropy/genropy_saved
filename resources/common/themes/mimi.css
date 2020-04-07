@@ -13,6 +13,7 @@ body.tundra.mimi {
     background:linear-gradient(to top, #f6f8fa, #ffffff);    
 }
 
+
 /* @group Floating pane */
 
 ._common_d11 .dojoxDockRestoreButton {
@@ -719,6 +720,22 @@ body.tundra.mimi {
     color: #444;
     padding-bottom: 4px;
     background: linear-gradient(45deg, #1f345d26, transparent);
+}
+
+.touchDevice .menutree .menu_shape{
+    background:RGBA(64, 128, 180, 1.00);
+    color:white;
+    line-height: 20px;
+    font-size:16px;
+    padding-left:30px;
+    border-radius:6px;
+    margin-left:8px;
+}
+.touchDevice .menutree .opendir{
+    background: none;
+}
+.touchDevice .menutree .closedir{
+    background: none;
 }
 
 .menutree .menu_current_page {

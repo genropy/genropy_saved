@@ -34,7 +34,8 @@ class MenuIframes(BaseComponent):
     def mainLeft_iframemenu_plugin(self, tc):
         frame = tc.framePane(title="Menu", pageName='menu_plugin')
         frame.top.slotToolbar('2,searchOn,*',searchOn=True)
-        frame.bottom.slotToolbar('5,newWindow,*')
+        if not self.isMobile:
+            frame.bottom.slotToolbar('5,newWindow,*')
         bc = frame.center.borderContainer()
         tbl = bc.contentPane(region='bottom').div(height='40px',margin='5px',_class='clientlogo')
         self.menu_iframemenuPane(bc.contentPane(region='center').div(position='absolute', top='2px', left='0', right='2px', bottom='2px', overflow='auto'))
@@ -82,7 +83,10 @@ class MenuIframes(BaseComponent):
                         var selectingPageKw = objectUpdate({name:node.label,pkg_menu:inattr.pkg_menu,"file":null,table:null,
                                                             formResource:null,viewResource:null,fullpath:$1.fullpath,
                                                             modifiers:$1.modifiers},node.attr);
-                        if (genro.isMobile){
+                        if(genro.isMobile){
+                            genro.publish('setIndexLeftStatus',false);
+                        }
+                        if (genro.isMobile && false){
                             genro.framedIndexManager.makePageUrl(selectingPageKw);
                             genro.openWindow(selectingPageKw.url,selectingPageKw.label);
                         }
