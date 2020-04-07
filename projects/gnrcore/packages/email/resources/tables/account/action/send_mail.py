@@ -28,8 +28,12 @@ class Main(BaseResourceAction):
                                         limit=account['send_limit'],
                                         acid=account['id'],
                                         bagFields=True).fetch()
-        for email in email_to_send:
-            self.message_tbl.sendMessage(pkey=email['id'])
+        for message in email_to_send:
+            try:
+                self.message_tbl.sendMessage(pkey=message['id'])
+            except Exception as e:
+                raise
+                #self.batch_log_write('Error sending mail message {message_id}'.format(message_id=email['id']))
 
     def table_script_parameters_pane(self, pane, **kwargs):
         pass
