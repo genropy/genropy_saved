@@ -13,8 +13,8 @@ class Table(object):
                     readOnly='y', 
                     name_long='!!Info key', 
                     indexed='y',_sysfield=True)
-        tbl.column('code' ,size=':30',name_long='!!Code',_sysfield=True)
-        tbl.column('description' ,size=':30',name_long='!!Description',_sysfield=True)
+        tbl.column('code' ,size=':50',name_long='!!Code',_sysfield=True)
+        tbl.column('description' ,size=':50',name_long='!!Description',_sysfield=True)
         tbl.column('item_type' ,size=':5',name_long='!!Type',values=self.itemTypeValues())
         tbl.column('data',dtype='X',name_long='!!Data',_sendback=True)
         tbl.column('tblid',size=':50').relation('tblinfo.tblid',relation_name='items',mode='foreignkey',onDelete='cascade')

@@ -10,7 +10,7 @@ class Table(object):
         self.sysFields(tbl,id=False)
         tbl.column('tblid' ,size=':50',name_long='!!Table')
         tbl.column('pkgid' ,size=':50',name_long='!!Package').relation('pkginfo.pkgid',relation_name='tables')
-        tbl.column('description' ,size=':30',name_long='!!Description')
+        tbl.column('description' ,size=':50',name_long='!!Description')
 
     def onDbSetup_populate(self):
         pkgtable = self.db.table('adm.pkginfo')

@@ -10,7 +10,7 @@ class Table(object):
         tbl=pkg.table('upgrade', pkey='codekey',pkey_columns='pkg,filename', pkey_columns_joiner='|',
                         name_long='!!Upgrade ', name_plural='!!Upgrades',caption_field='codekey')
         self.sysFields(tbl,id=False)
-        tbl.column('codekey',name_long='Identifier')
+        tbl.column('codekey',size=':80',name_long='Identifier')
         tbl.column('pkg',size=':20',name_long='Package')
         tbl.column('filename', size=':40', name_long='!!Filename')
         tbl.column('error', name_long='!!Upgrade error', name_short='!!Error')
