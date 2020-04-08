@@ -101,6 +101,12 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var url = kw.url;
         var iframePageName,pane_kw;
         var iframeattr = {'height':'100%','width':'100%','border':0,src:url};   
+        if(genro.isMobile){
+            iframeattr.width ='1px';
+            iframeattr.min_width='100%';
+            iframeattr.height ='1px';
+            iframeattr.min_height='100%';
+        }
         if(kw.externalSite){
             iframeattr.externalSite = kw.externalSite;
         }
@@ -135,6 +141,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
                 }
             };
         }
+
         var iframe = center._('div','iframecontainer',{'height':'100%','width':'100%',overflow:'hidden'})._('iframe','iframenode',iframeattr);
         return root.popNode('#0');
     },
