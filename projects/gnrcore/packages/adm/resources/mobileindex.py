@@ -35,11 +35,13 @@ class FrameIndex(BaseComponent):
         
         
     def prepareLeft(self,bc):
-        bc = bc.borderContainer(region='left',width='100%',datapath='left',background='#ddd')
-        bottom = bc.contentPane(region='bottom',height='30px',_class='mobilebar',
-                                style='display:flex;flex-direction: row;justify-content:center;')
+        bc = bc.borderContainer(region='left',width='100%',datapath='left',background='white')
+        bottom = bc.contentPane(region='bottom',height='30px',_class='mobilebar')
+        bar = bottom.slotBar('3,tools,*,logout,3')
+        tools = bar.tools.div(style='display:flex;flex-direction: row;justify-content:center;')
         for btn in self.plugin_list.split(','):
-            getattr(self,'btn_%s' %btn)(bottom.div())
+            getattr(self,'btn_%s' %btn)(tools.div())
+        bar.logout.div(connect_onclick="genro.logout()",_class='button_block iframetab icnBaseUserLogout switch_off',tip='!!Logout')
         sc = bc.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',region='center',
                                 subscribe_open_plugin="""var plugin_name = $1.plugin;
                                                          SET left.selected = plugin_name;                                                        
@@ -66,7 +68,7 @@ class FrameIndex(BaseComponent):
     def prepareTop(self,bc,onCreatingTablist=None):
         pane = bc.contentPane(region='top',overflow='hidden')
         sb = pane.slotBar('3,menuToggle,*,debugping,3',
-                        _class='mobilebar_top')
+                        _class='mobilebar',height='30px')
         self.btn_menuToggle(sb.menuToggle.div())
         sb.debugping.div(_class='ping_semaphore')
     

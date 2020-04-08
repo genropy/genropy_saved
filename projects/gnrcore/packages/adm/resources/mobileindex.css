@@ -1,11 +1,11 @@
 .mobilebar{
-    border-top:1px solid #444;
+    background: #bbb;
 }
 .mobilebar .iframetab{
     background-color: transparent;
     border-width: 0px;
     height: 18px;
-    padding:2px;
+    padding:4px;
     margin:3px;
 }
 .mobilebar .iframetab.iframetab_selected{
@@ -19,14 +19,18 @@
 .mobilebar_top{
     background:#444;
     color:white;
-    height:22px;
+    height:25px;
 }
 
 .menu_toggle{
-    background: url(/_rsrc/common/css_icons/svg/16/menu_white.svg) no-repeat center center;
+    background: url(/_rsrc/common/css_icons/svg/16/menu_black.svg) no-repeat center center;
     background-size: contain;
-    height: 18px;
-    width: 18px;
+    height: 22px;
+    width: 22px;
     cursor: pointer;
-    margin:2px;
+    margin:3px;
+}
+
+.menu_toggle .button_block div {
+    width:25px;
 }

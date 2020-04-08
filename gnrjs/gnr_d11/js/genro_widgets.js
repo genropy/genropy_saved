@@ -1429,7 +1429,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
     
     versionpatch_11__position: function() {
         var centerOn = this.sourceNode.attr.centerOn; 
-        if(genro.isMobile){
+        if(genro.isMobile && false){
             genro.dom.centerOn(this.domNode, centerOn,null,-.9);
             return;
         }
