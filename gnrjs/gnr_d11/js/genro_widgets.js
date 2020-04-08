@@ -1429,8 +1429,8 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
     
     versionpatch_11__position: function() {
         var centerOn = this.sourceNode.attr.centerOn; 
-        if(genro.isMobile && false){
-            genro.dom.centerOn(this.domNode, centerOn,null,-.9);
+        if(genro.isMobile){
+            genro.dom.centerOn(this.domNode, centerOn,null,.7);
             return;
         }
         var xRatio = this.sourceNode.attr.xRatio;
