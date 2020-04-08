@@ -1009,7 +1009,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             urlKw['readOnly'] = kw.readOnly;
         }
         objectUpdate(urlKw,objectExtract(kw,'current_*',false,true));
-        urlKw['th_from_package'] = kw.th_from_package || genro.getData("gnr.package");
+        if(!('th_from_package' in kw)){
+            urlKw['th_from_package'] = kw.th_from_package || genro.getData("gnr.package");
+        }
+        
         urlKw['_parent_page_id'] = objectPop(urlKw,'forced_parent_page_id') || genro.page_id;
         
         return genro.addParamsToUrl(zoomUrl,urlKw); 
