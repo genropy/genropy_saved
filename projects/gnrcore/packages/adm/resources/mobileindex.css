@@ -1,17 +1,32 @@
 .mobilebar{
-    background-color: rgba(241, 205, 82, 1.00);
+    border-top:1px solid #444;
 }
 .mobilebar .iframetab{
     background-color: transparent;
     border-width: 0px;
     height: 18px;
-    padding:5px;
+    padding:2px;
     margin:3px;
 }
 .mobilebar .iframetab.iframetab_selected{
-    box-shadow: 1px 1px 1px 1px #666 inset;
+    background: lightyellow;
 }
 .slotbar_table .iframetab{
     background-color: transparent;
     border-width: 0;
+}
+
+.mobilebar_top{
+    background:#444;
+    color:white;
+    height:22px;
+}
+
+.menu_toggle{
+    background: url(/_rsrc/common/css_icons/svg/16/menu_white.svg) no-repeat center center;
+    background-size: contain;
+    height: 18px;
+    width: 18px;
+    cursor: pointer;
+    margin:2px;
 }
