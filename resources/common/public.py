@@ -651,7 +651,8 @@ class TableHandlerMain(BaseComponent):
                                         this.form.load({destPkey:pkey,discardChange:true});
                                     }
                                }
-                               """,subscribe_main_form_open=True)
+                               """,
+                            subscribe_main_form_open=True)
 
     @public_method                     
     def main_form(self, root,**kwargs):

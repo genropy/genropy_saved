@@ -237,7 +237,7 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         var sourceNode = this.day_sourceNode();
         var prevSlotContainer = sourceNode.getValue().getNode('slotContainer');
         var prevScrollRatio;
-        if(prevSlotContainer){
+        if(prevSlotContainer && prevSlotContainer.domNode){
             prevSlotContainer = prevSlotContainer.domNode;
             prevScrollRatio = prevSlotContainer.scrollTop/(prevSlotContainer.scrollHeight-prevSlotContainer.clientHeight);
         }
@@ -420,7 +420,7 @@ dojo.declare('gnr.TimesheetViewerController',null,{
         if(!dataNode){
             return;
         }
-        var minute_height = this.minute_height;
+        var minute_height = this.minute_height || 1.3;
         sourceNode.freeze().clearValue();
         var header_container = sourceNode._('div',{background:'gray',position:'absolute',top:'0',left:'0',right:'0',height:'20px'});
         var headerNodeId = this.frameCode+'_day_viewer_header';
@@ -489,7 +489,6 @@ dojo.declare('gnr.TimesheetViewerController',null,{
             return;
         }
         var minute_height = parseInt(cell.getParentNode().attr.height)/this.day_duration;
-
         if(this.channels){
             var n_channels = this.channels.length;
             var dataVal = dataNode.getValue();

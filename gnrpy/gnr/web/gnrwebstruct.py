@@ -61,6 +61,11 @@ def cellFromField(field,tableobj,checkPermissions=None):
 
     if fldattr.get('user_forbidden'):
         kwargs['hidden'] = True
+
+
+    if fldattr.get('user_blurred'):
+        kwargs['cellClasses'] = '{cellClasses} gnr_blurred_cell'.format(cellClasses=kwargs.get('cellClasses',''))
+
     if 'values' in fldattr:
         values = fldattr['values']
         values = getattr(fldobj.table.dbtable, values ,lambda: values)()
@@ -1846,7 +1851,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             wdgattr['_class'] = 'gnr_forbidden_field'
             wdgattr.pop('value',None)
             wdgattr.pop('innerHTML','&nbsp;')
-            
+        if permissions.get('user_blurred'):
+            wdgattr['tag'] = 'div'
+            wdgattr['_class'] = 'gnr_blurred_field'
         return wdgattr
         
     def wdgAttributesFromColumn(self, fieldobj,fld=None, **kwargs):
