@@ -102,7 +102,11 @@ class TableHandlerForm(BaseComponent):
                 fb = form.getFormBuilder(fbname,table=table)
             else:
                 fb = mainfb
+            formtable = form.attributes.get('table')
             if fb is not None:
+                fbdbtable =fb.getInheritedAttributes().get('dbtable')
+                if formtable and fbdbtable!=formtable:
+                    continue
                 fb.field(f,**kwargs)
 
     def _th_getPluggedCols(self,table):
