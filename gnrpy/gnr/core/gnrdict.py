@@ -79,8 +79,11 @@ class GnrDict(dict):
         return dict.__getitem__(self, self._label_convert(label))
         
     def _label_convert(self, label):
-        if isinstance(label, basestring) and label.startswith('#') and label[1:].isdigit():
-            label = self._list[int(label[1:])]
+        try:
+            if label.startswith('#') and label[1:].isdigit():
+                label = self._list[int(label[1:])]
+        except:
+            pass
         return label
         
     def items(self):

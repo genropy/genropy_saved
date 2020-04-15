@@ -28,7 +28,7 @@ class Main(BaseResourceBatch):
         
         self.max_copies = self.page.getPreference(path='backups.max_copies',pkg='adm') or 10
         self.ts_start = datetime.datetime.now()
-        self.dump_name = self.batch_parameters['name'] or '%s_%04i%02i%02i_%02i%02i' %(self.db.dbname,self.ts_start.year,self.ts_start.month,
+        self.dump_name = self.batch_parameters.get('name') or '%s_%04i%02i%02i_%02i%02i' %(self.db.dbname,self.ts_start.year,self.ts_start.month,
                                                                                 self.ts_start.day,self.ts_start.hour,self.ts_start.minute)
         self.folderpath = os.path.join(dumpfolderpath,self.dump_name)
         
