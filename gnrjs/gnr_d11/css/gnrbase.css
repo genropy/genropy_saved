@@ -109,6 +109,14 @@ cursorZoom_plus{
     background: none;
 }
 
+.gnr_blurred_field{
+    filter:blur(3px);
+}
+
+.gnr_blurred_cell{
+    filter:blur(3px);
+}
+
 .iskeepable{
 
 }
