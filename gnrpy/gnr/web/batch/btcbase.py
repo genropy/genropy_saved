@@ -25,7 +25,6 @@ class BaseResourceBatch(object):
     virtual_columns = None
     batch_local_cache = True
     batch_ask_options = True
-
     batch_selection_where = None
     batch_selection_kwargs = dict()
     batch_selection_savedQuery= None
@@ -44,6 +43,7 @@ class BaseResourceBatch(object):
         self.records = dict()
         self.result_info = dict()
         self._pkeys = None
+        self.sortBy = None
         self.selectedPkeys = None
         self.batch_parameters = dict()
         #self.mail_preference = self.page.site.getService('mail').getDefaultMailAccount()
