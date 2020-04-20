@@ -595,14 +595,25 @@ class SqlTable(GnrObject):
             newrecord.setItem(fld, v, info)
         return newrecord
         
-    def newrecord(self, assignId=False, resolver_one=None, resolver_many=None, **kwargs):
+    def newrecord(self, assignId=False, resolver_one=None, resolver_many=None, _fromRecord=None, **kwargs):
         """TODO
         
         :param assignId: TODO
         :param resolver_one: TODO
         :param resolver_many: TODO"""
-        defaultValues = self.defaultValues() or {}
+        
+        defaultValues = dict()
+        if _fromRecord:
+            for colname,obj in self.model.columns.items():
+                if  obj.attributes.get('unique'):
+                    continue
+                if obj.attributes.get('_sysfield') and colname not in (self.draftField, 'parent_id'):
+                    continue
+                defaultValues[colname] = _fromRecord[colname]
+        else:
+            defaultValues = self.defaultValues() or {}
         defaultValues.update(kwargs)
+
         newrecord = self.buildrecord(defaultValues, resolver_one=resolver_one, resolver_many=resolver_many)
         if assignId:
             newrecord[self.pkey] = self.newPkeyValue(record=newrecord)
