@@ -112,7 +112,7 @@ class GnrSqlDb(GnrObject):
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
                  main_schema=None, debugger=None, application=None,
-                 read_only=None,**kwargs):
+                 read_only=None, fixed_schema=None,**kwargs):
         """
         This is the constructor method of the GnrSqlDb class.
         
@@ -132,6 +132,7 @@ class GnrSqlDb(GnrObject):
         self.port = self.dbpar(str(port) if port else None)
         self.user = self.dbpar(user)
         self.password = self.dbpar(password)
+        self.fixed_schema = self.dbpar(fixed_schema)
         self.read_only = read_only
         self.typeConverter = GnrClassCatalog()
         self.debugger = debugger
