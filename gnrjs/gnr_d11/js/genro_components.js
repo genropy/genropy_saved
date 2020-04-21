@@ -4807,7 +4807,7 @@ dojo.declare("gnr.widgets.ComboArrow", gnr.widgets.gnrwdg, {
         genro.dom.addClass(focusNode.parentNode,'comboArrowTextbox')
 
         var iconClass = objectPop(kw,'iconClass') || 'dijitArrowButtonInner';
-        var box= sourceNode._('div',objectUpdate({'_class':'fakeButton',cursor:'pointer', width:'20px',
+        var box= sourceNode._('lightbutton',objectUpdate({'_class':'fakeButton',cursor:'pointer', width:'20px',
                                 position:'absolute',top:0,bottom:0,right:0,tabindex:-1},kw))
         box._('div','iconNode',{_class:iconClass,position:'absolute',top:0,bottom:0,left:0,right:0})
         return box;
