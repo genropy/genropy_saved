@@ -734,6 +734,7 @@ class TableBase(object):
             where = ' AND '.join(where)
         last_counter_fetch = self.query(columns='$%s' %fldname,where=where,
                                     order_by='$%s desc' %fldname,limit=1,
+                                    excludeDraft=False,
                                     **wherekw).fetch()
         last_counter = last_counter_fetch[0].get(fldname) or 1 if last_counter_fetch else 0
         record[fldname] = last_counter +1
