@@ -2819,6 +2819,11 @@ border='1px solid gray',margin='2px', rounded=10,
 .tundra .filteredGrid .dojoxGrid-cell{
 }
 
+.gnrDraftRow{
+    font-style: italic;
+    color: rgba(64, 128, 180, 1.00);
+}
+
 .tundra ._gnrReadOnlyRow ._statusIcon{
     background:url(icons/base16/locked.gif) no-repeat center center;
 }
