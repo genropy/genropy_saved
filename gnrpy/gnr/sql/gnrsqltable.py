@@ -869,7 +869,6 @@ class SqlTable(GnrObject):
                                             pid=record[ofld], 
                                             excludeDraft=False,
                                             excludeLogicalDeleted=False)
-  
 
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
         duplicatedRecords=[]
