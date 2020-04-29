@@ -413,7 +413,6 @@ class TableScriptToHtml(BagToHtml):
     def gridColumnsFromStruct(self,struct=None):
         grid_columns = []
         cells = struct['view_0.rows_0'].nodes
-        columns = []
         for n in cells:
             attr = n.attr
             field =  attr.get('caption_field') or attr.get('field')
@@ -426,8 +425,13 @@ class TableScriptToHtml(BagToHtml):
             content_class = attr.get('cellClasses') or attr.get('content_class')
             lbl_class = attr.get('headerClasses') or attr.get('lbl_class')
             extra_kw = dictExtract(attr,'colextra_*')
+            mm_width = attr.get('mm_width') 
+            hidden = attr.get('hidden')
+            if mm_width==-1: #shared structure visible in grid not in print
+                mm_width = None
+                hidden = True
             pars = dict(field=field,name=self.localize(attr.get('name')),field_getter=field_getter,
-                        mm_width=attr.get('mm_width'),format=attr.get('format'),
+                        mm_width=mm_width,format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),
                         subtotal=attr.get('subtotal'),
                         subtotal_order_by=attr.get('subtotal_order_by'),
@@ -436,7 +440,7 @@ class TableScriptToHtml(BagToHtml):
                         columnset=attr.get('columnset'),sheet=attr.get('sheet','*'),
                         totalize=attr.get('totalize'),formula=attr.get('formula'),
                         background=attr.get('background'),color=attr.get('color'),
-                        hidden=attr.get('hidden'),**extra_kw)
+                        hidden=hidden,**extra_kw)
             if self.row_table:
                 self._calcSqlColumn(pars)
             grid_columns.append(pars)
