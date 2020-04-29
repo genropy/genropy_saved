@@ -398,7 +398,7 @@ class DynamicForm(BaseComponent):
         else:
             ncol,colswidth = df_tblobj.readColumns(columns='$df_fbcolumns,$df_colswidth',pkey=df_pkey)
             fields = global_fields[df_pkey]
-            pane.dynamicFormPage(fields=fields,ncol=ncol,colswidth=colswidth or None,datapath=datapath,**kwargs)
+            pane.dynamicFormPage(fields=fields,ncol=ncol,colswidth=colswidth or None,datapath=datapath,global_fields=global_fields,**kwargs)
             
     @struct_method
     def df_dynamicFormPage(self,pane,fields=None,ncol=None,colswidth=None,datapath=None,**kwargs):
@@ -569,10 +569,11 @@ class DynamicForm(BaseComponent):
             if not attr.get('width'):
                 attr['width'] = '200px'
     
-    def _df_handleFieldFormula(self,attr,fb,fields=None,global_vars=None,**kwargs):
+    def _df_handleFieldFormula(self,attr,fb,fields=None,global_vars=None,global_fields=None,**kwargs):
         formula = attr.pop('formula',None)
         if not formula:
             return
+        fields = global_fields or fields
         formulaArgs = dict([(str(x['code']),'^.%s' %x['code']) for x in fields if x['code'] in formula])
         if global_vars:
             formulaArgs.update(dict([(str(x.replace('.','_')),'^.#parent.%s' %x) for x in global_vars if x.replace('.','_') in formula]))
