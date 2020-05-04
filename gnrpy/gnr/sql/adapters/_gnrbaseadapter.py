@@ -248,11 +248,14 @@ class SqlDbAdapter(object):
 
         return sql
 
+    def schemaName(self, name):
+        return self.dbroot.fixed_schema or name
+        
     def adaptSqlName(self,name):
         return name
 
     def adaptSqlSchema(self,name):
-        return name
+        return self.schemaName(name)
 
     def asTranslator(self, as_):
         return '"%s"'%as_

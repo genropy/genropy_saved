@@ -56,7 +56,7 @@ class Main(BaseResourceAction):
             r[field] = r[field_pars['equal_to']]
             return
 
-        if field_pars['values']: #pre-calculated pkeys or dates
+        if field_pars['values']: #pre-calculated pkeys or dates or numbers
             r[field] = field_pars['values'][i]
             if 'copied_values' in field_pars:
                 copied_values= field['copied_values'][r['field']]
@@ -206,7 +206,9 @@ class Main(BaseResourceAction):
         dates = [self.convertFromNumber(self.randomValue(v_min,v_max,dtype),dtype) for x in range(how_many)]
         return dates
 
-
+    def getNumbersList(self, how_many, dtype, min_value, max_value):
+        numbers = [self.randomValue(min_value, max_value, dtype) for x in range(how_many)]
+        return numbers
 
     def preProcessValues(self, how_many):
         for field,field_pars in list(self.batch_parameters['fields'].items()):
@@ -222,6 +224,10 @@ class Main(BaseResourceAction):
                     field_pars['values'].sort()
                 continue
                 
+            if dtype in ('I', 'L', 'N') and field_pars['sorted']:
+                field_pars['values'] = self.getNumbersList(how_many, dtype, field_pars['min_value'], field_pars['max_value']).sort()
+                continue
+
             related_tbl= self.tblobj.columns[field].relatedTable()
             if not related_tbl:
                 continue

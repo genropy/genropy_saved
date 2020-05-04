@@ -125,6 +125,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
 
 
     def adaptSqlSchema(self,name):
+        name = self.schemaName(name)
         if name.lower() == 'sys':
             name = 'gnrsys'
         return name

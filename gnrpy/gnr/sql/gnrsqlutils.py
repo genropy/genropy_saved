@@ -461,7 +461,7 @@ class SqlModelChecker(object):
     def _alterUnique(self, col, new_unique=None, old_unique=None):
         alter_unique=''
         if old_unique:
-            alter_unique+=' DROP CONSTRAINT IF EXISTS %s'%old_unique
+            alter_unique+=' DROP CONSTRAINT IF EXISTS %s CASCADE'%old_unique
         if new_unique:
             alter_unique+=' ADD CONSTRAINT un_%s_%s UNIQUE(%s)'%(col.table.sqlfullname.replace('"','').replace('.','_'), col.sqlname,col.sqlname)
         return 'ALTER TABLE %s %s' % (col.table.sqlfullname, alter_unique)
