@@ -96,6 +96,6 @@ class ServiceParameters(BaseComponent):
         fb = pane.formbuilder(datapath=datapath)
         fb.textbox(value='^.host',lbl='Host')
         fb.textbox(value='^.username',lbl='Username')
-        fb.textbox(value='^.password',lbl='Password')
+        fb.textbox(value='^.password',lbl='Password',type='password')
         fb.textbox(value='^.private_key',lbl='Private key')
         fb.textbox(value='^.port',lbl='Port')
