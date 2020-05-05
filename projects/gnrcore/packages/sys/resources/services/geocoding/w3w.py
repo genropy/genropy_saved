@@ -6,6 +6,7 @@
 
 
 from __future__ import print_function
+from gnr.web.gnrbaseclasses import  BaseComponent
 from gnrpkg.sys.services.geocoding import GeocodeService
 
 from gnr.core.gnrlang import GnrException
@@ -26,3 +27,9 @@ class Main(GeocodeService):
         
     def get_coordinates(self,source):
         return self.geocoder.convert_to_coordinates(source)
+
+class ServiceParameters(BaseComponent):
+
+    def service_parameters(self,pane,datapath=None,**kwargs):
+        fb = pane.formbuilder(datapath=datapath)
+        fb.textbox(value='^.api_key',lbl='Key')

@@ -231,7 +231,7 @@ class GnrWsgiSite(object):
             self.default_uri += '/'
        
 
-        self.default_page = self.config['wsgi?default_page']
+        self.default_page = self.config['wsgi?default_page'] or 'sys/default'
         self.root_static = self.config['wsgi?root_static']
         self.websockets= boolean(self.config['wsgi?websockets'])
         self.allConnectionsFolder = os.path.join(self.site_path, 'data', '_connections')

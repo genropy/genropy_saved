@@ -19,7 +19,7 @@ except:
     pysftp = False
 
 class Service(SftpService):
-    def __init__(self, parent=None,host=None,username=None,password=None,private_key=None,port=None,**kwargs):
+    def __init__(self, parent=None,host=None,username=None,password=None,private_key=None,port=None,root=None,**kwargs):
         self.parent = parent
         if not pysftp:
             raise GnrException('Missing pysftp. hint: pip install pysftp')
@@ -28,6 +28,7 @@ class Service(SftpService):
         self.password = password
         self.private_key = private_key
         self.port = port
+        self.root = root
 
     def __call__(self,host=None,username=None,password=None,private_key=None,port=None):
         port = port or self.port
@@ -44,7 +45,10 @@ class Service(SftpService):
             pars['private_key'] = private_key
         if port:
             pars['port'] = port
-        return pysftp.Connection(host or self.host,**pars)
+        if self.root:
+            pars['default_path'] = self.root
+        connection = pysftp.Connection(host or self.host,**pars)
+        return connection
 
     def downloadFilesIntoFolder(self,sourcefiles=None,destfolder=None,
                                 callback=None,preserve_mtime=None,thermo_wrapper=None,**kwargs):
@@ -99,3 +103,4 @@ class ServiceParameters(BaseComponent):
         fb.textbox(value='^.password',lbl='Password',type='password')
         fb.textbox(value='^.private_key',lbl='Private key')
         fb.textbox(value='^.port',lbl='Port')
+        fb.textbox(value='^.root',lbl='Root')

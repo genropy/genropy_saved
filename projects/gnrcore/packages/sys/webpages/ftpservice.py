@@ -13,4 +13,16 @@ class GnrCustomWebPage(object):
     #FOR ALTERNATE MAIN HOOKS LOOK AT public:TableHandlerMain component
     def main(self,root,**kwargs):
         callArgs = self.getCallArgs('ftpname')  
-        root.sftpClientLayout(callArgs['ftpname'],datapath='main')
+        if callArgs['ftpname']:
+            root.sftpClientLayout(callArgs['ftpname'],datapath='main')
+        else:
+            bc = root.borderContainer()
+            top = bc.contentPane(region='top',datapath='pars')
+            fb = top.formbuilder()
+            fb.dbselect(value='^.service',dbtable='sys.service',condition='$service_type=:f',
+                        condition_f='ftp',lbl='Ftp',hasDownArrow=True,
+                        selected_service_name='.service_name')
+            fb.dataFormula('.url',"`/sys/ftpservice/${service_name}`",
+                            service_name='^.service_name')
+            center = bc.contentPane(region='center')
+            center.iframe(src='^pars.url',height='100%',width='100%',border=0)

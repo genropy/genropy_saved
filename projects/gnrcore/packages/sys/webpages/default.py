@@ -44,6 +44,5 @@ class GnrCustomWebPage(object):
               selected_caption='main.current.caption',
               selected_file_ext='main.current.file_ext')
         center.iframe(border='0px',width='100%',height='100%',src='^.url')
-        return
 
 
