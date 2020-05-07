@@ -199,16 +199,13 @@ if __name__ == '__main__':
         elif options.import_file:
             import_db(options.import_file)
         else:
-            try:
-                changes = check_db(app)
-                if changes:
-                    print 'APPLYING CHANGES TO DATABASE...'
-                    app.db.model.applyModelChanges()
-                    print 'CHANGES APPLIED TO DATABASE'
-                app.db.model.checker.addExtesions()
-            except Exception as e:
-                print('Error in dbsetup')
-                errordb.append(storename)
+            changes = check_db(app)
+            if changes:
+                print 'APPLYING CHANGES TO DATABASE...'
+                app.db.model.applyModelChanges()
+                print 'CHANGES APPLIED TO DATABASE'
+            app.db.model.checker.addExtesions()
+
             
         app.pkgBroadcast('onDbSetup,onDbSetup_*')
         if options.upgrade:
