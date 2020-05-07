@@ -104,7 +104,7 @@ class TableHandlerForm(BaseComponent):
                 fb = mainfb
             formtable = form.attributes.get('table')
             if fb is not None:
-                fbdbtable =fb.getInheritedAttributes().get('dbtable')
+                fbdbtable =fb.getInheritedAttributes().get('table')
                 if formtable and fbdbtable!=formtable:
                     continue
                 fb.field(f,**kwargs)
