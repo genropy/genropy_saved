@@ -23,6 +23,15 @@ class GnrCustomWebPage(object):
         url_info = self.site.getUrlInfo(self.getCallArgs())
         dirpath=os.path.join(url_info.basepath,*url_info.request_args)
         bc=root.borderContainer(datapath='main')
+        bc.style(""".menutree .opendir{
+                width: 12px;
+                background: url(/_gnr/11/css/icons/base10/tinyOpenBranch.png) no-repeat center center;
+            }
+            .menutree .closedir{
+                width: 12px;
+                background: url(/_gnr/11/css/icons/base10/tinyCloseBranch.png) no-repeat center center;
+            }
+        """)
         center=bc.contentPane(region='center',datapath='.current')
         left=bc.contentPane(region='left',width='200px',splitter=True,background='#eee',
                            datapath='.tree',overflow_y='auto')
@@ -34,7 +43,14 @@ class GnrCustomWebPage(object):
                                    rel_path='^.rel_path',file_ext='=.file_ext')                   
         left.tree(storepath='.store', hideValues=True, inspect='shift', 
               labelAttribute='caption',
-              getIconClass='return node.attr.iconClass || "treeNoIcon"',
+               getIconClass="""
+               function(item,opened){
+                        console.log('item.attr',item.attr);
+                        if(item.attr.file_ext!='directory'){
+                            return "treeNoIcon";
+                        }
+                        return opened? 'opendir':'closedir';                        
+                    }""",
               getLabelClass="""var _class= (node._resolver || node._value) ? 'menu_shape menu_level_0' :  'menu_shape menu_level_2';
                                             return _class""",
               isTree=False, selected_rel_path='main.current.rel_path',  _class='menutree',

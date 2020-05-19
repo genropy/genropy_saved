@@ -44,8 +44,8 @@ class Package(GnrDboPackage):
 
     def mixinMultidbMethods(self):
         db = self.application.db
-        for pkg,pkgobj in list(db.packages.items()):
-            for tbl,tblobj in list(pkgobj.tables.items()):
+        for pkg,pkgobj in db.packages.items():
+            for tbl,tblobj in pkgobj.tables.items():
                 if tblobj.dbtable.multidb:
                     instanceMixin(tblobj.dbtable, MultidbTable)
 
