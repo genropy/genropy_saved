@@ -139,6 +139,22 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         :returns: tuple (sql, kwargs)"""
         return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
 
+    def columnSqlDefinition(self, sqlname, dtype, size, notnull, pkey, unique):
+        """Return the statement string for creating a table's column
+        """
+        if dtype =='T' and (unique or pkey):
+            dtype ='A'
+            size = ':3000'
+
+        sql = '"%s" %s' % (sqlname, self.columnSqlType(dtype, size))
+        if notnull:
+            sql = sql + ' NOT NULL'
+        if pkey:
+            sql = sql + ' PRIMARY KEY'
+        if unique:
+            sql = sql + ' UNIQUE'
+        return sql
+
     def _managerConnection(self, **kwargs):
         dbroot = self.dbroot
         conn_kwargs = dict(host=dbroot.host, database='master', user=dbroot.user,
