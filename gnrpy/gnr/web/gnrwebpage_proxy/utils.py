@@ -78,7 +78,7 @@ class GnrWebUtils(GnrBaseProxy):
         thermo = """<div class="quickthermo_box"> <div class="form_waiting"></div> </div>""" 
         title = """<div class="quickthermo_title">%s</div>""" %title if title else ""
         for idx,v in enumerate(iterator):
-            if isinstance(v,basestring):
+            if isinstance(v,str):
                 lbl = v
             elif labelfield:
                 if labelfield in v:
