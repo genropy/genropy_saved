@@ -1847,6 +1847,18 @@ function addDaysToDate(dateStart,daysToAdd,excludeWD){
     return currDate;
 };
 
+function combineDateAndTime(date, time) {
+    let timeString = time.getHours() + ':' + time.getMinutes() + ':00';
+
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1; // Jan is 0, dec is 11
+    let day = date.getDate();
+    let dateString = '' + year + '-' + month + '-' + day;
+    let combined = new Date(dateString + ' ' + timeString);
+
+    return combined;
+}
+
 function localeParser(/*String*/value, /*Object?*/options) {
     // summary:
     //      Convert a properly formatted string to a primitive Date object,
