@@ -2176,6 +2176,9 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
             }else if(attr.__protection_tag){
                 row.customClasses = row.customClasses?row.customClasses + ' _gnrProtectionPass': '_gnrProtectionPass';
             }
+            if (attr.__is_draft){
+                row.customClasses = row.customClasses?row.customClasses + ' gnrDraftRow': 'gnrDraftRow';
+            }
             if (attr._customClasses) {
                 var customClasses = null;
                 if ( typeof(attr._customClasses)=='function'){
@@ -2636,6 +2639,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         if(this.rowCustomClassesCb){
             row.customClasses = (row.customClasses || '')+' '+(this.rowCustomClassesCb(attr)||'');
+        }
+        if (attr.__is_draft){
+            row.customClasses = row.customClasses?row.customClasses + ' gnrDraftRow': 'gnrDraftRow';
         }
         if (attr._customClasses) {
             

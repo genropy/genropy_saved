@@ -758,14 +758,20 @@ class TableBase(object):
         where = None
         wherekw = dict()       
         if counter_fkey is not True:
-            filtered = [n for n in counter_fkey.split(',') if record.get(n)]
-            if not filtered:
+            where = []
+            wherekw = {}
+            for fkey in counter_fkey.split(','):
+                if record[fkey] is None:
+                    where.append('$%s IS NULL' %fkey)
+                else:
+                    where.append('$%s=:p_%s' %(fkey,fkey))
+                    wherekw['p_%s' %fkey] = record[fkey]
+            if not where:
                 return
-            counter_fkey = filtered[0]
-            where = '$%s=:p_%s' %(counter_fkey,counter_fkey)
-            wherekw['p_%s' %counter_fkey] = record[counter_fkey]
+            where = ' AND '.join(where)
         last_counter_fetch = self.query(columns='$%s' %fldname,where=where,
                                     order_by='$%s desc' %fldname,limit=1,
+                                    excludeDraft=False,
                                     **wherekw).fetch()
         last_counter = last_counter_fetch[0].get(fldname) or 1 if last_counter_fetch else 0
         record[fldname] = last_counter +1

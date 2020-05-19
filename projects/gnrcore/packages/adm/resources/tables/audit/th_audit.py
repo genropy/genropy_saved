@@ -10,11 +10,9 @@ class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('tablename')
-        r.fieldcell('event')
         r.fieldcell('username')
         r.fieldcell('record_pkey')
         r.fieldcell('version')
-        r.fieldcell('data')
         r.fieldcell('transaction_id')
 
     def th_order(self):

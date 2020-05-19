@@ -28,7 +28,6 @@ class BaseResourceBatch(object):
     virtual_columns = None
     batch_local_cache = True
     batch_ask_options = True
-
     batch_selection_where = None
     batch_selection_kwargs = dict()
     batch_selection_savedQuery= None
@@ -47,6 +46,7 @@ class BaseResourceBatch(object):
         self.records = dict()
         self.result_info = dict()
         self._pkeys = None
+        self.sortBy = None
         self.selectedPkeys = None
         self.batch_parameters = dict()
         #self.mail_preference = self.page.site.getService('mail').getDefaultMailAccount()
@@ -241,6 +241,7 @@ class BaseResourceBatch(object):
         selection_kwargs = dict()
         ignoreGridSelectedRow = self.batch_parameters.get('allrows')
         extra_parameters = self.batch_parameters.get('extra_parameters')
+        selection_kwargs.setdefault('sortBy',self.sortBy)
         if self.batch_selection_kwargs:
             selection_kwargs.update(self.batch_selection_kwargs) 
         if columns:
@@ -256,8 +257,7 @@ class BaseResourceBatch(object):
             selection = self.page.getUserSelection(selectionName=self.selectionName,
                                                     selectedRowidx=self.selectedRowidx if not ignoreGridSelectedRow else None, 
                                                     filterCb=self.selectionFilterCb,
-                                                    table=self.tblobj,sortBy=self.sortBy,
-                                                    **selection_kwargs)
+                                                    table=self.tblobj,**selection_kwargs)
         elif self.selectedPkeys:
             pkeys = self.selectedPkeys if not ignoreGridSelectedRow else extra_parameters['allPkeys']
             selection = self.tblobj.query(where='$%s IN :selectedPkeys' %self.tblobj.pkey,selectedPkeys=pkeys,
