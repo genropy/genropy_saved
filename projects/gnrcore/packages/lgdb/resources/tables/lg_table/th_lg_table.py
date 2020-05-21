@@ -22,6 +22,14 @@ class View(BaseComponent):
     def th_query(self):
         return dict(column='name', op='contains', val='')
 
+    def th_queryBySample(self):
+        return dict(fields=[dict(field='@lg_pkg.code', lbl='Package', width='12em'),
+                            dict(field='name', lbl='Name', width='12em'),
+                            dict(field='description', lbl='Description', width='14em'),
+                            dict(field='notes', lbl='Notes', width='14em')],
+                    cols=4, 
+                    isDefault=True)
+
     def th_top_sup(self,top):
         top.slotToolbar('5,sections@lg_pkg,*,sections@groups,5',
                        childname='superiore',
