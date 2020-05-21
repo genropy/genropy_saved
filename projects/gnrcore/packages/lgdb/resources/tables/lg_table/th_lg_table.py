@@ -56,8 +56,8 @@ class ViewFromPackage(BaseComponent):
         return 'lg_pkg'
 
 
-
 class Form(BaseComponent):
+    py_requires = 'gnrcomponents/attachmanager/attachmanager:AttachManager'
 
     def th_form(self, form):
         bc = form.center.borderContainer()
@@ -88,6 +88,8 @@ class Form(BaseComponent):
                                                             datapath='incoming_relations',
                                                             condition='@related_column.lg_table_id=:tbl_id',
                                                             condition_tbl_id='^#FORM.pkey')
+
+        tc.contentPane(title='Attachments').attachmentMultiButtonFrame()
 
 
     def th_options(self):
