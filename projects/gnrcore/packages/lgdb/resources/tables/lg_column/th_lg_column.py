@@ -29,6 +29,25 @@ class View(BaseComponent):
                     cols=4, 
                     isDefault=True)
 
+    def th_top_sup(self,top):
+        top.slotToolbar('*,sections@types,*',
+                       childname='superiore',
+                       sections_types_remote=self.sectionTypes,
+                       _position='<bar',gradient_from='#999',gradient_to='#666')
+
+    @public_method
+    def sectionTypes(self):
+        types = self.db.table('lgdb.lg_column').query('$data_type', distinct=True, 
+                                                where= '$data_type IS NOT NULL').fetch()
+
+        result=[]
+        result.append(dict(code='all', caption='All'))
+        for t in types:
+            result.append(dict(code=t['data_type'], caption=t['data_type'], condition='$data_type= :tp', condition_tp=t['data_type']))
+        result.append(dict(code='no_type', caption='No type', condition='$data_type IS NULL'))
+        return result
+
+
 class Form(BaseComponent):
 
     def th_form(self, form):

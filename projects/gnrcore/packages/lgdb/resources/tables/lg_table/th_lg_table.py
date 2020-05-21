@@ -40,7 +40,7 @@ class View(BaseComponent):
     def sectionGroups(self):
         groups= self.db.table('lgdb.lg_table').query('$group',distinct=True, 
                                                 where= '$group IS NOT NULL').fetch()
-        
+
         result=[]
         result.append(dict(code='all', caption='All'))
         for g in groups:
