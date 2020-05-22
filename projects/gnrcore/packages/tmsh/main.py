@@ -10,6 +10,8 @@ class Package(GnrDboPackage):
                     
 
     def onBuildingDbobj(self):
+        tbl_timerule = self.db.model.src['packages.tmsh.tables.timerule']
+        timerule_fkeys = []
         for pkgNode in self.db.model.src['packages']:
             if not pkgNode.value:
                 continue
@@ -17,8 +19,16 @@ class Package(GnrDboPackage):
             for tblNode in tables:
                 if f'{tblNode.label}_tmsh' in tables:
                     self._plugResourceTable(tblNode)
+                    timerule_fkeys.append(self.configureEntity(tbl_timerule,tblNode.label,
+                                        tbl=f'{pkgNode.label}.{tblNode.label}',
+                                        relation_name='timerules'))
                 elif tblNode.label.endswith('_tmsh'):
                     self._addAllocationFkeys(pkgNode,tblNode)
+        tbl_timerule.column('_row_count', dtype='L', name_long='!![en]Ord.', onInserting='setRowCounter',counter=True,
+                            _counter_fkey=','.join(timerule_fkeys),
+                            group='*',_sysfield=True)
+        tbl_timerule.attributes.setdefault('order_by','$_row_count')
+   
 
     def _plugResourceTable(self,tblNode):
         tblNode.attr['tmsh_resource'] = True
@@ -39,7 +49,7 @@ class Package(GnrDboPackage):
         tblsrc.formulaColumn('is_allocated',f"(COALESCE({','.join(fkeys)}) IS NOT NULL)",dtype='B')
         
     
-    def configureEntity(self,src,code=None,caption=None,tbl=None,**kwargs):
+    def configureEntity(self,src,code=None,caption=None,tbl=None,relation_name=None,**kwargs):
         pkg,tblname = tbl.split('.')
         tblsrc = self.db.model.src[f'packages.{pkg}.tables.{tblname}']
         tblattrs = tblsrc.attributes
@@ -66,7 +76,7 @@ class Package(GnrDboPackage):
                 return
             else:
                 fkey = f"le_{tbl.replace('.','_')}"
-        relation_name = f"{src.attributes['fullname'].split('.')[1]}_items"
+        relation_name = relation_name or f"{src.attributes['fullname'].split('.')[1]}_items"
         src.column(fkey, dtype=pkeycolAttrs.get('dtype'),_sysfield=True,group='_',
                     name_long=tblattrs.get('name_long'),
                     size=pkeycolAttrs.get('size'),linked_entity=entity,
