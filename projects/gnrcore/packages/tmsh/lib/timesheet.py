@@ -40,8 +40,6 @@ class TimeSheetTable(GnrDboTable):
         tbl.column('ts_start', dtype='DHZ', name_long='!![en]Start TS')
         tbl.column('ts_end', dtype='DHZ', name_long='!![en]End TS')
         self.onTableConfig(tbl)
-        if not tbl.getNode('allocation_id'):
-            self._addAllocationFkey(tbl)
         tbl.formulaColumn('ts_match',"""(CASE WHEN $ts_start IS NULL AND $ts_end IS NULL THEN TRUE
                                              WHEN $ts_start IS NULL 
                                                 THEN $ts_end>=:env_dtend
@@ -52,21 +50,27 @@ class TimeSheetTable(GnrDboTable):
                                              END)
                                         """,
                                         dtype='B')
+        tbl.formulaColumn('ts_calc_start',"""
+            (CASE WHEN $is_allocated IS TRUE 
+                    THEN $ts_start
+                WHEN $ts_start IS NULL OR $ts_start<now()
+                    THEN now()
+                ELSE $ts_start
+            END)
+        """,dtype='DHZ')
+    def onTableConfig(self,tbl):
+        "overridable"
+        pass
 
+    def formulaColumn_pluggedFields(self):
+        desc_fields = []
+        for colname,colobj in list(self.columns.items()):
+            if colname.startswith('le_'):
+                related_table = colobj.relatedTable()
+                desc_fields.append(f"@{colname}.{related_table.attributes['caption_field']}")
+        description_formula = f"COALESCE({','.join(desc_fields)})" if desc_fields else "'NOT PLUGGED'"
+        return [dict(name='allocation_description',sql_formula=description_formula)]
 
-    def setAllocation(self,maintable_id=None,allocation_id=None,date_start=None,time_start=None,date_end=None,time_end=None,
-                    delta_minutes=None,delta_hours=None,delta_days=None,**kwargs):
-
-        ts_start,ts_end = self.getTsBoundaries(date_start=date_start,time_start=time_start,
-                                                date_end=date_end,time_end=time_end,
-                                                delta_minutes=delta_minutes,delta_hours=delta_hours,
-                                                delta_days=delta_days)
- 
-       #f = self.query(where="""$maintable_id=:mid AND 
-       #                        :ts_0 BETWEEN $ts_start AND $ts_end
-       #                        AND :ts_1 BETWEEN $ts_start AND $ts_end
-       #                        AND $allocation_id IS NULL""",
-       #            columns='$ts_start,$ts_end',ts_0=ts_start,ts_1=ts_end).fetch()
 
     def getTsBoundaries(self,date_start=None,time_start=None,date_end=None,time_end=None,
                     delta_minutes=None,delta_hours=None,delta_days=None):
@@ -90,35 +94,31 @@ class TimeSheetTable(GnrDboTable):
                                      time_end.hour,time_end.minute,tzinfo=pytz.utc)
         return ts_start, ts_end
 
-    def _addAllocationFkey(self,tbl):
-        pkgname,tblname = self.allocationTable().split('.')
-        tbl.column('allocation_id',size='22', group='_', name_long='!![en]Allocation'
-                    ).relation(f'{pkgname}.{tblname}.id',
-                                    relation_name='tmsh_items', 
-                                    mode='foreignkey', onDelete='raise')
 
-    def onTableConfig(self,tbl):
-        "overridable"
-        pass
 
-    def allocationTable(self):
-        "overridable"
-        raise GnrException('You must set allocation table')
+    def _allocationFkeys(self):
+        return [k for k in self.columns.keys() if k.startswith('le_')]
+
+    def isAllocated(self,record):
+        for field in self._allocationFkeys():
+            if record[field]:
+                return field
+        return False
 
 
     def trigger_onInserted(self,record=None):
-        if record['allocation_id']:
+        if self.isAllocated(record):
             raise self.exception('business_logic',msg='You cannot insert an allocated timeslot')
             
     def trigger_onDeleted(self,record=None):
-        if record['allocation_id']:
+        if self.isAllocated(record):
             self.deAllocateResource(record)
             
     
     def trigger_onUpdated(self,record=None,old_record=None):
 
-        if self.fieldsChanged('allocation_id',record,old_record):
-            if not old_record['allocation_id']:
+        if self.fieldsChanged(self._allocationFkeys(),record,old_record):
+            if not self.isAllocated(old_record):
                 self.makeHole(resource_id=record['resource_id'],ts_start=old_record['ts_start'],ts_end=record['ts_start'])
                 self.makeHole(resource_id=record['resource_id'],ts_start=record['ts_end'],ts_end=old_record['ts_end'])
             else:
@@ -135,10 +135,10 @@ class TimeSheetTable(GnrDboTable):
                                 slot_start=ts_start,slot_end=ts_end,rid=record['resource_id'],
                                 order_by='COALESCE($ts_start,$ts_end)').fetch()
         prevrec,nextrec =f[0],f[1]
-        if not prevrec['allocation_id']:
+        if not self.isAllocated(prevrec):
             ts_start = prevrec['ts_start']
             self.raw_delete(prevrec)
-        if not nextrec['allocation_id']:
+        if not self.isAllocated(nextrec):
             ts_end = nextrec['ts_end']
             self.raw_delete(nextrec)
         self.makeHole(resource_id=record['resource_id'],ts_start=ts_start,ts_end=ts_end)        
