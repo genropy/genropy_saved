@@ -50,6 +50,14 @@ class TimeSheetTable(GnrDboTable):
                                              END)
                                         """,
                                         dtype='B')
+        tbl.formulaColumn('ts_calc_start',"""
+            (CASE WHEN $is_allocated IS TRUE 
+                    THEN $ts_start
+                WHEN $ts_start IS NULL OR $ts_start<now()
+                    THEN now()
+                ELSE $ts_start
+            END)
+        """,dtype='DHZ')
     def onTableConfig(self,tbl):
         "overridable"
         pass

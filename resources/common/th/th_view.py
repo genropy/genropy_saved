@@ -242,7 +242,7 @@ class TableHandlerView(BaseComponent):
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title,
                         liveUpdate=liveUpdate,store_kwargs=store_kwargs)
         if configurable:
-            self._th_view_confMenues(frame,statsEnabled=None,configurable=configurable)
+            self._th_view_confMenues(frame,statsEnabled=statsEnabled,configurable=configurable)
         if virtualStore:    
             self._extTableRecords(frame)
         frame.dataController("""if(!firedkw.res_type){return;}
