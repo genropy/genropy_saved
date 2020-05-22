@@ -11,6 +11,7 @@ class View(BaseComponent):
         r.fieldcell('lg_table_id')
         r.fieldcell('name', width='8em')
         r.fieldcell('data_type', name='T', width='3em')
+        r.fieldcell('old_type', name='OT', width='3em')
         r.fieldcell('description', width='15em', edit=True)
         r.fieldcell('notes', width='40em', edit=dict(tag='simpleTextArea', height='80px'))
         r.fieldcell('group', width='8em', edit=True)
@@ -53,11 +54,12 @@ class Form(BaseComponent):
     def th_form(self, form):
         pane = form.record
         fb = pane.div(margin_right='10px').formbuilder(cols=2, border_spacing='4px', width='100%', fld_width='100%')
-        fb.field('lg_table_id' )
-        fb.field('name' )
-        fb.field('data_type')
+        fb.field('lg_table_id', readOnly=True, background='rgba(128, 128, 128, 0.125)' )
+        fb.field('name', readOnly=True, background='rgba(128, 128, 128, 0.125)' )
+        fb.field('data_type', readOnly=True, background='rgba(128, 128, 128, 0.125)' )
+        fb.field('old_type')
         fb.field('group')
-        fb.field('description', colspan=2 )
+        fb.field('description', colspan=2, readOnly=True, background='rgba(128, 128, 128, 0.125)' )
         fb.field('notes', tag='simpleTextArea', height='90px')
 
     def th_options(self):

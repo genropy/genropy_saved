@@ -18,6 +18,7 @@ class Table(object):
         tbl.column('name', size=':40', name_long='Name')
         tbl.column('full_name', name_long='Full Name')
         tbl.column('data_type', size=':10', name_long='Data Type')
+        tbl.column('old_type', size=':10', name_long='Old Type')
         tbl.column('description', name_long='Description')
         tbl.column('notes', name_long='Notes')
         tbl.column('group', name_long='Group', batch_assign=True)
