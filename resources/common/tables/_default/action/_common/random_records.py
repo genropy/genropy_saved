@@ -84,6 +84,7 @@ class Main(BaseResourceAction):
                 return
 
             if dtype in ('T','A'):
+                value = None
                 if field_pars['default_value']:
                     value =field_pars['default_value']
                     if '#P' in value:

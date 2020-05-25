@@ -38,9 +38,10 @@ class GnrCustomWebPage(object):
         left.data('.store',DirectoryResolver(dirpath,cacheTime=10,
                             include='*.py', exclude='_*,.*',dropext=True,readOnly=False)()
                             )
-        center.dataFormula(".url","(window.location.pathname+'/'+rel_path).replace('//','/')",
-                                  _if="file_ext=='py'",_else="''",
-                                   rel_path='^.rel_path',file_ext='=.file_ext')                   
+        center.dataController(""" let url = (window.location.pathname+'/'+rel_path).replace('//','/');
+            SET .url = url;
+        """,_if="file_ext=='py'",_else="''",
+            rel_path='^.rel_path',file_ext='=.file_ext',_delay=1)                   
         left.tree(storepath='.store', hideValues=True, inspect='shift', 
               labelAttribute='caption',
                getIconClass="""

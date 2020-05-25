@@ -3938,30 +3938,30 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
         }
         genro.google().setGeocoder(widget);
     },
+
     mixin_handleGeocodeResults: function(results, status){
         this.store.mainbag=new gnr.GnrBag();
          if (status == google.maps.GeocoderStatus.OK) {
              for (var i = 0; i < results.length; i++){
-                 formatted_address=results[i].formatted_address;
-                 var details = {id:i,caption:formatted_address,formatted_address:formatted_address};
-                 var address_components=results[i].address_components;
-                 for (var a in address_components){
-                     var address_component=address_components[a];
-                     details[address_component.types[0]]=address_component.short_name;
-                     details[address_component.types[0]+'_long']=address_component.long_name;
-                 }
-                 
-                 details['street_address'] = details['route_long']+', '+(details['street_number']||'??');
-                 var street_number = details['street_number']||'??'; //subpremise
-                 if(details['subpremise']){
-                    street_number = details['subpremise']+'/'+street_number;
-                 }
-                 details['street_address_eng'] = street_number+' '+details['route_long'];
-                 var position=results[i].geometry.location;
-                 details['position']=position.lat()+','+position.lng();
-             this.store.mainbag.setItem('root.r_' + i, null, details);
-
-             }
+                let formatted_address=results[i].formatted_address;
+                var details = {id:i,caption:formatted_address,formatted_address:formatted_address};
+                var address_components=results[i].address_components;
+                for (var a in address_components){
+                    var address_component=address_components[a];
+                    details[address_component.types[0]]=address_component.short_name;
+                    details[address_component.types[0]+'_long']=address_component.long_name;
+                }
+                
+                details['street_address'] = details['route_long']+', '+(details['street_number']||'??');
+                var street_number = details['street_number']||'??'; //subpremise
+                if(details['subpremise']){
+                   street_number = details['subpremise']+'/'+street_number;
+                }
+                details['street_address_eng'] = street_number+' '+details['route_long'];
+                var position=results[i].geometry.location;
+                details['position']=position.lat()+','+position.lng();
+                this.store.mainbag.setItem('root.r_' + i, null, details);
+            }
          }else if (status == google.maps.GeocoderStatus.ZERO_RESULTS){
              this._updateSelect(this.store.mainbag);
          };
@@ -4014,7 +4014,7 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
                 }
             }
             hiddenColumns = [];
-            for (hiddenColumn in selectedColumns) {
+            for (let hiddenColumn in selectedColumns) {
                 hiddenColumns.push(hiddenColumn);
             }
             resolverAttrs['hiddenColumns'] = hiddenColumns.join(',');
@@ -4936,6 +4936,9 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
     },
     creating: function(attributes, sourceNode) {
         var savedAttrs = objectExtract(attributes, 'map_*');
+        if(attributes.w3w){
+            genro.dom.addPlugin('w3w');
+        }
         return savedAttrs;
     },
     created: function(widget, savedAttrs, sourceNode) {
@@ -4951,7 +4954,7 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         kw.mapTypeId=objectPop(kw,'type')||'roadmap';
         kw.zoom=kw.zoom || 8;
         var that = this;
-        if(kw.center || sourceNode.attr.autoFit){
+        if(kw.center || sourceNode.attr.autoFit && window.google){
             this.onPositionCall(sourceNode,kw.center,function(center){
                 kw.center=center;
                 sourceNode.map=new google.maps.Map(sourceNode.domNode,kw);
@@ -4975,7 +4978,7 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         }
     },
     setMarker:function(sourceNode,marker_name,marker,kw){
-        var kw = kw || {};
+        kw = kw || {};
         if (marker_name in sourceNode.markers){
             sourceNode.markers[marker_name].setMap(null);
             objectPop(sourceNode.markers,marker_name);
@@ -4995,9 +4998,14 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
                     objectUpdate(kw,gnr._markerColorKwargs(kw.color))
                 }
                 sourceNode.markers[marker_name] = new gnr.markers_types[marker_type](kw);
+                var currMarker = sourceNode.markers[marker_name];
                 if (onClick){
-                    sourceNode.markers[marker_name].addListener('click', function(e){onClick(marker_name, e)});
-                }               
+                    currMarker.addListener('click', function(e){onClick(marker_name, e)});
+                }
+                var events = objectExtract(kw,'event_*',true);
+                for(let evt in events){
+                    currMarker.addListener(evt, funcCreate(events[evt],null,sourceNode));
+                }
             }
         });
         if(sourceNode.attr.autoFit){

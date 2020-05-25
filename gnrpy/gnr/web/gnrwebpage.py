@@ -1921,7 +1921,11 @@ class GnrWebPage(GnrBaseWebPage):
         if hasattr(self, 'main_root'):
             self.main_root(page, **kwargs)
             return (page, pageattr)
-        page.data('gnr.mapkey',self.application.config['google?mapkey'])
+        google_mapkey = self.application.config['google?mapkey']
+        api_keys = Bag(self.application.config['api_keys'])
+        if 'google' not in api_keys and google_mapkey:
+            api_keys.setItem('google',None,mapkey = google_mapkey)
+        page.data('gnr.api_keys',api_keys)
         page.data('gnr.windowTitle', self.windowTitle())
         page.dataController("""genro.src.updatePageSource('_pageRoot')""",
                         subscribe_gnrIde_rebuildPage=True,_delay=100)

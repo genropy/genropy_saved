@@ -117,6 +117,20 @@ dojo.declare("gnr.GnrDomHandler", null, {
             e.onload = cb;
         }
     },
+    addPlugin: function(plugin,cb){
+        genro.dom.loadCss('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.css',null,null,genro.isDeveloper);
+        genro.dom.loadJs('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.js',function(){
+                genro[plugin] = genro[plugin] || objectPop(window,'genro_plugin_'+plugin);
+                genro.wdg.updateWidgetCatalog();
+                if(cb){
+                    cb();
+                }
+                if(genro[plugin].init){
+                    genro[plugin].init();
+                }
+        },genro.isDeveloper);
+    },
+
     loadExternal:function(urlList,avoidCache){
         if (typeof(urlList)=='string'){
             if (urlList.indexOf(',')>-1){
