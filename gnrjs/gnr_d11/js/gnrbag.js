@@ -251,6 +251,12 @@ dojo.declare("gnr.GnrBagNode", null, {
      * @id setValue
      */
     setValue: function(value, doTrigger, _attributes, _updattr,_fired) {
+        if(value instanceof Promise){
+            var that = this;
+            value.then(function(promisedValue){
+                that.setValue(promisedValue,doTrigger,_attributes,_fired);
+            });
+        }
         if (value instanceof gnr.GnrBagResolver) {
             this.setResolver(value);
             value = null;

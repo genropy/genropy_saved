@@ -160,6 +160,17 @@ dojo.declare('gnr.GenroClient', null, {
         }
     },
 
+    addPlugins(){
+        let plugins = objectExtract(window, 'genro_plugin_*');
+        for(let k in plugins){
+            let plugin = plugins[k];
+            genro[k] = plugin;
+            if (plugin.init){
+                plugin.init();
+            }
+        }
+    },
+
     genroInit:function() {
         this.startTime = new Date();
         this.lastTime = this.startTime;
@@ -170,8 +181,7 @@ dojo.declare('gnr.GenroClient', null, {
         this._sharedObjects_paths = {};
         this._sharedObjects = {};
         this.pendingCallAfter = {};
-        var plugins = objectExtract(window, 'genro_plugin_*');
-        objectUpdate(genro, plugins);
+        genro.addPlugins();
         this.compareDict = { '==' : function(a, b) {return (a == b);},
                              '>'  : function(a, b) {return (a > b);},
                              '>=' : function(a, b) {return (a >= b);},
@@ -2245,7 +2255,7 @@ dojo.declare('gnr.GenroClient', null, {
     google:function(key){
         if(! this._googleHandler){
             this._googleHandler=this.wdg.getHandler('GoogleLoader')
-            this._googleHandler._mapkey = key || genro.getData('gnr.mapkey')
+            this._googleHandler._mapkey = key || genro._('gnr.api_keys.google?mapkey')
         } 
         return this._googleHandler;  
     },
