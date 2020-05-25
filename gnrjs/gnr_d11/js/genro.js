@@ -160,7 +160,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
     },
 
-    addPlugins(){
+    addPlugins:function(){
         let plugins = objectExtract(window, 'genro_plugin_*');
         for(let k in plugins){
             let plugin = plugins[k];
