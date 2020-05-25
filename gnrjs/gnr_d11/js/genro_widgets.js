@@ -4014,7 +4014,7 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
                 }
             }
             hiddenColumns = [];
-            for (lethiddenColumn in selectedColumns) {
+            for (let hiddenColumn in selectedColumns) {
                 hiddenColumns.push(hiddenColumn);
             }
             resolverAttrs['hiddenColumns'] = hiddenColumns.join(',');
