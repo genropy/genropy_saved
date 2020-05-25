@@ -1,15 +1,14 @@
 var genro_plugin_w3w = {
     init:function(api_key){
-        var that = this;
-        dojo.subscribe('onPageStart',function(){
-            that.api_key = api_key ||  genro._('gnr.api_keys.w3w?key');
-            genro.dom.loadJs(`https://assets.what3words.com/sdk/v3/what3words.js?key=${that.api_key}`,
-                            function(){
-                                genro.w3w.api = what3words.api;
-                                genro.w3w.client = what3words;
-                            });
-        });
+        console.log('init w3w')
+        this.api_key = api_key ||  genro._('gnr.api_keys.w3w?key');
+        genro.dom.loadJs(`https://assets.what3words.com/sdk/v3/what3words.js?key=${this.api_key}`,
+                        function(){
+                            genro.w3w.api = what3words.api;
+                            genro.w3w.client = what3words;
+                        });
     },
+
     convertTo3wa:function(geocoords){
         if (!geocoords){
             return;
@@ -22,8 +21,7 @@ var genro_plugin_w3w = {
 
 
     setCurrentW3W:function(sourceNode,event){
-        var latLng = event.latLng;
-        sourceNode.setAttributeInDatasource('w3w',genro.w3w.convertTo3wa(`${latLng.lat()},${latLng.lng()}`));
+        sourceNode.setAttributeInDatasource('w3w',genro.w3w.convertTo3wa(`${event.latLng.lat()},${event.latLng.lng()}`));
     },
 
     drawGrid:function(sourceNode,event){
@@ -63,23 +61,6 @@ var genro_plugin_w3w = {
             clickable: true,
             cursor:'pointer',
             });
-       //map.addListener('mouseover', function(event) {
-       //    var latLng = event.latLng;
-       //    if(sourceNode._currentMarker){
-       //        sourceNode._currentMarker.setMap(null);
-       //    }
-       //    sourceNode._currentMarker = new google.maps.Marker({
-       //        position: new google.maps.LatLng(latLng.lat(),latLng.lng()),
-       //        //icon: 'iconbox star',
-       //        map: map
-       //    });
-
-       //});
-        //map.data.addListener('click',function(e){
-        //    console.log('click',e);
-        //});
-        
-
     }
 };
 

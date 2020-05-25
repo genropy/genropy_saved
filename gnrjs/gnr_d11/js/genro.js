@@ -296,12 +296,7 @@ dojo.declare('gnr.GenroClient', null, {
         if(plugin in genro){
             cb();
         }else{
-            genro.dom.loadCss('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.css',null,null,genro.isDeveloper);
-            genro.dom.loadJs('/_rsrc/common/js_plugins/'+plugin+'/'+plugin+'.js',function(){
-                genro[plugin] = genro[plugin] || objectPop(window,'genro_plugin_'+plugin);
-                genro.wdg.updateWidgetCatalog();
-                cb();
-            },genro.isDeveloper);
+            genro.dom.addPlugin(plugin,cb);
         }
     },
 

@@ -4936,6 +4936,9 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
     },
     creating: function(attributes, sourceNode) {
         var savedAttrs = objectExtract(attributes, 'map_*');
+        if(attributes.w3w){
+            genro.dom.addPlugin('w3w');
+        }
         return savedAttrs;
     },
     created: function(widget, savedAttrs, sourceNode) {
@@ -4951,7 +4954,7 @@ dojo.declare("gnr.widgets.GoogleMap", gnr.widgets.baseHtml, {
         kw.mapTypeId=objectPop(kw,'type')||'roadmap';
         kw.zoom=kw.zoom || 8;
         var that = this;
-        if(kw.center || sourceNode.attr.autoFit){
+        if(kw.center || sourceNode.attr.autoFit && window.google){
             this.onPositionCall(sourceNode,kw.center,function(center){
                 kw.center=center;
                 sourceNode.map=new google.maps.Map(sourceNode.domNode,kw);
