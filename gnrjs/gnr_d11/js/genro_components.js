@@ -2920,7 +2920,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     },
 
     _getColumnsBag:function(sourceNode,columns,childrenColumns){
-        var columns_bag = sourceNode.getRelativeData(columns) || new gnr.GnrBag();;
+        var columns_bag = sourceNode.getRelativeData(columns) || new gnr.GnrBag();
         childrenColumns.forEach(function(n){
             var attr = n.attr;
             attr.field = attr.field || n.label;

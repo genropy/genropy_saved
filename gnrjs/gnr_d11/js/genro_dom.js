@@ -1295,16 +1295,34 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return m.join();
     },
 
-    scrollableTable:function(domnode, gridbag, kw) {
+    scrollableTable:function(where, gridbag, kw) {
+        var domnode = this.getDomNode(where);
         var max_height = kw.max_height || '180px';
+        var cols = [];
         var columns = kw.columns;
         var headers = kw.headers;
+        if(kw.struct){
+            cols = kw.struct.getItem('#0.#0').getNodes().map(n=>n.attr);
+        }else{
+            columns.forEach(function(c,idx){
+                cols.push({field:c,name:headers[idx]});
+            });
+        }
         var tblclass = kw.tblclass;
         var thead = '<thead onmouseup="dojo.stopEvent(event)"><tr>';
-        for (var k = 0; k < columns.length; k++) {
-            thead = thead + "<th>" + headers[k] + "</th>";
+        var autoWidth = true;
+        cols.forEach(function(kw){
+            let style = kw.style || '';
+            if(kw.width){
+                //style += `width:${kw.width};`
+                style = "width:"+kw.width;
+                autoWidth = false;
+            }
+            thead += `<th style="${style}">${kw.name}</th>`;
+        });
+        if(autoWidth){
+            thead = thead + "<th style='width:13px;'>&nbsp</th></thead>";
         }
-        thead = thead + "<th style='width:13px;'>&nbsp</th></thead>";
         var nodes = gridbag.getNodes();
         var item,r, value,v,_customClasses,rowvalidation;
         var tbl = ["<tbody>"];
@@ -1316,22 +1334,23 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 rowvalidation = ' onmouseup="dojo.stopEvent(arguments[0]);" _is_valid_item="false" '
             }
             _customClasses = objectPop(item,'_customclasses') || objectPop(item,'_customClasses');
-            more_customclasses = objectExtract(item,'_customclasses_*')
+            let more_customclasses = objectExtract(item,'_customclasses_*')
             if(more_customclasses){
                 _customClasses = (_customClasses || '');
                 for(var cck in more_customclasses){
                     _customClasses = _customClasses+' '+more_customclasses[cck];
                 }
             }
-            
             _customClasses = _customClasses? 'class="'+_customClasses+'"':'';
-            for (var k = 0; k < columns.length; k++) {
-                v =  item[columns[k]];
+            cols.forEach(function(kw){
+                v =  item[kw.field];
+                let style = kw.style || '';
+                if(kw.width){
+                    style+=`width:${kw.width};`
+                }
                 value = v==null?'&nbsp':v;
-                r = r + "<td>" + _F(value)+"</td>";
-            }
-
-            
+                r += `<td style="${style}">${_F(value)}</td>`;
+            });
             tbl.push('<tr id="' + nodes[i].label + '"  '+_customClasses+ rowvalidation + '>' + r + '</tr>');
         }
         tbl.push("</tbody>");
@@ -1352,18 +1371,19 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 var wh = hdrtr[i].clientWidth;
                 var wb = bodytr_first[i].clientWidth;
                 var wt = wh > wb ? wh : wb;
+                console.log('autoWidth',wt,autoWidth);
                 colgroup = colgroup + '<col width="' + wt + '"/>';
             }
-            ;
             domnode.innerHTML = cbf(colgroup);
             dojo.style(domnode, {width:'auto'});
             var rows = dojo.query('tbody tr', domnode);
             for (var i = 0; i < rows.length; i++) {
                 rows[i].item = nodes[i];
             }
-            ;
         };
-        setTimeout(cb, 1);
+        if(autoWidth){
+            setTimeout(cb, 1);
+        }
     },
     setTextInSelection:function(sourceNode,valueToPaste){
         var fn = sourceNode.widget.focusNode;
