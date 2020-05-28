@@ -347,13 +347,12 @@ class MailService(GnrBaseService):
         msg['To'] = to_address
         headers_kwargs = headers_kwargs or {}
         message_id = message_id or headers_kwargs.pop('message_id',None)
-        message_date = message_date or headers_kwargs.pop('message_date',None)
         reply_to = reply_to or headers_kwargs.pop('reply_to',None)
         for k,v in headers_kwargs:
             msg.add_header(k,v)
         if ',' in to_address:
             to_address = to_address.split(',')
-        message_date = message_date or datetime.datetime.now()
+        message_date = datetime.datetime.now()
         if isinstance(message_date,datetime.datetime) or isinstance(message_date,datetime.date):
             message_date = formatdate(time.mktime(message_date.timetuple()))
         msg['Date'] = message_date
