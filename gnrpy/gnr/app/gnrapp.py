@@ -1418,7 +1418,7 @@ class GnrApp(object):
             print('got externaldb',name)
         return externaldb
 
-    def importFromLegacyDb(self,packages=None,legacy_db=None,thermo_wrapper=None,thermo_wrapper_kwargs=None):
+    def importFromLegacyDb(self,packages=None,legacy_db=None,thermo_wrapper=None,thermo_wrapper_kwargs=None, intermediate_commits=False):
         if not packages:
             packages = list(self.packages.keys())
         else:
@@ -1432,7 +1432,10 @@ class GnrApp(object):
             pkg,tablename = table.split('.')
             if pkg in packages:
                 self.importTableFromLegacyDb(table,legacy_db=legacy_db)
-        self.db.commit()
+                if intermediate_commits:
+                    self.db.commit()
+        if not intermediate_commits:
+            self.db.commit()
         self.db.closeConnection()
 
     def importTableFromLegacyDb(self,tbl,legacy_db=None):
@@ -1455,7 +1458,8 @@ class GnrApp(object):
             for k,c in list(destbl.columns.items()):
                 colummn_legacy_name = c.attributes.get('legacy_name')
                 if colummn_legacy_name:
-                    columns.append(" $%s AS %s " %(colummn_legacy_name,k))
+                    colummn_legacy_name = sourcedb.adapter.adaptSqlName(colummn_legacy_name)
+                    columns.append(" %s AS %s " %(colummn_legacy_name,sourcedb.adapter.asTranslator(k)))
             columns = ', '.join(columns)
         columns = columns or '*'
         oldtbl = None
@@ -1466,18 +1470,25 @@ class GnrApp(object):
         if not oldtbl:
             return
         q = oldtbl.query(columns=columns,addPkeyColumn=False,bagFields=True)
-        f = q.fetch()
-        sourcedb.closeConnection()
-        rows = []
+        count = q.count() or 0
+        record_step = 1000
+        records_read = 0
         adaptLegacyRow =  getattr(destbl,'adaptLegacyRow',None)
-        for r in f:
-            r = dict(r)
-            destbl.recordCoerceTypes(r)
-            if adaptLegacyRow:
-                adaptLegacyRow(r)
-            rows.append(r)
-        if rows:
-            destbl.insertMany(rows)
+        cursor = q.cursor()
+        while records_read<count:
+            f = cursor.fetchmany(record_step)
+            records_read += len(f)
+            rows = []
+        
+            for r in f:
+                r = dict(r)
+                destbl.recordCoerceTypes(r)
+                if adaptLegacyRow:
+                    adaptLegacyRow(r)
+                rows.append(r)
+            if rows:
+                destbl.insertMany(rows)
+        sourcedb.closeConnection()
         print('imported',tbl)
 
     def getAuxInstance(self, name=None,check=False):
