@@ -1494,7 +1494,7 @@ class TotalizeTable(GnrDboTable):
                 if subtractFromOld:
                     old_value = self.tt_getvalue(old_record,pars)
                     tot[totalizer_field] = (tot[totalizer_field] or old_value.__class__(0)) - old_value
-            if tot['_refcount']<=0:
+            if not tot['_refcount'] is None and tot['_refcount']<=0:
                 tot[self.pkey] = False
     
     def tt_totalize_allowed(self,record=None,old_record=None):
