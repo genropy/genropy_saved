@@ -25,8 +25,15 @@ def find_dotgit(path, parent_path=None):
 
 
 class Service(GitService):
-    
-    def find_repos(self):
+
+    def __init__(self,parent,**kwargs):
+        self.parent = parent
+        self.repositories=Bag()
+        self.folders=Bag()
+        self.init_repos()
+        self.update_repos_info()
+
+    def init_repos(self):
         folders = dict()
         folders['instance'] = self.parent.getInstanceFolder()
         folders['site'] = self.parent.site_path
@@ -35,8 +42,7 @@ class Service(GitService):
             folders['pkg_%s'%pkg.id]= pkg.packageFolder
         repos = defaultdict(list)
         repos_bag = Bag()
-        self.data = Bag()
-        self.data['folders'] = Bag(folders)
+        self.folders = Bag(folders)
 
         for element in folders:
             repo_name, repo_path = find_dotgit(folders[element])
@@ -46,13 +52,13 @@ class Service(GitService):
                 continue
             repos_bag.addItem(repo_name,repo_path,dict(name=repo_name,
                 path=repo_path,elements=','.join(elements)))
-        self.data['repositories'] = repos_bag
+        self.repositories = repos_bag
 
     def get_repo_path(self, repo_name):
-        return self.data['repositories'][repo_name]
+        return self.repositories[repo_name]
 
     def get_repo_attrs(self, repo_name):
-        return self.data['repositories'].getAttr(repo_name)
+        return self.repositories.getAttr(repo_name)
 
     def get_repository(self, repo_name):
         return Repository(self.get_repo_path(repo_name))
@@ -65,24 +71,23 @@ class Service(GitService):
         local = repo.head.target
         ahead, behind = repo.ahead_behind(local, upstream)
         changes = len(repo.diff())
-        self.data.setAttr('repositories.%s'%repo_name, changes=changes, 
+        self.repositories.setAttr(repo_name, changes=changes, 
             ahead=ahead, behind=behind, branch=branch.shorthand)
 
     def update_repos_info(self):
-        for repo_name in self.data['repositories'].keys():
+        for repo_name in self.repositories.keys():
             self._get_repo_info(repo_name)
 
-    def look_repos(self):
-        self.find_repos()
+    def find_repos(self):
         self.update_repos_info()
+        return self.repositories
 
-    
-    def pull(self, repo, repo_name):
-        self._get_repo_info(repo_name)
-        if self.data['repositories.%s?changes'%repo_name] or \
-            not self.data['repositories.%s?behind'%repo_name]:
+    def pull(self, repository_name):
+        self._get_repo_info(repository_name)
+        if self.repositories['%s?changes'%repository_name] or \
+            not self.repositories['%s?behind'%repository_name]:
             return
-        repo = self.get_repository(repo_name)
+        repo = self.get_repository(repository_name)
         branch = repo.branches[repo.head.shorthand]
         remote = repo.remotes[branch.upstream.remote_name]
         remote.fetch()
@@ -101,5 +106,15 @@ class Service(GitService):
             repo.head.set_target(upstream)
         else:
             raise AssertionError('Unknown merge analysis result')
+
+    def stash(self, repository_name):
+        self._get_repo_info(repository_name)
+        if not self.repositories['%s?changes'%repository_name]:
+            return
+
+    def push(self, repository_name):
+        self._get_repo_info(repository_name)
+        if not self.repositories['%s?changes'%repository_name]:
+            return
 
 
