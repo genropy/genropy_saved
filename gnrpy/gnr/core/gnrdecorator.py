@@ -76,6 +76,22 @@ def public_method(*args,**metadata):
         func.is_rpc = True # @public_method
         return func
 
+def do_cprofile(profile_path=None):
+    import cProfile
+    profile_path = profile_path or 'stats.prf'
+    def decore(func):
+        def profiled_func(*args, **kwargs):
+            profile = cProfile.Profile()
+            try:
+                profile.enable()
+                result = func(*args, **kwargs)
+                profile.disable()
+                return result
+            finally:
+                profile.dump_stats(profile_path)
+        return profiled_func
+    return decore
+
 
 def callers(limit=10):
     """A decorator. It can be used to mark methods/functions as :ref:`datarpc`\s
@@ -115,7 +131,8 @@ def websocket_method(*args,**metadata):
         func.is_websocket = True
         return func
     
-def timer_call(time_list=[], print_time=True):
+def timer_call(time_list=None, print_time=True):
+    time_list = time_list or []
     def decore(func):
         def wrapper(*arg, **kw):
             t1 = time()
