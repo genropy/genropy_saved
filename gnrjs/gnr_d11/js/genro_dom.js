@@ -1311,14 +1311,13 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var tblclass = kw.tblclass;
         var thead = '<thead onmouseup="dojo.stopEvent(event)"><tr>';
         var autoWidth = true;
-        cols.forEach(function(kw){
-            let style = kw.style || '';
-            if(kw.width){
-                //style += `width:${kw.width};`
-                style = "width:"+kw.width;
+        cols.forEach(function(cell){
+            let style = cell.style || '';
+            if(cell.width){
+                style = "width:"+cell.width;
                 autoWidth = false;
             }
-            thead += `<th style="${style}">${kw.name}</th>`;
+            thead += `<th style="${style}">${cell.name}</th>`;
         });
         if(autoWidth){
             thead = thead + "<th style='width:13px;'>&nbsp</th></thead>";
@@ -1326,6 +1325,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var nodes = gridbag.getNodes();
         var item,r, value,v,_customClasses,rowvalidation;
         var tbl = ["<tbody>"];
+        var totalizers = {};
         for (var i = 0; i < nodes.length; i++) {
             r = "";
             item = nodes[i].attr;
@@ -1342,17 +1342,40 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 }
             }
             _customClasses = _customClasses? 'class="'+_customClasses+'"':'';
-            cols.forEach(function(kw){
-                v =  item[kw.field];
-                let style = kw.style || '';
-                if(kw.width){
-                    style+=`width:${kw.width};`
+            cols.forEach(function(cell){
+                v =  item[cell.field];
+                let style = cell.style || '';
+                if(cell.width){
+                    style+=`width:${cell.width};`
                 }
-                value = v==null?'&nbsp':v;
-                r += `<td style="${style}">${_F(value)}</td>`;
+                if(cell.dtype && isNumericType(cell.dtype)){
+                    style += 'text-align:right;';
+                    if(cell.totalize){
+                        totalizers[cell.field] = (totalizers[cell.field] || 0)+(v || 0);
+                    }
+                }
+                value = isNullOrBlank(v)?'&nbsp':v;
+                r += `<td style="${style}">${_F(value,cell.format,cell.dtype)}</td>`;
             });
             tbl.push('<tr id="' + nodes[i].label + '"  '+_customClasses+ rowvalidation + '>' + r + '</tr>');
         }
+        if(objectNotEmpty(totalizers)){
+            r = '';
+            cols.forEach(function(cell){
+                v =  totalizers[cell.field];
+                let style = cell.style || '';
+                if(cell.width){
+                    style+=`width:${cell.width};`
+                }
+                if(cell.dtype && isNumericType(cell.dtype)){
+                    style += 'text-align:right;';
+                }
+                value = isNullOrBlank(v)?'&nbsp':v;
+                r += `<td style="${style}">${_F(value,cell.format,cell.dtype)}</td>`;
+            });
+            tbl.push('<tr class="totalize_row">' + r + '</tr>');
+        }
+        
         tbl.push("</tbody>");
         var tbody = tbl.join('');
         var cbf = function(cgr) {
@@ -1377,7 +1400,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             domnode.innerHTML = cbf(colgroup);
             dojo.style(domnode, {width:'auto'});
             var rows = dojo.query('tbody tr', domnode);
-            for (var i = 0; i < rows.length; i++) {
+            for (let i = 0; i < rows.length; i++) {
                 rows[i].item = nodes[i];
             }
         };
