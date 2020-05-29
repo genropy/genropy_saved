@@ -44,8 +44,9 @@ class Form(BaseComponent):
         fb.field('version')
         fb.field('author')
         themesSn = self.site.storageNode('rsrc:pkg_docu','sphinx_env','themes')
-        themes = ','.join([s.basename for s in themesSn.children() if s.isdir and not s.basename.startswith('.')])
-        fb.field('theme', values=themes, tag='filteringSelect')
+        if themesSn.exists:
+            themes = ','.join([s.basename for s in themesSn.children() if s.isdir and not s.basename.startswith('.')])
+            fb.field('theme', values=themes, tag='filteringSelect')
         fb.field('sphinx_path')
 
         fb.field('custom_styles',tag='simpleTextArea',colspan=2,height='300px')

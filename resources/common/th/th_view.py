@@ -157,7 +157,6 @@ class TableHandlerView(BaseComponent):
             batch_assign = attr.get('batch_assign')
             if not batch_assign:
                 continue
-            auth = 'user'
             kw = {}
             if batch_assign is not True:
                 kw.update(batch_assign)
@@ -216,7 +215,6 @@ class TableHandlerView(BaseComponent):
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
         else:
             top_kwargs['slots']= base_slots
-        #top_kwargs['height'] = top_kwargs.get('height','20px')
         top_kwargs['_class'] = 'th_view_toolbar'
         grid_kwargs.setdefault('gridplugins', 'configurator,chartjs,print' if extendedQuery else 'configurator,chartjs,export_xls,print')
         grid_kwargs['item_name_singular'] = self.db.table(table).name_long
@@ -760,7 +758,6 @@ class TableHandlerView(BaseComponent):
         pane.data('.query.pyqueries',q)
         pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries='=.query.pyqueries',
                         _resolved_pyqueries=q,editor=extendedQuery,bySample=bySample,
-                       # favoriteQueryPath='=.query.favoriteQueryPath',
                         table=table,th_root=th_root,caption='Queries',cacheTime=15,
                         _resolved=extendedQuery)
         pane.dataController("TH(th_root).querymanager.queryEditor(queryEditor);",
@@ -768,7 +765,6 @@ class TableHandlerView(BaseComponent):
         if 'adm' not in self.db.packages:
             return
         pane.dataRemote('.query.savedqueries',self.th_menuQueries,
-                        #favoriteQueryPath='=.query.favoriteQueryPath',
                         table=table,th_root=th_root,cacheTime=5,editor=False)
 
         

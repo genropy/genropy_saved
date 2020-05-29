@@ -14,13 +14,13 @@ class GnrCustomWebPage(object):
     def test_1_basic(self, pane):
         """Basic test """
         box = pane.div(height='400px',width='400px',border='1px solid silver',position='relative',
-                margin='20px',datapath='blackboard',#resize='both',overflow='auto',
+               datapath='blackboard',#resize='both',overflow='auto',
                 selfsubscribe_onMoveable="console.log('moveable',$1.action,$1.sourceNode,$1.top,$1.left);")
         
         for n in range(1):
             box.div(height='50px', width='100px', background_color='yellow',position='absolute',top='%ipx'%(20+n*10),
                 left='%ipx'%(20+n*10),
-                moveable=True ,#resize='both', overflow='auto',
+                moveable=True ,resize='both', overflow='auto',
 
                 lbl='Object %s' %n)
         
