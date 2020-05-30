@@ -82,3 +82,12 @@ class TestComunePiuBello(BaseComponent):
 
     def th_options(self):
         return dict(autoSave=True)
+
+class TestFormProxy(BaseComponent):
+    py_requires='test_proxy:Sheldon'
+
+    def th_form(self,form):
+        center = form.center.contentPane()
+        center.button('Run',fire='.run')
+        center.dataRpc('.result',self.sheldon.remoteBazinga,_fired='^.run')
+        center.div('^.result')

@@ -780,7 +780,7 @@ def clonedClassMixin(target_class, source_class, methods=None, only_callables=Tr
     return target_class
 
 def classMixin(target_class, source_class, methods=None, only_callables=True,
-               exclude='js_requires,css_requires,py_requires',**kwargs):
+               exclude='js_requires,css_requires,py_requires',proxy_base_class=None,**kwargs):
     """Add to the class methods from 'source'.
     
     :param target_class: TODO
@@ -811,7 +811,8 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
             source_class = getattr(m, clsname, None)
             if source_class:
                 classMixin(target_class, source_class, methods=methods,
-                            only_callables=only_callables, exclude=exclude, **kwargs)
+                            only_callables=only_callables, exclude=exclude,
+                            proxy_base_class=proxy_base_class,**kwargs)
         return
     if source_class is None:
         return
@@ -819,7 +820,8 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
         py_requires_iterator = source_class.__py_requires__(target_class, **kwargs)
         for cls_address in py_requires_iterator:
             classMixin(target_class, cls_address, methods=methods,
-                       only_callables=only_callables, exclude=exclude, **kwargs)
+                       only_callables=only_callables, exclude=exclude, 
+                       proxy_base_class=proxy_base_class,**kwargs)
     exclude_list = dir(type) + ['__weakref__', '__onmixin__', '__on_class_mixin__', '__py_requires__','proxy']
     if exclude:
         exclude_list.extend(exclude)
@@ -833,9 +835,9 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
     if proxy:
         if proxy==True:
             proxy = source_class.__name__.lower()
-        proxy_class = getattr(target_class, '%s_proxyclass'%proxy, None)
+        proxy_class =  getattr(target_class, '%s_proxyclass'%proxy, None)
         if not proxy_class:
-            proxy_class = BaseProxy
+            proxy_class = proxy_base_class or BaseProxy
             setattr(target_class,'%s_proxyclass'%proxy,proxy_class)
         target_class = proxy_class
     __mixin_pkg = getattr(source_class, '__mixin_pkg', None)
@@ -927,8 +929,10 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     if source is None:
         return
     source_dir = dir(source)
+    proxies = {k:getattr(source, k) for k in source_dir if k.endswith('_proxyclass')}
     mlist = [k for k in source_dir if
-             callable(getattr(source, k)) and not k in dir(type) + ['__weakref__', '__onmixin__','mixin']]
+             callable(getattr(source, k)) and not k in dir(type) + ['__weakref__', '__onmixin__','mixin']+proxies.keys()]
+    
     instmethod = type(obj.__init__)
     if methods:
         mlist = filter(lambda item: item in FilterList(methods), mlist)
@@ -936,6 +940,14 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         mlist = filter(lambda item: item not in FilterList(exclude), mlist)
     __mixin_pkg = getattr(source, '__mixin_pkg', None)
     __mixin_path = getattr(source, '__mixin_path', None)
+    for k,proxyclass in proxies.items():
+        for mname in dir(proxyclass):
+            proxyitem = getattr(proxyclass,mname)
+            if callable(proxyitem) and mname not in dir(type)+['__weakref__', '__onmixin__','mixin']:
+                method = proxyitem.im_func
+                method.__mixin_pkg = __mixin_pkg
+                method.__mixin_path = __mixin_path
+        setattr(obj,k.replace('_proxyclass',''),proxyclass(obj))
     for name in mlist:
         method = getattr(source, name).im_func
         method.__mixin_pkg = __mixin_pkg

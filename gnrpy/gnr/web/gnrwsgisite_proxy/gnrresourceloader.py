@@ -17,6 +17,7 @@ from gnr.core.gnrlang import gnrImport, classMixin, cloneClass,clonedClassMixin
 from gnr.core.gnrstring import splitAndStrip
 from gnr.core.gnrsys import expandpath
 from gnr.web.gnrwebpage import GnrWebPage
+from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.web._gnrbasewebpage import GnrWebServerError
 from gnr.web.gnrbaseclasses import BaseResource
 from gnr.web.gnrbaseclasses import BaseWebtool
@@ -164,7 +165,7 @@ class ResourceLoader(object):
         page_class.auth_tags = getattr(custom_class, 'auth_tags', '')
         page_class.resourceDirs = self.page_class_resourceDirs(page_class, module_path, pkg=mainPkg)
         self.page_pyrequires_mixin(page_class, py_requires)
-        classMixin(page_class, custom_class, only_callables=False)
+        classMixin(page_class, custom_class, only_callables=False,proxy_base_class=GnrBaseProxy)
         page_class.css_requires.extend([x for x in splitAndStrip(getattr(custom_class, 'css_requires', ''), ',') if x])
         if package_css_requires:
             page_class.css_requires = uniquify(page_class.css_requires+package_css_requires)
@@ -185,11 +186,14 @@ class ResourceLoader(object):
         if pkg:
             package = self.gnrapp.packages[pkg]
         if package and package.webPageMixin:
-            classMixin(page_class, package.webPageMixin, only_callables=False) # first the package standard
+            classMixin(page_class, package.webPageMixin, only_callables=False, 
+                                proxy_base_class=GnrBaseProxy) # first the package standard
         if self.gnrapp.webPageCustom:
-            classMixin(page_class, self.gnrapp.webPageCustom, only_callables=False) # then the application custom
+            classMixin(page_class, self.gnrapp.webPageCustom, only_callables=False,
+                        proxy_base_class=GnrBaseProxy) # then the application custom
         if package and package.webPageMixinCustom:
-            classMixin(page_class, package.webPageMixinCustom, only_callables=False) # finally the package custom
+            classMixin(page_class, package.webPageMixinCustom, only_callables=False,
+                        proxy_base_class=GnrBaseProxy) # finally the package custom
             
     def plugin_webpage_classes(self, path, pkg=None):
         """Look in the plugins folders for a file named as the current webpage and get all classes
@@ -216,7 +220,8 @@ class ResourceLoader(object):
         :param page_class: TODO
         :param plugin_webpage_classes: TODO"""
         for plugin_webpage_class in plugin_webpage_classes:
-            classMixin(page_class, plugin_webpage_class, only_callables=False)
+            classMixin(page_class, plugin_webpage_class, only_callables=False,
+                        proxy_base_class=GnrBaseProxy)
             
     def page_class_custom_mixin(self, page_class, path, pkg=None):
         """Look in the instance custom folder for a file named as the current webpage
@@ -231,7 +236,8 @@ class ResourceLoader(object):
                 component_page_module = gnrImport(customPagePath, avoidDup=True)
                 component_page_class = getattr(component_page_module, 'WebPage', None)
                 if component_page_class:
-                    classMixin(page_class, component_page_class, only_callables=False)
+                    classMixin(page_class, component_page_class, only_callables=False,
+                                proxy_base_class=GnrBaseProxy)
     
     def _appendPathIfExists(self,result, path):
         if os.path.exists(path):
@@ -245,7 +251,6 @@ class ResourceLoader(object):
         :param pkg: the :ref:`package <packages>` object"""
 
         if pkg:
-            currentAuxInstanceName = self.site.currentAuxInstanceName
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
             packageResourcePath =  os.path.join(self.gnrapp.packages[pkg].packageFolder, 'resources')
         else:
@@ -386,7 +391,8 @@ class ResourceLoader(object):
         if modPathList:
             modPathList.reverse()
             for modPath in modPathList:
-                classMixin(kls, '%s:%s' % (modPath, clsName), only_callables=False, site=self)
+                classMixin(kls, '%s:%s' % (modPath, clsName), only_callables=False,
+                             site=self, proxy_base_class=GnrBaseProxy)
         else:
             raise GnrMixinNotFound('Not found component %s' % modName)
             
@@ -409,7 +415,6 @@ class ResourceLoader(object):
                 modPathList.reverse()
                 for modPath in modPathList:
                     yield '%s:%s' % (modPath, clsName)
-                    #classMixin(kls,'%s:%s'%(modPath,clsName),only_callables=False,site=self)
             else:
                 raise GnrMixinError('Cannot import component %s' % modName)
                 
@@ -458,7 +463,9 @@ class ResourceLoader(object):
         return resource_class
 
     def loadResource(self, *path, **kwargs):
-        return self.getResourceClass(*path, **kwargs)()
+        component_class = self.getResourceClass(*path, **kwargs)
+        component_instance = component_class()
+        return component_instance
                  
     def mixinPageComponent(self, page, *path,**kwargs):
         """This method is used to mixin a component to a :ref:`webpage` at any time
@@ -493,7 +500,8 @@ class ResourceLoader(object):
             resource_module = gnrImport(modPath, avoidDup=True)
             custom_resource_class = getattr(resource_module, class_name, None)
             if resource_class:
-                resource_class = clonedClassMixin(resource_class,custom_resource_class,only_callables=False)
+                resource_class = clonedClassMixin(resource_class,custom_resource_class,only_callables=False,
+                            proxy_base_class=GnrBaseProxy)
         resource_class.py_extends = getattr(resource_class,'py_extends',None)
         return resource_class
 
@@ -553,7 +561,8 @@ class ResourceLoader(object):
                                                             ignoreCust=ignoreCust)
             
             resource_class = clonedClassMixin(parent_class,resource_class,
-                                            exclude='py_extends',only_callables=False)
+                                            exclude='py_extends',only_callables=False,
+                                            proxy_base_class=GnrBaseProxy)
         
         resource_class._gnrPublicName = '_tblscript.%s.%s.%s.%s' %(pkgname,tablename,respath,class_name)
         return resource_class,table
