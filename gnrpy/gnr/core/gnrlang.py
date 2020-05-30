@@ -780,7 +780,7 @@ def clonedClassMixin(target_class, source_class, methods=None, only_callables=Tr
     return target_class
 
 def classMixin(target_class, source_class, methods=None, only_callables=True,
-               exclude='js_requires,css_requires,py_requires',proxy_base_class=None,**kwargs):
+               exclude='js_requires,css_requires,py_requires',**kwargs):
     """Add to the class methods from 'source'.
     
     :param target_class: TODO
@@ -812,7 +812,7 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
             if source_class:
                 classMixin(target_class, source_class, methods=methods,
                             only_callables=only_callables, exclude=exclude,
-                            proxy_base_class=proxy_base_class,**kwargs)
+                            **kwargs)
         return
     if source_class is None:
         return
@@ -821,7 +821,7 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
         for cls_address in py_requires_iterator:
             classMixin(target_class, cls_address, methods=methods,
                        only_callables=only_callables, exclude=exclude, 
-                       proxy_base_class=proxy_base_class,**kwargs)
+                       **kwargs)
     exclude_list = dir(type) + ['__weakref__', '__onmixin__', '__on_class_mixin__', '__py_requires__','proxy']
     if exclude:
         exclude_list.extend(exclude)
@@ -837,7 +837,7 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
             proxy = source_class.__name__.lower()
         proxy_class =  getattr(target_class, '%s_proxyclass'%proxy, None)
         if not proxy_class:
-            proxy_class = proxy_base_class or BaseProxy
+            proxy_class = getattr(target_class,'proxy_class',BaseProxy) 
             setattr(target_class,'%s_proxyclass'%proxy,proxy_class)
         target_class = proxy_class
     __mixin_pkg = getattr(source_class, '__mixin_pkg', None)

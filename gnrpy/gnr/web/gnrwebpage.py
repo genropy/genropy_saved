@@ -37,6 +37,7 @@ from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boo
 from mako.lookup import TemplateLookup
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebreqresp import GnrWebRequest, GnrWebResponse
+from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.web.gnrwebpage_proxy.apphandler import GnrWebAppHandler
 from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
 from gnr.web.gnrwebpage_proxy.serverbatch import GnrWebBatch
@@ -118,6 +119,9 @@ class GnrWebPage(GnrBaseWebPage):
     :param packageId: TODO
     :param basename: TODO
     :param environ: TODO"""
+
+    proxy_class = GnrBaseProxy
+    
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, pluginId=None, basename=None, environ=None, class_info=None,_avoid_module_cache=None):
         self._inited = False
@@ -976,8 +980,7 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             proxy_object = getattr(self, proxy_name, None)
         if not proxy_object:
-            proxy_class = self.pluginhandler.get_plugin(proxy_name)
-            proxy_object = proxy_class(self)
+            proxy_object = self.pluginhandler.get_plugin(proxy_name)
         else:
             if '.' in submethod:
                 sl = submethod.split('.')
