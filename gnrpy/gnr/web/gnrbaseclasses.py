@@ -24,6 +24,7 @@
 #Copyright (c) 2007 Softwell. All rights reserved.
 
 import os,sys,math
+from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrhtml import GnrHtmlSrc
 from gnr.core.gnrdecorator import extract_kwargs
@@ -104,6 +105,7 @@ def zzzcomponent_hook(func_or_name):
         
 class BaseComponent(object):
     """The base class for the :ref:`components`"""
+    proxy_class = GnrBaseProxy
     def __onmixin__(self, _mixinsource, site=None):
         js_requires = splitAndStrip(getattr(_mixinsource, 'js_requires', ''), ',')
         css_requires = splitAndStrip(getattr(_mixinsource, 'css_requires', ''), ',')
@@ -156,6 +158,7 @@ class BagFieldForm(BaseComponent):
         
 class BaseResource(GnrObject):
     """Base class for a webpage resource"""
+    proxy_class = GnrBaseProxy
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             if v:

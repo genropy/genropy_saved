@@ -931,7 +931,7 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     source_dir = dir(source)
     proxies = {k:getattr(source, k) for k in source_dir if k.endswith('_proxyclass')}
     mlist = [k for k in source_dir if
-             callable(getattr(source, k)) and not k in dir(type) + ['__weakref__', '__onmixin__','mixin']+proxies.keys()]
+             callable(getattr(source, k)) and not k in dir(type) + ['__weakref__', '__onmixin__','mixin','proxy_class','proxy_class_']+proxies.keys()]
     
     instmethod = type(obj.__init__)
     if methods:
@@ -943,7 +943,7 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     for k,proxyclass in proxies.items():
         for mname in dir(proxyclass):
             proxyitem = getattr(proxyclass,mname)
-            if callable(proxyitem) and mname not in dir(type)+['__weakref__', '__onmixin__','mixin']:
+            if callable(proxyitem) and mname not in dir(type)+['__weakref__', '__onmixin__','mixin','proxy_class','proxy_class_']:
                 method = proxyitem.im_func
                 method.__mixin_pkg = __mixin_pkg
                 method.__mixin_path = __mixin_path
