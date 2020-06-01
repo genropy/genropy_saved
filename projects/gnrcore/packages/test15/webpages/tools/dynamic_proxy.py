@@ -17,6 +17,7 @@ class GnrCustomWebPage(object):
         self.sheldon.seatOnCouch()
         self.sheldon.callPenny()
         self.sheldon.fakeLaugh()
+        self.sheldon.bazingaBox(pane)
 
     
     def test_1_remote(self,pane):

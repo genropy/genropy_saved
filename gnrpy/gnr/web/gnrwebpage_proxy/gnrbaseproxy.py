@@ -14,6 +14,8 @@ class GnrBaseProxy(object):
         ## For every method starting with 'event_' self.page._subscribe_event is called
         self.init(**kwargs)
 
+    def __getattr__(self,name):
+        return getattr(self.page,name)
         
     def init(self, **kwargs):
         """Hook method. You can customize the ``__init__`` method"""
