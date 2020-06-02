@@ -1,16 +1,21 @@
 from gnr.core.gnrdecorator import public_method
-from gnrpkg.test15.proxies.bbt import TvSeries,BigBangProxy
+from gnr.web.gnrbaseclasses import BaseComponent,page_proxy
+#from gnrpkg.test15.proxies.bbt import TvSeries,BigBangProxy
 
-class Sheldon(TvSeries,BigBangProxy):  
+@page_proxy
+class BigBangProxy(BaseComponent):
+    def fakeLaugh(self):
+        print('AH AH AH')
+
+@page_proxy
+class Sheldon(BaseComponent):  
     py_requires = 'gnrcomponents/framegrid:FrameGrid' 
-    proxy=True
 
     def printBazinga(self):
         print('bazinga')
 
     @public_method
     def remoteBazinga(self):
-        print(x)
         return 'bazinga'
 
     def bazingaBox(self,pane):
@@ -20,9 +25,10 @@ class Sheldon(TvSeries,BigBangProxy):
     def trovaProvincia(self):
         return  self.db.table('glbl.provincia').query(limit=1).fetch()[0]
 
-
-class Leonard(object):
-    proxy= 'sheldon'
+@page_proxy(inherites='test_proxy:BigBangProxy')
+class Leonard(BaseComponent):
+    def makeBox(self,pane):
+        pane.div('Hello everybody')
 
     @public_method
     def callPenny(self):

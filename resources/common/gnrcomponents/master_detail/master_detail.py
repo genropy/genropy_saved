@@ -21,18 +21,52 @@
 """
 Component for GridCustomizer:
 """
-from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import public_method
+from gnr.web.gnrbaseclasses import BaseComponent,page_proxy
+from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrdict import dictExtract
 DEFAULT_MD_MODE = 'STD'
 
     
-
-class DetailCustomizer(BaseComponent):
-    proxy = True
+@page_proxy
+class MasterDetail(BaseComponent):
     py_requires = 'gnrcomponents/framegrid:FrameGrid'
+    master_md_mode = None
+    detail_grid_customizer = None
+    detail_tbl = None
+    detail_viewResource =None
+
+    @extract_kwargs(default=True)
+    def detailsGrid(self,pane,storepath=None,nodeId=None,title=None,
+                    datapath='#FORM.details',pbl_classes=True,table=None,
+                    md_mode=None,struct_customizer=None,
+                    viewResource=None,canSort=False,
+                    default_kwargs=None,**kwargs):
+        tbl = table or self.detail_tbl
+        default_kwargs.setdefault('main_column','=.md_customizer.main_column')
+        frame = pane.bagGrid(storepath=storepath,
+                        table=tbl,title=title,
+                        datapath=datapath,
+                        pbl_classes=pbl_classes,
+                        nodeId=nodeId or 'detailsGrid',
+                        grid_canSort=canSort,
+                        grid_remoteRowController= self.rowController,
+                        grid_remoteRowController_default = default_kwargs,
+                        grid_selfDragRows=True,
+                        **kwargs)
+        pkg,tblname = tbl.split('.')
+        viewResource = viewResource or 'th_{tbl}:{viewResourceClass}'.format(tbl=tblname,
+                                                                            viewResourceClass=self.detail_viewResource)
+        self.customizeGrid(frame.grid,resource=viewResource,
+                                md_mode=md_mode or '^#FORM.record.{md_mode}'.format(md_mode=self.master_md_mode),
+                                struct_customizer=struct_customizer or '#FORM.record.{}'.format(self.detail_grid_customizer))
+        self.detailsCustomization(frame)
+
+        return frame
+    
+    def detailsCustomization(self,frame):
+        return
 
     def inputCustomizer_struct(self, struct):
         r=struct.view().rows()

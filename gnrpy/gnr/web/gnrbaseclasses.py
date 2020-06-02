@@ -34,6 +34,31 @@ from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrbag import Bag
 
 
+def page_proxy(*args,**metadata):
+    """page proxy"""
+    if metadata:
+        def decore(cls):
+            cls.is_proxy = True
+            inherites =metadata.get('inherites',None)
+            if inherites:
+                py_requires = getattr(cls,'py_requires',None)
+                inherites_requires = ['{req} AS _CURRENT_PROXY_'.format(req=req) for req in inherites.split(',')]
+                inherites_requires = ','.join(inherites_requires)
+                if py_requires:
+                    py_requires = '{inherites_requires},{py_requires}'.format(inherites_requires=inherites_requires,
+                                                            py_requires=py_requires)
+                else:
+                    py_requires = inherites_requires
+                print('py_requires',py_requires)
+                cls.py_requires = py_requires
+            return cls
+        return decore
+    else:
+        cls = args[0]
+        cls.is_proxy = True 
+        return cls
+
+
 def page_mixin(func):
     """TODO
     

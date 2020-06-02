@@ -397,6 +397,8 @@ class ResourceLoader(object):
         resourceDirs = target_class.resourceDirs
         py_requires = [x for x in splitAndStrip(getattr(source_class, 'py_requires', ''), ',') if x] or []
         for path in py_requires:
+            if hasattr(source_class,'proxy_name'):
+                path = path.replace('_CURRENT_PROXY_',source_class.proxy_name)
             drive, path = os.path.splitdrive(path)
             if ':' in path:
                 modName, clsName = path.split(':')
