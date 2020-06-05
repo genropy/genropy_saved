@@ -115,9 +115,9 @@ class GnrCustomWebPage(object):
                 locbag.toXml(locbagpath)
 
     @public_method
-    def rebuildLocalizationFiles(self,enabledLanguages=None,localizationBlock=None):
+    def rebuildLocalizationFiles(self,enabledLanguages=None,localizationBlock=None,do_autotranslate=None):
         localizer = self.db.application.localizer
-        if localizer.translator and enabledLanguages:
+        if localizer.translator and enabledLanguages and do_autotranslate:
             localizer.autoTranslate(enabledLanguages)
         self.db.application.localizer.updateLocalizationFiles(localizationBlock=localizationBlock)
 
@@ -131,8 +131,12 @@ class GnrCustomWebPage(object):
         bar.mb.multiButton(value='^.currentLocalizationBlock',items='^.blocks',caption='code')
         languages = self.db.application.localizer.languages
         bar.fblang.formbuilder(cols=1,border_spacing='3px').checkboxText(value='^#FORM.enabledLanguages',values=','.join(["%s:%s" %(k,languages[k]) for k in sorted(languages.keys())]),popup=True,cols=4,lbl='!!Languages')
-        bar.updateLoc.slotButton('Rebuild localization',fire='#FORM.rebuildLocalization')
-        bar.dataRpc('dummy',self.rebuildLocalizationFiles,_fired='^#FORM.rebuildLocalization',
+        bar.updateLoc.slotButton('Rebuild',do_autotranslate=False,
+                                ask=dict(title='!![en]Options',
+                                        fields=[dict(name='do_autotranslate',tag='checkbox',
+                                                     label='!![en]Autotranslate')]),
+                                action='FIRE #FORM.rebuildLocalization = do_autotranslate')
+        bar.dataRpc('dummy',self.rebuildLocalizationFiles,do_autotranslate='^#FORM.rebuildLocalization',
                         enabledLanguages='=#FORM.enabledLanguages',
                     _onResult='this.form.reload()',localizationBlock='=.currentLocalizationBlock')
         form.dataController("""var attr = blocks.getAttr(currentLocalizationBlock);
@@ -151,8 +155,9 @@ class GnrCustomWebPage(object):
                                        var store = this.store.getData();
                                        store.forEach(function(n){
                                            var v = n.getValue();
-                                           var path = v.getItem('path');
-                                           if(!path.some(function(p){return p.replace(/\//g, '.').startsWith(selectedModule)})){
+                                           var path = v.getItem('path').filter(k=>!isNullOrBlank(k));
+                                           if(!path.some(function(p){                                                   
+                                               return p.replace(/\//g, '.').startsWith(selectedModule)})){
                                                result.push(v.getItem('_pkey'))
                                            }
                                        },'static');

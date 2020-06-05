@@ -142,7 +142,7 @@ class Table(object):
                     currattr['colname'] = colname
                 result.setItem(colname,None,_attributes=currattr)
                 currattr = result.getAttr(colname)
-                for permission in ('forbidden','readonly'):
+                for permission in ('forbidden','readonly','blurred'):
                     last = currattr.get(permission)
                     upd = updattr.get(permission)
                     if editMode:

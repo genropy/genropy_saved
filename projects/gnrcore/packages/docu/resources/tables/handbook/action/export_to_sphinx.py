@@ -7,8 +7,16 @@ from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
 from json import dumps
 import re
-import urllib
 import os
+import sys
+
+if sys.version_info[0] == 3:
+    from urllib.request import urlopen
+else:
+    # Not Python 3 - today, it is most likely to be Python 2
+    # But note that this might need an update when Python 4
+    # might be around one day
+    from urllib import urlopen
 
 caption = 'Export to sphinx'
 description = 'Export to sphinx'
@@ -33,7 +41,14 @@ class Main(BaseResourceBatch):
         self.sphinxNode = self.handbookNode.child('sphinx')
         self.sphinxNode.delete()
         self.sourceDirNode = self.sphinxNode.child('source')
-        self.page.site.storageNode('rsrc:pkg_docu','sphinx_env','default_conf.py').copy(self.page.site.storageNode(self.sourceDirNode.child('conf.py')))
+        confSn = self.sourceDirNode.child('conf.py')
+        self.page.site.storageNode('rsrc:pkg_docu','sphinx_env','default_conf.py').copy(self.page.site.storageNode(confSn))
+        theme = self.handbook_record['theme'] or 'sphinx_rtd_theme'
+        theme_path = self.page.site.storageNode('rsrc:pkg_docu','sphinx_env','themes').internal_path
+        html_baseurl =self.db.application.getPreference('.sphinx_baseurl',pkg='docu')
+        extra_conf = """html_theme = '%s'\nhtml_theme_path = ['%s/']\nhtml_baseurl='%s'\nsitemap_url_scheme = '%s/{link}'"""%(theme, theme_path, html_baseurl,self.handbook_record['name'])
+        with confSn.open('a') as confFile:
+            confFile.write(extra_conf)
         self.imagesDict = dict()
         self.imagesPath='_static/images'
         self.examplesPath='_static/_webpages'
@@ -73,7 +88,7 @@ class Main(BaseResourceBatch):
             source_url = self.page.externalUrl(v) if v.startswith('/') else v
             child = self.sourceDirNode.child(k)
             with child.open('wb') as f:
-                f.write(urllib.urlopen(source_url).read())
+                f.write(urlopen(source_url).read())
         for relpath,source in self.examplesDict.items():
             if not source:
                 continue
@@ -85,13 +100,19 @@ class Main(BaseResourceBatch):
         self.resultNode = self.sphinxNode.child('build')
         build_args = dict(project=self.handbook_record['title'],
                           version=self.handbook_record['version'],
-                          author=self.handbook_record['author'],
+                          #author=self.handbook_record['author'],
+                          author="Pippo",
                           release=self.handbook_record['release'],
-                          lang=self.handbook_record['language'])
+        # DAVIDE modificato mapping 'release' che non era utilizzato e verrà utilizzato invece nel tema per l'autore
+                          language=self.handbook_record['language'])
+        template_variables = dict()
         args = []
         for k,v in build_args.items():
             if v:
                 args.extend(['-D', '%s=%s' % (k,v)])
+        for k,v in template_variables.items():
+            if v:
+                args.extend(['-A', '%s=%s' % (k,v)])
         customStyles = self.handbook_record['custom_styles'] or ''
         customStyles = '%s\n%s' %(customStyles,self.defaultCssCustomization())
         with self.sourceDirNode.child(self.customCssPath).open('wb') as cssfile:
@@ -101,9 +122,9 @@ class Main(BaseResourceBatch):
         self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
 
 
-    def post_process(self):
-        self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
-        self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
+    #def post_process(self):
+    #    self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
+    #    self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
         
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./:-]+)")
@@ -112,6 +133,8 @@ class Main(BaseResourceBatch):
         TOCFINDER = re.compile(r"_TOC?(\w*)")
         EXAMPLE_FINDER = re.compile(r"`([^`]*)<javascript:localIframe\('version:([\w_]+)'\)>`_")
         result=[]
+        if not data:
+            return result
         for n in data:
             v = n.value
             record = self.doctable.record(n.label).output('dict')
@@ -123,9 +146,10 @@ class Main(BaseResourceBatch):
             self.hierarchical_name = record['hierarchical_name']
             if n.attr['child_count']>0:
                 result.append('%s/%s.rst' % (name,name))
-                toc_elements=self.prepare(v, pathlist+toc_elements)
-                self.curr_pathlist = pathlist+[name]
-                tocstring = self.createToc(elements=toc_elements,
+                if v:
+                    toc_elements=self.prepare(v, pathlist+toc_elements)
+                    self.curr_pathlist = pathlist+[name]
+                    tocstring = self.createToc(elements=toc_elements,
                             hidden=not record['sphinx_toc'],
                             titlesonly=True,
                             maxdepth=1)
@@ -147,11 +171,15 @@ class Main(BaseResourceBatch):
             if self.examples_root and self.curr_sourcebag:
                 rst = EXAMPLE_FINDER.sub(self.fixExamples, rst)
             rst=rst.replace('[tr-off]','').replace('[tr-on]','')
+            if record['author']:
+                footer = '\n.. sectionauthor:: %s\n'%record['author']
+            else:
+                footer= ''
             self.createFile(pathlist=self.curr_pathlist, name=name,
                             title=lbag['title'], 
                             rst=rst,
                             tocstring=tocstring,
-                            hname=record['hierarchical_name'])
+                            hname=record['hierarchical_name'], footer=footer)
         return result
 
     def fixExamples(self, m):
@@ -256,6 +284,7 @@ class Main(BaseResourceBatch):
 
     def defaultCssCustomization(self):
         return """/* override table width restrictions */
+
 @media screen and (min-width: 767px) {
 
    .wy-table-responsive table td {

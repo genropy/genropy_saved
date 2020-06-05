@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>1_06_Edit icon_16x16</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <g>
+      <polygon points="8.8 2.9 1.5 10.3 0 16 5.8 14.6 13.1 7.2 8.8 2.9" fill="#515151"/>
+      <polygon points="2.8 12.5 10.6 4.8 11.3 5.5 3.5 13.2 2.8 12.5" fill="#fff"/>
+      <path d="M9.6,2.2,11.4.4a1.5,1.5,0,0,1,2.1,0l2.1,2.1a1.5,1.5,0,0,1,0,2.1L13.8,6.4Z" fill="#515151"/>
+    </g>
+  </g>
+</svg>

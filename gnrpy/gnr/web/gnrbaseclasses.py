@@ -25,11 +25,11 @@
 
 import os,sys,math
 from gnr.core.gnrbaghtml import BagToHtml
+from gnr.core.gnrhtml import GnrHtmlSrc
 from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrstring import  splitAndStrip, slugify,templateReplace
 from gnr.core.gnrlang import GnrObject
-from gnr.core.gnrstring import flatten
 from gnr.core.gnrbag import Bag
 
 
@@ -149,6 +149,10 @@ class BaseComponent(object):
         
         loader = currentSite().resource_loader
         return loader.py_requires_iterator(cls, target_class)
+
+class BagFieldForm(BaseComponent):
+    pass
+
         
 class BaseResource(GnrObject):
     """Base class for a webpage resource"""
@@ -168,6 +172,27 @@ class BaseWebtool(object):
     """TODO"""
     pass
         
+class GnrTableScriptHtmlSrc(GnrHtmlSrc):
+    def cellFromField(self, field=None, width=0, 
+                content_class=None,
+             lbl=None, lbl_class=None, 
+             lbl_height=None, 
+             cell_border=None,
+             border_width=None, 
+             **kwargs):
+        tableScriptInstance = self.root._parentWrapper.parent
+        if field:
+            colobj = tableScriptInstance.tblobj.column(field)
+            content = tableScriptInstance.field(field)
+            lbl = lbl or colobj.attributes.get('name_long')
+        lbl = tableScriptInstance.localize(lbl)
+        self.cell(content=content, width=width, 
+                        content_class=content_class,
+                        lbl=lbl, lbl_class=lbl_class, 
+                        lbl_height=lbl_height, 
+                        cell_border=cell_border,
+                        border_width=border_width, 
+                        **kwargs)
 
 class TableScriptToHtml(BagToHtml):
     """TODO"""
@@ -179,9 +204,12 @@ class TableScriptToHtml(BagToHtml):
     css_requires = 'print_stylesheet'
     client_locale = False
     row_relation = None
+    subtotal_caption_prefix = '!![en]Totals'
 
-    def __init__(self, page=None, resource_table=None, **kwargs):
-        super(TableScriptToHtml, self).__init__(**kwargs)
+
+    def __init__(self, page=None, resource_table=None, parent=None, **kwargs):
+        super(TableScriptToHtml, self).__init__(srcfactory=GnrTableScriptHtmlSrc,**kwargs)
+        self.parent = parent
         self.page = page
         self.site = page.site
         self.db = page.db
@@ -192,11 +220,13 @@ class TableScriptToHtml(BagToHtml):
         self.thermo_wrapper = self.page.btc.thermo_wrapper
         self.print_handler = self.page.getService('htmltopdf')
         self.pdf_handler = self.page.getService('pdf')
-
         self.letterhead_sourcedata = None
+        self._gridStructures = {}
         self.record = None
         
-    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, **kwargs):
+
+    def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None,record_idx=None, resultAs=None,
+                    language=None,locale=None,**kwargs):
         if not record:
             return
         self.thermo_kwargs = thermo
@@ -206,12 +236,20 @@ class TableScriptToHtml(BagToHtml):
         else:
             record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
         html_folder = self.getHtmlPath(autocreate=True)
+        if locale:
+            self.locale = locale #locale forced
+        self.language = language    
+        if self.language:
+            self.language = self.language.lower()
+            self.locale = locale or '{language}-{languageUPPER}'.format(language=self.language,
+                                        languageUPPER=self.language.upper())
+        elif self.locale:
+            self.language = self.locale.split('-')[0].lower()
         result = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
-        
         if not result:
             return False
         if not pdf:
-            return result
+            return self.getHtmlUrl(os.path.basename(self.filepath)) if resultAs=='url' else result
         if not isinstance(result, list):
             self.writePdf(docname=self.getDocName())
         else:
@@ -219,9 +257,9 @@ class TableScriptToHtml(BagToHtml):
         if downloadAs:
             with open(self.pdfpath, 'rb') as f:
                 result = f.read()
-            return result
+            return result            
         else:
-            return self.pdfpath
+            return self.getPdfUrl(os.path.basename(self.pdfpath)) if resultAs=='url' else self.pdfpath
             #with open(temp.name,'rb') as f:
             #    result=f.read()
 
@@ -249,7 +287,6 @@ class TableScriptToHtml(BagToHtml):
         for pdf in pdfToJoin:
             os.remove(pdf)
 
-
     def get_css_requires(self):
         """TODO"""
         css_requires = []
@@ -276,8 +313,7 @@ class TableScriptToHtml(BagToHtml):
     def gridColumnsInfo(self,gridname=None):
         if self.grid_columns:
             return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
-        struct = self.page.newGridStruct(maintable=self.gridTable())
-        self.gridStruct(struct)
+        struct = self.getStruct(gridname=gridname)
         self.structAnalyze(struct)
         return dict(columns=self.gridColumnsFromStruct(struct=struct),
                     columnsets=self.gridColumnsetsFromStruct(struct))
@@ -287,43 +323,82 @@ class TableScriptToHtml(BagToHtml):
             return dict()
         return dict([(l[0],l[1]) for l in struct['info.columnsets'].digest('#k,#a')])
     
+    def setStruct(self,struct=None,gridname=None):
+        gridname = gridname or '_main_'  
+        self._gridStructures[gridname] = struct
+
+    def getStruct(self,gridname=None):
+        gridname = gridname or '_main_'
+        struct = self._gridStructures.get(gridname)
+        if struct is None:
+            struct = self.page.newGridStruct(maintable=self.gridTable())
+            self.gridStruct(struct)
+            self._gridStructures[gridname] = struct
+        return struct
+
     def gridStruct(self,struct):
         pass
 
     def structAnalyze(self,struct,grid_width=None,grid_border_width=None):
-        layoutPars = self.mainLayoutParamiters()
+        layoutPars = self.mainLayoutParameters()
         gridPars = self.gridLayoutParameters()
         calcGridWidth =  self.copyWidth() - \
                         layoutPars.get('left',0)-layoutPars.get('right',0) -\
                         gridPars.get('left',0) - gridPars.get('right',0)
         grid_width = grid_width or gridPars.get('width') or calcGridWidth
         columns = struct['view_0.rows_0'].digest('#a')
-        min_grid_width =  sum([(col.get('mm_width') or col.get('mm_min_width') or  20) for col in columns])
+        min_grid_width =  sum([(col.get('mm_width') or col.get('mm_min_width') or  15) for col in columns])
         extra_space = grid_width-min_grid_width
         if extra_space>=0:
             return
-        head_col_total_width = sum([(col.get('mm_width') or col.get('mm_min_width') or  20) for col in columns if col.get('headColumn')]) 
+        head_col_total_width = sum([(col.get('mm_width') or col.get('mm_min_width') or  15) for col in columns if col.get('headColumn')]) 
         grid_free_width = grid_width-head_col_total_width
         net_min_grid_width = min_grid_width-head_col_total_width
         sheet_count = int(math.ceil(float(net_min_grid_width)/grid_free_width))
         sheet_delta = 0
-        while sheet_delta<3 and not self._structAnalyze_step(columns,net_min_grid_width,sheet_count+sheet_delta):
+        while sheet_delta<3 and not self._structAnalyze_step(columns,net_min_grid_width,sheet_count+sheet_delta,grid_width):
             sheet_delta+=1
-        self.sheets_counter = sheet_count+1
+        self.sheets_counter =(max(struct['view_0.rows_0'].digest('#a.sheet')) or 0)+1
     
-    def _structAnalyze_step(self,columns,net_min_grid_width,sheet_count):
-        sheet_space_available = float(net_min_grid_width)/ sheet_count
+    def _structAnalyze_step(self,columns,net_min_grid_width,sheet_count,grid_width):
+        sheet_space_available = grid_width-float(net_min_grid_width)/ sheet_count
         s = -1
         tw = 0
-        for col in columns:
-            if not col.get('headColumn'): 
-                tw -= col['mm_width']
-                if tw<=0:
-                    tw += sheet_space_available
-                    s+=1
-                if s>sheet_count:
+        max_ncol = len(columns)-1
+        ncol = -1
+        while ncol<max_ncol:
+            ncol+=1
+            col = columns[ncol]
+            if  col.get('headColumn'):
+                continue
+            columnset = col.get('columnset')
+            k = ncol
+            mm_width = 0
+            grouped_cols = []
+            nextcol = True
+            while nextcol:
+                col = columns[k]
+                grouped_cols.append(col)
+                mm_width += col['mm_width']
+                if not columnset:
+                    nextcol = False
+                else:
+                    k+=1
+                    if k>max_ncol or columns[k].get('columnset')!=columnset:
+                        nextcol = False
+                        k-=1
+            colonne = ','.join([c['name'] for c in grouped_cols])
+            dd = dict(numero=ncol,titolo=columns[ncol]['name'],colset=columnset,mm_width=mm_width,colonne=colonne)
+            #print (dd)
+            ncol = k
+            tw -= mm_width
+            if tw<=0:
+                tw += sheet_space_available
+                s += 1
+                if s>=sheet_count:
                     return False
-                col['sheet'] = s
+            for c in grouped_cols:
+                c['sheet'] = s
         return True
     
     def structFromResource(self,viewResource=None,table=None):
@@ -338,28 +413,65 @@ class TableScriptToHtml(BagToHtml):
     def gridColumnsFromStruct(self,struct=None):
         grid_columns = []
         cells = struct['view_0.rows_0'].nodes
-        columns = []
         for n in cells:
             attr = n.attr
-            field =  attr.get('field')
-            field_getter = attr.get('field_getter') or attr.get('caption_field') or field
+            field =  attr.get('caption_field') or attr.get('field')
+            field_getter = attr.get('field_getter') or field
             if isinstance(field_getter,basestring):
-                field_getter = flatten(field_getter)
+                field_getter = self._flattenField(field_getter)
             group_aggr = attr.get('group_aggr')
             if group_aggr:
                 field_getter = '%s_%s' %(field_getter,group_aggr)
-            pars = dict(field=field,name=self.page.localize(attr.get('name')),field_getter=field_getter,
-                        mm_width=attr.get('mm_width'),format=attr.get('format'),
+            content_class = attr.get('cellClasses') or attr.get('content_class')
+            lbl_class = attr.get('headerClasses') or attr.get('lbl_class')
+            extra_kw = dictExtract(attr,'colextra_*')
+            mm_width = attr.get('mm_width') 
+            hidden = attr.get('hidden')
+            if mm_width==-1: #shared structure visible in grid not in print
+                mm_width = None
+                hidden = True
+            pars = dict(field=field,name=self.localize(attr.get('name')),field_getter=field_getter,
+                        mm_width=mm_width,format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),
-                        style=attr.get('style'),sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
+                        subtotal=attr.get('subtotal'),
+                        subtotal_order_by=attr.get('subtotal_order_by'),
+                        style=attr.get('style'), content_class = content_class, lbl_class=lbl_class,
+                        sqlcolumn=attr.get('sqlcolumn'),dtype=attr.get('dtype'),
                         columnset=attr.get('columnset'),sheet=attr.get('sheet','*'),
-                        totalize=attr.get('totalize'),formula=attr.get('formula'))
+                        totalize=attr.get('totalize'),formula=attr.get('formula'),
+                        background=attr.get('background'),color=attr.get('color'),
+                        hidden=hidden,**extra_kw)
+            if self.row_table:
+                self._calcSqlColumn(pars)
             grid_columns.append(pars)
         return grid_columns
+
+    def _calcSqlColumn(self,col):
+        sqlcolumn = col.get('sqlcolumn')
+        if sqlcolumn:
+            return
+        field = col['field']
+        if field.startswith('@'):
+            col['sqlcolumn'] = col['field']
+        else:
+            columnobj = self.db.table(self.row_table).column(field)
+            if columnobj is not None:
+                col['sqlcolumn'] = '${}'.format(field)
+        if field!=col['field_getter']:
+             col['sqlcolumn'] = '{} AS {}'.format(col['sqlcolumn'],col['field_getter'])
     
+    def localize(self, value,language=None):
+        return self.page.localize(value,language = language or self.language)
+
     def gridQueryParameters(self):
         #override
         return dict()
+    
+    def sortLines(self, lines):
+        if self.grid_subtotal_order_by:
+            return lines
+        return super(TableScriptToHtml, self).sortLines(lines)
+
 
     def gridTable(self):
         if self.row_table:
@@ -376,12 +488,20 @@ class TableScriptToHtml(BagToHtml):
         fkey = many.pop()
         return dict(table=str('.'.join(many)),condition='$%s=:_fkey' %fkey,condition__fkey=self.record[self.tblobj.pkey])
 
+
+    def currentSelectionQueryParameters(self):
+        rowtable_obj = self.db.table(self.row_table)
+        return dict(condition='${pkey} IN :selectionPkeys'.format(pkey=rowtable_obj.pkey),
+                    condition_selectionPkeys=self.record['selectionPkeys'])
+    
     def gridData(self):
         #overridable
         self.row_mode = 'attribute'
         parameters = dict(self.gridQueryParameters())
+        if self.record['selectionPkeys'] and (not parameters or self.parameter('use_current_selection')):
+            parameters = self.currentSelectionQueryParameters()
         if not parameters:
-            raise Exception('You must define gridQueryParameters or gridData')
+            raise Exception('You must define gridQueryParameters or gridData or use_current_selection')
         condition_kwargs = dictExtract(parameters,'condition_',pop=True)
         parameters.update(condition_kwargs)
         condition = parameters.pop('condition',None)
@@ -400,28 +520,42 @@ class TableScriptToHtml(BagToHtml):
         if hidden_columns:
             columns = '%s,%s' %(hidden_columns,columns)
         rowtblobj = self.db.table(self.row_table)
-        return rowtblobj.query(columns=columns,where= ' AND '.join(where),**parameters
-                                ).selection(_aggregateRows=True).output('grid',recordResolver=False)
+        if self.grid_subtotal_order_by:
+            parameters['order_by'] = self.grid_subtotal_order_by
+        sel = rowtblobj.query(columns=columns,where= ' AND '.join(where),**parameters
+                                ).selection(_aggregateRows=True)
+
+
+        if not parameters.get('order_by') and self.record['selectionPkeys']: #same case of line 493
+            sel.data.sort(key = lambda r : self.record['selectionPkeys'].index(r['pkey']))
+        return sel.output('grid',recordResolver=False)
+
 
     @property
     def grid_sqlcolumns(self):
-        return ','.join([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')])
-                
+        return ','.join(set([c['sqlcolumn'] for c in self.gridColumnsInfo()['columns'] if c.get('sqlcolumn')]))
+
+    @property
+    def grid_subtotal_order_by(self):
+        return ','.join(set([c['subtotal_order_by'] for c in self.gridColumnsInfo()['columns'] if c.get('subtotal_order_by')]))
+         
+        
+        
     def getHtmlPath(self, *args, **kwargs):
         """TODO"""
-        return self.site.getStaticPath(self.html_folder, *args, **kwargs)
+        return self.site.storageNode(self.html_folder, *args, **kwargs).internal_path
         
     def getPdfPath(self, *args, **kwargs):
         """TODO"""
-        return self.site.getStaticPath(self.pdf_folder, *args, **kwargs)
+        return self.site.storageNode(self.pdf_folder, *args, **kwargs).internal_path
         
     def getHtmlUrl(self, *args, **kwargs):
         """TODO"""
-        return self.site.getStaticUrl(self.html_folder, *args, **kwargs)
+        return self.site.storageNode(self.html_folder, *args).url(**kwargs)
         
     def getPdfUrl(self, *args, **kwargs):
         """TODO"""
-        return self.site.getStaticUrl(self.pdf_folder, *args, **kwargs)
+        return self.site.storageNode(self.pdf_folder, *args).url(**kwargs)
         
     def outputDocName(self, ext=''):
         """TODO
@@ -430,7 +564,7 @@ class TableScriptToHtml(BagToHtml):
             ext = '.%s' % ext
         caption = ''
         if self.record is not None:
-            caption = slugify(self.tblobj.recordCaption(self.getData('record')))
+            caption = slugify(self.tblobj.recordCaption(self.record))
             idx = self.record_idx
             if idx is not None:
                 caption = '%s_%i' %(caption,idx)

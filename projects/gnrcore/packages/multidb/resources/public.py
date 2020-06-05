@@ -17,7 +17,7 @@ from gnr.web.gnrwebstruct import struct_method
 class Public(BaseComponent):
     @oncalled
     def public_applyOnRoot(self,frame,**kwargs):
-        if self.dbstore:
+        if self.dbstore or self.site.currentAuxInstanceName:
             return
         if self._getMultiDbSelector():
             bar = frame.top.bar
@@ -46,7 +46,7 @@ class Public(BaseComponent):
         multidb_selector = self._getMultiDbSelector() 
         extra_kw = {} if multidb_selector is True else multidb_selector
         fb.dbSelect(value='^current.context_dbstore',_storename=False,dbtable=storetable,
-                    alternatePkey='dbstore',font_size='.8em',lbl_color='white',
+                    alternatePkey='dbstore',font_size='.8em',
                     color='#666',lbl_font_size='.8em',lbl=self.db.table(storetable).name_long,**extra_kw)
 
 class TableHandlerMain(BaseComponent):
@@ -59,7 +59,7 @@ class TableHandlerMain(BaseComponent):
         multidb_selector = self._getMultiDbSelector() 
         extra_kw = {} if multidb_selector is True else multidb_selector
         fb.dbSelect(value='^current.context_dbstore',_storename=False,dbtable=storetable,
-                    alternatePkey='dbstore',font_size='.8em',lbl_color='white',
+                    alternatePkey='dbstore',font_size='.8em',
                     disabled='^%s.form.pkey' %self.maintable.replace('.','_'),
                     color='#666',lbl_font_size='.8em',lbl=self.db.table(storetable).name_long,**extra_kw)
         fb.dataController("FIRE %s.view.runQueryDo;" %self.maintable.replace('.','_'),
@@ -79,7 +79,13 @@ class TableHandlerMain(BaseComponent):
         multidb = self.tblobj.multidb
         if not self.dbstore:
             if multidb is True:
-                bar = form.top.bar.replaceSlots(',*,',',*,cb_default_sub,10,')
+                spacers = form.top.bar.attributes.get('slots').split('*')
+                if not spacers:
+                    bar = form.top.bar.replaceSlots('#','2,cb_default_sub,#')
+                else:
+                    first_chunk=spacers[0]
+                    bar = form.top.bar.replaceSlots('{first_chunk}*'.format(first_chunk=first_chunk),
+                                                    '{first_chunk}*,cb_default_sub,10'.format(first_chunk=first_chunk))
                 bar.cb_default_sub.checkbox(value='^#FORM.record.__multidb_default_subscribed',
                                         label='!!Subscribed by default',margin_top='1px',
                                         label_color='#666',label_font_size='.9em',

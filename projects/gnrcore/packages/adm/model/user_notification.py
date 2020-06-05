@@ -22,7 +22,8 @@ class Table(object):
         usertbl = self.db.table('adm.user')
         source_record = usertbl.record(pkey=user_id).output('bag')
         htmlbuilder = TableTemplateToHtml(usertbl)
-        notification = htmlbuilder(record=source_record,template=Bag(notification_template)['compiled'],letterhead_id=letterhead_id,pdf=False)
+        #notification = htmlbuilder(record=source_record,template=Bag(notification_template)['compiled'],letterhead_id=letterhead_id,pdf=False)
+        notification = htmlbuilder.contentFromTemplate(record=user_id,template=Bag(notification_template)['compiled'])
         return dict(notification=notification,title=notification_title,confirm_label=confirm_label)
 
 

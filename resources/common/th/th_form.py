@@ -100,9 +100,14 @@ class TableHandlerForm(BaseComponent):
             fbname = kwargs.pop('fbname',None)
             if fbname:
                 fb = form.getFormBuilder(fbname,table=table)
-            if fb is None:
+            else:
                 fb = mainfb
-            fb.field(f,**kwargs)
+            formtable = form.attributes.get('table')
+            if fb is not None:
+                fbdbtable =fb.getInheritedAttributes().get('table')
+                if formtable and fbdbtable!=formtable:
+                    continue
+                fb.field(f,**kwargs)
 
     def _th_getPluggedCols(self,table):
         tblobj = self.db.table(table)
@@ -168,6 +173,8 @@ class TableHandlerForm(BaseComponent):
             form.attributes['_lazyBuild'] = options.pop('lazyBuild')
         if 'excludeCols' in options:
             form.attributes['excludeCols'] = options.pop('excludeCols')
+        if 'fkeyfield' in options:
+            form.attributes['fkeyfield'] = options.pop('fkeyfield')
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
         hierarchical = options.pop('hierarchical',None)   

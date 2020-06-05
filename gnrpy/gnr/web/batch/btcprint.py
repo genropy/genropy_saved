@@ -8,6 +8,7 @@
 
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrstring import slugify
+from gnr.core.gnrbag import Bag
 import os
 
 
@@ -21,6 +22,7 @@ class BaseResourcePrint(BaseResourceBatch):
     mail_address = ''
     mail_tags = 'admin'
     templates = '' #CONTROLLARE
+    batch_ask_options = 'sys.print.ask_options_enabled'
     batch_print_modes = ['pdf','server_print','mail_pdf','mail_deliver']
     batch_mail_modes = ['mail_pdf','mail_deliver']
     def __init__(self, *args, **kwargs):
@@ -38,10 +40,10 @@ class BaseResourcePrint(BaseResourceBatch):
 
     def _pre_process(self):
         self.pre_process()
-        self.batch_options = self.batch_parameters['batch_options']
-        self.print_mode = self.batch_options['print_mode']
+        self.batch_options = self.batch_parameters.get('batch_options') or {}
+        self.print_mode = self.batch_options.get('print_mode','pdf')
         self.server_print_options = self.batch_parameters['_printerOptions']
-        self.print_options = self.batch_options[self.print_mode]
+        self.print_options = self.batch_options.get(self.print_mode) or {}
         self.network_printer = self.page.getService('networkprint')
         self.pdf_handler = self.page.getService('pdf')
         self.pdf_make = self.print_mode != 'client_print'
@@ -100,8 +102,12 @@ class BaseResourcePrint(BaseResourceBatch):
         return
         
     def do(self):
-        self.print_selection()
-    
+        if self.htmlMaker and self.htmlMaker.maintable == self.htmlMaker.row_table:
+            self.htmlMaker.row_table = self.tblobj.fullname
+            self.print_record(record=Bag(dict(selectionPkeys=self.get_selection_pkeys())),
+                              storagekey='__mainrecord__',idx=0)
+        else:
+            self.print_selection()
         
     def get_record_caption(self, item, progress, maximum, **kwargs):
         caption = '%s (%i/%i)' % (self.tblobj.recordCaption(item),
@@ -144,7 +150,14 @@ class BaseResourcePrint(BaseResourceBatch):
         print x
         
     def result_handler_pdf(self, resultAttr):
-        save_as = slugify(self.print_options['save_as'] or self.batch_title)
+        if not self.results:
+            return '{btc_name} completed'.format(btc_name=self.batch_title), dict()
+        save_as = slugify(self.print_options.get('save_as') or self.batch_parameters.get('save_as') or '')
+        if not save_as:
+            if len(self.results)>1:
+                save_as = slugify(self.batch_title)
+            else:
+                save_as =  self.page.site.storageNode(self.results['#0']).cleanbasename
         outputFileNode=self.page.site.storageNode('user:output', 'pdf', save_as,autocreate=-1)
         zipped =  self.print_options.get('zipped')
         immediate_mode = self.batch_immediate

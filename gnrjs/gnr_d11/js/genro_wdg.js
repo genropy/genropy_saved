@@ -1919,6 +1919,8 @@ dojo.declare("gnr.GridChangeManager", null, {
             }
         }
         var cellmap = this.grid.cellmap;
+        pars._currcell = cellmap[formulaKey];
+        pars._rowNode = rowNode;
         for (var cl in cellmap){
             pars[cl] = pars[cl];
         }

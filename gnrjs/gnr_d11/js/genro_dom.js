@@ -31,7 +31,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         this.pendingHeaders = {};
         this.css3AttrNames = ['rounded','gradient','shadow','transform','transition','zoom','filter'];
         this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom', 'resize',
-            'visibility','opacity', 'overflow', 'float', 'clear', 'display',
+            'visibility','opacity', 'overflow', 'float', 'clear', 'display','line_height',
             'z_index', 'border','position','padding','margin','cursor',
             'color','white_space','vertical_align','background','font','text'].concat(this.css3AttrNames);
         
@@ -1295,19 +1295,37 @@ dojo.declare("gnr.GnrDomHandler", null, {
         return m.join();
     },
 
-    scrollableTable:function(domnode, gridbag, kw) {
+    scrollableTable:function(where, gridbag, kw) {
+        var domnode = this.getDomNode(where);
         var max_height = kw.max_height || '180px';
+        var cols = [];
         var columns = kw.columns;
         var headers = kw.headers;
+        if(kw.struct){
+            cols = kw.struct.getItem('#0.#0').getNodes().map(n=>n.attr);
+        }else{
+            columns.forEach(function(c,idx){
+                cols.push({field:c,name:headers[idx]});
+            });
+        }
         var tblclass = kw.tblclass;
         var thead = '<thead onmouseup="dojo.stopEvent(event)"><tr>';
-        for (var k = 0; k < columns.length; k++) {
-            thead = thead + "<th>" + headers[k] + "</th>";
+        var autoWidth = true;
+        cols.forEach(function(cell){
+            let style = cell.style || '';
+            if(cell.width){
+                style = "width:"+cell.width;
+                autoWidth = false;
+            }
+            thead += `<th style="${style}">${cell.name}</th>`;
+        });
+        if(autoWidth){
+            thead = thead + "<th style='width:13px;'>&nbsp</th></thead>";
         }
-        thead = thead + "<th style='width:13px;'>&nbsp</th></thead>";
         var nodes = gridbag.getNodes();
         var item,r, value,v,_customClasses,rowvalidation;
         var tbl = ["<tbody>"];
+        var totalizers = {};
         for (var i = 0; i < nodes.length; i++) {
             r = "";
             item = nodes[i].attr;
@@ -1316,24 +1334,48 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 rowvalidation = ' onmouseup="dojo.stopEvent(arguments[0]);" _is_valid_item="false" '
             }
             _customClasses = objectPop(item,'_customclasses') || objectPop(item,'_customClasses');
-            more_customclasses = objectExtract(item,'_customclasses_*')
+            let more_customclasses = objectExtract(item,'_customclasses_*')
             if(more_customclasses){
                 _customClasses = (_customClasses || '');
                 for(var cck in more_customclasses){
                     _customClasses = _customClasses+' '+more_customclasses[cck];
                 }
             }
-            
             _customClasses = _customClasses? 'class="'+_customClasses+'"':'';
-            for (var k = 0; k < columns.length; k++) {
-                v =  item[columns[k]];
-                value = v==null?'&nbsp':v;
-                r = r + "<td>" + _F(value)+"</td>";
-            }
-
-            
+            cols.forEach(function(cell){
+                v =  item[cell.field];
+                let style = cell.style || '';
+                if(cell.width){
+                    style+=`width:${cell.width};`
+                }
+                if(cell.dtype && isNumericType(cell.dtype)){
+                    style += 'text-align:right;';
+                    if(cell.totalize){
+                        totalizers[cell.field] = (totalizers[cell.field] || 0)+(v || 0);
+                    }
+                }
+                value = isNullOrBlank(v)?'&nbsp':v;
+                r += `<td style="${style}">${_F(value,cell.format,cell.dtype)}</td>`;
+            });
             tbl.push('<tr id="' + nodes[i].label + '"  '+_customClasses+ rowvalidation + '>' + r + '</tr>');
         }
+        if(objectNotEmpty(totalizers)){
+            r = '';
+            cols.forEach(function(cell){
+                v =  totalizers[cell.field];
+                let style = cell.style || '';
+                if(cell.width){
+                    style+=`width:${cell.width};`
+                }
+                if(cell.dtype && isNumericType(cell.dtype)){
+                    style += 'text-align:right;';
+                }
+                value = isNullOrBlank(v)?'&nbsp':v;
+                r += `<td style="${style}">${_F(value,cell.format,cell.dtype)}</td>`;
+            });
+            tbl.push('<tr class="totalize_row">' + r + '</tr>');
+        }
+        
         tbl.push("</tbody>");
         var tbody = tbl.join('');
         var cbf = function(cgr) {
@@ -1352,18 +1394,19 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 var wh = hdrtr[i].clientWidth;
                 var wb = bodytr_first[i].clientWidth;
                 var wt = wh > wb ? wh : wb;
+                console.log('autoWidth',wt,autoWidth);
                 colgroup = colgroup + '<col width="' + wt + '"/>';
             }
-            ;
             domnode.innerHTML = cbf(colgroup);
             dojo.style(domnode, {width:'auto'});
             var rows = dojo.query('tbody tr', domnode);
-            for (var i = 0; i < rows.length; i++) {
+            for (let i = 0; i < rows.length; i++) {
                 rows[i].item = nodes[i];
             }
-            ;
         };
-        setTimeout(cb, 1);
+        if(autoWidth){
+            setTimeout(cb, 1);
+        }
     },
     setTextInSelection:function(sourceNode,valueToPaste){
         var fn = sourceNode.widget.focusNode;
@@ -1756,13 +1799,15 @@ dojo.declare("gnr.GnrDomHandler", null, {
     styleFields:function(parent,kw){
         var whitelist = kw.whitelist || [];
         var blacklist = kw.blacklist || [];
-        var fb = genro.dev.formbuilder(parent, 1, {border_spacing:'6px'});
+        var prefix = kw.prefix || '';
+        var fb = kw.parentFb? parent : genro.dev.formbuilder(parent, 1, {border_spacing:'6px'});
         var stylefield = function(tag,pars){
             var f = objectPop(pars,'field');
             if(blacklist.indexOf(f)>=0){
                 return;
             }
             if(whitelist.length==0 || whitelist.indexOf(f)>=0){
+                f = prefix+f;
                 pars.value ='^.'+f;
                 fb.addField(tag,pars);
             }

@@ -126,7 +126,7 @@ def build_instanceconfig_xml(path=None):
 def build_siteconfig_xml(path=None, gnrdaemon_password=None, gnrdaemon_port=None):
     siteconfig_bag = Bag()
     siteconfig_bag.setItem('wsgi', None, dict(debug=True, reload=True, port='8080'))
-    siteconfig_bag.setItem('gui', None, dict(css_theme='ludo'))
+    siteconfig_bag.setItem('gui', None, dict(css_theme='modern'))
     siteconfig_bag.setItem('jslib', None, dict(dojo_version='11', gnr_version='11'))
     siteconfig_bag.setItem('resources.common', None)
     siteconfig_bag.setItem('resources.js_libs', None)
@@ -926,12 +926,13 @@ class ThPackageResourceMaker(object):
                 self.write("fb.field('%s')"%column, indent=2)
             if len(children)>1:
                 self.write("tc = bc.tabContainer(region='center',margin='2px')", indent=2)
-                for c in children:
+                for c,mode in children:
                     self.write("tab_%s = tc.contentPane(title='%s')" %(c.replace('@',''),(tblobj.name_plural or tblobj.name_long)), indent=2)
-                    self.write("tab_%s.dialogTableHandler(relation='%s')" %(c.replace('@',''),c), indent=2)
+                    self.write("tab_%s.%sTableHandler(relation='%s')" %(c.replace('@',''),mode,c), indent=2)
             else:
+                c,mode = children[0]
                 self.write("center = bc.contentPane(region='center')", indent=2)
-                self.write("center.plainTableHandler(relation='%s')" %children[0], indent=2)
+                self.write("center.%sTableHandler(relation='%s')" %(mode,c), indent=2)
         else:
             self.write("pane = form.record", indent=2)
             self.write("fb = pane.formbuilder(cols=%i, border_spacing='4px')"%self.option_columns, indent=2)
@@ -945,14 +946,18 @@ class ThPackageResourceMaker(object):
         self.write()
         self.write()
         self.write("def th_options(self):", indent=1)
-        self.write("return dict(dialog_height='400px', dialog_width='600px')", indent=2)
+        hierarchical  = tblobj.column('hierarchical_pkey') is not None
+        hierarchical_chunk = ''
+        if hierarchical:
+            hierarchical_chunk = 'hierarchical=True'
+        self.write("return dict(dialog_height='400px', dialog_width='600px' %s)" %hierarchical_chunk, indent=2)
 
 
     def getChildrenRelations(self,tblobj):
         result = []
         for relation,j in tblobj.relations.digest('#k,#a.joiner'):
-            if j and j['mode'] == 'M' and j.get('onDelete') == 'cascade':
-                result.append(relation)
+            if j and j['mode'] == 'M' and j.get('thmode'):
+                result.append((relation,j.get('thmode')))
         return result
 
     def createResourceFile(self, table):
@@ -1007,11 +1012,12 @@ accesslog = '%(logs_path)s/access.log'
 errorlog = '%(logs_path)s/error.log'
 logfile = '%(logs_path)s/main.log'
 workers = %(workers)i
+threads = %(threads)i
 loglevel = 'error'
 chdir = '%(chdir)s'
 reload = False
 capture_output = True
-worker_class = 'gevent'
+#worker_class = 'gevent'
 max_requests = %(max_requests)i
 max_requests_jitter = %(max_requests_jitter)i
 timeout = 1800
@@ -1073,6 +1079,7 @@ class GunicornDeployBuilder(object):
         self.site_path = self.path_resolver.site_name_to_path(site_name)
         self.instance_path = self.path_resolver.instance_name_to_path(site_name)
         self.site_config = self.path_resolver.get_siteconfig(site_name)
+        self.instance_config = self.path_resolver.get_instanceconfig(site_name)
         if os.path.exists(os.path.join(self.site_path,'siteconfig.xml')):
             self.config_folder = self.site_path #oldconfig
         else:
@@ -1095,6 +1102,7 @@ class GunicornDeployBuilder(object):
         self.create_dirs()
         import multiprocessing
         self.default_workers = multiprocessing.cpu_count()* 2 + 1
+        self.default_workers = 4
         self.default_max_requests = 300
         self.default_max_requests_jitter = 50
         self.options = kwargs
@@ -1110,6 +1118,8 @@ class GunicornDeployBuilder(object):
         pars['gunicorn_socket_path'] = self.gunicorn_socket_path
         pars['pidfile_path'] = self.site_name
         pars['workers'] = int(opt.get('workers') or self.default_workers)
+        pars['threads'] = int(opt.get('threads') or self.default_threads)
+
         pars['pidfile_path'] = self.pidfile_path
         pars['site_path'] = self.site_path
         pars['logs_path'] = self.logs_path
@@ -1140,6 +1150,10 @@ class GunicornDeployBuilder(object):
     
     def taskWorkersConf(self,group):
         taskworkers = self.site_config.getAttr('taskworkers') or {'count':'1'}
+        has_sys = 'gnrcore:sys' in self.instance_config['packages']
+        secondary = has_sys and self.instance_config['packages'].getAttr('gnrcore:sys').get('secondary')
+        if not has_sys or secondary:
+            return
         if taskworkers:
             tw_base = group.section('program','%s_taskworkers' %self.site_name)
             nice = taskworkers.pop('nice',None)
@@ -1174,9 +1188,10 @@ class GunicornDeployBuilder(object):
         gnrasync = group.section('program','%s_gnrasync' %self.site_name)
         gnrasync.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrasync'),self.site_name))
         self.taskWorkersConf(group)
-
         if self.supervisord_monitor_parameters:
             self.xmlRpcServerConf(root)
+        rms = group.section('program','%s_rms' %self.site_name)
+        rms.parameter('command','%s %s' %(os.path.join(self.bin_folder,'gnrrms'),self.site_name))
         root.toPython(self.supervisor_conf_path_py)
         root.toIniConf(self.supervisor_conf_path_ini)
 

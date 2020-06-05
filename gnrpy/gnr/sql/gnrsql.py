@@ -102,6 +102,7 @@ class GnrSqlDb(GnrObject):
     """
     rootstore = '_main_db'
     
+    
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
                  main_schema=None, debugger=None, application=None,
@@ -303,6 +304,7 @@ class GnrSqlDb(GnrObject):
             for conn_name in connections_dict.keys():
                 conn = connections_dict.pop(conn_name)
                 try:
+                    conn.rollback()
                     conn.close()
                 except Exception:
                     conn = None
@@ -637,8 +639,13 @@ class GnrSqlDb(GnrObject):
         deferredId = kwargs.pop('_deferredId',None)
         if not deferredId:
             deferredId = getUuid()
+        deferkw = kwargs
         if deferredId not in deferreds:
-            deferreds.setItem(deferredId,(cb,args,kwargs))
+            deferreds.setItem(deferredId,(cb,args,deferkw))
+        else:
+            cb,args,deferkw = deferreds[deferredId]
+        return deferkw
+        
 
     def systemDbEvent(self):
         return self.currentEnv.get('_systemDbEvent',False)

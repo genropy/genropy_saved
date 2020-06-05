@@ -8,7 +8,6 @@
 
 from gnr.core.gnrbag import Bag
 from datetime import datetime
-from gnr.core.gnrlang import tracebackBag
 
 
 class BaseResourceBatch(object):
@@ -25,7 +24,7 @@ class BaseResourceBatch(object):
     dialog_width = '300px'
     virtual_columns = None
     batch_local_cache = True
-
+    batch_ask_options = True
     batch_selection_where = None
     batch_selection_kwargs = dict()
     batch_selection_savedQuery= None
@@ -44,6 +43,7 @@ class BaseResourceBatch(object):
         self.records = dict()
         self.result_info = dict()
         self._pkeys = None
+        self.sortBy = None
         self.selectedPkeys = None
         self.batch_parameters = dict()
         #self.mail_preference = self.page.site.getService('mail').getDefaultMailAccount()
@@ -68,9 +68,10 @@ class BaseResourceBatch(object):
             self.btc.batch_aborted()
             self.batch_log_write('Batch Aborted')
         except Exception, e:
+            raise
             if task_execution_record:
                 task_execution_record['is_error'] = True
-                task_execution_record['errorbag'] = tracebackBag()
+                task_execution_record['errorbag'] = Bag(dict(error=str(e))) # tracebackBag()
             elif self.page.isDeveloper():
                 raise
             else:
@@ -235,6 +236,9 @@ class BaseResourceBatch(object):
                         :ref:`sql_columns` section"""
         selection = None
         selection_kwargs = dict()
+        ignoreGridSelectedRow = self.batch_parameters.get('allrows')
+        extra_parameters = self.batch_parameters.get('extra_parameters')
+        selection_kwargs.setdefault('sortBy',self.sortBy)
         if self.batch_selection_kwargs:
             selection_kwargs.update(self.batch_selection_kwargs) 
         if columns:
@@ -248,11 +252,12 @@ class BaseResourceBatch(object):
 
         elif hasattr(self,'selectionName'):
             selection = self.page.getUserSelection(selectionName=self.selectionName,
-                                                    selectedRowidx=self.selectedRowidx, filterCb=self.selectionFilterCb,
-                                                    table=self.tblobj,sortBy=self.sortBy,
-                                                    **selection_kwargs)
+                                                    selectedRowidx=self.selectedRowidx if not ignoreGridSelectedRow else None, 
+                                                    filterCb=self.selectionFilterCb,
+                                                    table=self.tblobj,**selection_kwargs)
         elif self.selectedPkeys:
-            selection = self.tblobj.query(where='$%s IN :selectedPkeys' %self.tblobj.pkey,selectedPkeys=self.selectedPkeys,
+            pkeys = self.selectedPkeys if not ignoreGridSelectedRow else extra_parameters['allPkeys']
+            selection = self.tblobj.query(where='$%s IN :selectedPkeys' %self.tblobj.pkey,selectedPkeys=pkeys,
                                             excludeDraft=False,excludeLogicalDeleted=False,
                                             ignorePartition=True,
                                             **selection_kwargs).selection()
@@ -290,18 +295,19 @@ class BaseResourceBatch(object):
         wherebag.walk(fillpar)
 
 
-    def get_records(self,for_update=None,virtual_columns=None):
+    def get_records(self,for_update=None,virtual_columns=None,output=None):
         """TODO"""
         pkeys = self.get_selection_pkeys()
         for pkey in pkeys:
-            yield self.get_record(pkey,for_update=for_update,virtual_columns=virtual_columns)
+            yield self.get_record(pkey,for_update=for_update,virtual_columns=virtual_columns,output=output)
 
-    def get_record(self, pkey, virtual_columns=None,for_update=None):
+    def get_record(self, pkey, virtual_columns=None,for_update=None,output=None):
         """TODO
         
         :param pkey: the record :ref:`primary key <pkey>`
         :param virtual_columns: the :ref:`virtual_columns` webpage variable"""
-        return self.tblobj.record(pkey=pkey, virtual_columns=virtual_columns or self.virtual_columns,for_update=for_update).output('bag')
+        output = output or 'bag'
+        return self.tblobj.record(pkey=pkey, virtual_columns=virtual_columns or self.virtual_columns,for_update=for_update).output(output)
 
     def get_selection_pkeys(self):
         """TODO"""
@@ -333,3 +339,4 @@ class BaseResourceBatch(object):
         bar.confirmbtn.slotButton('!!Confirm', action='FIRE .confirm;')
         return bar
         
+

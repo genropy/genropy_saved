@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><main path="main.py" ext="py"><en_administration fr="Administration" de="Verwaltung" en="Administration" it="Amministrazione sistema" base="Administration"></en_administration>
+<GenRoBag><main path="main.py" ext="py"><en_administration fr="Administration" en="Administration tools" de="Verwaltung" it="Amministrazione sistema" base="Administration"></en_administration>
 <en_administration_tool fr="Outil d'administration" de="Administration Tool" en="Administration Tool" it="Strumento di amministrazione" base="Administration Tool"></en_administration_tool></main>
-<menu path="menu.py" ext="py"><en_administration fr="Administration" de="Verwaltung" en="Administration" it="Amministrazione sistema" base="Administration"></en_administration>
+<menu path="menu.py" ext="py"><en_administration fr="Administration" en="Administration tools" de="Verwaltung" it="Amministrazione sistema" base="Administration"></en_administration>
 <en_users fr="Utilisateurs" de="Benutzer" en="Users" it="Utenti" base="Users"></en_users>
-<en_auth_tags fr="balises Auth" de="Auth-Tags" en="Auth tags" it="Tag Auth" base="Auth tags"></en_auth_tags>
-<en_group fr="Groupe" de="Gruppe" en="Group" it="Gruppo" base="Group"></en_group>
-<en_letterheads fr="Têtes" de="Brief" en="Letterheads" it="Intestazione" base="Letterheads"></en_letterheads>
+<en_auth_tags fr="balises Auth" en="Auth tags" de="Auth-Tags" it="Tag di autorizzazione" base="Auth tags"></en_auth_tags>
+<en_group fr="Groupe" en="User Groups" de="Gruppe" it="Gruppi utenza" base="Group"></en_group>
+<en_letterheads fr="Têtes" en="Letterheads" de="Brief" it="Carte intestate" base="Letterheads"></en_letterheads>
 <en_notifications fr="Notifications" de="Benachrichtigungen" en="Notifications" it="Notifiche" base="Notifications"></en_notifications>
 <en_connections fr="Liens" de="Anschlüsse" en="Connections" it="Connessioni" base="Connections"></en_connections>
 <en_served_pages fr="Pages desservis" de="Serviert Seiten" en="Served pages" it="Pagine servite" base="Served pages"></en_served_pages>
@@ -15,7 +15,7 @@
 <en_pkginfo base="Pkginfo"></en_pkginfo>
 <en_tableinfo base="Tableinfo"></en_tableinfo>
 <en_utility_tables fr="tables utilitaires" de="Utility-Tabellen" en="Utility tables" it="Tabelle utilità" base="Utility tables"></en_utility_tables>
-<en_counter fr="Compteur" de="Zähler" en="Counter" it="Contatore" base="Counter"></en_counter>
+<en_counter fr="Compteur" en="Counters" de="Zähler" it="Contatori" base="Counter"></en_counter>
 <en_user_configurator base="User configurator"></en_user_configurator></menu>
 <model><access_group path="model/access_group.py" ext="py"><en_access_group fr="groupe Accès" de="Zugriffsgruppe" en="Access group" it="Gruppo Accesso" base="Access group"></en_access_group>
 <en_code base="Code" en="Code" it="Codice"></en_code>
@@ -49,7 +49,7 @@
 <en_dom_element fr="Élément Dom" de="Dom-Element" en="Dom element" it="Elemento Dom" base="Dom element"></en_dom_element>
 <en_styles fr="Styles" de="Styles" en="Styles" it="Stili" base="Styles"></en_styles>
 <en_attributes fr="Attributs" de="Attribute" en="Attributes" it="Attributi" base="Attributes"></en_attributes>
-<en_group fr="Groupe" de="Gruppe" en="Group" it="Gruppo" base="Group"></en_group></ckstyle>
+<en_group fr="Groupe" en="User Groups" de="Gruppe" it="Gruppi utenza" base="Group"></en_group></ckstyle>
 <connection path="model/connection.py" ext="py"><en_connection fr="Lien" de="Anschluss" en="Connection" it="Collegamento" base="Connection"></en_connection>
 <en_connections fr="Liens" de="Anschlüsse" en="Connections" it="Connessioni" base="Connections"></en_connections>
 <en_connection_id fr="id de connexion" de="Verbindungs-ID" en="Connection id" it="Id Connection" base="Connection id"></en_connection_id>
@@ -61,7 +61,7 @@
 <en_end_reason fr="Fin Raison" de="End Reason" en="End Reason" it="End Ragione" base="End reason"></en_end_reason>
 <en_user_agent fr="L'agent utilisateur" de="User-Agent" en="User agent" it="User agent" base="User agent"></en_user_agent>
 <en_user_fullname fr="fullname utilisateur" de="Benutzerfullname" en="User fullname" it="Fullname utente" base="User fullname"></en_user_fullname></connection>
-<counter path="model/counter.py" ext="py"><en_counter fr="Compteur" de="Zähler" en="Counter" it="Contatore" base="Counter"></en_counter>
+<counter path="model/counter.py" ext="py"><en_counter fr="Compteur" en="Counters" de="Zähler" it="Contatori" base="Counter"></en_counter>
 <en_codekey fr="Codekey" de="Codeschlüssel" en="Codekey" it="Codekey" base="Codekey"></en_codekey>
 <en_code base="Code" en="Code" it="Codice"></en_code>
 <en_package fr="Paquet" de="Paket" en="Package" it="Pacchetto" base="Package"></en_package>
@@ -110,7 +110,7 @@
 <en_reserved fr="Réservé" de="Reserviert" en="Reserved" it="Riservato" base="Reserved"></en_reserved>
 <en_notes fr="Remarques" de="Aufzeichnungen" en="Notes" it="Note" base="Notes"></en_notes></htag>
 <htmltemplate path="model/htmltemplate.py" ext="py"><en_letterhead fr="Tête" de="Briefkopf" en="Letterhead" it="Carta intestata" base="Letterhead"></en_letterhead>
-<en_letterheads fr="Têtes" de="Brief" en="Letterheads" it="Intestazione" base="Letterheads"></en_letterheads>
+<en_letterheads fr="Têtes" en="Letterheads" de="Brief" it="Carte intestate" base="Letterheads"></en_letterheads>
 <en_name fr="Nom" de="Name" en="Name" it="Nome" base="Name"></en_name>
 <en_username fr="Nom d'utilisateur" de="Benutzername" en="Username" it="Nome utente" base="Username"></en_username>
 <en_version fr="Version" de="Version" en="Version" it="Versione" base="Version"></en_version>
@@ -171,7 +171,7 @@
 <en_shortcuts base="Shortcuts"></en_shortcuts>
 <en_key base="Key"></en_key>
 <en_phrase base="Phrase"></en_phrase>
-<en_group fr="Groupe" de="Gruppe" en="Group" it="Gruppo" base="Group"></en_group></shortcut>
+<en_group fr="Groupe" en="User Groups" de="Gruppe" it="Gruppi utenza" base="Group"></en_group></shortcut>
 <tblinfo path="model/tblinfo.py" ext="py"><en_table_info base="Table Info"></en_table_info>
 <en_table fr="Table" de="Tabelle" en="Table" it="Tabella" base="Table"></en_table>
 <en_package fr="Paquet" de="Paket" en="Package" it="Pacchetto" base="Package"></en_package>
@@ -197,14 +197,14 @@
 <en_root_page fr="Page racine" de="Root-Seite" en="Root Page" it="Root Pagina" base="Root Page"></en_root_page>
 <en_sms_login fr="Sms connexion" de="Sms Login" en="Sms login" it="Sms login" base="Sms login"></en_sms_login>
 <en_sms_number fr="Nombre de Sms" de="SMS-Nummer" en="Sms Number" it="Numero Sms" base="Sms Number"></en_sms_number>
-<en_group fr="Groupe" de="Gruppe" en="Group" it="Gruppo" base="Group"></en_group>
+<en_group fr="Groupe" en="User Groups" de="Gruppe" it="Gruppi utenza" base="Group"></en_group>
 <en_name fr="Nom" de="Name" en="Name" it="Nome" base="Name"></en_name>
 <en_username_is_not_modifiable_username_s base="Username is not modifiable %(username)s"></en_username_is_not_modifiable_username_s></user>
 <user_access_group path="model/user_access_group.py" ext="py"><en_user_access fr="l'accès de l'utilisateur" de="Benutzerzugang" en="User access" it="Accesso utente" base="User access"></en_user_access>
 <en_user fr="Utilisateur" de="Benutzer" en="User" it="Utente" base="User"></en_user>
 <en_access_group fr="groupe Accès" de="Zugriffsgruppe" en="Access group" it="Gruppo Accesso" base="Access group"></en_access_group></user_access_group>
 <user_config path="model/user_config.py" ext="py"><en_user_config base="User config"></en_user_config>
-<en_group fr="Groupe" de="Gruppe" en="Group" it="Gruppo" base="Group"></en_group>
+<en_group fr="Groupe" en="User Groups" de="Gruppe" it="Gruppi utenza" base="Group"></en_group>
 <en_user fr="Utilisateur" de="Benutzer" en="User" it="Utente" base="User"></en_user>
 <en_pkg base="Pkg"></en_pkg>
 <en_tbl base="Tbl"></en_tbl>
@@ -216,7 +216,7 @@
 <en_confirmed fr="Confirmé" de="Bestätigt" en="Confirmed" it="Confermato" base="Confirmed"></en_confirmed></user_notification>
 <user_tag path="model/user_tag.py" ext="py"><en_user_tag fr="tag de l'utilisateur" de="Benutzer Tag-" en="User Tag" it="Tag utente" base="User tag"></en_user_tag>
 <en_user_tags fr="Tags d'utilisateurs" de="Nutzer-Tags" en="User tags" it="Tags utenti" base="User tags"></en_user_tags>
-<en_group fr="Groupe" de="Gruppe" en="Group" it="Gruppo" base="Group"></en_group></user_tag>
+<en_group fr="Groupe" en="User Groups" de="Gruppe" it="Gruppi utenza" base="Group"></en_group></user_tag>
 <userobject path="model/userobject.py" ext="py"><en_user_object fr="Objet de l'utilisateur" de="User Object" en="User Object" it="Oggetto utente" base="User Object"></en_user_object>
 <en_user_objects fr="Objets de l'utilisateur" de="Benutzerobjekte" en="User Objects" it="Oggetti utente" base="User Objects"></en_user_objects>
 <en_code base="Code" en="Code" it="Codice"></en_code>
@@ -227,7 +227,7 @@
 <en_description base="Description" en="Description" it="Descrizione"></en_description>
 <en_notes fr="Remarques" de="Aufzeichnungen" en="Notes" it="Note" base="Notes"></en_notes>
 <en_data fr="Données" de="Daten" en="Data" it="Data" base="Data"></en_data>
-<en_auth_tags fr="balises Auth" de="Auth-Tags" en="Auth tags" it="Tag Auth" base="Auth tags"></en_auth_tags>
+<en_auth_tags fr="balises Auth" en="Auth tags" de="Auth-Tags" it="Tag di autorizzazione" base="Auth tags"></en_auth_tags>
 <en_private fr="Privé" de="Privat" en="Private" it="Privato" base="Private"></en_private>
 <en_quicklist fr="Quicklist" de="Quicklist" en="Quicklist" it="QuickList" base="Quicklist"></en_quicklist>
 <en_flags fr="Drapeaux" de="Flags" en="Flags" it="Bandiere" base="Flags"></en_flags></userobject></model>
@@ -266,7 +266,7 @@
 <en_missing_user_for_this_email fr="Utilisateur manquantes pour cet e-mail" de="Fehlende Benutzer für diese E-Mail-" en="Missing user for this email" it="Utente mancante per questa e-mail" base="Missing user for this email"></en_missing_user_for_this_email>
 <en_check_your_email_for_instruction fr="Vérifiez votre email pour l'enseignement" de="Überprüfen Sie Ihre E-Mail für den Unterricht" en="Check your email for instruction" it="Controlla la tua e-mail per l'istruzione" base="Check your email for instruction"></en_check_your_email_for_instruction>
 <en_new_password fr="Nouveau Mot De Passe" de="Neues Passwort" en="New Password" it="Nuova password" base="New Password"></en_new_password>
-<en_confirm_password base="Confirm password"></en_confirm_password>
+<en_confirm_password base="Confirm password" en="Confirm password" it="Conferma password"></en_confirm_password>
 <en_passwords_must_be_equal fr="Les mots de passe doivent être égaux" de="Passwörter müssen gleich sein" en="Passwords must be equal" it="Le password devono essere uguali" base="Passwords must be equal"></en_passwords_must_be_equal>
 <en_send fr="Envoyer" de="Senden" en="Send" it="Inviare" base="Send"></en_send>
 <en_confirm_user fr="Confirmez utilisateur" de="Benutzer bestätigen" en="Confirm User" it="Conferma utente" base="Confirm User"></en_confirm_user>
@@ -345,7 +345,7 @@
 <user_notification><th_user_notification path="resources/tables/user_notification/th_user_notification.py" ext="py"><en_username fr="Nom d'utilisateur" de="Benutzername" en="Username" it="Nome utente" base="Username"></en_username></th_user_notification></user_notification>
 <userobject><th_userobject path="resources/tables/userobject/th_userobject.py" ext="py"><en_data_type fr="Type de données" de="Datentyp" en="Data type" it="Tipo di dati" base="Data type"></en_data_type>
 <en_field fr="Terrain" de="Bereich" en="Field" it="Campo" base="Field"></en_field>
-<en_group fr="Groupe" de="Gruppe" en="Group" it="Gruppo" base="Group"></en_group>
+<en_group fr="Groupe" en="User Groups" de="Gruppe" it="Gruppi utenza" base="Group"></en_group>
 <en_new_custom_column fr="Nouvelle colonne personnalisé" de="Neue benutzerdefinierte Spalte" en="New custom column" it="Nuova colonna personalizzata" base="New custom column"></en_new_custom_column></th_userobject></userobject></tables></resources>
 <webpages><app_preference path="webpages/app_preference.py" ext="py"><en_preference_panel fr="panneau de préférence" de="Fenster zu" en="Preference panel" it="Pannello Preferenze" base="Preference panel"></en_preference_panel>
 <en_zoom fr="Zoom" de="Zoom" en="Zoom" it="Zoom" base="Zoom"></en_zoom>

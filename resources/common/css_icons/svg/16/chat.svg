@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>2_03_Chat_16x16_02</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <rect y="1" width="11" height="9" rx="2.5" ry="2.5" fill="#515151"/>
+    <polygon points="14 15 11 12 14 12 14 15" fill="#515151"/>
+    <polygon points="2 13 5 10 2 9 2 13" fill="#515151"/>
+    <path d="M13.5,3H11.9a3.5,3.5,0,0,1,.1.5v4A3.5,3.5,0,0,1,8.5,11h-3a2.5,2.5,0,0,0,2,1h6A2.5,2.5,0,0,0,16,9.5v-4A2.5,2.5,0,0,0,13.5,3Z" fill="#515151"/>
+  </g>
+</svg>

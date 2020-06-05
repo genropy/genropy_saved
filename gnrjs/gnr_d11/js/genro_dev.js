@@ -26,7 +26,6 @@
 
 //######################## genro  #########################
 
-
 dojo.declare("gnr.GnrDevHandler", null, {
 
     constructor: function(application) {
@@ -260,7 +259,10 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
             var colspan = objectPop(kw,'colspan') || 1;
             colspan = colspan==1?colspan:colspan*2;
-            var lbl = objectPop(kw, 'lbl');
+            var lbl = _T(objectPop(kw, 'lbl'));
+            if(kw.label){
+                kw.label = _T(kw.label);
+            }
             var lblpars = {innerHTML:lbl?_T(lbl,true):null,_class:'gnrfieldlabel',
                         hidden:kw.hidden,text_align:'right'};
             lblpars = objectUpdate(defautlLblAttr,lblpars);
@@ -880,7 +882,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }else if(kw.dataSetter){
                 funcApply(kw.dataSetter,{data:data},sourceNode);
             }
-            var metadata = new gnr.GnrBag(kw.defaultMetadata);
+            var metadata = new gnr.GnrBag();
             metadata.update(genro.getData(datapath));
             if (!metadata.getItem('code')){
                 genro.publish('floating_message',{message:_T('Missing code'),messageType:'error'});
@@ -916,11 +918,31 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var metadataPath = objectPop(kw,'metadataPath');
         var onLoaded = objectPop(kw,'onLoaded');
         var onLoading = objectPop(kw,'onLoading');
-
-        genro.serverCall('_table.adm.userobject.loadUserObject',kw,function(result){
-            var resultValue = result._value.deepCopy();
-            var resultAttr = objectUpdate({},result.attr);
-            var dataIndex = resultValue.pop('__index__');
+        var resback = function(result){
+            var resultValue,resultAttr,dataIndex;
+            if(!result){
+                resultValue = new gnr.GnrBag();
+                resultAttr = objectUpdate({},kw);
+                objectExtract(resultAttr,'userObjectIdOrCode,code,description,pkey');
+                dataIndex = kw.dataIndex;
+                if(kw.defaults){
+                    let defaults = kw.defaults;
+                    if(defaults instanceof gnr.GnrBag){
+                        defaults = defaults.asDict();
+                    }
+                    for(let k in defaults){
+                        let v = defaults[k];
+                        if(v instanceof gnr.GnrBag){
+                            v = v.deepCopy();
+                        }
+                        resultValue.setItem(k,v);
+                    }
+                }
+            }else{
+                resultValue = result._value.deepCopy();
+                resultAttr = objectUpdate({},result.attr);
+                dataIndex = resultValue.pop('__index__');
+            }
             if(onLoading){
                 funcApply(onLoading,null,sourceNode,
                         ['dataIndex','resoultValue','resoultAttr'],
@@ -928,16 +950,24 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
             sourceNode.setRelativeData(metadataPath,new gnr.GnrBag(resultAttr));
             if(dataIndex){
-                dataIndex.forEach(function(n){
-                    sourceNode.setRelativeData(n.getValue(),resultValue.getItem(n.label));
-                });
+                if(dataIndex instanceof gnr.GnrBag){
+                    dataIndex = dataIndex.asDict();
+                }
+                for(let k in dataIndex){
+                    sourceNode.setRelativeData(dataIndex[k],resultValue.getItem(k));
+                }
             }
             if(onLoaded){
                 funcApply(onLoaded,null,
                         sourceNode,['dataIndex','resoultValue','resoultAttr'],
                         [dataIndex,resultValue,resultAttr]);
             }
-        });
+        }; 
+        if(kw.userObjectIdOrCode==='__newobj__'){          
+            return resback();
+        }
+
+        genro.serverCall('_table.adm.userobject.loadUserObject',kw,resback);
     },
 
     userObjectDialog:function(title,datapath,saveCb,preview){
@@ -999,6 +1029,62 @@ dojo.declare("gnr.GnrDevHandler", null, {
         }
         var resolver = genro.rpc.remoteResolver('_table.adm.userobject.userObjectMenu', kw);
         return resolver;
+    },
+
+    translateQueryPars: function(currwhere) {
+        var parslist = [];
+        var cb = function(node, parslist, idx) {
+            if (node.attr.value_caption) {
+                if(node.attr.value_caption[0]=='?'){
+                    var relpath = node.getFullpath('static', currwhere);
+                    var result = objectUpdate({}, node.attr);
+                    var value_caption = node.attr.value_caption.slice(1);
+                    var vl = value_caption.split('|');
+                    result.lbl = vl[0];
+                    result.dflt = vl[1];
+                    result.relpath = relpath;
+                    result.parcode = flattenString(result.lbl,['.',' ']);
+                    parslist.push(result);
+                }else if(node.attr.value_caption && node.attr.value_caption.indexOf('set:')==0){
+                    return;
+                }else{
+                    node.setValue(node.attr.value_caption);
+                }
+            }
+        };
+        currwhere.walk(cb, 'static', parslist);
+        return parslist;
+    },
+
+    dynamicQueryParsFb:function(sourceNode,wherebag,parslist,cols){
+        parslist = parslist || this.translateQueryPars(wherebag);
+        var queryform = genro.dev.formbuilder(sourceNode,cols || 1,{border_spacing:'3px',onEnter:confirm,margin_top:'6px'});
+        var tr, attrs;
+        for (var i = 0; i < parslist.length; i++) {
+            attrs = parslist[i];
+            var lbl = attrs.lbl || attrs.value_caption.slice(1);
+            var dflt;
+
+            if(!('dflt' in attrs)){
+                if(lbl.indexOf('|')){
+                    var l = lbl.split('|');
+                    lbl=l[0];
+                    dflt = l[1] ;
+                }
+            }else{
+                dflt = attrs.dflt;
+            }
+            
+            if(dflt){
+                wherebag.setItem(attrs.relpath,dflt);
+            }
+            if(attrs.column_relationTo){
+                var ro = attrs.column_relationTo.split('.');
+                queryform.addField('dbselect',{lbl:lbl,value:'^.' + attrs.relpath, width:'12em',dbtable:ro[0]+'.'+ro[1]});
+            }else{
+                queryform.addField('textbox',{lbl:lbl,value:'^.' + attrs.relpath, width:'12em'});
+            }
+        }
     },
 
 

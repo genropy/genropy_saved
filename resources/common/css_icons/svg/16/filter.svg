@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>2_24_Filter icon_16x16 copy</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <path d="M0,2.9V4L6,9.5V16l4-2V9.5L16,4V2.9a.9.9,0,0,0-.9-.9H.9A.9.9,0,0,0,0,2.9Z" fill="#515151"/>
+    <rect y="3" width="16" height="1" fill="#508e3f"/>
+    <polygon points="6 9.5 6 10 10 10 10 9.5 10.5 9 5.5 9 6 9.5" fill="#508e3f"/>
+  </g>
+</svg>

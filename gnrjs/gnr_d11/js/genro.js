@@ -1156,7 +1156,7 @@ dojo.declare('gnr.GenroClient', null, {
         if( f.dtype=='P'){
             return genro.formatter.asText(v,f);
         }
-        if (v instanceof Date) {
+        if (v instanceof Date && !f.format) {
             var opt = objectUpdate({}, f);
             if (opt['time']) {
                 opt.selector = 'time';
@@ -1175,7 +1175,10 @@ dojo.declare('gnr.GenroClient', null, {
         else if (typeof(v) == 'number') {
             f.locale = f.locale || dojo.locale;
             if(f.format){
-                return genro.formatter.asText(v,{format:f.format.format || f.format,format_max:f.max,format_min:f.min,format_high:f.high,format_low:f.low,format_optimal:f.optimal});
+                return genro.formatter.asText(v,{format:f.format.format || f.format,format_max:f.max,
+                                                format_min:f.min,format_high:f.high,
+                                                format_low:f.low,format_optimal:f.optimal,
+                                                format_currency:f.currency});
             }
             if (!f.places && f.dtype == 'L') {
                 f.places = 0;
@@ -1279,7 +1282,7 @@ dojo.declare('gnr.GenroClient', null, {
             v = highlightLinks(v);
         }
         if(f.format){
-            v = genro.formatter.asText(v,{format:f.format.format || f.format ,mask:f.mask});
+            v = genro.formatter.asText(v,{format:f.format.format || f.format ,mask:f.mask, dtype:f.dtype});
         }
         return v;
     },

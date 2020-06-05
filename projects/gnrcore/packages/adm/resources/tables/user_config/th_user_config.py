@@ -216,11 +216,13 @@ class Form(BaseComponent):
         r.cell('colname',name='Column',width='22em')
         r.checkboxcell('readonly',threestate=True,name='Readonly')
         r.checkboxcell('forbidden',threestate=True,name='Forbidden')
+        r.checkboxcell('blurred',threestate=True,name='Blurred')
+
         r.cell('status',name='Status',width='12em',
             _customGetter="""function(row){
                 var result = [];
                 var v,inherited;
-                ['forbidden','readonly'].forEach(function(c){
+                ['forbidden','readonly','blurred'].forEach(function(c){
                     inherited = false;
                     v = row[c];
                     if(isNullOrBlank(v)){

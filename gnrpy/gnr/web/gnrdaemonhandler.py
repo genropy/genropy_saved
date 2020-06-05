@@ -6,11 +6,12 @@ import logging
 from multiprocessing import Process, log_to_stderr, get_logger, Manager
 from gnr.web.gnrwsgisite_proxy.gnrsiteregister import GnrSiteRegisterServer
 from gnr.core.gnrlang import gnrImport
-from gnr.core.gnrbag import Bag
+from gnr.core.gnrbag import Bag,NetBag
 from gnr.core.gnrsys import expandpath
 from gnr.app.gnrconfig import gnrConfigPath
 from gnr.app.gnrdeploy import PathResolver
 from gnr.core.gnrstring import boolean
+from gnr.lib.services.rms import RMS
 import atexit
 import os
 import time
@@ -105,6 +106,7 @@ class GnrDaemonProxy(object):
         else:
             self.uri = 'PYRO:GnrDaemon@%s:%s' %(options.get('host') or PYRO_HOST,options.get('port') or PYRO_PORT)
 
+
     def proxy(self):
         proxy = Pyro4.Proxy(self.uri)
         proxy._pyroHmacKey = self.hmac_key
@@ -127,8 +129,9 @@ class GnrDaemon(object):
     def start(self,use_environment=False,**kwargs):
         if use_environment:
             options =  getFullOptions(options=kwargs)
+        rms = RMS()
+        rms.registerPod()
         self.do_start(**options)
-
 
     def do_start(self, host=None, port=None, socket=None, hmac_key=None,
                       debug=False,compression=False,timeout=None,
@@ -262,9 +265,13 @@ class GnrDaemon(object):
         proc.start()
         return proc
     
-    def hasSysPackage(self,sitename):
+    def hasSysPackageAndIsPrimary(self,sitename):
         instanceconfig = PathResolver().get_instanceconfig(sitename)
-        return instanceconfig and 'gnrcore:sys' in instanceconfig['packages']
+        if instanceconfig:
+            has_sys = 'gnrcore:sys' in instanceconfig['packages']
+            secondary = has_sys and instanceconfig['packages'].getAttr('gnrcore:sys').get('secondary')
+            return has_sys and not secondary
+        return False
 
     def addSiteRegister(self,sitename,storage_path=None,autorestore=False,port=None):
         if not sitename in self.siteregisters:
@@ -284,7 +291,8 @@ class GnrDaemon(object):
             childprocess.daemon = True
             childprocess.start()
             siteregister_processes_dict['register'] = childprocess
-            if self.hasSysPackage(sitename):
+
+            if self.hasSysPackageAndIsPrimary(sitename):
                 taskScheduler = Process(name='ts_%s' %sitename, target=createTaskScheduler,kwargs=dict(sitename=sitename))
                 taskScheduler.daemon = True
                 taskScheduler.start()

@@ -326,7 +326,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         resultPath = resultPath;
         var that = this;
         var node = genro.src.getNode(alertCode).clearValue().freeze();
-        var dlg = node._('dialog', objectUpdate({nodeId:alertCode, title:title, 
+        var dlg = node._('dialog', objectUpdate({nodeId:alertCode, title:title, _class:'dlg_alert',
                                                 connect_show:function(){
                                                     that.alert_count+=1;
                                                 },connect_hide:function(){
@@ -381,7 +381,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             actions = resultPathOrActions || {};
             action = "genro.wdgById('"+alertCode+"').hide();if (this.attr.act){funcCreate(this.attr.act).call();};";
         }
-        var dlg = node._('dialog', {nodeId:alertCode,title:title,
+        var dlg = node._('dialog', {nodeId:alertCode,title:title,_class:'dlg_alert',
                                     connect_show:function(){
                                         that.alert_count+=1;
                                     },connect_hide:function(){
@@ -497,10 +497,13 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var cols = objectPop(kw,'cols') || 1;
         genro.dlg.prompt_counter = genro.dlg.prompt_counter || 0;
         genro.dlg.prompt_counter++;
-        var prompt_datapath = 'gnr.promptDlg.prompt_'+genro.dlg.prompt_counter;
+        var prompt_datapath = kw.datapath || 'gnr.promptDlg.prompt_'+genro.dlg.prompt_counter;
+        if(sourceNode){
+            prompt_datapath = sourceNode.absDatapath(prompt_datapath);
+        }
         var promptvalue_path = prompt_datapath+'.promptvalue';
         genro.setData(promptvalue_path,dflt || null);
-        dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:prompt_datapath,background:'white',autoSize:true},dlg_kw);
+        dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:prompt_datapath,_class:'dlg_prompt',autoSize:true},dlg_kw);
         var dlg = genro.dlg.quickDialog(title,dlg_kw,sourceNode);
         var mandatory = objectPop(kw,'mandatory');
         var actionCb = function(command){
@@ -684,7 +687,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     quickDialog: function(title,kw,rootNode) {
-        kw = objectUpdate({},kw);
+        kw = objectUpdate({_class:'dlg_prompt'},kw);
         var quickRoot = '_dlg_quick_'+genro.getCounter();
         var node;
         if(!rootNode){
@@ -742,13 +745,15 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var dlg = this.quickDialog(title,kw,sourceNode);
         uploaderKw.height = uploaderKw.height || '300px';
         uploaderKw.width =uploaderKw.width || '500px';
-        uploaderKw.nodeId =uploaderKw.nodeId || 'uploaderDialog_'+genro.getCounter();
+        uploaderKw.nodeId =uploaderKw.nodeId || 'multiuploader_'+genro.getCounter();
         var onResult = objectPop(uploaderKw,'onResult') || function(result){};
         uploaderKw.onResult = function(result){
             funcApply(onResult,{result:result},this);
             dlg.close_action();
         };
-        dlg.center._('DropUploaderGrid',uploaderKw);
+        uploaderKw.storepath = uploaderKw.storepath || '^gnr.multiupload_store';
+        genro.setData('gnr.multiupload_store',new gnr.GnrBag());
+        var g = dlg.center._('DropUploaderGrid',uploaderKw);
         dlg.show_action();
         var actionCb = function(){
             genro.nodeById(uploaderKw.nodeId).publish('doUpload');
@@ -1004,7 +1009,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             urlKw['readOnly'] = kw.readOnly;
         }
         objectUpdate(urlKw,objectExtract(kw,'current_*',false,true));
-        urlKw['th_from_package'] = kw.th_from_package || genro.getData("gnr.package");
+        if(!('th_from_package' in kw)){
+            urlKw['th_from_package'] = kw.th_from_package || genro.getData("gnr.package");
+        }
+        
         urlKw['_parent_page_id'] = objectPop(urlKw,'forced_parent_page_id') || genro.page_id;
         
         return genro.addParamsToUrl(zoomUrl,urlKw); 

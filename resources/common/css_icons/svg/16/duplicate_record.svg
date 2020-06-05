@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>1_02_Duplicate record_16x16</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <g>
+      <g>
+        <rect x="0.5" y="8.5" width="12" height="4" fill="#fff"/>
+        <path d="M12,9v3H1V9H12m1-1H0v5H13V8Z" fill="#5b5b5b"/>
+      </g>
+      <line x1="4.5" y1="8.5" x2="4.5" y2="12.5" fill="none" stroke="#5b5b5b" stroke-miterlimit="10"/>
+      <line x1="8.5" y1="8.5" x2="8.5" y2="12.5" fill="none" stroke="#5b5b5b" stroke-miterlimit="10"/>
+    </g>
+    <g>
+      <g>
+        <rect x="2.5" y="11.5" width="12" height="4" fill="#fff"/>
+        <path d="M14,12v3H3V12H14m1-1H2v5H15V11Z" fill="#3585c1"/>
+      </g>
+      <line x1="6.5" y1="11.5" x2="6.5" y2="15.5" fill="none" stroke="#3585c1" stroke-miterlimit="10"/>
+      <line x1="10.5" y1="11.5" x2="10.5" y2="15.5" fill="none" stroke="#3585c1" stroke-miterlimit="10"/>
+    </g>
+    <path d="M11.5,3.6l2.1,2,1.9-2.1" fill="none" stroke="#3585c1" stroke-linecap="round" stroke-miterlimit="10"/>
+    <path d="M13.5,5.5V3A2.5,2.5,0,0,0,11,.5h0A2.5,2.5,0,0,0,8.5,3v.5" fill="none" stroke="#3585c1" stroke-linecap="round" stroke-miterlimit="10"/>
+  </g>
+</svg>

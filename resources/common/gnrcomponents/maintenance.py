@@ -344,7 +344,10 @@ class MaintenancePlugin(BaseComponent):
     @public_method
     def maintenance_update_data(self, exclude_guest=None,**kwargs):
         result = Bag()
-        result['users'] = self._maintenance_get_items(self.site.register.users(), 'connections',exclude_guest=exclude_guest)
+        users = {}
+        for ii,vv in enumerate(self.site.register.users().values()):
+            users["%d"%ii] = vv
+        result['users'] = self._maintenance_get_items(users, 'connections',exclude_guest=exclude_guest)
         connections = self.site.register.connections()
         result['connections'] = self._maintenance_get_items(connections, 'pages')
         pages = self.site.register.pages()

@@ -1,9 +1,16 @@
 /*vico*/
+
+
+body.tundra.mimi {
+    font:14px "SF Pro Text","Myriad Set Pro","SF Pro Icons","Apple Legacy Chevron","Helvetica Neue","Helvetica","Arial",sans-serif;
+    color:#555;
+}
+
 .frameindexroot{
-    background:#eeeeee;
+    background:linear-gradient(to right, #ffffff, #bacbdf);    
 }
 .frameindexcenter{
-    background:#f6f6f6;
+    background:linear-gradient(to top, #f6f8fa, #ffffff);    
 }
 
 /* @group Floating pane */
@@ -32,6 +39,7 @@
     padding: 2px 9px;
 }
 
+
 .tundra .smallTabs .dijitTabInnerDiv {
     padding: 2px 9px;
 }
@@ -41,46 +49,51 @@
 }
 
 ._common_d11 .dojoxFloatingPane {
-    border-radius: 2px;
+    border-radius: 4px;
     box-shadow: 3px 3px 4px #666;
     border-color:silver;
 }
 
 ._common_d11.tundra .dojoxFloatingPaneTitle {
-    background-color: #711B2A;
+    background-image: linear-gradient(to right top, #172b51, #1b3058, #20345e, #243965, #293e6c);
     vertical-align: middle;
     text-align: center;
     color: #f6f6f6;
-    background-image:none;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
     padding-top: 2px;
     padding-bottom: 3px;
     border:0;
 }
 .slotbar_toolbar_standard{
-    background-image: none;
     background-color:#E4E4E4;
+    background-image:linear-gradient(to bottom,rgba(220, 222, 224, 0.7), #eff1f3bf, #f3f4f5da);
 }
 
 ._common_d11.tundra.theme_variant_green .dojoxFloatingPaneTitle{
-    background-color: #306227;
+    background-color: #50c9c3;
+    background: linear-gradient(to bottom, #1d976c, #37ce99);  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    color:white;
 }
 
 ._common_d11.tundra.theme_variant_blue .dojoxFloatingPaneTitle{
-    background-color: #1A415E;
+    background-color: #182848;
+    background: linear-gradient(to bottom, #4b6cb7, #3b6391);
 }
 
 ._common_d11.tundra.theme_variant_red .dojoxFloatingPaneTitle{
-    background-color: #711B2A;
+    background-color: #d31027;
+    background:linear-gradient(to bottom, #d31027, #ea384d);
 }
 
 ._common_d11.tundra.theme_variant_orange .dojoxFloatingPaneTitle{
-    background-color: #FF5226;
+    background-color:#e65c00;
+    background: linear-gradient(to bottom, #fa8435, #f96723);
 }
 
 ._common_d11.tundra.theme_variant_yellow .dojoxFloatingPaneTitle{
-    background-color: #86770E;
+    background-color:rgba(234, 203, 110, 1);
+    color:rgba(30, 48, 85, 1);
 }
 
 
@@ -95,7 +108,7 @@
 /* @group top */
 
 .pbl_username {
-    border-radius: 2px;
+    border-radius: 4px;
     background-color: #bfb6ae;
     color: #403b3b;
     font-size: 0.9em;
@@ -112,33 +125,60 @@
     color:white !important;
 }
 
-.pbl_root_top {
-    height: 22px;
+.mimi .pbl_root_top {
+    height: 24px;
     vertical-align: middle;
-    color: white;
-    background-color: #711B2A;
+    color:var(--root-top-color);
+    background:var(--root-top-background);
+}
+.mimi .pbl_root_top .gnrfieldlabel{
+    color:rgba(30, 48, 85, 1);
 }
 
+.mimi.theme_variant_green .pbl_root_top{
+    background-color: #50c9c3;
+    background: linear-gradient(to bottom, #1d976c, #37ce99);  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 
+    color:white;
 
-.theme_variant_green .pbl_root_top{
-    background-color: #306227;
+}
+.mimi.theme_variant_green .pbl_root_top .gnrfieldlabel{
+    color:white;
+}
+.mimi.theme_variant_red .pbl_root_top{
+    background-color:#d31027;
+    background: linear-gradient(to bottom, #d31027, #ea384d);
+    color:white;
+
+}
+.mimi.theme_variant_red .pbl_root_top .gnrfieldlabel{
+    color:white;
 }
 
-.theme_variant_red .pbl_root_top{
-    background-color: #711B2A;
+.mimi.theme_variant_blue .pbl_root_top{
+    background-color: #182848;
+    background: linear-gradient(to bottom, #4b6cb7, #3b6391);
+    color:white;
+}
+.mimi.theme_variant_blue .pbl_root_top .gnrfieldlabel{
+    color:white;
 }
 
-.theme_variant_blue .pbl_root_top{
-    background-color: #1A415E;
+.mimi.theme_variant_orange .pbl_root_top{
+    background-color:#e65c00;
+    background: linear-gradient(to bottom, #fa8435, #f96723);
+    color:white;
+}
+.mimi.theme_variant_orange .pbl_root_top .gnrfieldlabel{
+    color:white;
 }
 
-.theme_variant_orange .pbl_root_top{
-    background-color:#FF5226;
+.mimi.theme_variant_yellow .pbl_root_top{
+    background-color:rgba(234, 203, 110, 1);
+    color:rgba(30, 48, 85, 1);
 }
-
-.theme_variant_yellow .pbl_root_top{
-    background-color:#86770E;
+.mimi.theme_variant_yellow .pbl_root_top .gnrfieldlabel{
+    color:rgba(30, 48, 85, 1);
 }
 
 
@@ -154,7 +194,7 @@
     background: white;
     margin: 2px;
     border:1px solid #ddd ;
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 /* @group Logo */
@@ -214,15 +254,15 @@
 .pbl_viewBox {
     padding: 5px;
 
-    border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
     background-color: rgba(170, 190, 201, 0.2);
 }
 
 .pbl_viewBoxLabel {
     height: 18px;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
     padding-left: 10px;
     font-size: 0.9em;
     padding-top: 3px;
@@ -240,7 +280,7 @@
     background-color: rgb(217, 227, 233);
 }
 .pbl_roundedBlock{
-    border-radius: 2px;
+    border-radius: 6px;
     position: absolute;
     top:2px;
     bottom:2px;
@@ -250,25 +290,28 @@
 }
 
 .pbl_roundedGroup {
-    border-radius: 2px;
+    border-radius: 6px;
     border:1px solid #ddd;
 }
 
 .pbl_roundedGroupLabel {
-    height: 20px;
+    height: 22px;
     line-height:19px;
     padding-bottom: 0;
+    padding-top:2px;
     padding-left: 4px;
     padding-right: 4px;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-    font-size: 0.9em;
-    background-color:#D9E9FC;
-    color: #555;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    font-size: 1em;
+    background:#c2d0e9;
+    background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
+    color: #444;
 	text-indent: 2px;
 }
 .pbl_roundedGroupVertical {
-    background-color: #D9E9FC;
+    background:#c2d0e9;
+    background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
 }
 
 
@@ -294,8 +337,11 @@
 }
 .tundra._common_d11 .dijitButtonText{
     text-align: center;
-    padding: 1px 0.4em;
-    color: #444;
+    padding: 2px 5px;
+    color: #555;
+}
+.dijitButtonNode .fh_semaphore{ 
+    transform:rotate(0deg) scale(0.8);
 }
 
 .pbl_roundedGroupBottom {
@@ -315,12 +361,13 @@
 }
 
 .pbl_rectGroupLabel {
-    height: 18px;
+    height: 22px;
     padding-left: 10px;
     font-size: 0.9em;
     padding-top: 5px;
-    background-color:#D9E9FC;
-    color: #feffff;
+    background:#c2d0e9;
+    background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
+    color: #444;
 }
 
 .pbl_rectGroupBottom {
@@ -328,7 +375,8 @@
     padding-left: 10px;
     font-size: 0.9em;
     padding-bottom: 5px;
-    background-color:#D9E9FC;
+    background:#c2d0e9;
+    background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
 }
 
 /* @end */
@@ -353,22 +401,21 @@
     vertical-align: middle;
     font-size: 1em;
     padding-top: 2em;
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 .alertBodyMessage{
-    color:#444;
+    color:#555;
     margin:12px;
 }
 /* @end */
 
 .tundra._common_d11 .dijitDialogTitleBar {
-    background-color:#711B2A;
+    background-image: linear-gradient(to right top, #172b51, #1b3058, #20345e, #243965, #293e6c);
     color: #ffffff;
-    background-image:none;
     vertical-align: middle;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
     text-align: center;
     font-weight:normal;
     border-bottom:1px solid #ccc;
@@ -376,7 +423,7 @@
 }
 
 .tundra._common_d11 .commonTitleBar {
-    background-color:#711B2A;
+    background-image: linear-gradient(to right top, #172b51, #1b3058, #20345e, #243965, #293e6c);
     color: #ffffff;
     text-align: center;
     font-weight:normal;
@@ -385,22 +432,29 @@
 }
 
 .tundra._common_d11.theme_variant_green .dijitDialogTitleBar,.tundra._common_d11.theme_variant_green .commonTitleBar{
-    background-color: #306227;
+    background-color: #50c9c3;
+      background: linear-gradient(to bottom, #1d976c, #37ce99);  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+    color:white;
 }
 
 .tundra._common_d11.theme_variant_red .dijitDialogTitleBar, .tundra._common_d11.theme_variant_red .commonTitleBar{
-    background-color:#E4E4E4;
+    background-color:#d31027;
+    background:linear-gradient(to bottom, #d31027, #ea384d);
 }
 .tundra._common_d11.theme_variant_blue .dijitDialogTitleBar, .tundra._common_d11.theme_variant_blue .commonTitleBar{
-    background-color:#1A415E;
+    background-color: #182848;
+    background: linear-gradient(to bottom, #4b6cb7, #3b6391);
 }
 
 .tundra._common_d11.theme_variant_orange .dijitDialogTitleBar, .tundra._common_d11.theme_variant_orange .commonTitleBar{
-    background-color: #FF5226;
+    background-color:#e65c00;
+    background: linear-gradient(to bottom, #fa8435, #f96723);
 }
 
 .tundra._common_d11.theme_variant_yellow .dijitDialogTitleBar, .tundra._common_d11.theme_variant_yellow .commonTitleBar{
-    background-color:#86770E;
+    background-color:rgba(234, 203, 110, 1);
+    color:rgba(30, 48, 85, 1);
 }
 
 
@@ -410,8 +464,7 @@
 }*/
 
 ._common_d11 .dijitDialog {
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    border-radius: 6px;
     background-color: #f6f6f6;
     box-shadow: 3px 3px 5px #403b3b;
     border:1px solid silver;
@@ -419,8 +472,7 @@
 
 ._common_d11 .dijitDialog .dijitDialogPaneContent {
 
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
+    border-radius:6px;
     border: 0px;
     background-color: #f6f6f6;
 
@@ -435,8 +487,8 @@
     padding-left: 2px;
     padding-right: 2px;
 
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
 }
 
 
@@ -481,11 +533,11 @@
 
 ._common_d11 .dijitTab {
     font-size: .9em;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-
-    background-color:#D9E9FC;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
     background-image: none;
+    background:#c2d0e9;
+    background:linear-gradient(to bottom, #c2d0e9,  #d6dfee);
     margin-right: 2px;
     color: #444;
     font-weight: plain;
@@ -503,13 +555,16 @@
     border-bottom: 0;
     padding:3px 5px 3px 5px;
 }
+._common_d11 .dijitTabLabels-left-h .dijitTabInnerDiv {
+    padding:4px 5px 4px 10px;
 
+}
 ._common_d11 .dijitTabCheckedHover {
     opacity: 1;
 }
 
 ._common_d11 .dijitTabChecked {
-    border-bottom-color: #efefef;
+    border-bottom-color: transparent;
     color: #ccc;
     background-color: white;
 }
@@ -521,7 +576,7 @@
 }
 
 ._common_d11 .dijitTabPaneWrapper {
-    border-radius: 2px;
+    border-radius: 6px;
     border-top-left-radius: 0px;
 }
 
@@ -529,8 +584,8 @@
 
 ._common_d11 .dijitTabLabels-right-h .dijitTab {
 
-    /*border-bottom-right-radius: 2px;
-    border-top-right-radius: 2px;
+    /*border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
     border-bottom-left-radius: 0px;
     border-top-left-radius: 0px;*/
     margin-bottom: 1px;
@@ -538,8 +593,7 @@
 }
 
 ._common_d11 .dijitTabLabels-right-h.dijitAlignRight,._common_d11 .dijitTabLabels-left-h.dijitAlignLeft{
-    background: #999;
-    padding-top: 15px;
+    padding-top: 3px;
 
 }
 ._common_d11 .dijitTabLabels-left-h.dijitAlignLeft{
@@ -573,23 +627,27 @@
     border-top-right-radius: 0px;
     border-bottom-left-radius: 0px;
     border-top-left-radius: 0px;*/
-    background-color: transparent;
-
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top-left-radius:4px;
+    border-bottom-left-radius:4px;
+    border:1px solid #ccc;
+    margin-left: 3px;
     text-align: right;
-    margin-bottom: 1px;
-    border-width: 0;
-    color:white;
+    margin-bottom: 2px;
+    color:#444;
 }
 ._common_d11 .dijitTabLabels-left-h .dijitTab.dijitTabChecked {
-    color:RGBA(254, 255, 29, 1.00);
+    color:#444;
+    background:linear-gradient(to bottom, #fffff3,  #fcf8c5);
+
 }
 
-._common_d11 .dijitTabLabels-left-h .dijitTabInnerDiv {
-    padding: 3px 4px;
-}
 
 ._common_d11 .dijitTabLabels-left-h  .dijitAlignTop .dijitTabChecked, ._common_d11 .dijitAlignTop .dijitTabCloseButtonChecked {
-    border-right-color: whitesmoke;
+    border-right-color: transparent;
+    background:white;
+    border-bottom-color: #ccc;
 }
 
 /* @end */
@@ -602,8 +660,11 @@
 
 /* @group tootlipDialog */
 
+.mimi .dijitLayoutContainer{
+    background:transparent;
+}
 ._common_d11 .dijitTooltipDialog .dijitTooltipContainer {
-    border-radius: 2px;
+    border-radius: 6px;
     padding: 0px;
     border: 1px solid silver;
     font-size: inherit;
@@ -656,6 +717,8 @@
     margin-right: 8px;
     margin-top: 0px;
     color: #444;
+    padding-bottom: 4px;
+    background: linear-gradient(45deg, #1f345d26, transparent);
 }
 
 .menutree .menu_current_page {
@@ -663,6 +726,8 @@
 }
 .menutree .menu_existing_page.menu_shape  {
     font-weight:bold;
+    padding-top: 5px; /*adjustment for bold*/
+    padding-bottom: 5px; /*adjustment for bold*/
 }
 
 .menutree .menu_shape:hover {
@@ -727,13 +792,13 @@
     padding: 5px;
     background-color: #f6f6f6;
     box-shadow: rgb(158, 133, 111) 2px 2px 2px;
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 /* @end */
 
 #mainWindow {
-    /*background-color: rgba(170, 190, 201, 0.2);*/
+    background:linear-gradient(to top, #f6f8fa, #ffffff);    
     font-size: 12px;
 }
 
@@ -801,8 +866,8 @@
 
 
 .draggedItem .dojoxGrid-row{
-    border-bottom:1px solid #333;
-    border-bottom:1px solid #333;
+    border-bottom:1px solid #555;
+    border-bottom:1px solid #555;
 
 }
 
@@ -945,7 +1010,7 @@
     line-height:16px;
     font-size: 8pt;
     font-variant:small-caps;
-    color:#333;
+    color:#555;
     background-color: #CDCDCD;
     border: 1px solid #666;
     cursor:pointer;
@@ -1001,10 +1066,20 @@
 ._common_d11.tundra .dijitPopup > div, .tundra .dijitPopup > table{
     opacity: 1;
 }
+.frameindex_left{
+    background: #ECE9E6;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #FFFFFF, #ECE9E6);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #FFFFFF, #ECE9E6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */         
+}
 
 .framedindex_tablist{
     background-image: none;
-    background-color: #555;
+    background-image:var(--frameindex-tablist-background);
+    color:var(--frameindex-tablist-color);
+    min-height: 34px;
+}
+.mimi .framedindex_tablist .button_block.iframetab{ 
+    padding:2px;
 }
 
 .multibutton:last-child{
@@ -1027,7 +1102,11 @@
     font-size: 9pt;
     font-variant:small-caps;*/
 }
-
+.mimi .iframetab{
+    line-height:24px;
+    font-size:10pt;
+    font-variant: none;
+}
 .iframetab:last-child{
     -moz-border-radius-topright: 4px;
     -moz-border-radius-bottomright: 4px;
@@ -1060,12 +1139,41 @@
     background-color: #EDEDEE;
 }
 
+.mimi._common_d11 .lightboxDialog.dijitDialog {
+    padding: 2px;
+    background: linear-gradient(to top, #efefef,white);;
+    border: 1px solid #ddd;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.dlg_alert.dijitDialog .dijitDialogPaneContent{
+    background:linear-gradient(to top, #e4e4e4,white);
+}
+.dlg_prompt.dijitDialog .dijitDialogPaneContent{
+    background:linear-gradient(to top, #e4e4e4,white);
+}
+
 
 .tundra .dijitButtonNode {
     /* enabled state - inner */
     background-color: #E4E4E4;
     background-image: none;
     border-radius: 2px;
+    padding:0 2px;
+    border-color:#666;
+}
+
+.slotbar_toolbar .dijitButtonNode {
+    color: #444;
+    border: 1px solid #777;
+    font-variant: normal;
+    border-radius: 5px;
+    padding: 1px 2px;
+    box-shadow: none;
+    font-weight: bold;
 }
 
 .tundra .dijitButtonHover .dijitButtonNode,
@@ -1119,10 +1227,35 @@
 }
 
 .darktoolbar{
-    background-color: #666;
+    background-color: #444;
+    background-image: linear-gradient(to bottom,#f5f8fa46, #eff1f344, #f3f4f531);
+
+}
+.mimi .slotbar_toolbar {
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
+.popupLabel {
+    padding-right: 15px;
+    cursor: pointer;
+    background: url(/_rsrc/common/css_icons/svg/16/popup.svg) no-repeat right !important;
+}
+
+.popupLabel:hover {
+    background:rgba(234, 203, 110, 1.00);
+}
+
+
+
+
 /*----------------------------------------- icone svg -------------------------------------*/
+
+.tundra ._gnrInvalidRow ._statusIcon, .tundra ._gnrInvalidRow._gnrReadOnlyRow ._statusIcon ,
+.tundra ._gnrInvalidRow._gnrProtectionPass ._statusIcon{
+    background: url(/_rsrc/common/css_icons/svg/16/form_status_red.svg) no-repeat center center;
+}
+
 
 .mimi .archive_record, .mimi .box{
     background: url(/_rsrc/common/css_icons/svg/16/archive_record.svg) no-repeat center center;
@@ -1136,9 +1269,18 @@
     background: url(/_rsrc/common/css_icons/svg/16/batch_assignment.svg) no-repeat center center;
 }
 
-.mimi .batch_scripts{
+.mimi .batch_scripts, .mimi .batch_monitor_icon{
     background: url(/_rsrc/common/css_icons/svg/16/batch_scripts.svg) no-repeat center center;
 }
+.mimi .address_book, .mimi .frameplugin_staff_icon{
+    background: url(/_rsrc/common/css_icons/svg/16/address_book.svg) no-repeat center center;
+}
+
+
+.mimi .gear{
+    background: url(/_rsrc/common/css_icons/svg/16/gear.svg) no-repeat center center;
+}
+
 
 .mimi .create_edit_html_template {
     background: url(/_rsrc/common/css_icons/svg/16/create_edit_html_template.svg) no-repeat center center;
@@ -1160,7 +1302,7 @@
     background: url(/_rsrc/common/css_icons/svg/16/export_to_excel.svg) no-repeat center center;
 }
 .mimi .picker, .mimi .iconbox.app.picker{
-    background: url(/_rsrc/common/css_icons/svg/16/picker.svg) no-repeat center center;
+    background: url(/_rsrc/common/css_icons/svg/16/open_floating_window.svg) no-repeat center center;
 }
 
 .mimi .form_status_green{
@@ -1187,8 +1329,8 @@
     background: url(/_rsrc/common/css_icons/svg/16/go_to_last_record.svg) no-repeat center center;
 }
 
-.mimi .grid_options, .mimi .menu_gray_svg{
-    background: url(/_rsrc/common/css_icons/svg/16/grid_options.svg) no-repeat center center;
+.mimi .grid_options, .mimi .menu_icon{
+    background: url(/_rsrc/common/css_icons/svg/16/menu_icon.svg) no-repeat center center;
 }
 
 .mimi .import_data_tool{
@@ -1215,12 +1357,31 @@
     background: url(/_rsrc/common/css_icons/svg/16/new_record.svg) no-repeat center center;
 }
 
-.mimi .new_set_column, .mimi .heart{
+.mimi .new_set_column{
     background: url(/_rsrc/common/css_icons/svg/16/new_set_column.svg) no-repeat center center;
+}
+
+.mimi .heart{
+    background: url(/_rsrc/common/css_icons/svg/16/heart.svg) no-repeat center center;
 }
 
 .mimi .next_record, .mimi .next{
     background: url(/_rsrc/common/css_icons/svg/16/next_record.svg) no-repeat center center;
+}
+
+.mimi .th_enableLinker .th_linkerAdd {
+    background: url(/_rsrc/common/css_icons/svg/16/new_row.svg) no-repeat center center;
+    width: 14px;
+    position: absolute;
+    right: 1px;
+    top: 0px;
+    bottom: 0;
+    display: block;
+    transform:scale(.85);
+}
+.mimi .dijitError.th_linkerField {
+    margin-top: 1px;
+    background:transparent  url(/_rsrc/common/css_icons/svg/16/form_status_red.svg) no-repeat right center !important;
 }
 
 .mimi .plus_square, .mimi .add_record{
@@ -1300,4 +1461,90 @@ background: url(/_rsrc/common/css_icons/svg/16/read_only_status.svg) no-repeat c
 
 .mimi .formside_noItem .fh_semaphore{
 background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat center center;
+}
+
+.mimi .switch_off, .mimi .iconbox.icnBaseUserLogout.switch_off{
+    background: url(/_rsrc/common/css_icons/svg/16/switch_off.svg) no-repeat center center;
+}
+
+.mimi .chat, .mimi .chat_plugin_icon{
+    background: url(/_rsrc/common/css_icons/svg/16/chat.svg) no-repeat center center;
+}
+
+.mimi .duplicate_record, .mimi .duplicate_record.copy{
+    background: url(/_rsrc/common/css_icons/svg/16/duplicate_record.svg) no-repeat center center;
+}
+
+.mimi .archive_record, .mimi .archive_record.box{
+    background: url(/_rsrc/common/css_icons/svg/16/archive_record.svg) no-repeat center center;
+}
+.mimi .bulb_off, .mimi .bulb_on{ 
+    background: url(/_rsrc/common/css_icons/svg/16/light_bulb.svg) no-repeat center center;
+}
+
+.mimi .paint, .mimi .batch_assignment{
+    background: url(/_rsrc/common/css_icons/svg/16/batch_assignment.svg) no-repeat center center;
+}
+.mimi .star{
+    background: url(/_rsrc/common/css_icons/svg/16/star.svg) no-repeat center center;
+}
+.mimi .trash{
+    background: url(/_rsrc/common/css_icons/svg/16/trash.svg) no-repeat center center;
+}
+.mimi.tundra .dijitComboBox .dijitArrowButton .dijitArrowButtonInner,.mimi.tundra .dijitArrowButtonInner{
+    background: url(/_rsrc/common/css_icons/svg/16/popup.svg) no-repeat center center;
+    transform:rotate(0deg) scale(0.8);
+}
+.mimi.tundra .dijitDropDownButton .dijitArrowButtonInner{ 
+    transform:rotate(0deg) scale(1);
+}
+
+.mimi .application_menu{ 
+    background: url(/_rsrc/common/css_icons/svg/16/menu_icon.svg) no-repeat center center;
+}
+
+.mimi .tree_hierarchical_view, .mimi .iframemenu_plugin_icon{
+    background: url(/_rsrc/common/css_icons/svg/16/tree_hierarchical_view.svg) no-repeat center center;
+}
+.mimi .help{ 
+    background: url(/_rsrc/common/css_icons/svg/16/online_help.svg) no-repeat center center;
+
+}
+.mimi .iconbox.spanner, .mimi .toolbox{
+    background: url(/_rsrc/common/css_icons/svg/16/toolbox.svg) no-repeat center center;
+}
+
+.mimi .iconbox.pencil, .mimi .edit{
+    background: url(/_rsrc/common/css_icons/svg/16/edit.svg) no-repeat center center;
+}
+
+
+.mimi .folder{
+    background: url(/_rsrc/common/css_icons/svg/16/folder.svg) no-repeat center center;
+}
+
+
+
+.mimi .ping_semaphore{
+    height: 16px;
+    width: 16px;
+    background: url(/_rsrc/common/css_icons/svg/16/socket_transmitting.svg) no-repeat center center;
+    opacity: 0;
+}
+
+.mimi.ping_start .ping_semaphore{
+    background: url(/_rsrc/common/css_icons/svg/16/socket_transmitting.svg) no-repeat center center;
+    transition: opacity 200ms, visibility 200ms;
+    opacity:1;
+}
+
+.mimi.ping_error .ping_semaphore{
+    background: url(/_rsrc/common/css_icons/svg/16/sockets_disconnected.svg) no-repeat center center;
+    transition: opacity 200ms, visibility 200ms;
+    opacity:1;
+}
+
+
+.floatingPopupFixed {
+    background: url(/_rsrc/common/css_icons/svg/16/popup.svg) no-repeat right;
 }

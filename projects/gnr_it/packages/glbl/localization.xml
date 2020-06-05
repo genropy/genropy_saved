@@ -1,93 +1,61 @@
-<?xml version="1.0" ?>
-<GenRoBag>
-	<menu ext="py" path="menu.py">
-		<it_geo_italia base="Geo Italia" en="Geo Italy" it="Geo Italia"/>
-		<it_nazione base="Nazione" de="Nation" en="Nation" fr="Nation" it="Nazione"/>
-		<it_regione base="Regione" en="Region" it="Regione"/>
-		<it_provincia base="Provincia" de="Provinz" en="Province" fr="Province" it="Provincia"/>
-		<it_comune base="Comune" de="Gemeinsam" en="Common" fr="Commun" it="Comune"/>
-		<it_nuts base="Nuts" en="Nuts" it="Nuts"/>
-	</menu>
-
-	<model>
-		<comune ext="py" path="model/comune.py">
-			<it_comuni base="Comuni" en="Common" it="Comuni"/>
-				<it_codice_regione base="Codice Regione" en="Region code" it="Codice Regione"/>
-				<it_codice_provincia base="Codice Provincia" en="code Province" it="Codice Provincia"/>
-				<it_sigla_provincia base="Sigla Provincia" en="Sigla Province" it="Sigla Provincia"/>
-				<it_codice_comune base="Codice Comune" en="Common code" it="Codice Comune"/>
-				<it_denominazione base="Denominazione" de="Konfession" en="Denomination" fr="Dénomination" it="Denominazione"/>
-				<it_denominazione_tedesca base="Denominazione tedesca" en="German designation" it="Denominazione tedesca"/>
-				<it_capoluogo base="Capoluogo" en="chief town" it="Capoluogo"/>
-				<it_zona_altimetrica base="Zona altimetrica" en="altimeter zone" it="Zona altimetrica"/>
-				<it_altitudine_m_ base="Altitudine (m)" en="Altitude (m)" it="Altitudine (m)"/>
-				<it_comune_litoraneo base="Comune litoraneo" en="coastal municipality" it="Comune litoraneo"/>
-				<it_comune_montano base="Comune montano" en="common mountain" it="Comune montano"/>
-				<it_codice_sistema_lavoro_2001_ base="Codice sistema lavoro (2001)" en="Code system work (2001)" it="Codice sistema lavoro (2001)"/>
-				<it_superficie_kmq_ base="Superficie (kmq)" en="Surface area (sq km)" it="Superficie (kmq)"/>
-				<it_popolazione_residente_2010_ base="Popolazione residente (2010)" en="Resident population (2010)" it="Popolazione residente (2010)"/>
-		</comune>
-		<localita ext="py" path="model/localita.py">
-			<it_id base="Id" en="Id" it="Id"/>
-				<it_comune base="Comune" de="Gemeinsam" en="Common" fr="Commun" it="Comune"/>
-		</localita>
-		<nazione ext="py" path="model/nazione.py">
-			<it_code base="Code" de="Code" en="Code" fr="Code" it="Code"/>
-				<it_name base="Name" en="Name" it="Name"/>
-				<it_code3 base="Code3" en="Code3" it="Code3"/>
-				<it_num_code base="Num.Code" en="Num.Code" it="Num.Code"/>
-				<it_num_unico base="Num.Unico" de="Num.Unico" en="Num.Unico" fr="Num.Unico" it="Num.Unico"/>
-		</nazione>
-		<nuts ext="py" path="model/nuts.py">
-			<it_nomeclatura_statistica base="Nomeclatura statistica" en="Nomeclatura statistics" it="Nomeclatura statistica"/>
-				<it_nomenclatura_statistica base="Nomenclatura statistica" en="statistical nomenclature" it="Nomenclatura statistica"/>
-				<it_code base="Code" de="Code" en="Code" fr="Code" it="Code"/>
-				<it_description base="Description" de="Beschreibung" en="Description" fr="Description" it="Description"/>
-				<it_level base="Level" en="Level" it="Level"/>
-				<it_country base="Country" en="Country" it="Country"/>
-		</nuts>
-		<provincia ext="py" path="model/provincia.py">
-			<it_sigla base="Sigla" de="Abkürzung" en="Abbreviation" fr="Abréviation" it="Sigla"/>
-				<it_regione base="Regione" en="Region" it="Regione"/>
-				<it_nome base="Nome" de="Name" en="Name" fr="Nom" it="Nome"/>
-				<it_nome_locale base="Nome Locale" en="Local name" it="Nome Locale"/>
-				<it_codice base="codice" de="Code" en="Code" fr="Code" it="Codice"/>
-				<it_codice_istat base="Codice Istat" en="Istat code" it="Codice Istat"/>
-				<it_ordine_gnr base="Ordine Gnr" en="Ordine Gnr" it="Ordine Gnr"/>
-				<it_ordine_tot_gnr base="Ordine tot Gnr" en="Ordine tot Gnr" it="Ordine tot Gnr"/>
-				<it_cap_valido base="CAP Valido" en="CAP Valid" it="CAP Valido"/>
-				<it_nuts3 base="NUTS3" en="NUTS3" it="NUTS3"/>
-		</provincia>
-		<regione ext="py" path="model/regione.py">
-			<it_regione base="Regione" en="Region" it="Regione"/>
-				<it_sigla base="Sigla" de="Abkürzung" en="Abbreviation" fr="Abréviation" it="Sigla"/>
-				<it_nome base="Nome" de="Name" en="Name" fr="Nom" it="Nome"/>
-				<it_nome_locale base="Nome Locale" en="Local name" it="Nome Locale"/>
-				<it_codice base="Codice" de="Code" en="Code" fr="Code" it="Codice"/>
-				<it_codice_istat base="Codice Istat" en="Istat code" it="Codice Istat"/>
-				<it_ordine_gnr base="Ordine Gnr" en="Ordine Gnr" it="Ordine Gnr"/>
-				<it_zona base="Zona" en="Zone" it="Zona"/>
-				<it_zona_n_ base="Zona n." en="Zone n." it="Zona n."/>
-				<it_nuts2 base="NUTS2" en="NUTS2" it="NUTS2"/>
-		</regione>
-	</model>
-
-	<resources>
-		<tables>
-			<localita>
-				<th_localita ext="py" path="resources/tables/localita/th_localita.py">
-					<it_localit_ base="Località" de="Urlaubsort" en="Resort" fr="Recours" it="Località"/>
-				</th_localita>
-			</localita>
-				<provincia>
-				<th_provincia ext="py" path="resources/tables/provincia/th_provincia.py">
-					<it_nord_est base="Nord Est" en="Northeast" it="Nord Est"/>
-								<it_nord_ovest base="Nord Ovest" en="northwest" it="Nord Ovest"/>
-								<it_centro base="Centro" en="Center" it="Centro"/>
-								<it_sud base="Sud" en="South" it="Sud"/>
-								<it_isole base="Isole" en="Islands" it="Isole"/>
-				</th_provincia>
-			</provincia>
-		</tables>
-	</resources>
-</GenRoBag>
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><menu path="menu.py" ext="py"><it_geo_italia base="Geo Italia" en="Geo Italy" it="Geo Italia"></it_geo_italia>
+<it_nazione fr="Nation" de="Nation" en="Nation" it="Nazione" base="Nazione"></it_nazione>
+<it_regione base="Regione" en="Region" it="Regione"></it_regione>
+<it_provincia fr="Province" de="Provinz" en="Province" it="Provincia" base="Provincia"></it_provincia>
+<it_comune fr="Commun" en="Town" de="Gemeinsam" it="Comune" base="Comune"></it_comune>
+<it_nuts base="Nuts" en="Nuts" it="Nuts"></it_nuts></menu>
+<model><comune path="model/comune.py" ext="py"><it_comuni base="Comuni" en="Town" it="Comuni"></it_comuni>
+<it_codice_regione base="Codice Regione" en="Region code" it="Codice Regione"></it_codice_regione>
+<it_codice_provincia base="Codice Provincia" en="code Province" it="Codice Provincia"></it_codice_provincia>
+<it_sigla_provincia base="Sigla Provincia" en="Sigla Province" it="Sigla Provincia"></it_sigla_provincia>
+<it_codice_comune base="Codice Comune" en="Common code" it="Codice Comune"></it_codice_comune>
+<it_denominazione fr="Dénomination" de="Konfession" en="Denomination" it="Denominazione" base="Denominazione"></it_denominazione>
+<it_denominazione_tedesca base="Denominazione tedesca" en="German designation" it="Denominazione tedesca"></it_denominazione_tedesca>
+<it_capoluogo base="Capoluogo" en="chief town" it="Capoluogo"></it_capoluogo>
+<it_zona_altimetrica base="Zona altimetrica" en="altimeter zone" it="Zona altimetrica"></it_zona_altimetrica>
+<it_altitudine_m_ base="Altitudine (m)" en="Altitude (m)" it="Altitudine (m)"></it_altitudine_m_>
+<it_comune_litoraneo base="Comune litoraneo" en="Coastal town" it="Comune litoraneo"></it_comune_litoraneo>
+<it_comune_montano base="Comune montano" en="Mountain town" it="Comune montano"></it_comune_montano>
+<it_codice_sistema_lavoro_2001_ base="Codice sistema lavoro (2001)" en="Code system work (2001)" it="Codice sistema lavoro (2001)"></it_codice_sistema_lavoro_2001_>
+<it_superficie_kmq_ base="Superficie (kmq)" en="Surface area (sq km)" it="Superficie (kmq)"></it_superficie_kmq_>
+<it_popolazione_residente_2010_ base="Popolazione residente (2010)" en="Resident population (2010)" it="Popolazione residente (2010)"></it_popolazione_residente_2010_></comune>
+<localita path="model/localita.py" ext="py"><it_id base="Id" en="Id" it="Id"></it_id>
+<it_comune fr="Commun" en="Town" de="Gemeinsam" it="Comune" base="Comune"></it_comune></localita>
+<nazione path="model/nazione.py" ext="py"><it_code fr="Code" de="Code" en="Code" it="Code" base="Code"></it_code>
+<it_name base="Name" en="Name" it="Name"></it_name>
+<it_code3 base="Code3" en="Code3" it="Code3"></it_code3>
+<it_num_code base="Num.Code" en="Num.Code" it="Num.Code"></it_num_code>
+<it_num_unico fr="Num.Unico" de="Num.Unico" en="Num.Unico" it="Num.Unico" base="Num.Unico"></it_num_unico></nazione>
+<nuts path="model/nuts.py" ext="py"><it_nomeclatura_statistica base="Nomeclatura statistica" en="Nomeclatura statistics" it="Nomeclatura statistica"></it_nomeclatura_statistica>
+<it_nomenclatura_statistica base="Nomenclatura statistica" en="statistical nomenclature" it="Nomenclatura statistica"></it_nomenclatura_statistica>
+<it_code fr="Code" de="Code" en="Code" it="Code" base="Code"></it_code>
+<it_description fr="Description" de="Beschreibung" en="Description" it="Description" base="Description"></it_description>
+<it_level base="Level" en="Level" it="Level"></it_level>
+<it_country base="Country" en="Country" it="Country"></it_country></nuts>
+<provincia path="model/provincia.py" ext="py"><it_sigla fr="Abréviation" de="Abkürzung" en="Abbreviation" it="Sigla" base="Sigla"></it_sigla>
+<it_regione base="Regione" en="Region" it="Regione"></it_regione>
+<it_nome fr="Nom" de="Name" en="Name" it="Nome" base="Nome"></it_nome>
+<it_nome_locale base="Nome Locale" en="Local name" it="Nome Locale"></it_nome_locale>
+<it_codice fr="Code" de="Code" en="Code" it="Codice" base="codice"></it_codice>
+<it_codice_istat base="Codice Istat" en="Istat code" it="Codice Istat"></it_codice_istat>
+<it_ordine_gnr base="Ordine Gnr" en="Ordine Gnr" it="Ordine Gnr"></it_ordine_gnr>
+<it_ordine_tot_gnr base="Ordine tot Gnr" en="Ordine tot Gnr" it="Ordine tot Gnr"></it_ordine_tot_gnr>
+<it_cap_valido base="CAP Valido" en="CAP Valid" it="CAP Valido"></it_cap_valido>
+<it_nuts3 base="NUTS3" en="NUTS3" it="NUTS3"></it_nuts3></provincia>
+<regione path="model/regione.py" ext="py"><it_regione base="Regione" en="Region" it="Regione"></it_regione>
+<it_sigla fr="Abréviation" de="Abkürzung" en="Abbreviation" it="Sigla" base="Sigla"></it_sigla>
+<it_nome fr="Nom" de="Name" en="Name" it="Nome" base="Nome"></it_nome>
+<it_nome_locale base="Nome Locale" en="Local name" it="Nome Locale"></it_nome_locale>
+<it_codice fr="Code" de="Code" en="Code" it="Codice" base="Codice"></it_codice>
+<it_codice_istat base="Codice Istat" en="Istat code" it="Codice Istat"></it_codice_istat>
+<it_ordine_gnr base="Ordine Gnr" en="Ordine Gnr" it="Ordine Gnr"></it_ordine_gnr>
+<it_zona base="Zona" en="Zone" it="Zona"></it_zona>
+<it_zona_n_ base="Zona n." en="Zone n." it="Zona n."></it_zona_n_>
+<it_nuts2 base="NUTS2" en="NUTS2" it="NUTS2"></it_nuts2></regione></model>
+<resources><tables><localita><th_localita path="resources/tables/localita/th_localita.py" ext="py"><it_localit_ fr="Recours" de="Urlaubsort" en="Resort" it="Località" base="Località"></it_localit_></th_localita></localita>
+<provincia><th_provincia path="resources/tables/provincia/th_provincia.py" ext="py"><it_nord_est base="Nord Est" en="Northeast" it="Nord Est"></it_nord_est>
+<it_nord_ovest base="Nord Ovest" en="northwest" it="Nord Ovest"></it_nord_ovest>
+<it_centro base="Centro" en="Center" it="Centro"></it_centro>
+<it_sud base="Sud" en="South" it="Sud"></it_sud>
+<it_isole base="Isole" en="Islands" it="Isole"></it_isole></th_provincia></provincia></tables></resources></GenRoBag>

@@ -655,7 +655,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         tblobj = self.db.table(table)
         def cb(r):
             r[counterField] = updaterDict[r[tblobj.pkey]]
-        tblobj.batchUpdate(cb, where='$%s IN:pkeys' %tblobj.pkey, pkeys=pkeys)
+        tblobj.batchUpdate(cb, where='$%s IN:pkeys' %tblobj.pkey, pkeys=pkeys,excludeDraft=False)
         self.db.commit()
 
     @public_method      
@@ -913,8 +913,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             columns = []
             for col in colaux:
                 if ':' in col:
-                    external_table,external_field = col.split(':')
-                    external_queries.setdefault(external_table,[]).append(external_field)
+                    external_relkey,external_field = col.split(':')
+                    external_queries.setdefault(external_relkey,[]).append(external_field)
                     continue
                 if '[' in col:
                     tbl, col = col.split('[')
@@ -933,6 +933,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         if hasProtectionColumns:
             columns = '%s,$__is_protected_row AS _is_readonly_row' %columns
 
+        if tblobj.hasInvalidCheck():
+            columns = '%s,$__is_invalid_row AS _is_invalid_row' %columns
+
         return columns,external_queries
     
     def _externalQueries(self,selection=None,external_queries=None):
@@ -942,11 +945,13 @@ class GnrWebAppHandler(GnrBaseProxy):
         for store,subsel in storedict.items():
             with self.db.tempEnv(storename=store):
                 for k,v in external_queries.items():
-                    tblobj = self.db.table(k)
+                    ksplitted = k.split('.')
+                    tblobj = self.db.table('.'.join(ksplitted[:2]))
+                    relkey = ksplitted[-1]
                     extfkeyname = '%s_fkey' %k.replace('.','_')
                     fkeys = [r[extfkeyname] for r in selection.data]
-                    columns = ','.join(v+['$%s AS %s' %(tblobj.pkey,extfkeyname)])
-                    resdict = tblobj.query(columns=columns,where='$%s IN :fkeys' %tblobj.pkey,fkeys=fkeys,addPkeyColumn=False).fetchAsDict(key=extfkeyname)
+                    columns = ','.join(v+['$%s AS %s' %(relkey,extfkeyname)])
+                    resdict = tblobj.query(columns=columns,where='$%s IN :fkeys' %relkey,fkeys=fkeys,addPkeyColumn=False).fetchAsDict(key=extfkeyname)
                     for r in subsel:
                         if r[extfkeyname] in resdict:
                             r.update(resdict[r[extfkeyname]])
@@ -1811,12 +1816,21 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result
 
     @public_method
-    def getValuesString(self,table,caption_field=None,alt_pkey_field=None,**kwargs):
+    def getValuesString(self,table=None,caption_field=None,alt_pkey_field=None,**kwargs):
         tblobj = self.db.table(table)
         pkey = alt_pkey_field or tblobj.pkey
         caption_field = caption_field or tblobj.attributes.get('caption_field') or tblobj.pkey
         f = tblobj.query(columns='$%s,$%s' %(pkey,caption_field),**kwargs).fetch()
         return ','.join(['%s:%s' %(r[pkey],(r[caption_field] or '').replace(',',' ')) for r in f])
+
+
+    @public_method
+    def updateRecord(self,table=None,pkey=None,record=None,**kwargs):
+        tblobj = self.db.table(table)
+        with tblobj.recordToUpdate(pkey) as recToUpd:
+            recToUpd.update(record)
+        self.db.commit()
+
 
     @public_method
     def getMultiFetch(self,queries=None):

@@ -443,6 +443,48 @@ class SqlTable(GnrObject):
     def counterColumns(self):
         return
 
+    def variantColumn_unaccent(self, field, **kwargs):
+        sql_formula=self.db.adapter.unaccentFormula(field)
+        return dict(name='{field}_unaccent'.format(field=field), 
+                                            sql_formula=sql_formula,
+                                            **kwargs)
+
+    #def variantColumn_repaccent(self, field, **kwargs):
+    #    sql_formula= u"""unaccent(REGEXP_REPLACE(   
+    #                                REGEXP_REPLACE(
+    #                                   REGEXP_REPLACE(
+    #                                      REGEXP_REPLACE(
+    #                                          REGEXP_REPLACE(
+    #                                              REGEXP_REPLACE(${field},'ò$','o''')
+    #                                          ,'ì','i''')
+    #                                      ,'à','a''')
+    #                                   ,'é','e''')
+    #                                ,'è','e''')
+    #                            ,'ù','u''')
+    #                            )""".format(field=field)
+
+    #    return dict(name='{field}_repaccent'.format(field=field), 
+    #                                        sql_formula=sql_formula,
+    #                                        **kwargs)
+
+
+    def variantColumn_egvariant(self,field,**kwargs):
+        #for documentation
+        pass
+
+    def variantColumn_age_day(self, field, dateArg=None, **kwargs):
+        sql_formula=self.db.adapter.ageAtDate(field, dateArg=dateArg, timeUnit='day')
+        return dict(name='{field}_age_day'.format(field=field), 
+                                            sql_formula=sql_formula,
+                                            dtype='L',
+                                            **kwargs)
+
+    def variantColumn_age(self, field, dateArg=None, **kwargs):
+        dref = dateArg or ':env_workdate'
+        return dict(name='{field}_age'.format(field=field), dtype='T',
+                                            sql_formula='CAST(age(${field},{dref}) as TEXT)'.format(field=field, dref=dref),
+                                            **kwargs)
+
     @property
     def availablePermissions(self):
         default_table_permissions = ['ins','upd','del','archive','export','import','print','mail','action']
@@ -553,14 +595,25 @@ class SqlTable(GnrObject):
             newrecord.setItem(fld, v, info)
         return newrecord
         
-    def newrecord(self, assignId=False, resolver_one=None, resolver_many=None, **kwargs):
+    def newrecord(self, assignId=False, resolver_one=None, resolver_many=None, _fromRecord=None, **kwargs):
         """TODO
         
         :param assignId: TODO
         :param resolver_one: TODO
         :param resolver_many: TODO"""
-        defaultValues = self.defaultValues() or {}
+        
+        defaultValues = dict()
+        if _fromRecord:
+            for colname,obj in self.model.columns.items():
+                if  obj.attributes.get('unique'):
+                    continue
+                if obj.attributes.get('_sysfield') and colname not in (self.draftField, 'parent_id'):
+                    continue
+                defaultValues[colname] = _fromRecord[colname]
+        else:
+            defaultValues = self.defaultValues() or {}
         defaultValues.update(kwargs)
+
         newrecord = self.buildrecord(defaultValues, resolver_one=resolver_one, resolver_many=resolver_many)
         if assignId:
             newrecord[self.pkey] = self.newPkeyValue(record=newrecord)
@@ -611,7 +664,11 @@ class SqlTable(GnrObject):
         return translator.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=self)
 
     def cachedKey(self,topic):
-        return '%s.%s.%s' %(self.db.currentStorename,topic,self.fullname)
+        if self.multidb=='*' or not self.use_dbstores() is False:
+            storename = self.db.rootstore
+        else:
+            storename = self.db.currentStorename
+        return '%s.%s.%s' %(storename,topic,self.fullname)
 
     def tableCachedData(self,topic,cb,**kwargs):
         currentPage = self.db.currentPage
@@ -820,12 +877,13 @@ class SqlTable(GnrObject):
         howmany = howmany or 1
         original_record = self.recordAs(recordOrKey,mode='dict')
         record = dict(original_record)
-        pkey = record.pop(self.pkey,None)
+        pkey = record.get(self.pkey,None)
+        record[self.pkey] = None
         for colname,obj in self.model.columns.items():
             if colname == self.draftField or colname == 'parent_id':
                 continue
             if obj.attributes.get('unique') or obj.attributes.get('_sysfield'):
-                record.pop(colname,None)
+                record[colname] = None
         if hasattr(self,'onDuplicating'):
             self.onDuplicating(record)
         for i in range(howmany):
@@ -1278,10 +1336,11 @@ class SqlTable(GnrObject):
             record = {self.pkey: record}
         return self.db.adapter.existsRecord(self, record)
     
-    def checkDuplicate(self,excludeDraft=None,**kwargs):
+    def checkDuplicate(self,excludeDraft=None,ignorePartition=None,**kwargs):
         """TODO"""
         where = ' AND '.join(['$%s=:%s' % (k, k) for k in kwargs.keys()])
-        return self.query(where=where,excludeDraft=excludeDraft,**kwargs).count()>0
+        return self.query(where=where,excludeDraft=excludeDraft,
+                        ignorePartition=ignorePartition,**kwargs).count()>0
     
     def insertOrUpdate(self, record):
         """Insert a single record if it doesn't exist, else update it

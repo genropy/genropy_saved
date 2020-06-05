@@ -11,6 +11,9 @@ from gnr.core.gnrbag import DirectoryResolver
 
 class PlainIndex(BaseComponent):
     def main(self,root,**kwargs):
+        self.plainIndex(root,**kwargs)
+
+    def plainIndex(self,root,**kwargs):
         currdir = os.path.dirname(self.filepath)
         folder = DirectoryResolver(currdir,cacheTime=10,
                             include='*.py', 

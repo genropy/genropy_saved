@@ -47,6 +47,9 @@ from gnr.sql.gnrsql_exceptions import GnrSqlException,SelectionExecutionError, R
 COLFINDER = re.compile(r"(\W|^)\$(\w+)")
 RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
 PERIODFINDER = re.compile(r"#PERIOD\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*,\s*:?(\w+)\)")
+BAGEXPFINDER = re.compile(r"#BAG\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*\)(\s*AS\s*(\w*))?")
+BAGCOLSEXPFINDER = re.compile(r"#BAGCOLS\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*\)(\s*AS\s*(\w*))?")
+
 
 ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
 PREFFINDER = re.compile(r"#PREF\(([^,)]+)(,[^),]+)?\)")
@@ -78,6 +81,7 @@ class SqlCompiledQuery(object):
         self.offset = None
         self.for_update = None
         self.explodingColumns = []
+        self.evaluateBagColumns = []
         self.aggregateDict = {}
         self.pyColumns = []
         self.maintable_as = maintable_as
@@ -537,6 +541,9 @@ class SqlQueryCompiler(object):
         order_by = self.updateFieldDict(order_by or '')
         group_by = self.updateFieldDict(group_by or '')
         having = self.updateFieldDict(having or '')
+        columns = BAGEXPFINDER.sub(self.expandBag,columns)
+        columns = BAGCOLSEXPFINDER.sub(self.expandBagcols,columns)
+
         col_list = uniquify([col for col in gnrstring.split(columns, ',') if col])
         new_col_list = []
         for col in col_list:
@@ -596,7 +603,7 @@ class SqlQueryCompiler(object):
             if excludeLogicalDeleted is True:
                 extracnd = '%s.%s IS NULL' % (self.aliasCode(0),logicalDeletionField)
                 if where:
-                    where = '%s AND %s' % (extracnd, where)
+                    where = ' ( %s ) AND ( %s ) ' % (extracnd, where)
                 else:
                     where = extracnd
             elif excludeLogicalDeleted == 'mark':
@@ -606,7 +613,7 @@ class SqlQueryCompiler(object):
             if excludeDraft is True:
                 extracnd = '%s.%s IS NOT TRUE' %(self.aliasCode(0),draftField)
                 if where:
-                    where = '%s AND %s' % (extracnd, where)
+                    where = ' ( %s ) AND ( %s )' % (extracnd, where)
                 else:
                     where = extracnd
         # add a special joinCondition for the main selection, not for JOINs
@@ -614,7 +621,7 @@ class SqlQueryCompiler(object):
             extracnd, one_one = self.getJoinCondition('*', '*', self.aliasCode(0))
             if extracnd:
                 if where:
-                    where = '(%s) AND (%s)' % (where, extracnd)
+                    where = ' ( %s ) AND ( %s ) ' % (where, extracnd)
                 else:
                     where = extracnd
         order_by = gnrstring.templateReplace(order_by, colPars)
@@ -724,7 +731,19 @@ class SqlQueryCompiler(object):
             self.fieldlist.append('%s AS %s' % (field, as_name))
             self.cpl.resultmap.setItem(path_name, None, xattrs)
             #self.cpl.dicttemplate[path_name] = as_name
-            
+
+    def expandBag(self, m):
+        fld = m.group(1)
+        asfld = m.group(3)
+        self.cpl.evaluateBagColumns.append(((asfld or fld).replace('$',''),False))
+        return fld if not asfld else '{} AS {}'.format(fld, asfld)
+
+    def expandBagcols(self, m):
+        fld = m.group(1)
+        asfld = m.group(3)
+        self.cpl.evaluateBagColumns.append(((asfld or fld).replace('$',''),True))
+        return fld if not asfld else '{} AS {}'.format(fld, asfld)
+  
     def expandPeriod(self, m):
         """TODO
         
@@ -1003,6 +1022,7 @@ class SqlQuery(object):
         result = cursor.fetchall()
         cursor.close()
         self.handlePyColumns(result)
+        self.handleBagColumns(result)
         return result
 
     def handlePyColumns(self,data):
@@ -1019,6 +1039,20 @@ class SqlQuery(object):
                     result = handler(d,field=field)
                     d[field] = result
 
+    def handleBagColumns(self,data):
+        if not self.compiled.evaluateBagColumns:
+            return
+        for d in data:
+            for field,separateCols in self.compiled.evaluateBagColumns:
+                val = Bag(d[field])
+                if separateCols:
+                    for k,v in val.getLeaves():
+                        d['{}_{}'.format(field,k.replace('.','_'))] = v
+                    d[field] = None
+                else:
+                    d[field] = val
+
+        
     def fetchPkeys(self):
         fetch = self.fetch()
         pkeyfield = self.dbtable.pkey
@@ -1098,7 +1132,7 @@ class SqlQuery(object):
             data = cursor.fetchall() or []
             index = cursor.index
         self.handlePyColumns(data)
-
+        self.handleBagColumns(data)
         return index, data
 
     def selection(self, pyWhere=None, key=None, sortedBy=None, _aggregateRows=False):

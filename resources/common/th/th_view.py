@@ -49,16 +49,11 @@ class TableHandlerView(BaseComponent):
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                                  virtualStore=virtualStore,bySample=queryBySample is not None,
                                  condition=condition,condition_kwargs=condition_kwargs,
-                                 _dashboardRoot=True,
                                  _sections_dict=sections_kwargs,
-                                 selfsubscribe_saveDashboard="th_dash_tableviewer.saveAsDashboard(this,$1);",
-                                 selfsubscribe_loadDashboard="th_dash_tableviewer.loadDashboard(this,$1)",
-                                 selfsubscribe_deleteCurrentDashboard="th_dash_tableviewer.deleteCurrentDashboard(this,$1)",
-
                                  selectedPage='^.viewPage',resourceOptions=options,
                                  **kwargs)
         
-        if virtualStore and queryBySample:
+        if queryBySample:
             self._th_handleQueryBySample(view,table=table,pars=queryBySample)
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=frameCode,asDict=True)
@@ -67,7 +62,30 @@ class TableHandlerView(BaseComponent):
         viewhook = self._th_hook('view',mangler=frameCode)
         if viewhook:
             viewhook(view)
+        self._th_view_printEditorDialog(view)
         return view
+    
+    def _th_view_printEditorDialog(self,view):
+        th_root = view.attributes['th_root']
+        dlgId = '{th_root}_print_editor_dlg'.format(th_root=th_root)
+        gridattr = view.grid.attributes
+        gridattr['selfsubscribe_open_print_editor'] = """genro.wdgById("{dlgId}").show();
+                        if($1.new){{
+                            genro.publish('{th_root}_print_editor_newObject');
+                        }}
+                        """.format(dlgId=dlgId,th_root=th_root)
+        gridattr['selfsubscribe_close_print_editor'] = 'genro.wdgById("{dlgId}").hide()'.format(dlgId=dlgId)
+
+        dlg = view.dialog(title='!!Print Editor',nodeId=dlgId,
+                            closable=True,windowRatio=.9,noModal=True)
+        dlg.contentPane().remote(self._th_buildPrintEditor,
+                                    table=gridattr['table'],
+                                    th_root=th_root)
+
+    @public_method
+    def _th_buildPrintEditor(self,pane,table=None,th_root=None):
+        pane.printGridEditor(frameCode='{th_root}_print_editor'.format(th_root=th_root),
+                            table=table,parentTH=th_root,datapath='.print_editor')
 
     def _th_handleQueryBySample(self,view,table=None,pars=None):
         fields = pars.pop('fields')
@@ -138,7 +156,6 @@ class TableHandlerView(BaseComponent):
             batch_assign = attr.get('batch_assign')
             if not batch_assign:
                 continue
-            auth = 'user'
             kw = {}
             if batch_assign is not True:
                 kw.update(batch_assign)
@@ -154,7 +171,6 @@ class TableHandlerView(BaseComponent):
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
                        unlinkdict=None,searchOn=True,count=None,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
                        store_kwargs=None,parentForm=None,liveUpdate=None,bySample=None,resourceOptions=None,**kwargs):
-        extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         page_hooks = self._th_hook('page',mangler=frameCode,asDict=True)
         if condition:
@@ -168,7 +184,6 @@ class TableHandlerView(BaseComponent):
         statsSlot = 'stats' if statsEnabled else False
 
         if extendedQuery:
-            virtualStore = True
             if 'adm' in self.db.packages and not self.isMobile:
                 templateManager = 'templateManager'
             else:
@@ -199,9 +214,8 @@ class TableHandlerView(BaseComponent):
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
         else:
             top_kwargs['slots']= base_slots
-        #top_kwargs['height'] = top_kwargs.get('height','20px')
         top_kwargs['_class'] = 'th_view_toolbar'
-        grid_kwargs.setdefault('gridplugins', 'configurator,chartjs,print' if virtualStore else 'configurator,chartjs,export_xls,print')
+        grid_kwargs.setdefault('gridplugins', 'configurator,chartjs,print' if extendedQuery else 'configurator,chartjs,export_xls,print')
         grid_kwargs['item_name_singular'] = self.db.table(table).name_long
         grid_kwargs['item_name_plural'] = self.db.table(table).name_plural or grid_kwargs['item_name']
         grid_kwargs.setdefault('loadingHider',loadingHider)
@@ -225,7 +239,7 @@ class TableHandlerView(BaseComponent):
                         condition=condition_kwargs,unlinkdict=unlinkdict,title=title,
                         liveUpdate=liveUpdate,store_kwargs=store_kwargs)
         if configurable:
-            self._th_view_confMenues(frame,statsEnabled=None,configurable=configurable)
+            self._th_view_confMenues(frame,statsEnabled=statsEnabled,configurable=configurable)
         if virtualStore:    
             self._extTableRecords(frame)
         frame.dataController("""if(!firedkw.res_type){return;}
@@ -283,18 +297,24 @@ class TableHandlerView(BaseComponent):
     @public_method
     def _th_advancedToolsMenu(self,statsEnabled=None,table=None,rootNodeId=None,**kwargs):
         b = Bag()
-        b.rowchild(label='!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
-                                action="""SET .#parent.showLogicalDeleted= !GET .#parent.showLogicalDeleted;
-                                         FIRE .runQueryDo;""")
-        b.rowchild(label='!!Totals count',action='SET .#parent.tableRecordCount= !GET .#parent.tableRecordCount;',
-                            checked='^.#parent.tableRecordCount')
+        #b.rowchild(label='!!Show Archived Records',checked='^.#parent.showLogicalDeleted',
+        #                        action="""SET .#parent.showLogicalDeleted= !GET .#parent.showLogicalDeleted;
+        #                                 FIRE .runQueryDo;""")
+        #b.rowchild(label='!!Totals count',action='SET #{rootNodeId}.#parent.tableRecordCount= !GET #{rootNodeId}.#parent.tableRecordCount;'.format(rootNodeId=rootNodeId),
+        #                    checked='^#{rootNodeId}.#parent.tableRecordCount'.format(rootNodeId=rootNodeId))
         if self.application.checkResourcePermission('superadmin', self.userTags):
             b.rowchild(label='-')
             b.rowchild(label='!!User Configuration',action='genro.dev.tableUserConfiguration("%s");' %table)
         b.rowchild(label='!!Configure grid',action="genro.nodeById('%s').publish('configuratorPalette');" %rootNodeId)
         b.rowchild(label='!!Print rows',action="genro.nodeById('%s').publish('printRows');" %rootNodeId)
-        b.rowchild(label='-')
+
+        b.rowchild(label='!!Show Archived Records',checked='^#{rootNodeId}.#parent.showLogicalDeleted'.format(rootNodeId=rootNodeId),
+                                action="""SET #{rootNodeId}.#parent.showLogicalDeleted= !GET #{rootNodeId}.#parent.showLogicalDeleted;
+                                           genro.nodeById('{rootNodeId}').widget.reload();""".format(rootNodeId=rootNodeId))
+        b.rowchild(label='!!Totals count',action='SET #{rootNodeId}.#parent.tableRecordCount= !GET #{rootNodeId}.#parent.tableRecordCount;'.format(rootNodeId=rootNodeId),
+                            checked='^#{rootNodeId}.#parent.tableRecordCount'.format(rootNodeId=rootNodeId))
         if statsEnabled:
+            b.rowchild(label='-')
             b.rowchild(label='!!Group by',action='SET .statsTools.selectedPage = "groupby"; SET .viewPage= "statsTools";')
             if self.ths_pandas_available():
                 b.rowchild(label='!!Pivot table',action='SET .statsTools.selectedPage = "pandas"; SET .viewPage= "statsTools";')
@@ -473,7 +493,7 @@ class TableHandlerView(BaseComponent):
         for i,kw in enumerate(sectionslist):
             code = kw.get('code') or 'r_%i' %i
             if kw.get('isDefault'):
-                meta.setdefault('dflt',code)
+                meta['dflt'] = meta.get('dflt') or code
             sectionsBag.setItem(code,None,**kw)
         return sectionsBag
 
@@ -536,6 +556,7 @@ class TableHandlerView(BaseComponent):
         pane.data('.variable_struct',variable_struct)
         if sectionsBag:
             if not dflt:
+                
                 dflt = sectionsBag.getNode('#0').label
             pane.data('.current',dflt)
 
@@ -625,6 +646,30 @@ class TableHandlerView(BaseComponent):
             return allsection+sections if allPosition!='last' else sections+allsection
         return sections
  
+    def th_monthlySections(self,column=None,dtstart=None,count=3,allPosition=True,over='>=',**kwargs):
+        sections = []
+        import datetime
+        from dateutil import rrule
+        dtstart = dtstart or self.workdate
+        dtstart = datetime.date(dtstart.year,dtstart.month,1)
+        for idx,dt in enumerate(rrule.rrule(rrule.MONTHLY, 
+                                dtstart=dtstart, 
+                                count=count)):
+            currdate = dt.date()
+            condition = "to_char({column},'YYYY-MM')=to_char(:currdate,'YYYY-MM')"\
+                        .format(column=column)
+            sections.append(dict(code='s{idx}'.format(idx=idx),
+                            condition=condition,
+                            condition_currdate=currdate,
+                            isDefault=idx==0,
+                            caption=self.toText(currdate,format='MMMM')))
+
+        endlast = datetime.date(currdate.year,currdate.month+1,1)
+        if over:
+            sections.append(dict(code='after',condition='{column}>=:endlast'.format(column=column),
+                                condition_endlast=endlast,
+                                caption='!![en]Next months'))
+        return sections
 
     @struct_method
     def th_slotbar_stats(self,pane,**kwargs):
@@ -638,6 +683,10 @@ class TableHandlerView(BaseComponent):
                     action="""
                     if($1.fullpath=='__queryeditor__'){
                         var currentQuery = GET .query.currentQuery;
+                        if(currentQuery && !currentQuery.startsWith('__')){
+                            SET .query.queryEditor=true;
+                            return;
+                        }
                         if(currentQuery=='__querybysample__'){
                             SET .query.currentQuery = '__basequery__';
                         }
@@ -645,6 +694,9 @@ class TableHandlerView(BaseComponent):
                         SET .query.queryEditor=true; 
                         SET .query.queryAttributes.extended = true;
                     }else{
+                        if($1.fullpath=='__basequery__'){
+                            SET .query.queryEditor=false;
+                        }
                         SET .query.currentQuery = $1.fullpath;
                         SET .query.menu.__queryeditor__?disabled=$1.filteringPkeys!=null;
                     }""")
@@ -656,6 +708,13 @@ class TableHandlerView(BaseComponent):
         query = tblobj.query(where='$%s IN :pkd' %tblobj.pkey,pkd=pkeys,**kwargs)
         selection= query.selection(sortedBy=None, _aggregateRows=True) 
         selection.forcedOrderBy='$_duplicate_finder,$__mod_ts'
+        return selection
+
+    @public_method
+    @metadata(prefix='query',code='default_invalidrows_finder',description='!!Find invalid rows')
+    def th_default_find_invalidRows(self, tblobj=None,sortedBy=None,date=None, where=None,**kwargs):
+        query = tblobj.query(where='$__is_invalid_row IS TRUE',**kwargs)
+        selection= query.selection(sortedBy=None, _aggregateRows=True) 
         return selection
 
     #@public_method
@@ -687,6 +746,10 @@ class TableHandlerView(BaseComponent):
                 self.application.checkResourcePermission('_DEV_,superadmin', self.userTags):
             pyqueries['default_duplicate_finder'] = self.th_default_find_duplicates
             #pyqueries['default_duplicate_finder_to_del'] = self.th_default_find_duplicates_to_del
+        
+        if self.db.table(table).hasInvalidCheck():
+            pyqueries['default_invalidrows_finder'] = self.th_default_find_invalidRows        
+
         for k,v in pyqueries.items():
             pars = dictExtract(dict(v.__dict__),'query_')
             code = pars.get('code')
@@ -694,7 +757,6 @@ class TableHandlerView(BaseComponent):
         pane.data('.query.pyqueries',q)
         pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries='=.query.pyqueries',
                         _resolved_pyqueries=q,editor=extendedQuery,bySample=bySample,
-                       # favoriteQueryPath='=.query.favoriteQueryPath',
                         table=table,th_root=th_root,caption='Queries',cacheTime=15,
                         _resolved=extendedQuery)
         pane.dataController("TH(th_root).querymanager.queryEditor(queryEditor);",
@@ -702,7 +764,6 @@ class TableHandlerView(BaseComponent):
         if 'adm' not in self.db.packages:
             return
         pane.dataRemote('.query.savedqueries',self.th_menuQueries,
-                        #favoriteQueryPath='=.query.favoriteQueryPath',
                         table=table,th_root=th_root,cacheTime=5,editor=False)
 
         
@@ -724,13 +785,17 @@ class TableHandlerView(BaseComponent):
             prefix,name=k.split('_struct_')
             q.setItem(name,self._prepareGridStruct(v,table=table),caption=v.__doc__)
         pane.data('.grid.resource_structs',q)
-        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="=.grid.currViewPath",
-                        table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30)
+        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="^.grid.currViewPath",
+                        table=table,th_root=th_root,favoriteViewPath='^.grid.favoriteViewPath',cacheTime=30)
 
         options = self._th_hook('options',mangler=pane)() or dict()
         #SOURCE MENUPRINT
-        pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,flags=options.get('print_flags'),
-                        from_resource=options.get('print_from_resource',True),cacheTime=5)
+        pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,
+                        flags=options.get('print_flags'),
+                        printEditorOpened='=.print_editor.viewer?=#v!==null',
+                        from_resource=options.get('print_from_resource',True),
+                        gridId=gridId,
+                        cacheTime=5)
 
         #SOURCE MENUMAIL
         pane.dataRemote('.resources.mail.menu',self.th_mailMenu,table=table,flags=options.get('mail_flags'),
@@ -749,15 +814,28 @@ class TableHandlerView(BaseComponent):
         pane.menudiv(iconClass='iconbox menubox print',hidden=hidden,storepath='.resources.print.menu',
                     _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
                                                         permissions='print'),
-                    action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,res_type:'print'};""")
+                    action="""FIRE .th_batch_run = {resource:$1.resource,template_id:$1.template_id,userobject:$1.userobject,res_type:'print'};""")
 
     @public_method
-    def th_printMenu(self,table=None,flags=None,from_resource=True,**kwargs):
-        return self._printAndMailMenu(table=table,flags=flags,from_resource=from_resource,res_type='print')
+    def th_printMenu(self,table=None,flags=None,from_resource=True,
+                    gridId=None,printEditorOpened=None,**kwargs):
+        result = self._printAndMailMenu(table=table,flags=flags,from_resource=from_resource,res_type='print')
+        gridprint = self.db.table('adm.userobject').userObjectMenu(table=table,objtype='gridprint')
+        if gridprint and len(gridprint)>0:
+            result.update(gridprint)
+        result.walk(self._th_gridPrint)
+
+        result.addItem('r_sep_edit',None,caption='-')
+        if printEditorOpened:
+            result.addItem('r_edit',None,caption='!!Edit current print',
+                        action="genro.nodeById('{gridId}').publish('open_print_editor',{{new:false}});".format(gridId=gridId))
+        result.addItem('r_new',None,caption='!!New Print',
+                        action="genro.nodeById('{gridId}').publish('open_print_editor',{{new:true}});".format(gridId=gridId))
+        return result
         
     @struct_method
     def th_slotbar_resourceActions(self,pane,**kwargs):
-        pane.menudiv(iconClass='iconbox gear batch_scripts',storepath='.resources.action.menu',
+        pane.menudiv(iconClass='iconbox gear',storepath='.resources.action.menu',
                             _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
                                                         permissions='action'),action="""
                             FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};
@@ -795,6 +873,12 @@ class TableHandlerView(BaseComponent):
         if node.attr.get('code'):
             node.attr['resource'] ='%s_%s' %(res_type,node.attr['objtype'])
             node.attr['template_id'] = node.attr['pkey']
+
+    def _th_gridPrint(self,node):
+        if node.attr.get('code') and not node.attr.get('resource'):
+            node.attr['resource'] ='_common/print_gridres'
+            node.attr['userobject'] = node.attr['pkey']
+        
         
     @struct_method
     def th_slotbar_templateManager(self,pane,**kwargs):
@@ -939,6 +1023,7 @@ class TableHandlerView(BaseComponent):
         """,_runQueryDo='^.runQueryDo',viewPage='=.viewPage')
         store_kwargs.setdefault('weakLogicalDeleted',options.get('weakLogicalDeleted'))
         multiStores = store_kwargs.pop('multiStores',None)
+        frame.data('.query.limit',store_kwargs.pop('limit',None))
         store = frame.grid.selectionStore(table=table,
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where',

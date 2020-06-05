@@ -34,7 +34,7 @@ class TableHandlerGroupBy(BaseComponent):
                                 struct=None,where=None,viewResource=None,
                                 condition=None,condition_kwargs=None,store_kwargs=None,datapath=None,
                                 treeRoot=None,configurable=True,
-                                dashboardIdentifier=None,static=False,
+                                dashboardIdentifier=None,static=False,pbl_classes=None,
                                 grid_kwargs=True,groupMode=None,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = table or inattr.get('table')
@@ -52,6 +52,8 @@ class TableHandlerGroupBy(BaseComponent):
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
         if linkedNode is None:
             self.subscribeTable(table,True,subscribeMode=True)
+        else:
+            store_kwargs['subscribe_{linkedTo}_grid_onNewDatastore'.format(linkedTo=linkedTo)] = True
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         datapath = datapath or '.%s' %frameCode
         rootNodeId = frameCode
@@ -81,21 +83,30 @@ class TableHandlerGroupBy(BaseComponent):
                                     datamode='attr',
                                 struct=struct or self._thg_defaultstruct,_newGrid=True,pageName='flatview',title='!!Flat',
                                 grid_kwargs=grid_kwargs)
+
         
         frame.dataFormula('.changets.flatview','new Date();',store='^.store',struct='^.grid.struct',
                             _delay=1)
         if dashboardIdentifier:
             frame.dataController("root.publish('loadDashboard',{pkey:dashboardIdentifier});",root=sc,
                                 dashboardIdentifier=dashboardIdentifier,_onBuilt=1)
-        frame.dataFormula('.currentTitle',"basetitle+' '+(loadedDashboard || currentView || '')",
+        
+        if static:
+            slots = '5,vtitle,count,*,searchOn,export,5'
+            if pbl_classes is None:
+                pbl_classes = True
+            if pbl_classes:
+                bar = frame.top.slotBar(slots,_class='pbl_roundedGroupLabel',vtitle=title)
+                frame.attributes['_class'] = 'pbl_roundedGroup'
+            else:
+                bar = frame.top.slotToolbar(slots)
+                bar.vtitle.div(title,font_size='.9em',color='#666',font_weight='bold')
+
+        else:
+            frame.dataFormula('.currentTitle',"basetitle+' '+(loadedDashboard || currentView || '')",
                                     basetitle='!!Group by',
                                     currentView='^.grid.currViewAttrs.description',
                                     loadedDashboard='^.dashboardMeta.description')
-        if static:
-            bar = frame.top.slotToolbar('5,vtitle,count,*,searchOn,viewsMenu,export,5')
-            bar.vtitle.div('^.currentTitle',font_size='.9em',color='#666',font_weight='bold')
-        
-        else:
             frame.data('.grid.showCounterCol',True)
             frame.dataRemote('.dashboardsMenu',self.thg_dashboardsMenu,cacheTime=5,table=table,
                                 rootNodeId=rootNodeId,_fired='^.refreshDashboardsMenu')
@@ -196,9 +207,9 @@ class TableHandlerGroupBy(BaseComponent):
                 prefix,name=k.split('_groupedStruct_')
                 q.setItem(name,self._prepareGridStruct(v,table=table),caption=v.__doc__)
             frame.data('.grid.resource_structs',q)
-        frame.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="=.grid.currViewPath",
+        frame.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),currentView="^.grid.currViewPath",
                         table=table,th_root=frame.attributes['frameCode'],objtype='grpview',
-                        favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30)
+                        favoriteViewPath='^.grid.favoriteViewPath',cacheTime=30)
 
 
 

@@ -109,6 +109,14 @@ cursorZoom_plus{
     background: none;
 }
 
+.gnr_blurred_field{
+    filter:blur(3px);
+}
+
+.gnr_blurred_cell{
+    filter:blur(3px);
+}
+
 .iskeepable{
 
 }
@@ -1839,6 +1847,10 @@ div.dojoxDock {
     background: #feffb4 url(icons/base12/smallpopup.gif) no-repeat right !important;
 }
 
+.floatingPopupFixed {
+    background: url(icons/base12/smallpopup.gif) no-repeat right !important;
+}
+
 
 .helperField {
     position: absolute;
@@ -2807,8 +2819,18 @@ border='1px solid gray',margin='2px', rounded=10,
 .tundra .filteredGrid .dojoxGrid-cell{
 }
 
+.gnrDraftRow{
+    font-style: italic;
+    color: rgba(64, 128, 180, 1.00);
+}
+
 .tundra ._gnrReadOnlyRow ._statusIcon{
     background:url(icons/base16/locked.gif) no-repeat center center;
+}
+
+.tundra ._gnrInvalidRow ._statusIcon, .tundra ._gnrInvalidRow._gnrReadOnlyRow ._statusIcon ,
+.tundra ._gnrInvalidRow._gnrProtectionPass ._statusIcon{
+    background: url(icons/base16/semaphore_red.png) no-repeat center center;
 }
 
 .tundra ._gnrProtectionPass ._statusIcon{
@@ -4580,6 +4602,9 @@ div[disabled='true'], div[disabled='disabled']{
 .fm_close{
     background: url(icons/fm_close.gif) no-repeat center center;
 }
+.dlg_prompt{
+    background:white;
+}
 
 .dlg_closebtn{
     height: 18px;
@@ -5558,6 +5583,7 @@ div[disabled='true'], div[disabled='disabled']{
     padding-top: 1px;
     text-align: center;
     overflow: hidden;
+    height:100%;
 }
 
 .gr_table{
@@ -5759,4 +5785,18 @@ div[disabled='true'], div[disabled='disabled']{
 }
 
 .gnrgridlineno .cellContent{
+}
+
+.smalliconbox{
+	height:14px;
+    width: 14px;
+    cursor: pointer;
+}
+
+.center_box{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
 }

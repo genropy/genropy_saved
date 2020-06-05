@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>2_04_Notification bell_16x16</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <path d="M13,5A5,5,0,0,0,3,5V9H13Z" fill="#515151"/>
+    <rect x="3" y="9" width="10" height="1" fill="#508e3f"/>
+    <path d="M4.5,10h6.9A3.5,3.5,0,0,1,15,13.5V14a0,0,0,0,1,0,0H1a0,0,0,0,1,0,0v-.5A3.5,3.5,0,0,1,4.5,10Z" fill="#515151"/>
+    <path d="M6,14h4a0,0,0,0,1,0,0v.4A1.6,1.6,0,0,1,8.4,16H7.6A1.6,1.6,0,0,1,6,14.4V14a0,0,0,0,1,0,0Z" fill="#515151"/>
+  </g>
+</svg>

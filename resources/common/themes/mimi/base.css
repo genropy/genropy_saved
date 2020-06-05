@@ -1,0 +1,6 @@
+:root {
+    --root-top-background: rgba(234, 203, 110, 1);
+    --root-top-color:rgba(30, 48, 85, 1);
+    --frameindex-tablist-background:linear-gradient(to right top, #172b51, #1b3058, #20345e, #243965, #293e6c);
+    --frameindex-tablist-color:#ffffff;
+}

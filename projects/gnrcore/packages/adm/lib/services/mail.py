@@ -34,7 +34,7 @@ class AdmMailService(MailService):
                             attachments=None,to_address=None, subject=None,
                             cc_address=None,bcc_address=None,from_address=None,**kwargs):
 
-        self.sendmail(**self.mailParsFromUserTemplate(record_id=record_id,letterhead_id=letterhead_id,
+        return self.sendmail(**self.mailParsFromUserTemplate(record_id=record_id,letterhead_id=letterhead_id,
                             template_id=template_id,table=table,template_code=template_code,
                             attachments=attachments,to_address=to_address,subject=subject,
                             cc_address=cc_address,bcc_address=bcc_address,from_address=from_address, **kwargs))

@@ -138,7 +138,12 @@ class TableScriptHandler(BaseComponent):
                                     hasOptions=hasOptions,_if='hasOptions&&confirm==true',
                                     _else="""FIRE #table_script_runner.confirm;""")  
             parsform.dataController("dlg.hide()",_fired="^.cancel",dlg=dlgpars.js_widget)  
-        if hasOptions:
+        optionsEnabled = batch_dict.get('batch_ask_options')
+        if optionsEnabled is None:
+            optionsEnabled = True
+        elif isinstance(optionsEnabled,basestring):
+            optionsEnabled = self.db.application.allowedByPreference(optionsEnabled)
+        if hasOptions and optionsEnabled:
             self.table_script_option_pane(optionsform.div(datapath='#table_script_runner.data.batch_options',childname='contentNode'),**batch_dict)
             self.table_script_option_footer(dlgoptions.div(left=0,right=0,position='absolute',bottom=0,childname='footerNode'),**batch_dict) 
             dlgoptions.dataController("""

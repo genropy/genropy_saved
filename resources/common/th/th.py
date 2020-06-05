@@ -32,7 +32,8 @@ class TableHandler(BaseComponent):
     py_requires="""th/th_view:TableHandlerView,th/th_tree:TableHandlerHierarchicalView,
                     th/th_stats:TableHandlerStats,th/th_groupth:TableHandlerGroupBy,
                   th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker,
-                  th/th:MultiButtonForm,th/th:THBusinessIntelligence
+                  th/th:MultiButtonForm,th/th:THBusinessIntelligence,
+                  gnrcomponents/userobject/userobject_editor:PrintGridEditor
                   """
     
     @extract_kwargs(condition=True,grid=True,view=True,picker=True,export=True,addrowmenu=True,hider=True,preview=True,relation=True)
@@ -79,16 +80,19 @@ class TableHandler(BaseComponent):
             archive = self.application.checkResourcePermission(archive, self.userTags)
         tableCode = table.replace('.','_')
         th_root = self._th_mangler(pane,table,nodeId=nodeId)
-        viewCode='V_%s' %th_root
-        formCode='F_%s' %th_root
+        if nodeId is None and th_root in pane.register_nodeId:
+            th_root = '{}_{}'.format(th_root,id(pane))
+            datapath = datapath or '.{}'.format(th_root)
+        viewCode='V_{}'.format(th_root)
+        formCode='F_{}'.format(th_root)
 
-        defaultModule = 'th_%s' %tableCode
+        defaultModule = 'th_{}'.format(tableCode)
         
         unlinkdict = kwargs.pop('store_unlinkdict',None)
 
         if pane.attributes.get('tag') == 'ContentPane':
             pane.attributes['overflow'] = 'hidden'
-        wdg = pane.child(tag=tag,datapath=datapath or '.%s'%tableCode,
+        wdg = pane.child(tag=tag,datapath=datapath or '.{}'.format(tableCode),
                         thlist_root=viewCode,
                         thform_root=formCode,
                         th_viewResource=self._th_getResourceName(viewResource,defaultClass='View',defaultModule=defaultModule),
@@ -152,6 +156,7 @@ class TableHandler(BaseComponent):
             form_kwargs.setdefault('dfltoption_form_add',addrow) 
             form_kwargs.setdefault('dfltoption_form_delete',delrow) 
             form_kwargs.setdefault('dfltoption_form_archive',archive)
+            form_kwargs.setdefault('fkeyfield',fkeyfield)
             if fkeyfield:
                 form_kwargs.setdefault('excludeCols',fkeyfield)
 
@@ -160,7 +165,10 @@ class TableHandler(BaseComponent):
             if isinstance(parentFormSave,basestring):
                 hider_kwargs.setdefault('message',parentFormSave)
         preview_kwargs.setdefault('tpl',True)
-        rowStatusColumn = self.db.table(table).hasProtectionColumns() if rowStatusColumn is None else rowStatusColumn
+        hasProtectionColumns = self.db.table(table).hasProtectionColumns()
+        hasInvalidCheck = self.db.table(table).hasInvalidCheck()
+
+        rowStatusColumn = hasInvalidCheck or hasProtectionColumns if rowStatusColumn is None else rowStatusColumn
         grid_kwargs.setdefault('rowStatusColumn',rowStatusColumn)
         if fkeyfield:
             grid_kwargs.setdefault('excludeCols',fkeyfield)
@@ -399,7 +407,8 @@ class TableHandler(BaseComponent):
     @struct_method
     def th_inlineTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
                             readOnly=False,hider=False,saveMethod=None,autoSave=False,statusColumn=None,
-                            default_kwargs=None,defaultPrompt=None,semaphore=None,saveButton=None,configurable=False,height=None,width=None,**kwargs):
+                            default_kwargs=None,defaultPrompt=None,semaphore=None,saveButton=None,
+                            configurable=False,height=None,width=None,**kwargs):
         """ JBE We must document the parameters here please  """
         kwargs['tag'] = 'ContentPane'
         saveMethod = saveMethod or 'app.saveEditedRows'
@@ -680,6 +689,11 @@ class MultiButtonForm(BaseComponent):
                 """,
                 pkey='^.value',
                 frm=form,_if='pkey',caption_field=caption_field,store='=.store')
+            bar.dataController("""
+            if(_node.label=='store' && !(store && store.len()>0)){
+                SET .value = '*norecord*';
+            }
+            """,store='^.store',frm=form.js_form)
             form.dataController("""
                 if(mb.form){
                     mb.form.childForms[this.form.formId] = this.form;
@@ -690,7 +704,7 @@ class MultiButtonForm(BaseComponent):
                 mb.setRelativeData('.value',pkey=='*newrecord*'?'_newrecord_':pkey);
                 """,formsubscribe_onCancel=True,mb=mb,pkey='=.pkey')
         store_kwargs['_if'] = store_kwargs.pop('if',None) or store_kwargs.pop('_if',None)
-        store_kwargs['_else'] = "this.store.clear();"
+        store_kwargs['_else'] = "this.store.clear(); SET .value = '*norecord*'"
         tblobj = self.db.table(table)
         table_order_by = tblobj.attributes.get('order_by')
         if not table_order_by:
@@ -700,9 +714,9 @@ class MultiButtonForm(BaseComponent):
                 table_order_by = '$%s' %(tblobj.attributes.get('caption_field') or tblobj.pkey)
         store_kwargs.setdefault('order_by',table_order_by)
         if store_kwargs['order_by']:
-            columnslist.append(store_kwargs['order_by'])
+            columnslist.append([c.strip() for c in store_kwargs['order_by'].split(' ')][0])
         store_kwargs['columns'] = ','.join(columnslist)
-        mb.store(table=table,condition=condition,**store_kwargs)
+        rpc = mb.store(table=table,condition=condition,**store_kwargs)
         frame.multiButtonView = mb
         return frame
 
@@ -763,13 +777,16 @@ class ThLinker(BaseComponent):
     def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,
                     openIfEmpty=None,embedded=True,excludeLinked=False,dialog_kwargs=None,
                     default_kwargs=None,auxColumns=None,hiddenColumns=None,addEnabled=None,**kwargs):
+        fkeyfield = None
         if not table:
             if '.' in field:
                 fldlst = field.split('.')
                 table = '.'.join(fldlst[0:2])
                 field = fldlst[2]
             else:
-                table = pane.getInheritedAttributes().get('table') or self.maintable
+                inattr = pane.getInheritedAttributes()
+                table = inattr.get('table') or self.maintable
+                fkeyfield = inattr.get('fkeyfield')
         tblobj = self.db.table(table)
         related_tblobj = tblobj.column(field).relatedColumn().table    
         related_table = related_tblobj.fullname
@@ -821,8 +838,13 @@ class ThLinker(BaseComponent):
                                    linker.linkerManager.openLinker(false);""",linker=linker,
                                 currvalue='^#FORM.record.%s' %field,_if='!currvalue',
                                 _else='linker.linkerManager.closeLinker()')          
+        selectvisible = None
         if newRecordOnly:
-            linker.attributes.update(visible='^#FORM.record?_newrecord')
+            selectvisible = '^#FORM.record?_newrecord'
+        if fkeyfield==field:
+            selectvisible = False
+        if selectvisible is not None:
+            linker.attributes.update(visible=selectvisible)
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
                     connect_onBlur='this.getParentNode().publish("disable");',
                     _class='th_linkerField',background='white',auxColumns=auxColumns,hiddenColumns=hiddenColumns,
@@ -859,7 +881,8 @@ class ThLinker(BaseComponent):
             footer = frame.bottom.slotBar('*,linker_edit',height='20px')
             footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='iconbox pencil',
                                             action='linker.publish("loadrecord");',linker=linker,
-                                            visible=currpkey,parentForm=True,hidden=forbudden_dbstore)
+                                            forbudden_dbstore=forbudden_dbstore,hidden=forbudden_dbstore,
+                                            visible=currpkey,parentForm=True)
         return frame
 
     @struct_method          

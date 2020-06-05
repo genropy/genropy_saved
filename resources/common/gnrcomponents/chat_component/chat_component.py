@@ -19,7 +19,7 @@ class ChatComponent(BaseComponent):
         frame = pane.framePane(frameCode='ct_chatmain',datapath='gnr.chat')
         bar = frame.top.slotToolbar('5,ctitle,*,userselect')
         bar.ctitle.div('!!Chat',font_size='.9em')
-        self.ct_chat_grid(bar.userselect.div(_class='iconbox man',tip='!!Connected users'))
+        self.ct_chat_grid(bar.userselect.div(_class='iconbox man chat',tip='!!Connected users'))
         self.ct_chat_form(frame)
 
     def btn_chat_plugin(self,pane,**kwargs):

@@ -1808,7 +1808,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         databag.setItem('menu_dtypes', searchDtypes);
         databag.setItem('caption', defaultLabel);
         databag.setItem('searchDelay',1000);
-        this._prepareSearchBoxMenu(searchOn, databag);
+        this._prepareSearchBoxMenu(searchOn, databag,sourceNode);
         databag.setItem('value', '');
         sourceNode.setRelativeData(null, databag);
         var searchbox = sourceNode._('form',{autocomplete:'false',action:'javascript:void(0);'})._('table', {nodeId:nodeId})._('tbody')._('tr');
@@ -1837,11 +1837,11 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
                          parentForm:false,width:objectPop(kw,'width') || '6em',
                          tabindex:"-1",connect_focus:function(){this.domNode.select()}});
         sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
-            menubag = this._prepareSearchBoxMenu(searchOn, sourceNode.getRelativeData());
+            menubag = this._prepareSearchBoxMenu(searchOn, sourceNode.getRelativeData(),sourceNode);
         });
         return searchbox;
     },
-    _prepareSearchBoxMenu: function(searchOn, databag) {
+    _prepareSearchBoxMenu: function(searchOn, databag,sourceNode) {
         var menubag = new gnr.GnrBag();
         var i = 0;
         if (searchOn === true) {
@@ -1857,7 +1857,9 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
                     col = col[1];
                 }
                 col = col.replace(/[.@]/g, '_');
-                menubag.setItem('r_' + i, null, {col:col,caption:caption,child:''});
+                let attr = {col:col,caption:caption,child:''};
+                attr = sourceNode.evaluateOnNode(attr);
+                menubag.setItem('r_' + i, null, attr);
                 i++;
             });
         }
@@ -2323,6 +2325,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         var storeNode = genro.getDataNode(this.absStorepath);
         var level = (item.parentshipLevel(storeNode)-1);
         var folder = store.hasAttribute(item,'#v')?' treerow_folder ':'';
+        var _customClasses = item.attr._customClasses || '';
         var rowwidth = maxwidth-level*k;
         var objStyle=objectUpdate(objectFromStyle(mainCell._style),
         sn.evaluateOnNode(genro.dom.getStyleDict(objectUpdate({},mainCell), [ 'width'])))
@@ -2333,7 +2336,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         this.viewPortWidth = colswidth;
         tplpars['maincell'] = '<div class="treecell maincell cell_'+(mainCell.dtype || 'T')+' '+(mainCell.cellClass || '')+' " style="'+cellstyle+'">'+htmlCellContent(item,mainCell)+'</div>';
         tplpars['columns'] = '<div class="treeerow_viewport" style="width:'+colswidth+'px;"><div class="treerow_columns" style="width:'+currx+'px;">'+l.join('')+'</div></div>'
-        return dataTemplate('innerHTML:<div class="treerow treerow_level_'+level+ folder+'">$maincell $columns</div>',tplpars)
+        return dataTemplate('innerHTML:<div class="treerow treerow_level_'+level+ folder+ " " +_customClasses+ '">$maincell $columns</div>',tplpars)
         
         //return "innerHTML:<div class='treerow treerow_level_"+level+"' style='width:"+rowwidth+"px;'>"+l.join('')+"</div>";
     },
@@ -2806,6 +2809,27 @@ dojo.declare("gnr.widgets.GridGallery", gnr.widgets.gnrwdg, {
         grid.addRows([{'label':label,iframe_src:iframe_src}]);
     }
 });
+dojo.declare("gnr.widgets.BagField",gnr.widgets.gnrwdg,{
+
+    createContent:function(sourceNode, kw,children,subTagItems) {
+        value = objectPop(kw,'value')        
+        var valuepath = value?sourceNode.absDatapath(value):null;
+        kw.remote_field = objectPop(kw,'field') || valuepath.split('.').slice(-1)[0];
+        kw.remote_resource = objectPop(kw,'resource');
+        kw.remote_table = objectPop(kw,'table');
+        kw.remote_methodname = objectPop(kw,'methodname');
+        kw.remote_version = objectPop(kw,'version');
+        if (kw.remote_resource){
+            kw.remote__if='resource'
+        }
+        kw.datapath = valuepath;
+        kw.overflow = 'hidden';
+        kw.remote = 'bagFieldDispatcher'
+        kw.min_height= kw.min_height || '1px';
+        kw.min_width = kw.min_width || '1px';
+        return sourceNode._('div','bagFieldRemote',kw);
+    }
+});
 
 dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     subtags : {column:true,
@@ -2896,7 +2920,7 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
     },
 
     _getColumnsBag:function(sourceNode,columns,childrenColumns){
-        var columns_bag = sourceNode.getRelativeData(columns) || new gnr.GnrBag();;
+        var columns_bag = sourceNode.getRelativeData(columns) || new gnr.GnrBag();
         childrenColumns.forEach(function(n){
             var attr = n.attr;
             attr.field = attr.field || n.label;
@@ -2909,9 +2933,12 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var tools = objectPop(tools_kw,'tools');
         tools_kw = tools_kw || {};
         var tools_bar_class,container_class;
+        var centerkw = {region:'center',border:objectPop(kw,'border'),overflow:'hidden'};
+
         if(tools_kw.title){
             tools_bar_class = 'slotbar_toolbar_standard';
             tools_kw.position = 'TR';
+            centerkw.border_top = '1px solid silver';
         }
         var bckw = {height: objectPop(kw,'height'),
             width: objectPop(kw,'width'),_class:'quickgrid_container'}
@@ -2939,7 +2966,6 @@ dojo.declare("gnr.widgets.QuickGrid", gnr.widgets.gnrwdg, {
         var tools_position = objectPop(tools_kw,'position') || 'TR';
         var tool_region=(tools_position[0]=='T') ? 'top':'bottom';
 
-        var centerkw = {region:'center',border:objectPop(kw,'border'),overflow:'hidden'};
         var bc = sourceNode._('borderContainer',bckw);
         
         var tpane = bc._('contentPane',{region:tool_region,height:'22px',overflow:'hidden',datapath:'#WORKSPACE.tools',
@@ -3954,6 +3980,9 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
         items = items || '^#WORKSPACE.items';
         sourceNode.registerDynAttr('items');
         if(deleteAction){
+            if (deleteAction===true){
+                deleteAction = "this._value.getNode('store').gnrwdg.store.deleteAsk([value])"
+            }
             gnrwdg.deleteAction = funcCreate(deleteAction,'value,caption',gnrwdg.sourceNode);
             gnrwdg.deleteSelectedOnly = objectPop(kw,'deleteSelectedOnly');
         }
@@ -4381,8 +4410,177 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         }
     }
 });
+dojo.declare("gnr.widgets.UserObjectBar", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode,kw){
+        var gnrwdg = sourceNode.gnrwdg;
+        if(objectPop(kw,'_workspace')!==false){
+            sourceNode.attr._workspace = true;
+        }
+        var userObjectPars = objectExtract(kw,'table,flags,objtype');
+        gnrwdg.newcaption  = _T(objectPop(kw,'newcaption') ||  'New empty '+userObjectPars.objtype);
+        objectUpdate(userObjectPars,objectExtract(kw,'userobject_*'));
+        gnrwdg.userObjectPars = userObjectPars;
+        gnrwdg.startUserObjectIdOrCode = kw.userObjectId;
+        gnrwdg.dataIndex = objectExtract(kw,'source_*');
+        gnrwdg.defaults = objectExtract(kw,'default_*');
+
+        let metadataPath = kw.metadata || '#WORKSPACE.metadata';
+        gnrwdg.metadataPath = metadataPath;
+        gnrwdg.handleFavorites = objectPop(kw,'handleFavorites');
+        gnrwdg.mainIdentifier = objectPop(kw,'mainIdentifier');
+        if(kw.onLoaded){
+            gnrwdg.onLoaded = funcCreate(kw.onLoaded,'dataIndex','resoultValue','resoultAttr',sourceNode);
+
+        }
+        return gnrwdg.buildToolbar(sourceNode);
+    },
+
+    gnrwdg_buildToolbar:function(sourceNode){
+        this.setLoadMenuData();
+        var bar = sourceNode._('slotBar','uo_bar',{toolbar:true,side:'top',slots:'5,loadMenu,2,objTitle,*,favoritebtn,saveBtn,deletebtn,5'});
+        
+        if(this.mainIdentifier){
+            let barNode = bar.getParentNode();
+            var that = this;
+            let cb = function(){
+                console.log('register subscription',`${that.mainIdentifier}_newObject`)
+                barNode.registerSubscription(`${that.mainIdentifier}_newObject`,that,function(kwargs){
+                    this.loadObject('__newobj__');
+                });
+                barNode.registerSubscription(`${that.mainIdentifier}_loadObject`,that,function(kwargs){
+                    this.loadObject(kwargs.userobject);
+                });
+                barNode.registerSubscription(`${that.mainIdentifier}_loadObject`,that,function(kwargs){
+                    this.saveObject();
+                });
+            }
+            genro.src.onBuiltCall(cb);
+        }
+        
+        var that = this;
+        var favorite;
+        bar._('div','objTitle',{innerHTML:'^.description?=(#v || "New")',
+                                datapath:this.metadataPath,font_weight:'bold',
+                                font_size:'.9em',color:'#666'});
+        if(this.mainIdentifier && this.handleFavorites){
+            bar._('slotButton','favoritebtn',{'label':_T('Default'),
+                    action:function(){that.setCurrentAsFavorite();},
+                    iconClass:'highlightable iconbox star'});
+            favorite = this.getFavorite();
+        }
+        bar._('slotButton','loadMenu',{iconClass:'iconbox folder',label:'Load',
+            menupath:'#WORKSPACE.loadMenu',action:function(item){
+                that.loadObject(item.pkey);
+        }});
+        bar._('slotButton','saveBtn',{iconClass:'iconbox save',label:'Save',
+                    action:function(){
+                        that.saveObject();
+                    }});
+        bar._('slotButton','deletebtn',{'label':_T('Delete'),iconClass:'iconbox trash',
+                    action:function(){
+                        that.deleteCurrentObject();
+                    }});
+        if(favorite){
+            this.loadObject(favorite || '__newobj__');
+        }
+        return bar;
+    },
+
+    gnrwdg_resetMenuData:function(){
+        var n = this.sourceNode.getRelativeData('#WORKSPACE').getNode('loadMenu');
+        n.getResolver().reset();
+    },
+
+    gnrwdg_setLoadMenuData:function(){
+        var that = this;
+        this.sourceNode.setRelativeData('#WORKSPACE.loadMenu',
+                                        genro.dev.userObjectMenuData(objectUpdate({},this.userObjectPars),
+                                                    [{pkey:'__newobj__',caption:this.newcaption},
+                                                    {pkey:'',caption:_T('New from current'),
+                                                    action:function(){
+                                                        that.newFromCurrent();
+                                                    }}]));
+    },
+
+    gnrwdg_setCurrentAsFavorite:function(){
+        var metadata = this.sourceNode.getRelativeData(this.metadataPath);
+        var pkey = metadata.getItem('pkey');
+        genro.setInStorage("local", this.storageKey(), pkey);
+        this.checkFavorite();
+    },
+
+    gnrwdg_getFavorite:function(){
+        return  genro.getFromStorage("local", this.storageKey());
+    },
+
+    gnrwdg_checkFavorite:function(){
+        var pkey = this.sourceNode.getRelativeData(`${this.metadataPath}.pkey`);
+        genro.dom.setClass(this.sourceNode.getParentNode(),'highlighted',pkey==this.getFavorite());
+    },
+
+    gnrwdg_storageKey:function(){
+        return this.userObjectPars.objtype + genro.getData('gnr.pagename') + '_' + this.mainIdentifier;
+    },
+
+    gnrwdg_deleteCurrentObject:function() {
+        var metadata = this.sourceNode.getRelativeData(this.metadataPath);
+        var pkey = metadata.getItem('pkey');
+        var that = this;
+        if(pkey){
+            genro.serverCall('_table.adm.userobject.deleteUserObject',{pkey:pkey},function(){
+                that.loadObject('__newobj__');
+                that.resetMenuData();
+            });
+        }else{
+             that.loadObject('__newobj__');
+        }
+    },
+
+    gnrwdg_saveObject:function() {
+        var kw = objectUpdate({},this.userObjectPars);
+        kw.dataIndex = objectUpdate({},this.dataIndex);
+        kw.metadataPath = this.metadataPath;
+        kw.title = _T('Save '+this.userObjectPars.objtype);
+        var onSaved = objectPop(kw,'onSaved');
+        var that = this;
+        if(!onSaved){
+            onSaved =function(result){
+                that.resetMenuData();
+            };
+        }
+        genro.dev.userObjectSave(this.sourceNode,kw,onSaved);
+    },
+
+    gnrwdg_loadObject:function(userObjectId,kw){
+        kw = kw || this.userObjectPars;
+        kw = objectUpdate({},kw);
+        kw.userObjectIdOrCode = userObjectId;
+        kw.metadataPath =  this.metadataPath;
+        var that = this;
+        kw.onLoaded = function(dataIndex,resultValue,resultAttr){
+            if(that.onLoaded){
+                that.onLoaded(dataIndex,resultValue,resultAttr);
+            }
+            that.checkFavorite();
+        }
+        if(userObjectId=='__newobj__'){
+            kw.dataIndex = this.dataIndex;
+            kw.defaults = this.sourceNode.evaluateOnNode(this.defaults);
+        }
+        genro.dev.userObjectLoad(this.sourceNode,kw);
+    },
+
+    gnrwdg_newFromCurrent:function(){
+        var code = this.sourceNode.getRelativeData(`${this.metadataPath}.code`);
+        this.sourceNode.setRelativeData(this.metadataPath,new gnr.GnrBag(this.userObjectPars));
+        genro.publish('floating_message',{message:_T(`New from ${code}`)});
+    },
+
+});
+
 
 dojo.declare("gnr.widgets.UserObjectLayout", gnr.widgets.gnrwdg, {
+    //legacy
     objtype:null,
     default_configurator_pars:null,
     newcaption:null,
@@ -4609,7 +4807,7 @@ dojo.declare("gnr.widgets.ComboArrow", gnr.widgets.gnrwdg, {
         genro.dom.addClass(focusNode.parentNode,'comboArrowTextbox')
 
         var iconClass = objectPop(kw,'iconClass') || 'dijitArrowButtonInner';
-        var box= sourceNode._('div',objectUpdate({'_class':'fakeButton',cursor:'pointer', width:'20px',
+        var box= sourceNode._('lightbutton',objectUpdate({'_class':'fakeButton',cursor:'pointer', width:'20px',
                                 position:'absolute',top:0,bottom:0,right:0,tabindex:-1},kw))
         box._('div','iconNode',{_class:iconClass,position:'absolute',top:0,bottom:0,left:0,right:0})
         return box;
@@ -4648,7 +4846,9 @@ dojo.declare("gnr.widgets.PackageSelect", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.TableSelect", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode,kw,childSourceNode){
         kw.hasDownArrow = true;
-        kw.pkg = kw.pkg.replace('^','=')
+        if (kw.pkg){
+            kw.pkg = kw.pkg.replace('^','=');
+        }
         kw.onCreating = function(attributes){
             var that = this;
             genro.serverCall('app.getTablesTree',{},function(result){
@@ -5023,9 +5223,9 @@ dojo.declare("gnr.widgets.CheckBoxText", gnr.widgets.gnrwdg, {
         if(!values){
             return;
         }
-        this.separator =  kw.separator || ',';
-        var splitter = values.indexOf('\n')>=0? '\n':',';
-        var valuelist = splitStrip(values,splitter);
+        var defaultSep = values.indexOf('\n')>=0? '\n':',';
+        this.separator =  kw.separator || defaultSep;
+        var valuelist = splitStrip(values,this.separator);
         var cols = objectPop(kw,'cols');
 
         if(valuelist[0][0]=='/'){
@@ -5136,8 +5336,6 @@ dojo.declare("gnr.widgets.RadioButtonText", gnr.widgets.CheckBoxText, {
         return attributes;
     }
 });
-
-
 
 dojo.declare("gnr.widgets.FieldsTree", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode, attributes) {
@@ -6498,7 +6696,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.AttributesBagRows,{
             }
             gnr.getGridColumns(this.storeNode);
             var newColumns = this.cleanColumns(this.storeNode._currentColumns);
-            var previousColumns = this.cleanColumns(this.storeNode._previousColumns);
+            var previousColumns = this.cleanColumns(this.storeNode._previousColumns) || {};
             var addedColumns = [];            
             for(var k in newColumns){
                 if(k in previousColumns){

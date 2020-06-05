@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <title>2_15_To do list_16x16</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <g>
+      <path d="M14,2V15H2V2H14m1-1H1V16H15V1Z" fill="#5b5b5b"/>
+      <rect x="3" width="10" height="3" rx="1.5" ry="1.5" fill="#1b4d7f"/>
+      <line x1="7" y1="6.5" x2="12.5" y2="6.5" fill="none" stroke="#5b5b5b" stroke-miterlimit="10"/>
+      <line x1="7" y1="9.5" x2="12.5" y2="9.5" fill="none" stroke="#5b5b5b" stroke-miterlimit="10"/>
+      <line x1="7" y1="12.5" x2="12.5" y2="12.5" fill="none" stroke="#5b5b5b" stroke-miterlimit="10"/>
+      <rect x="3" y="5" width="2" height="2" fill="#508e3f"/>
+      <rect x="3" y="8" width="2" height="2" fill="#508e3f"/>
+      <rect x="3" y="11" width="2" height="2" fill="#508e3f"/>
+    </g>
+  </g>
+</svg>

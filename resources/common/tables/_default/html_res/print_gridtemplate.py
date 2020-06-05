@@ -42,6 +42,15 @@ class Main(TableScriptToHtml):
                             lbl_height=4,lbl_class='caption',
                             style=style)
 
+    def gridData(self):
+        self.row_mode = 'value'
+        rowtable_obj = self.db.table(self.row_table)
+        sel = rowtable_obj.query(where='${pkey} IN :selectionPkeys'.format(pkey=rowtable_obj.pkey),
+                                selectionPkeys=self.record['selectionPkeys']
+                                ).selection()
+        sel.data.sort(key = lambda r : self.record['selectionPkeys'].index(r['pkey']))
+        return sel.output('records',virtual_columns=self.row_tpl.getAttr('main')['virtual_columns'])
+
     def prepareRow(self,row):
         self.rowCell(value='%s::HTML' %templateReplace(self.row_tpl,Bag(self.currRowDataNode)))
 

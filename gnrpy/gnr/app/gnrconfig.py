@@ -250,6 +250,26 @@ def gnrConfigPath(force_return=False, no_virtualenv=False):
     if os.path.isdir(config_path):
         return config_path
 
+def updateGnrEnvironment(updater):
+    config_path = gnrConfigPath()
+    environment_path = os.path.join(config_path,'environment.xml')
+    environment_bag = Bag(environment_path) 
+    environment_bag.update(updater)
+    environment_bag.toXml(environment_path,pretty=True)
+
+def getRmsOptions():
+    config_path = gnrConfigPath()
+    environment_path = os.path.join(config_path,'environment.xml')
+    environment_bag = Bag(environment_path) 
+    return environment_bag.getAttr('rms')
+
+def setRmsOptions(**options):
+    config_path = gnrConfigPath()
+    environment_path = os.path.join(config_path,'environment.xml')
+    environment_bag = Bag(environment_path) 
+    environment_bag.setAttr('rms',**options)
+    environment_bag.toXml(environment_path,pretty=True)
+
 def getGenroRoot():
     return os.path.abspath(os.path.join(gnr.__file__,'..','..','..'))
         

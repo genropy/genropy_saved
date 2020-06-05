@@ -70,7 +70,10 @@ import sys
 import re
 gnrlogger = logging.getLogger(__name__)
 
-
+def normalizeItemPath(item_path):
+    if isinstance(item_path,basestring) or isinstance(item_path,list):
+        return item_path
+    return str(item_path).replace('.','_')
     
 class BagNodeException(GnrException):
     pass
@@ -581,6 +584,7 @@ class Bag(GnrObject):
         2"""
         if not path:
             return self
+        path = normalizeItemPath(path)
         if isinstance(path, basestring):
             if '?' in path:
                 path, mode = path.split('?')
@@ -1546,7 +1550,6 @@ class Bag(GnrObject):
                 0 - (int) d: 2
                 
         .. note:: if you have to use the ``_position`` attribute you can't use the square-brackets notation"""
-
         if kwargs:
             _attributes = dict(_attributes or {})
             _validators = dict(_validators or {})
@@ -1568,6 +1571,7 @@ class Bag(GnrObject):
                 for key, v in item_value.items(): self.setItem(key, v)
             return self
         else:
+            item_path = normalizeItemPath(item_path)
             obj, label = self._htraverse(item_path, autocreate=True)
             obj._set(label, item_value, _attributes=_attributes, _position=_position,
                      _duplicate=_duplicate, _updattr=_updattr,
@@ -2028,6 +2032,13 @@ class Bag(GnrObject):
                             n.value = Bag(link)
         return result
 
+    def getLeaves(self):
+        """Return the Bag index with all the internal address"""
+        path = []
+        resList = []
+        exploredNodes = [self]
+        self._deepIndex(path, resList, exploredNodes,excludeFolders=True)
+        return [('.'.join(k),v.value) for k,v in resList]
 
     def getIndex(self):
         """Return the Bag index with all the internal address"""
@@ -2037,10 +2048,11 @@ class Bag(GnrObject):
         self._deepIndex(path, resList, exploredNodes)
         return resList
 
-    def _deepIndex(self, path, resList, exploredItems):
+    def _deepIndex(self, path, resList, exploredItems,excludeFolders=False):
         for node in self._nodes:
             v = node.value
-            resList.append((path + [node.label], node))
+            if not excludeFolders or not isinstance(v,Bag):
+                resList.append((path + [node.label], node))
             if hasattr(v, '_deepIndex'):
                 if not v in exploredItems:
                     exploredItems.append(v)

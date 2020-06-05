@@ -8,7 +8,7 @@ from gnr.web.gnrwebstruct import struct_method
 
 class TimesheetViewer(BaseComponent):
     css_requires = 'gnrcomponents/timesheet_viewer/timesheet_viewer'
-    js_requires = 'gnrcomponents/timesheet_viewer/timesheet_viewer'
+    js_requires = 'gnrcomponents/timesheet_viewer/timesheet_viewer,chroma.min'
 
     @struct_method
     def ts_timesheetViewer(self,parent,value=None,date_start=None,date_end=None,

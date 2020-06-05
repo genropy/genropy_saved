@@ -255,6 +255,7 @@ class TableModuleEditor(BaseComponent):
         fb.textbox(value='^.many_name',lbl='Many name')
         fb.checkbox(value='^.deferred',label='Deferred')
         fb.filteringSelect(value='^.one_one',lbl='One one',values='True,*')
+        fb.comboBox(value='^.meta_thmode',lbl='Tablehandler',values='dialog,plain,border')
         bc.contentPane(region='center').multiValueEditor(value='^#FORM.relationEditor.data',
                     exclude='relation,relation_name,foreignkey,onDelete,onDelete_sql,onUpdate,onUpdate_sql,one_name,many_name,deferred,one_one')
         bar = frame.bottom.slotBar('*,cancel,10,confirm,2',margin_bottom='2px',_class='slotbar_dialog_footer')

@@ -204,7 +204,7 @@ class FrameIndex(BaseComponent):
 
     def prepareBottom(self,bc):
         pane = bc.contentPane(region='bottom',overflow='hidden')
-        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,5,openGnrIDE,5,appdownload,count_errors,5,appInfo,*,debugping,5,preferences,screenlock,logout,3',_class='slotbar_toolbar framefooter',height='22px',
+        sb = pane.slotToolbar('3,applogo,genrologo,5,devlink,5,manageDocumentation,5,openGnrIDE,5,appdownload,count_errors,5,appInfo,*,debugping,5,preferences,logout,3',_class='slotbar_toolbar framefooter',height='22px',
                         background='#EEEEEE',border_top='1px solid silver')
         sb.appInfo.div('^gnr.appInfo')
         applogo = sb.applogo.div()
@@ -215,12 +215,24 @@ class FrameIndex(BaseComponent):
             msg="!!Connected to:",dbremote=(self.site.remote_db or False),_if='dbremote',
                         tpl="<div class='remote_db_msg'>$msg $dbremote</div>",_onStart=True)
         box = sb.preferences.div(_class='iframeroot_pref')
-        appPref = box.div(innerHTML='==_owner_name?dataTemplate(_owner_name,envbag):"Preferences";',_owner_name='^gnr.app_preference.adm.instance_data.owner_name',_class='iframeroot_appname',
-                                connect_onclick='PUBLISH app_preference',envbag='=gnr.rootenv')
-        userPref = box.div(self.user if not self.isGuest else 'guest', _class='iframeroot_username',tip='!!%s preference' % (self.user if not self.isGuest else 'guest'),
-                               connect_onclick='PUBLISH user_preference')
-        sb.logout.div(connect_onclick="genro.logout()",_class='iconbox icnBaseUserLogout',tip='!!Logout')
-        sb.screenlock.div(connect_onclick="genro.publish('screenlock')",_class='iconbox icnBaseUserPause',tip='!!Lock screen')
+        if not self.dbstore:
+            appPref = box.div(innerHTML='==_owner_name?dataTemplate(_owner_name,envbag):"Preferences";',
+                                    _owner_name='^gnr.app_preference.adm.instance_data.owner_name',
+                                    _class='iframeroot_appname',
+                                    connect_onclick='PUBLISH app_preference',envbag='=gnr.rootenv')
+            userPref = box.div(self.user if not self.isGuest else 'guest', _class='iframeroot_username',tip='!!%s preference' % (self.user if not self.isGuest else 'guest'),
+                                connect_onclick='PUBLISH user_preference')
+            appPref.dataController("""genro.dlg.iframePalette({top:'10px',left:'10px',url:url,
+                                                        title:preftitle,height:'450px', width:'800px',
+                                                        palette_nodeId:'mainpreference'});""",
+                            subscribe_app_preference=True,url='adm/app_preference',
+                            _tags=self.pageAuthTags(method='preference'),pane=appPref,preftitle='!!Application preference')
+            userPref.dataController("""genro.dlg.iframePalette({top:'10px',right:'10px',title:preftitle,url:url,
+                                                        height:'300px', width:'400px',palette_transition:null,
+                                                        palette_nodeId:'userpreference'});""",url='adm/user_preference',
+                            subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')
+        
+        sb.logout.div(connect_onclick="genro.logout()",_class='iconbox icnBaseUserLogout switch_off',tip='!!Logout')
 
         formula = '==(_iframes && _iframes.len()>0)?_iframes.getAttr(_selectedFrame,"url"):"";'
         
@@ -233,17 +245,6 @@ class FrameIndex(BaseComponent):
             self.electronAppDownload(sb)
         sb.openGnrIDE.div().slotButton("!!Open Genro IDE",iconClass='iconbox laptop',
                             action='genro.framedIndexManager.openGnrIDE();',_tags='_DEV_')
-
-        appPref.dataController("""genro.dlg.iframePalette({top:'10px',left:'10px',url:url,
-                                                        title:preftitle,height:'450px', width:'800px',
-                                                        palette_nodeId:'mainpreference'});""",
-                            subscribe_app_preference=True,url='adm/app_preference',
-                            _tags=self.pageAuthTags(method='preference'),pane=appPref,preftitle='!!Application preference')
-       # dlg = self.frm_envDataDialog()
-        userPref.dataController("""genro.dlg.iframePalette({top:'10px',right:'10px',title:preftitle,url:url,
-                                                        height:'300px', width:'400px',palette_transition:null,
-                                                        palette_nodeId:'userpreference'});""",url='adm/user_preference',
-                            subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')
         sb.debugping.div(_class='ping_semaphore')
     
     def electronAppDownload(self,bar):
@@ -297,7 +298,7 @@ class FrameIndex(BaseComponent):
                        
     def prepareLeft(self,bc):
         pane = bc.contentPane(region='left',splitter=True,width='210px',datapath='left',_lazyBuild=True,
-                                    margin_right='-4px',overflow='hidden',hidden=self.hideLeftPlugins,border_right='1px solid #ddd')
+                                    margin_right='-4px',overflow='hidden',hidden=self.hideLeftPlugins,border_right='5px solid #eee')
         sc = pane.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',
                                 subscribe_open_plugin="""var plugin_name = $1.plugin;
                                                          SET left.selected = plugin_name;

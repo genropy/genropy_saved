@@ -36,6 +36,8 @@ from copy import copy
 def cellFromField(field,tableobj,checkPermissions=None):
     kwargs = dict()
     fldobj = tableobj.column(field)
+    if fldobj is None:
+        raise Exception('Missing column {} in table {}'.format(field,tableobj.fullname))
     fldattr = dict(fldobj.attributes or dict())
         
     if (fldattr.get('cell_edit') or fldattr.get('edit'))\
@@ -52,6 +54,11 @@ def cellFromField(field,tableobj,checkPermissions=None):
 
     if fldattr.get('user_forbidden'):
         kwargs['hidden'] = True
+
+
+    if fldattr.get('user_blurred'):
+        kwargs['cellClasses'] = '{cellClasses} gnr_blurred_cell'.format(cellClasses=kwargs.get('cellClasses',''))
+
     if 'values' in fldattr:
         values = fldattr['values']
         values = getattr(fldobj.table.dbtable, values ,lambda: values)()
@@ -62,7 +69,8 @@ def cellFromField(field,tableobj,checkPermissions=None):
     kwargs.setdefault('format_pattern',fldattr.get('format'))
     kwargs.setdefault('format',fldattr.get('format'))
     kwargs.update(dictExtract(fldattr,'format_',slice_prefix=False))
-    if getattr(fldobj,'sql_formula',None) and fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
+    if getattr(fldobj,'sql_formula',None) and fldobj.sql_formula is not True and \
+        fldobj.sql_formula.startswith('@') and '.(' in fldobj.sql_formula:
         kwargs['_subtable'] = True
     kwargs['name'] =  fldobj.name_short or fldobj.name_long
     kwargs['dtype'] =  fldobj.dtype
@@ -95,10 +103,14 @@ def cellFromField(field,tableobj,checkPermissions=None):
             kwargs['related_table'] = relatedTable.fullname
             kwargs['related_table_lookup'] = linktable_attr.get('lookup')
             onerelfld = columnjoiner['one_relation'].split('.')[2]
+            isForeignKey = columnjoiner.get('foreignkey')
+            storefield = columnjoiner.get('storefield')
             if(onerelfld != relatedTable.pkey):
                 kwargs['alternatePkey'] = onerelfld
             if len(relfldlst) == 1:
-                caption_field = kwargs.pop('caption_field',None) or relatedTable.attributes.get('caption_field')
+                caption_field = kwargs.pop('caption_field',None)
+                if (caption_field is None) and (isForeignKey or onerelfld == relatedTable.pkey):
+                    caption_field =  relatedTable.attributes.get('caption_field')
                 if caption_field and not kwargs.get('hidden'):
                     rel_caption_field = '@%s.%s' %(field,caption_field)
                     caption_fieldobj = tableobj.column(rel_caption_field)
@@ -145,10 +157,10 @@ def externalStore(tableobj,field,joiner,fkey,ext_fldname,kwargs):
     ext_table = '.'.join(joiner['one_relation'].split('.')[0:2])
     storefield = joiner.get('storefield')
     kwargs['_joiner_storename'] = storefield if storefield else " '%s' " % (joiner.get('_storename') or tableobj.db.rootstore)
-    kwargs['_external_fkey'] ='$%s AS %s_fkey' %(fkey,ext_table.replace('.','_'))
+    kwargs['_external_fkey'] ='$%s AS %s_fkey' %(fkey,joiner['one_relation'].replace('.','_'))
     if not ext_fldname.startswith('@'):
         ext_fldname = '$%s' %ext_fldname
-    kwargs['_external_name'] = '%s:%s AS %s' %(ext_table,ext_fldname,field.replace('.','_').replace('@','_'))
+    kwargs['_external_name'] = '%s:%s AS %s' %(joiner['one_relation'],ext_fldname,field.replace('.','_').replace('@','_'))
 
     
     
@@ -691,7 +703,10 @@ class GnrDomSrc(GnrStructData):
         
         :param content: the <script> content"""
         return self.child('script', childcontent=content, **kwargs)
-        
+    
+    def bagField(self,value=None,method=None,**kwargs):
+        return self.child('bagField',value=value,methodname=method,**kwargs)
+
     def remote(self, method=None, lazy=True, cachedRemote=None,**kwargs):
         """TODO
         
@@ -993,7 +1008,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis','codemirror','dygraph','chartjs','MultiButton','PaletteGroup','DocumentFrame','DownloadButton','bagEditor','PagedHtml',
-             'DocItem','UserObjectLayout', 'PalettePane','PaletteMap','PaletteImporter','DropUploader','DropUploaderGrid','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor',
+             'DocItem','UserObjectLayout','UserObjectBar', 'PalettePane','PaletteMap','PaletteImporter','DropUploader','DropUploaderGrid','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor','FlatBagEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','TreeFrame','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu','ChartPane','PaletteChart','ColorTextBox','ColorFiltering', 'SearchBox', 'FormStore',
              'FramePane', 'FrameForm','BoxForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid',"GridGallery","VideoPlayer",'MultiValueEditor','MultiLineTextbox','QuickTree','SharedObject','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
@@ -1829,7 +1844,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             wdgattr['_class'] = 'gnr_forbidden_field'
             wdgattr.pop('value',None)
             wdgattr.pop('innerHTML','&nbsp;')
-            
+        if permissions.get('user_blurred'):
+            wdgattr['tag'] = 'div'
+            wdgattr['_class'] = 'gnr_blurred_field'
         return wdgattr
         
     def wdgAttributesFromColumn(self, fieldobj,fld=None, **kwargs):
@@ -2036,14 +2053,17 @@ class GnrFormBuilder(object):
                 rc[0] = str(self.row)
             elif rc[0] == '+':
                 rc[0] = str(self.row + 1)
-            row, col = int(rc[0]), int(rc[1])
-                
-        if row is None:
-            row = self.row
-            col = self.col
-        if col < 0:
-            col = self.colmax + col
-        self.row, self.col = self.nextCell(row, col)
+            self.row, self.col = int(rc[0]), int(rc[1])
+        elif ('pos_r' in field) or ('pos_c' in field):
+            self.row = field.get('pos_r',self.row)
+            self.col = field.get('pos_c',self.col)
+        else:
+            if row is None:
+                row = self.row
+                col = self.col
+            if col < 0:
+                col = self.colmax + col
+            self.row, self.col = self.nextCell(row, col)
         if 'fld' in field:
             fld_dict = self.tbl.getField(field.pop('fld'))
             fld_dict.update(field)
@@ -2097,7 +2117,11 @@ class GnrFormBuilder(object):
         if self.lblpos == 'L':
             return self.tbl['r_%i' % r]
         else:
-            return (self.tbl['r_%i_l' % r], self.tbl['r_%i_f' % r])
+            rl = self.tbl['r_%i_l' % r]
+            rf = self.tbl['r_%i_f' % r]
+            if r>=0 and not rl:
+                rl.attributes['hidden'] = True
+            return (rl,rf)
                 
     def nextCell(self, r, c):
         """Get the current row (*r* attribute) and the current cell (*c* attribute)
@@ -2309,7 +2333,10 @@ class GnrFormBuilder(object):
                 lbl_kwargs['_class'] = self.lblclass + ' ' + lbl_kwargs['_class']
             else:
                 lbl_kwargs['_class'] = self.lblclass
+            
             row[0].td(childname='c_%i' % c, childcontent=lbl, align=lblalign, vertical_align=lblvalign, **lbl_kwargs)
+            if lbl:
+                row[0].attributes.pop('hidden',None)
             td = row[1].td(childname='c_%i' % c, align=fldalign, vertical_align=fldvalign, **kwargs)
             for k, v in row_attributes.items():
                 # TODO: warn if row_attributes already contains the attribute k (and it has a different value)
@@ -2431,7 +2458,8 @@ class GnrGridStruct(GnrStructData):
             row = self.parent.parent.parent.getItem('view_0.rows_0')
             kwargs['columnset'] = parentAttributes['code']
         return row.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
-                          classes=classes, cellClasses=cellClasses, headerClasses=headerClasses,**kwargs)
+                          classes=classes, cellClasses=cellClasses, headerClasses=headerClasses,
+                          **kwargs)
                           
     
     def checkboxcolumn(self,field='_checked',checkedId=None,radioButton=False,calculated=True,name=None,

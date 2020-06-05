@@ -277,6 +277,8 @@ class GnrBaseWebPage(GnrObject):
                                 pkeys=pkeys, addPkeyColumn=False,
                                 excludeDraft=False,
                                 **condition_args).selection()
+        if sortBy:
+            selection.sort(sortBy)
         return selection
         
     def getAbsoluteUrl(self, path, **kwargs):

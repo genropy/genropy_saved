@@ -34,8 +34,8 @@ import os
 
 class GnrTaskScheduler(object):
     def __init__(self,instancename,interval=None):
-        self.site = GnrWsgiSite(instancename)
-        self.db = self.site.db
+        self.app = GnrApp(instancename,enabled_packages=['gnrcore:sys'])
+        self.db = self.app.db
         self.interval = interval or 60
         self.pid = os.getpid()
         self.tasktbl = self.db.table('sys.task')

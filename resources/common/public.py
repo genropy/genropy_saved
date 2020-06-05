@@ -232,7 +232,7 @@ class PublicSlots(BaseComponent):
                             readOnly=readOnly,
                             disabled='^gnr.partition_selector.disabled',
                             dbtable=related_tblobj.fullname,lbl=related_tblobj.name_long,
-                            hasDownArrow=True,font_size='.8em',lbl_color='white',
+                            hasDownArrow=True,font_size='.8em',
                             color='#666',lbl_font_size='.8em',nodeId='pbl_partition_selector')
         #else:
         #    fb.div('!!Partition not allowed',color='orange',font_size='.8em',font_weight='bold') 
@@ -651,7 +651,8 @@ class TableHandlerMain(BaseComponent):
                                         this.form.load({destPkey:pkey,discardChange:true});
                                     }
                                }
-                               """,subscribe_main_form_open=True)
+                               """,
+                            subscribe_main_form_open=True)
 
     @public_method                     
     def main_form(self, root,**kwargs):
