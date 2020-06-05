@@ -5,6 +5,7 @@ from past.builtins import basestring
 #from builtins import object
 import os
 import sys
+import site
 import glob
 
 import shutil
@@ -273,22 +274,47 @@ $ sudo systemctl status %(service_name)s
 $ sudo journalctl -e -u %(service_name)s
         """ % dict(service_name=service_name))
 
-def activateVirtualEnv(name=None):
-    activate_file=os.path.join(name, "bin", "activate_this.py")
-    execfile(activate_file, dict(__file__=activate_file))
+def activateVirtualEnv(path):
+    bin_dir = os.path.join(path, 'bin')
+    os.environ["PATH"] = os.pathsep.join([bin_dir] + os.environ.get("PATH", "").split(os.pathsep))
+    base = os.path.dirname(bin_dir)
+    os.environ["VIRTUAL_ENV"] = base
+    IS_WIN = sys.platform == "win32"
+    if IS_WIN:
+        site_packages = os.path.join(base, "Lib", "site-packages")
+    else:
+        site_packages = os.path.join(base, "lib", "python{}".format(sys.version[:3]), "site-packages")
 
+    prev = set(sys.path)
+    site.addsitedir(site_packages)
+    sys.real_prefix = sys.prefix
+    sys.prefix = base
+
+    new = list(sys.path)
+    sys.path[:] = [i for i in new if i not in prev] + [i for i in new if i in prev]
+    
 def createVirtualEnv(name=None, copy_genropy=False, copy_projects=None, 
     branch=None):
-    import virtualenv
     venv_path = os.path.join(os.getcwd(), name)
     print('Creating virtual environment %s in %s'%(name, venv_path))
-    virtualenv.create_environment(name)
+    try:
+        from venv import EnvBuilder
+        builder = EnvBuilder(with_pip=True)
+        if os.name == "nt":
+            use_symlinks = False
+        else:
+            use_symlinks = True
+        builder = EnvBuilder(with_pip=True, symlinks=use_symlinks)
+        builder.create(name)
+    except ImportError:
+        import virtualenv
+        virtualenv.cli_run([name])
     gitrepos_path = os.path.join(venv_path, 'gitrepos')
     if not os.path.exists(gitrepos_path):
         os.makedirs(gitrepos_path)
     base_path_resolver = PathResolver()
     base_gnr_config = getGnrConfig()
-    activateVirtualEnv(name)
+    activateVirtualEnv(venv_path)
     if copy_projects:
         projects_path = os.path.join(gitrepos_path, 'genropy_projects')
         if not os.path.exists(projects_path):
