@@ -292,7 +292,7 @@ def activateVirtualEnv(path):
 
     new = list(sys.path)
     sys.path[:] = [i for i in new if i not in prev] + [i for i in new if i in prev]
-    
+
 def createVirtualEnv(name=None, copy_genropy=False, copy_projects=None, 
     branch=None):
     venv_path = os.path.join(os.getcwd(), name)
@@ -338,8 +338,8 @@ def createVirtualEnv(name=None, copy_genropy=False, copy_projects=None,
             print('Copying genropy from %s to %s'%(genropy_path,newgenropy_path))
             shutil.copytree(genropy_path,newgenropy_path)
             import subprocess
+            curr_cwd = os.getcwd()
             if branch:
-                curr_cwd = os.getcwd()
                 os.chdir(newgenropy_path)
                 print('Switching to branch %s'%branch)
                 subprocess.check_call(['git', 'stash'])
