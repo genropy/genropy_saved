@@ -60,7 +60,7 @@ class MasterDetail(BaseComponent):
                                                                             viewResourceClass=self.detail_viewResource)
         self.customizeGrid(frame.grid,resource=viewResource,
                                 md_mode=md_mode or '^#FORM.record.{md_mode}'.format(md_mode=self.master_md_mode),
-                                struct_customizer=struct_customizer or '#FORM.record.{}'.format(self.detail_grid_customizer))
+                                struct_customizer=struct_customizer or '=#FORM.record.{}'.format(self.detail_grid_customizer))
         self.detailsCustomization(frame)
 
         return frame
