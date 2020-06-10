@@ -740,7 +740,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     },
 
     multiUploaderDialog:function(title,kw,sourceNode) {
-        var uploaderKw = objectExtract(kw,'nodeId,height,width,uploadPath,onUploadedMethod,onUploadingMethod,onResult');
+        var uploaderKw = objectExtract(kw,'nodeId,height,width,uploadPath,onUploadedMethod,onUploadingMethod,onResult,label');
         kw.closable = true;
         var dlg = this.quickDialog(title,kw,sourceNode);
         uploaderKw.height = uploaderKw.height || '300px';
@@ -758,7 +758,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var actionCb = function(){
             genro.nodeById(uploaderKw.nodeId).publish('doUpload');
         };
-        dlg.bottom._('button','confirm',{float:'right',action:actionCb,label:_T('Upload files')});
+        dlg.bottom._('button','confirm',{float:'right',action:actionCb,label:kw.buttonLabel || _T('Upload files')});
         return dlg;
     },
 

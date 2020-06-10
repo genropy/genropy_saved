@@ -362,14 +362,14 @@ class XlsReader(object):
 
 class CsvReader(object):
     """Read an csv file"""
-    def __init__(self, docname,dialect=None,**kwargs):
+    def __init__(self, docname,dialect=None,delimiter=None,**kwargs):
         import os.path
         self.docname = docname
         self.dirname = os.path.dirname(docname)
         self.basename, self.ext = os.path.splitext(os.path.basename(docname))
         self.ext = self.ext.replace('.', '')
         self.filecsv = open(docname,'rU')
-        self.rows = csv.reader(self.filecsv,dialect=dialect)
+        self.rows = csv.reader(self.filecsv,dialect=dialect,delimiter=delimiter)
         self.headers = next(self.rows)
         self.index = dict([(k, i) for i, k in enumerate(self.headers)])
         self.ncols = len(self.headers)
@@ -554,7 +554,7 @@ class GnrNamedList(list):
             return list(self.values())     
 
 
-def getReader(file_path,filetype=None,**kwargs):
+def getReader(file_path,filetype=None,delimiter=None,**kwargs):
     import os.path
     filename,ext = os.path.splitext(file_path)
     if filetype=='excel' or not filetype and ext in ('.xls','.xlsx'):
@@ -565,6 +565,6 @@ def getReader(file_path,filetype=None,**kwargs):
         dialect = None
         if filetype=='tab' or ext=='.tab':
             dialect = 'excel-tab'
-        reader = CsvReader(file_path,dialect=dialect,**kwargs)
+        reader = CsvReader(file_path,dialect=dialect,delimiter=delimiter,**kwargs)
         reader.index = {slugify(k):v for k,v in list(reader.index.items())}
     return reader
