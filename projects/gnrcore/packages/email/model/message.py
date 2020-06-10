@@ -55,7 +55,9 @@ class Table(object):
             if rif_id:
                 rif_id = rif_id.strip('<>')
                 if rif_id and rif_id.startswith('GNR_'):
-                    record_data['reply_message_id'] = rif_id[4:26]
+                    reply_message_id = rif_id[4:26]
+                    if self.existsRecord(reply_message_id):
+                        record_data['reply_message_id'] = reply_message_id
     
     def trigger_onUpdating(self, record_data, old_record):
         self.deleteAddressRelations(record_data)
