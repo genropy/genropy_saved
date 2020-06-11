@@ -38,6 +38,7 @@ class BaseResourcePrint(BaseResourceBatch):
         if not hasattr(self, 'mail_tags'):
             self.mail_tags = 'mail'
 
+
     def _pre_process(self):
         self.pre_process()
         self.batch_options = self.batch_parameters.get('batch_options') or {}
@@ -119,6 +120,10 @@ class BaseResourcePrint(BaseResourceBatch):
         result = getattr(self, 'result_handler_%s' % self.print_mode)(resultAttr)
         result = result or ''
         return result, resultAttr
+
+    @property
+    def mail_preference(self):
+        return self.page.site.getService('mail').getDefaultMailAccount()
         
     def result_handler_mail_deliver(self, resultAttr):
         mailmanager = self.page.getService('mail')
