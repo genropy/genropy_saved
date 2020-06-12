@@ -446,7 +446,12 @@ class SqlQueryCompiler(object):
     def embedFieldPars(self,sql):
         for k,v in self.sqlparams.items():
             if isinstance(v,basestring):
-                if v.startswith('@') or v.startswith('$'):
+                doreplace=False
+                if v.startswith('@'):
+                    doreplace = v.split('.')[0] in self.tblobj.relations
+                elif v.startswith('$'):
+                    doreplace = v[:1] in self.tblobj.columns
+                if doreplace:
                     sql = re.sub('(:%s)(\W|$)' % k, lambda m: '%s%s' %(v,m.group(2)), sql)
         return sql
                     
