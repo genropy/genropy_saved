@@ -34,6 +34,7 @@ class Table(object):
         tbl.column('date_end','D',name_long='!!End Date')
         tbl.column('stopped','B',name_long='!!Stopped')
         tbl.column('worker_code',size=':10',name_long="Worker code",indexed=True)
+        tbl.column('saved_query_code',size=':40',name_long="!![en]Query")
         tbl.formulaColumn('active_workers',select=dict(table='sys.task_execution',
             where="$task_id=#THIS.id AND $start_ts IS NOT NULL AND $end_ts IS NULL",
             columns='COUNT(*)'
@@ -82,12 +83,15 @@ class Table(object):
                 tasks_to_run.append((task['id'],reason))
         return tasks_to_run
 
-    def loadTask(self, table=None, page=None, command=None):
+    def getBtcClass(self, table=None, page=None, command=None):
         pkg,tablename = table.split('.')
         command = command or 'task_%s:Main' %tablename
         if ':' not in command:
             command ='%s:Main'%command
-        task_class = page.importTableResource(table,command)
+        return page.importTableResource(table,command)
+        
+    def loadTask(self, table=None, page=None, command=None):
+        task_class = self.getBtcClass(table=table, page=page, command=command)
         if task_class:
             return task_class(page=page,resource_table=page.db.table(table))
 

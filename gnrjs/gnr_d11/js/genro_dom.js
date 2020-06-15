@@ -1408,7 +1408,6 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 var wh = hdrtr[i].clientWidth;
                 var wb = bodytr_first[i].clientWidth;
                 var wt = wh > wb ? wh : wb;
-                console.log('autoWidth',wt,autoWidth);
                 colgroup = colgroup + '<col width="' + wt + '"/>';
             }
             domnode.innerHTML = cbf(colgroup);

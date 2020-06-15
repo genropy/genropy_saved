@@ -32,10 +32,12 @@ class BaseResourceBatch(object):
     batch_selection_kwargs = dict()
     batch_selection_savedQuery= None
 
-    def __init__(self, page=None, resource_table=None):
+    def __init__(self, page=None, resource_table=None,**kwargs):
         self.page = page
         self.db = self.page.db
         self.tblobj = resource_table
+        for k,v in kwargs.items():
+            setattr(self,k,v)
         if self.tblobj:
             self.maintable = self.tblobj.fullname
         self.btc = self.page.btc
@@ -49,7 +51,6 @@ class BaseResourceBatch(object):
         self.sortBy = None
         self.selectedPkeys = None
         self.batch_parameters = dict()
-        #self.mail_preference = self.page.site.getService('mail').getDefaultMailAccount()
 
 
     def __call__(self, batch_note=None, task_execution_record=None,**kwargs):
@@ -71,7 +72,6 @@ class BaseResourceBatch(object):
             self.btc.batch_aborted()
             self.batch_log_write('Batch Aborted')
         except Exception as e:
-            raise
             if task_execution_record:
                 task_execution_record['is_error'] = True
                 task_execution_record['errorbag'] = Bag(dict(error=str(e))) # tracebackBag()
@@ -82,7 +82,6 @@ class BaseResourceBatch(object):
                     self.btc.batch_error(error=str(e))
                     self.batch_log_write('Error in batch %s' %str(e))
                 except Exception as e:
-                    print(e)
                     raise
         finally:
             if self.batch_dblog:
@@ -246,7 +245,7 @@ class BaseResourceBatch(object):
             selection_kwargs.update(self.batch_selection_kwargs) 
         if columns:
             selection_kwargs['columns'] = columns
-
+        print('getting_selection',self.batch_selection_savedQuery)
         if self.batch_selection_savedQuery:
             selection = self._selection_from_savedQuery(selection_kwargs)
 

@@ -101,7 +101,7 @@ class Main(BaseResourceBatch):
         build_args = dict(project=self.handbook_record['title'],
                           version=self.handbook_record['version'],
                           #author=self.handbook_record['author'],
-                          author="Pippo",
+                          author="-",
                           release=self.handbook_record['release'],
         # DAVIDE modificato mapping 'release' che non era utilizzato e verrà utilizzato invece nel tema per l'autore
                           language=self.handbook_record['language'])

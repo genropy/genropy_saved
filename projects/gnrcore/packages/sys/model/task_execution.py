@@ -23,7 +23,8 @@ class Table(object):
         tbl.aliasColumn('task_command','@task_id.command',name_long='!!Task command',name_short='!!Command') # char(4)
 
         tbl.aliasColumn('task_stopped','@task_id.stopped',dtype='B',name_long='!!Stopped')
-        tbl.aliasColumn('task_parameters','@task_id.parameters',dtype='B',name_long='!!Parameters')
+        tbl.aliasColumn('task_parameters','@task_id.parameters',dtype='X',name_long='!!Parameters')
+        tbl.aliasColumn('task_saved_query','@task_id.saved_query_code',dtype='B',name_long='!!Parameters')
 
         tbl.aliasColumn('task_worker_code','@task_id.worker_code',dtype='L',name_long='!!Task worker code')
 

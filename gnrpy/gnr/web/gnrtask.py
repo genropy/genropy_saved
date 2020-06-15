@@ -109,9 +109,14 @@ class GnrTaskWorker(object):
         start_time = datetime.now()
         log_record['start_time'] = start_time
         log_record['task_id'] =task_execution['id']
-        taskObj = self.db.table('sys.task').loadTask(table=task_execution['task_table'], command=task_execution['task_command'], page=page)
-        if not taskObj:
-            return Bag()
+        table = task_execution['task_table']
+        task_class = self.db.table('sys.task').getBtcClass(table=table, 
+                                                    command=task_execution['task_command'], 
+                                                    page=page)
+        if not task_class:
+            return
+        taskObj = task_class(page=page,resource_table=page.db.table(table),
+                            batch_selection_savedQuery=task_execution['task_saved_query'])
         taskparameters = task_execution['parameters']
         with self.db.tempEnv(connectionName='execution'):
             taskObj(parameters=Bag(taskparameters),task_execution_record=task_execution)
@@ -119,9 +124,12 @@ class GnrTaskWorker(object):
     def start(self):
         while True:
             for te_pkey in self.taskToExecute():
-                print('eseguo task', te_pkey)
                 with self.tblobj.recordToUpdate(te_pkey,for_update='SKIP LOCKED',
-                                                virtual_columns='$task_table,$task_name.$task_parameters,$task_command') as task_execution:
+                                                virtual_columns="""$task_table,
+                                                                    $task_name,
+                                                                    $task_parameters,
+                                                                    $task_command,
+                                                                    $task_saved_query""") as task_execution:
                     self.runTask(task_execution)
                     task_execution['end_ts'] = datetime.now()
                 self.db.commit()

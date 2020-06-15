@@ -25,6 +25,7 @@
 
 from past.builtins import basestring
 import os,sys,math
+from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrhtml import GnrHtmlSrc
 from gnr.core.gnrdecorator import extract_kwargs
@@ -32,6 +33,31 @@ from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrstring import  splitAndStrip, slugify,templateReplace
 from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrbag import Bag
+
+
+def page_proxy(*args,**metadata):
+    """page proxy"""
+    if metadata:
+        def decore(cls):
+            cls.is_proxy = True
+            inherites =metadata.get('inherites',None)
+            if inherites:
+                py_requires = getattr(cls,'py_requires',None)
+                inherites_requires = ['{req} AS _CURRENT_PROXY_'.format(req=req) for req in inherites.split(',')]
+                inherites_requires = ','.join(inherites_requires)
+                if py_requires:
+                    py_requires = '{inherites_requires},{py_requires}'.format(inherites_requires=inherites_requires,
+                                                            py_requires=py_requires)
+                else:
+                    py_requires = inherites_requires
+                print('py_requires',py_requires)
+                cls.py_requires = py_requires
+            return cls
+        return decore
+    else:
+        cls = args[0]
+        cls.is_proxy = True 
+        return cls
 
 
 def page_mixin(func):
@@ -105,6 +131,7 @@ def zzzcomponent_hook(func_or_name):
         
 class BaseComponent(object):
     """The base class for the :ref:`components`"""
+    proxy_class = GnrBaseProxy
     def __onmixin__(self, _mixinsource, site=None):
         js_requires = splitAndStrip(getattr(_mixinsource, 'js_requires', ''), ',')
         css_requires = splitAndStrip(getattr(_mixinsource, 'css_requires', ''), ',')
@@ -196,6 +223,7 @@ class BaseView(BaseComponent):
 
 class BaseResource(GnrObject):
     """Base class for a webpage resource"""
+    proxy_class = GnrBaseProxy
     def __init__(self, **kwargs):
         for k, v in list(kwargs.items()):
             if v:

@@ -247,7 +247,6 @@ class ResourceLoader(object):
         :param pkg: the :ref:`package <packages>` object"""
 
         if pkg:
-            currentAuxInstanceName = self.site.currentAuxInstanceName
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
             packageResourcePath =  os.path.join(self.gnrapp.packages[pkg].packageFolder, 'resources')
         else:
@@ -389,7 +388,7 @@ class ResourceLoader(object):
         if modPathList:
             modPathList.reverse()
             for modPath in modPathList:
-                classMixin(kls, '%s:%s' % (modPath, clsName), only_callables=False, site=self)
+                classMixin(kls, '%s:%s' % (modPath, clsName), only_callables=False,site=self)
         else:
             raise GnrMixinNotFound('Not found component %s' % modName)
         return modPath
@@ -402,6 +401,8 @@ class ResourceLoader(object):
         resourceDirs = target_class.resourceDirs
         py_requires = [x for x in splitAndStrip(getattr(source_class, 'py_requires', ''), ',') if x] or []
         for path in py_requires:
+            if hasattr(source_class,'proxy_name'):
+                path = path.replace('_CURRENT_PROXY_',source_class.proxy_name)
             drive, path = os.path.splitdrive(path)
             if ':' in path:
                 modName, clsName = path.split(':')
@@ -413,7 +414,6 @@ class ResourceLoader(object):
                 modPathList.reverse()
                 for modPath in modPathList:
                     yield '%s:%s' % (modPath, clsName)
-                    #classMixin(kls,'%s:%s'%(modPath,clsName),only_callables=False,site=self)
             else:
                 raise GnrMixinError('Cannot import component %s' % modName)
                 
@@ -463,7 +463,9 @@ class ResourceLoader(object):
         return resource_class
 
     def loadResource(self, *path, **kwargs):
-        return self.getResourceClass(*path, **kwargs)()
+        component_class = self.getResourceClass(*path, **kwargs)
+        component_instance = component_class()
+        return component_instance
                  
     def mixinPageComponent(self, page, *path,**kwargs):
         """This method is used to mixin a component to a :ref:`webpage` at any time
