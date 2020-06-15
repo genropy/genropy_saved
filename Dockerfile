@@ -10,7 +10,7 @@ ADD . /home/genropy
 
 RUN apt-get update
 RUN apt-get install -y supervisor nginx liblzma-dev
-RUN pip install --upgrade setuptools
+RUN pip install --upgrade setuptools<45
 RUN pip install --upgrade pip
 RUN easy_install pip
 RUN pip install gunicorn gevent futures
