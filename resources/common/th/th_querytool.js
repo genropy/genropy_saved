@@ -48,7 +48,15 @@ dojo.declare("gnr.FakeTableHandler",null,{
                              column_caption:null});
             this.sourceNode.setRelativeData('.query.where',querybag);
         }
-        TH(this.th_root).querymanager.buildQueryPane();
+        var that = this;
+        this.sourceNode.watch(function(){
+            return genro.dom.isVisible(genro.nodeById(that.th_root));
+        },function(){
+            TH(that.th_root).querymanager.buildQueryPane();
+        });
+        
+
+        
     }
 });
 
