@@ -20,6 +20,7 @@ class View(BaseComponent):
         r.fieldcell('last_execution_ts',width='14em')
         r.fieldcell('last_result_ts',width='14em')
         r.fieldcell('last_error_ts',width='14em')
+        r.fieldcell('saved_query_code',width='8em')
 
         #r.fieldcell('month',width='20em')
        # r.fieldcell('day',width='15em')
@@ -46,6 +47,13 @@ class Form(BaseComponent):
         fb.field('task_name',width='12em')
         fb.field('table_name',colspan=2,width='20em')
         fb.field('command',colspan=3,width='40em')
+        fb.field('saved_query_code',colspan=3,
+                    width='40em',tag='dbselect',dbtable='adm.userobject',
+                    alternatePkey='code',
+                    condition="$tbl=:tblname AND $objtype='query'",
+                    condition_tblname='=.table_name',
+                    hasDownArrow=True)
+
         fb.field('max_workers',width='4em')
         fb.field('run_asap')
         fb.field('stopped')
