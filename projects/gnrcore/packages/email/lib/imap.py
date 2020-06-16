@@ -43,8 +43,8 @@ class ImapReceiver(object):
         else:
             imap_class = imaplib.IMAP4
         self.imap = imap_class(self.host, str(self.port))
-        
-        
+
+
     def receive(self, remote_mailbox='Inbox', local_mailbox='Inbox'):
         self.imap.login(self.username,self.password)
         self.imap.select(remote_mailbox)
@@ -81,7 +81,7 @@ class ImapReceiver(object):
 
         self.account_table.update(dict(id=self.account_id, last_uid=items[-1]))
         self.db.commit()
-    
+
     def fillHeaders(self, mail, new_mail,encoding):
         new_mail['from_address'] = str(mail['From']) if mail['From'] else None
         new_mail['to_address'] = str(mail['To']) if mail['To'] else None
@@ -99,8 +99,8 @@ class ImapReceiver(object):
                     new_mail['send_date'] = datetime.datetime.today()
             else:
                 new_mail['send_date'] = datetime.datetime.today()
-         
-    
+
+
     def parseBody(self, part, new_mail, part_content_type=None):
         if part_content_type == 'text/html':
             content = part.get_payload()#decode=True)
@@ -134,17 +134,19 @@ class ImapReceiver(object):
         except LookupError:
             return str('')
 
-    
+
     def parseAttachment(self, part, new_mail, part_content_type=None, encoding=None):
         new_attachment = dict(message_id = new_mail['id'])
         filename = part.get_filename()
-        filename  = six.ensure_str(filename)
-        filename = email.header.decode_header(filename)[0][0]
         #filename =  self.smartConverter(filename, encoding)
         counter = 1
         if not filename:
             filename = 'part-%03d%s' % (counter, 'bin')
             counter += 1
+        filename  = six.ensure_str(filename)
+        filename,enc = email.header.decode_header(filename)[0]
+        filename  = six.ensure_str(filename)
+        #filename = filename.decode(enc)
         if part.get_content_type().startswith('message/'):
             att_data = self.getMessagePayload(part)
         else:
@@ -160,23 +162,24 @@ class ImapReceiver(object):
         new_attachment['path'] = attachmentNode.fullpath
         new_attachment['filename'] = attachmentNode.basename
         with attachmentNode.open('wb') as attachment_file:
+            att_data = six.ensure_binary(att_data)
             attachment_file.write(att_data)
 
         self.attachments_table.insert(new_attachment)
-    
+
     def getMessagePayload(self,part):
-        fp = io.BytesIO()
+        fp = io.StringIO()
         g = EmailGenerator(fp, mangle_from_=False)
         g.flatten(part, unixfrom=False)
         return fp.getvalue()
-        
+
 
     def getAttachmentNode(self,date=None,filename=None, message_id = None):
-        return self.db.table('email.attachment').getAttachmentNode(date=date,filename=filename, 
+        return self.db.table('email.attachment').getAttachmentNode(date=date,filename=filename,
                                             message_id = message_id,account_id=self.account_id,
                                             atc_counter=self.atc_counter)
 
-        
+
     def createMessageRecord(self, emailid):
         new_mail = dict(account_id=self.account_id,in_out='I')
         new_mail['id'] = getUuid()
@@ -214,7 +217,7 @@ class ImapReceiver(object):
                 if part_content_type.startswith('multipart'):
                     continue
                 content_disposition = part.get('Content-Disposition')
-                if content_disposition is None and part_content_type in ('text/html','text/plain'): 
+                if content_disposition is None and part_content_type in ('text/html','text/plain'):
                     self.parseBody(part, new_mail, part_content_type=part_content_type)
                 else:
                     self.parseAttachment(part, new_mail, part_content_type=part_content_type)
@@ -222,8 +225,8 @@ class ImapReceiver(object):
             g = re.search("<body(.*?)>(.*?)</body>", new_mail['body'], re.S|re.DOTALL)
             new_mail['body'] = g.group(2) if g else new_mail['body']
         else:
-            new_mail['body'] = new_mail.get('body_plain')     
+            new_mail['body'] = new_mail.get('body_plain')
         return new_mail
-            
+
 if __name__=='__main__':
     pass
