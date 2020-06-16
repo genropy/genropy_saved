@@ -17,6 +17,7 @@ import io
 detach_dir = '.'
 import os
 import re
+import six
 BASE_RE = re.compile('<base .*?>')
 wait = 600
 
@@ -137,9 +138,9 @@ class ImapReceiver(object):
     def parseAttachment(self, part, new_mail, part_content_type=None, encoding=None):
         new_attachment = dict(message_id = new_mail['id'])
         filename = part.get_filename()
+        filename  = six.ensure_str(filename)
         filename = email.header.decode_header(filename)[0][0]
         #filename =  self.smartConverter(filename, encoding)
-        
         counter = 1
         if not filename:
             filename = 'part-%03d%s' % (counter, 'bin')
@@ -147,7 +148,7 @@ class ImapReceiver(object):
         if part.get_content_type().startswith('message/'):
             att_data = self.getMessagePayload(part)
         else:
-            att_data = part.get_payload(decode=True)
+            att_data = part.get_payload()
         fname,ext = os.path.splitext(filename)
         fname = fname.replace('.','_').replace('~','_').replace('#','_').replace(' ','').replace('/','_')
         #fname = '%i_%s' %(self.atc_counter,fname)
@@ -164,7 +165,7 @@ class ImapReceiver(object):
         self.attachments_table.insert(new_attachment)
     
     def getMessagePayload(self,part):
-        fp = io.StringIO()
+        fp = io.BytesIO()
         g = EmailGenerator(fp, mangle_from_=False)
         g.flatten(part, unixfrom=False)
         return fp.getvalue()
