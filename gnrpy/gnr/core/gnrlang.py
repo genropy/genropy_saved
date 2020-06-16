@@ -1040,10 +1040,10 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         return
     source_dir = dir(source)
     proxies = {k:getattr(source, k) for k in source_dir if k.endswith('_proxyclass')}
-    mlist = [k for k in source_dir if
-             callable(getattr(source, k)) and not k in dir(type) + ['__weakref__', '__onmixin__','mixin','proxy_class','proxy_class_']+proxies.keys()]
-    
-    instmethod = type(obj.__init__)
+    blacklist = dir(type) + \
+                ['__weakref__', '__onmixin__','mixin','proxy_class','proxy_class_'] + \
+                list(proxies.keys())
+    mlist = [k for k in source_dir if callable(getattr(source, k)) and not k in blacklist]
     if methods:
         mlist = [item for item in mlist if item in FilterList(methods)]
     if exclude:
