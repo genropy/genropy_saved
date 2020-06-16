@@ -36,7 +36,7 @@ class Main(TableScriptToHtml):
         if userObjectIdOrCode:
             data,metadata = self.page.db.table('adm.userobject'
                                 ).loadUserObject(userObjectIdOrCode=userObjectIdOrCode,
-                                                table=self.tblobj.fullname)
+                                                table=self.tblobj.fullname,objtype='gridprint')
             if struct is None:
                 struct =  data.getItem('struct')
             currentQuery = currentQuery or data.getItem('query')
@@ -130,6 +130,8 @@ class Main(TableScriptToHtml):
         if limit:
             selection_kwargs['limit'] = limit
         selection_kwargs['columns'] = self.grid_sqlcolumns
+        if self.parameter('condition'):
+            where = '{condition} AND {where}'.format(condition=self.parameter('condition'),where=where)
         result = self.tblobj.query(where=where,**selection_kwargs).selection()
         if not selection_kwargs.get('order_by') and selection_kwargs.get('selectionPkeys'):
             pkeys = selection_kwargs.get('selectionPkeys')
