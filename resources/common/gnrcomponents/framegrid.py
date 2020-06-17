@@ -208,6 +208,14 @@ class FrameGridTools(BaseComponent):
         pane.menudiv(iconClass= iconClass or 'iconbox list',datapath='.grid',storepath='.structMenuBag',selected_fullpath='.currViewPath')
 
     @struct_method
+    def fg_viewGrouper(self,view,table=None,queryLimit=None,region=None,configurable=None,toolbar=True):
+        grid = view.grid
+        bc = view.grid_envelope.borderContainer(region='left',width='160px',closable='close',
+                                        splitter=True,border_right='1px solid silver',background='red')
+        
+        
+
+    @struct_method
     def fg_viewConfigurator(self,view,table=None,queryLimit=None,region=None,configurable=None,toolbar=True):
         grid = view.grid
         grid.attributes['configurable'] = True
@@ -246,7 +254,7 @@ class FrameGrid(BaseComponent):
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,viewResource=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
                     footer_kwargs=None,columnset_kwargs=None,footer=None,columnset=None,fillDown=None,
-                    _newGrid=None,selectedPage=None,configurable=None,printRows=None,**kwargs):
+                    _newGrid=None,selectedPage=None,configurable=None,printRows=None,groupable=False,**kwargs):
         pane.attributes.update(overflow='hidden')
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         frame.center.stackContainer(selectedPage=selectedPage)
@@ -281,7 +289,9 @@ class FrameGrid(BaseComponent):
             top_kwargs['slotbar_view'] = frame
             frame.top.slotToolbar(**top_kwargs)
         if table and configurable:
-            frame.viewConfigurator(table=table,configurable=configurable)   
+            frame.viewConfigurator(table=table,configurable=configurable) 
+        if table and groupable:
+            frame.viewGrouper(table=table)  
 
         return frame
 

@@ -427,4 +427,4 @@ class TableHandlerGroupBy(BaseComponent):
                                     table=table,datapath='.analyzerPane',
                                     condition='=.analyzer_condition',
                                     condition_analyzed_pkeys='^.analyzed_pkeys')
-        
+
