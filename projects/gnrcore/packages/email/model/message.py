@@ -130,7 +130,6 @@ class Table(object):
             weak_attachments = ','.join([site.storageNode(p).fullpath for p in weak_attachments])
         use_dbstores = self.use_dbstores()
         dbstore = self.db.currentEnv.get('storename')
-        multidb = self.multidb
         envkw = {}
         if dbstore and self.multidb and use_dbstores:
             envkw['storename'] = self.db.rootstore

@@ -14,14 +14,23 @@ class BaseResourceMail(BaseResourceBatch):
     def __init__(self, *args, **kwargs):
         super(BaseResourceMail, self).__init__(**kwargs)
         self.mail_handler = self.page.getService('mail')
-        self.mail_preference = Bag(self.mail_handler.getDefaultMailAccount())
 
     def send_one_template(self,record=None,to_address=None,cc_address=None,subject=None,body=None,attachments=None,**kwargs):
         self.mail_handler.sendmail_template(record,body=body,to_address=to_address,attachments=attachments,
                                             cc_address=cc_address,subject=subject,**kwargs)
 
-    def send_one_email(self,to_address=None,from_address=None,cc_address=None,subject=None,body=None,attachments=None,_record_id=None):
-        mp = self.mail_preference
+    def send_one_email(self,**kwargs):
+        if self.db.package('email'):
+            self.mail_handler.sendmail(account_id=self.batch_parameters.get('account_id'),**kwargs)
+        else:
+            self._send_one_email_legacy(**kwargs)
+
+    
+            
+    def _send_one_email_legacy(self,to_address=None,from_address=None,
+                                cc_address=None,subject=None,body=None,
+                                attachments=None,_record_id=None,html=None,**kwargs):
+        mp = Bag(self.mail_handler.getDefaultMailAccount())
         mail_code = self.batch_parameters.get('mail_code')
         tbl = self.tblobj.fullname
         now = datetime.now()
@@ -33,7 +42,7 @@ class BaseResourceMail(BaseResourceBatch):
                                     attachments=attachments or mp['attachments'], 
                                     account=mp['account'],
                                     smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
-                                    ssl=mp['ssl'], tls=mp['tls'], html=mp['html'], async=False)
+                                    ssl=mp['ssl'], tls=mp['tls'], html=html or mp['html'],**kwargs)
             
             with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
                 self.db.table('adm.sent_email').insert(dict(code=mail_code,tbl=tbl,mail_address=to_address,sent_ts=now,record_id=_record_id))

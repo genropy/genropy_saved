@@ -54,8 +54,34 @@ class Main(BaseResourceMail):
         self.batch_title = data['summary'] or 'Mail'
         self.tblobj = self.db.table(self.maintable)
         self.virtual_columns =  self.compiledTemplate.getItem('main?virtual_columns') 
-        self.mail_preference['html'] = not self.batch_parameters['as_pdf']
         self.htmlMaker = TableScriptToHtml(self.page,self.tblobj)
+        self.prepareAttachedReports(data['email.attached_reports'])
+
+    def prepareAttachedReports(self,attached_reports):
+        self.attached_reports = attached_reports or Bag()
+        self.attached_reports_makers = {}
+        if not self.attached_reports:
+            return
+        tblobj = self.db.table(self.maintable)
+        tblobjrel = tblobj.relations
+        for v in self.attached_reports.values():
+            relation = v['relation']
+            joiner = tblobjrel.getAttr(relation,'joiner')
+            relpkg,reltbl,fkey = joiner['many_relation'].split('.')
+            report_tbl = '{relpkg}.{reltbl}'.format(relpkg=relpkg,reltbl=reltbl)
+            res_obj = self.db.application.site.loadTableScript(self.page, table=report_tbl, 
+                                                                respath='html_res/print_gridres', 
+                                                                class_name='Main')
+            self.attached_reports_makers[(relation,v['report'])] = (res_obj,'${fkey}=:env_rfkey'.format(fkey=fkey))
+    
+    def appendAttachedReports(self,record=None,attachments=None):
+        tblobj = self.db.table(self.maintable)
+        with self.db.tempEnv(rfkey=record[tblobj.pkey],cacheInPage=True):
+            for v in self.attached_reports.values():
+                btc_instance,condition = self.attached_reports_makers[(v['relation'],v['report'])]
+                repfilepath = btc_instance(record=record,condition=condition,userobject=v['report'],pdf=True)
+                attachments.append(repfilepath)
+        
             
     def sendmail_record(self, record=None, thermo=None, storagekey=None,**kwargs):
         record.update(self.batch_parameters)
@@ -85,10 +111,13 @@ class Main(BaseResourceMail):
                 body = ''
             else:
                 body = result
-                attachments = attachments or None
+                attachments = attachments or []
+            self.appendAttachedReports(record=record,attachments=attachments)
             self.send_one_email(to_address=to_address,from_address=from_address,
                                 cc_address=cc_address,
-                                subject=subject,body=body,attachments=attachments,_record_id=record[self.tblobj.pkey])
+                                subject=subject,body=body,attachments=attachments or None,
+                                            _record_id=record[self.tblobj.pkey],
+                                            html=not as_pdf)
         
     def table_script_parameters_pane(self,pane,extra_parameters=None,record_count=None,**kwargs):
         pkg,tbl= extra_parameters['table'].split('.')
@@ -104,6 +133,9 @@ class Main(BaseResourceMail):
         fb.dataController("SET .letterhead_id = default_letterhead || null;",_onBuilt=True,
                             default_letterhead=data.getItem('metadata.default_letterhead') or False,_if='default_letterhead')
         fb.textbox(value='^.mail_code',lbl='Mail code')
+        if self.db.package('email'):
+            fb.dbSelect(value='^.account_id',placeholder='default', dbtable='email.account',
+                        lbl='!![en]Account',hasDownArrow=True)
         if data.getItem('parameters'):
             parameters = data.getItem('parameters')
             fielddict = {'T':'Textbox','L':'NumberTextBox','D':'DateTextBox','B':'Checkbox','N':'NumberTextBox', 'TL':'Simpletextarea'}

@@ -341,22 +341,37 @@ class TemplateEditor(TemplateEditorBase):
                             treepane__class='pbl_roundedGroup',treepane_height='30%')
 
         
-        
+    def _te_attachedReports(self,pane):
+        pane.bagGrid(title='!![en]Attached reports',pbl_classes=True,margin='2px',
+                        storepath='#ANCHOR.data.email.attached_reports',
+                        datapath='.attached_reports',
+                        struct=self._te_attachmentReportStruct)
+
+    def _te_attachmentReportStruct(self,struct):
+        r = struct.view().rows()
+        r.cell('relation',name='!![en]Relation',width='15em',edit=True)
+        r.cell('report',name='!![en]Report',width='15em',edit=True)
+        r.cell('resource',name='!![en]Resource',width='15em',edit=True)
+        r.cell('condition',name='!![en]Condition',width='15em',edit=True)
+
     def _te_frameEdit(self,frame,editorConstrain=None):
         frame.top.slotToolbar(slots='5,parentStackButtons,*',parentStackButtons_font_size='8pt')
         bc = frame.center.borderContainer(design='sidebar')
         self._te_pickers(frame.tabContainer(region='left',width='200px',splitter=True))                
         frame.dataController("bc.setRegionVisible('top',mail)",bc=bc.js_widget,mail='^.data.metadata.is_mail',_if='mail!==null')
-        top = bc.contentPane(region='top',datapath='.data.metadata.email',hidden=True,margin='2px',_class='pbl_roundedGroup')
-        top.div("!!Email metadata",_class='pbl_roundedGroupLabel')
-        fb = top.div(margin_right='15px').formbuilder(cols=1, border_spacing='2px',width='100%',fld_width='100%',tdl_width='8em')
+        top = bc.borderContainer(region='top',height='180px',hidden=True)
+        metadatapane = top.roundedGroup(region='left',title='!![en]Email metadata',width='500px',datapath='.data.metadata.email')
+        fb = metadatapane.div(margin_right='10px').formbuilder(cols=1, border_spacing='2px',width='100%',fld_width='100%',tdl_width='8em')
         fb.textbox(value='^.subject', lbl='!!Subject',dropTypes = 'text/plain')
         fb.textbox(value='^.to_address', lbl='!!To',dropTypes = 'text/plain')
         fb.textbox(value='^.from_address', lbl='!!From',dropTypes = 'text/plain')
         fb.textbox(value='^.cc_address', lbl='!!CC',dropTypes = 'text/plain')
         fb.textbox(value='^.bcc_address', lbl='!!BCC',dropTypes = 'text/plain')
 
+
         fb.simpleTextArea(value='^.attachments', lbl='!!Attachments',dropTypes = 'text/html')
+
+        self._te_attachedReports(top.contentPane(region='center'))
 
         editorConstrain = editorConstrain or dict()
         constrain_height = editorConstrain.pop('constrain_height',False)
