@@ -369,7 +369,7 @@ class CsvReader(object):
         self.basename, self.ext = os.path.splitext(os.path.basename(docname))
         self.ext = self.ext.replace('.', '')
         self.filecsv = open(docname,'rU')
-        self.rows = csv.reader(self.filecsv,dialect=dialect,delimiter=delimiter)
+        self.rows = csv.reader(self.filecsv,dialect=dialect,delimiter=delimiter or ',')
         self.headers = next(self.rows)
         self.index = dict([(k, i) for i, k in enumerate(self.headers)])
         self.ncols = len(self.headers)
