@@ -54,7 +54,6 @@ class Main(BaseResourceMail):
         self.batch_title = data['summary'] or 'Mail'
         self.tblobj = self.db.table(self.maintable)
         self.virtual_columns =  self.compiledTemplate.getItem('main?virtual_columns') 
-        self.mail_preference['html'] = not self.batch_parameters['as_pdf']
         self.htmlMaker = TableScriptToHtml(self.page,self.tblobj)
         self.prepareAttachedReports(data['email.attached_reports'])
 
@@ -117,7 +116,8 @@ class Main(BaseResourceMail):
             self.send_one_email(to_address=to_address,from_address=from_address,
                                 cc_address=cc_address,
                                 subject=subject,body=body,attachments=attachments or None,
-                                            _record_id=record[self.tblobj.pkey])
+                                            _record_id=record[self.tblobj.pkey],
+                                            html=not as_pdf)
         
     def table_script_parameters_pane(self,pane,extra_parameters=None,record_count=None,**kwargs):
         pkg,tbl= extra_parameters['table'].split('.')
@@ -133,6 +133,9 @@ class Main(BaseResourceMail):
         fb.dataController("SET .letterhead_id = default_letterhead || null;",_onBuilt=True,
                             default_letterhead=data.getItem('metadata.default_letterhead') or False,_if='default_letterhead')
         fb.textbox(value='^.mail_code',lbl='Mail code')
+        if self.db.package('email'):
+            fb.dbSelect(value='^.account_id',placeholder='default', dbtable='email.account',
+                        lbl='!![en]Account',hasDownArrow=True)
         if data.getItem('parameters'):
             parameters = data.getItem('parameters')
             fielddict = {'T':'Textbox','L':'NumberTextBox','D':'DateTextBox','B':'Checkbox','N':'NumberTextBox', 'TL':'Simpletextarea'}

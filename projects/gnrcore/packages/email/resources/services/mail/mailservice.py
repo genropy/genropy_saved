@@ -27,15 +27,15 @@ class Service(AdmMailService):
         account_id = account_id or self.getDefaultMailAccount()['account_id']
         if scheduler is None:
             scheduler = db.table('email.account').readColumns(pkey=account_id,columns='$save_output_message')  
+        if account_id:
+            account_parameters = self.get_account_params(account_id)
+            for k,v in account_parameters.items():
+                if not kwargs.get(k,None):
+                    kwargs[k]=v
         if scheduler:
-            return db.table('email.message').newMessage(account_id=account_id,attachments=attachments,
+            return db.table('email.message').newMessage(attachments=attachments,
                                                         headers_kwargs=headers_kwargs,**kwargs)
         else:
-            if account_id:
-                account_parameters = self.get_account_params(account_id)
-                for k,v in account_parameters.items():
-                    if not kwargs.get(k,None):
-                        kwargs[k]=v
             kwargs['headers_kwargs'] = headers_kwargs
             return super(Service, self).sendmail(attachments=attachments,**kwargs)
 

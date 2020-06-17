@@ -43,7 +43,7 @@ class BaseResourcePrint(BaseResourceBatch):
         self.pre_process()
         self.batch_options = self.batch_parameters.get('batch_options') or {}
         self.print_mode = self.batch_options.get('print_mode','pdf')
-        self.server_print_options = self.batch_parameters['_printerOptions']
+        self.server_print_options = self.batch_parameters.get('_printerOptions') or {}
         self.print_options = self.batch_options.get(self.print_mode) or {}
         self.network_printer = self.page.getService('networkprint')
         self.pdf_handler = self.page.getService('pdf')
