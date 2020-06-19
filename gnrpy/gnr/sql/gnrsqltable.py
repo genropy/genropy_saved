@@ -1221,7 +1221,10 @@ class SqlTable(GnrObject):
     def empty(self):
         """TODO"""
         self.db.adapter.emptyTable(self)
-        
+
+    def fillFromSqlTable(self, sqltablename):
+        self.db.adapter.fillFromSqlTable(self, sqltablename)
+
     def sql_deleteSelection(self, where=None,_pkeys=None, **kwargs):
         """Delete a selection from the table. It works only in SQL so no python trigger is executed
         
