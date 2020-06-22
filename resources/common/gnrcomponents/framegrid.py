@@ -208,10 +208,36 @@ class FrameGridTools(BaseComponent):
         pane.menudiv(iconClass= iconClass or 'iconbox list',datapath='.grid',storepath='.structMenuBag',selected_fullpath='.currViewPath')
 
     @struct_method
-    def fg_viewGrouper(self,view,table=None,queryLimit=None,region=None,configurable=None,toolbar=True):
-        grid = view.grid
-        bc = view.grid_envelope.borderContainer(region='left',width='160px',closable='close',
-                                        splitter=True,border_right='1px solid silver',background='red')
+    def fg_viewGrouper(self,view,table=None,region=None):
+        bc = view.grid_envelope.borderContainer(region='left',width='300px',closable='close',
+                                        splitter=True,border_right='1px solid silver',
+                                        selfsubscribe_closable_change="""SET .use_grouper = $1.open;""")
+        bc.contentPane(region='center',datapath='.grouper').remote(self.fg_remoteGrouper,
+                                                groupedTh=view.attributes.get('frameCode'),
+                                                table=table)
+        
+    @public_method
+    def fg_remoteGrouper(self,pane,table=None,groupedTh=None,**kwargs):
+        gth = pane.groupByTableHandler(table=table,frameCode='{groupedTh}_grouper'.format(groupedTh=groupedTh),
+                            #grid_autoSelect=True,
+                            configurable=False,
+                            grid_selectedIndex='.selectedIndex',#'#{groupedTh}_frame.grouper_index'.format(groupedTh=groupedTh),
+                            grid_selected__thgroup_pkey='.currentGrouperPkey',#'#{groupedTh}_frame.grouper_pkey'.format(groupedTh=groupedTh),
+                            linkedTo=groupedTh,
+                            pbl_classes=True,margin='2px',**kwargs)
+        gth.viewConfigurator(table,queryLimit=False,toolbar=True)
+        gth.grid.dataController("""
+                            var groupedStore = genro.nodeById('{groupedTh}_grid_store');
+                            groupedStore.store.loadData({{'grouper_index':selectedIndex,'grouper_pkey':currentGrouperPkey}});
+                            """.format(groupedTh=groupedTh),
+                            selectedIndex='^.selectedIndex',
+                            currentGrouperPkey='^.currentGrouperPkey',
+                            _if='currentGrouperPkey',_delay=1)
+
+
+        gth.top.bar.replaceSlots('#','2,stackButtons,*,viewsMenu,2')
+
+
         
         
 
@@ -219,7 +245,9 @@ class FrameGridTools(BaseComponent):
     def fg_viewConfigurator(self,view,table=None,queryLimit=None,region=None,configurable=None,toolbar=True):
         grid = view.grid
         grid.attributes['configurable'] = True
+        frameCode = view.attributes.get('frameCode')
         right = view.grid_envelope.borderContainer(region=region or 'right',width='160px',closable='close',
+                                        nodeId='{frameCode}_configurator'.format(frameCode=frameCode),
                                         splitter=True,border_left='1px solid silver')
         gridId = grid.attributes.get('nodeId')
         if toolbar:

@@ -105,6 +105,31 @@ var th_dash_tableviewer = {
     }
 };
 
+var th_grouper_manager = {
+    onCalling:function(kwargs){
+        if(isNullOrBlank(kwargs.grouper_pkey)){
+            return;
+        }
+        const grouperGrid = genro.nodeById(`${kwargs._th_root}_grouper_grid`).widget;
+        let row = grouperGrid.rowByIndex(kwargs.grouper_index);
+        let condition = [];
+        if(kwargs.condition){
+            condition.push(kwargs.condition);
+        }
+        grouperGrid.getColumnInfo().getNodes().forEach(function(n,idx){
+            let cell = n.attr.cell;
+            if(!cell.group_aggr){
+                let f = cell.original_field.startsWith('@')?cell.original_field : '$'+cell.original_field;
+                condition.push(`${f} = :grouper_cnd_${idx}`);
+                kwargs[`grouper_cnd_${idx}`] = row[cell.field_getter];
+            }
+        });
+
+        kwargs._current_grouper = row._thgroup_pkey;
+        kwargs.condition = condition.join(' AND ');
+        console.log('kwargs',kwargs);
+    }
+};
 
 var th_sections_manager = {
     updateSectionsStatus:function(sections,viewNode){

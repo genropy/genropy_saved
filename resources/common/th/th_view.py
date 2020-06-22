@@ -182,7 +182,6 @@ class TableHandlerView(BaseComponent):
         if statsEnabled is None:
             statsEnabled = True if extendedQuery else False
         statsSlot = 'stats' if statsEnabled else False
-
         if extendedQuery:
             if 'adm' in self.db.packages and not self.isMobile:
                 templateManager = 'templateManager'
@@ -998,7 +997,6 @@ class TableHandlerView(BaseComponent):
         if _if:
             _else = "this.store.clear();"
         frame.dataController("""
-            console.log('multiStores',multiStores)
             grid.attr.multiStores = multiStores;
             grid.widget.setStructpath();
         """,multiStores='^.query.multiStores',grid=frame.grid)
@@ -1050,11 +1048,11 @@ class TableHandlerView(BaseComponent):
                                unlinkdict=unlinkdict,
                                userSets='.sets',_if=_if,_else=_else,
                                _sections='=.sections',
+                               _use_grouper='=.use_grouper',
                                limit='=.query.limit',
                                queryExtraPars='=.query.extraPars',
                                joinConditions='=.query.joinConditions',
                                hardQueryLimit='=.hardQueryLimit',
-                              # sum_columns='=.sum_columns',
                                _onStart=_onStart,
                                _th_root =th_root,
                                _POST =True,
@@ -1066,7 +1064,6 @@ class TableHandlerView(BaseComponent):
                                }
                                if(_sections){
                                     if(th_sections_manager.onCalling(_sections,kwargs)===false){
-                                        console.log('waiting quindi non parte rpc');
                                         return false;
                                     }
                                }
@@ -1084,6 +1081,12 @@ class TableHandlerView(BaseComponent):
                                     });
                                     kwargs['where'] = newwhere;
                                }
+                               if( _use_grouper){
+                                   if(th_grouper_manager.onCalling(kwargs)===false){
+                                       return false
+                                   }
+                               }
+
                                """
                                %self._th_hook('onQueryCalling',mangler=th_root,dflt='')(),
                                **store_kwargs)

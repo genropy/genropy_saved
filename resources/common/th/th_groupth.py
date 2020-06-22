@@ -38,22 +38,35 @@ class TableHandlerGroupBy(BaseComponent):
                                 grid_kwargs=True,groupMode=None,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = table or inattr.get('table')
-        tblobj = self.db.table(table)
-        linkedNode = None
         if not (dashboardIdentifier or where or condition):
             linkedTo = linkedTo or inattr.get('frameCode')
         
         if linkedTo:
             frameCode = frameCode or '%s_groupedView' %linkedTo 
-            linkedNode = self.pageSource().findNodeByAttr('frameCode',linkedTo)
-            if linkedNode is None and not condition:
-                raise self.exception('generic',msg='Missing linked tableHandler in groupByTableHandler')
             if not struct:
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
-        if linkedNode is None:
+        if not linkedTo:
             self.subscribeTable(table,True,subscribeMode=True)
         else:
-            store_kwargs['subscribe_{linkedTo}_grid_onNewDatastore'.format(linkedTo=linkedTo)] = True
+            pane.dataController("""
+  
+                var groupbystore = genro.nodeById('{frameCode}_grid_store');
+                if(groupbystore.getRelativeData('.grid.currentGrouperPkey')){{
+                    return;
+                }}
+                groupbystore.store.loadData();
+            """.format(frameCode=frameCode),currentGrouperPkey='=.grid.currentGrouperPkey',
+                **{'subscribe_{linkedTo}_grid_onNewDatastore'.format(linkedTo=linkedTo):True})
+            pane.dataController("""
+                var groupbystore = genro.nodeById('{frameCode}_grid_store');
+                if(groupbystore.getRelativeData('.grid.currentGrouperPkey')){{
+                    return;
+                }}
+                groupbystore.store.loadData();""",
+            datapath='#{linkedTo}_frame'.format(linkedTo=linkedTo),
+            currentGrouperPkey='=.grid.currentGrouperPkey',
+            _runQuery='^.runQueryDo',_sections_changed='^.sections_changed',
+           linkedTo=linkedTo,_delay=200)
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         datapath = datapath or '.%s' %frameCode
         rootNodeId = frameCode
@@ -130,11 +143,7 @@ class TableHandlerGroupBy(BaseComponent):
             """,output='^.output',groupMode='^.groupMode',always='=.always',
                 grid=frame.grid.js_widget,sc=sc,_delay=1)
 
-        if linkedNode:
-            linkedNode.value.dataController("""
-            groupbygrid.collectionStore().loadData();""",
-            _runQuery='^.runQueryDo',_sections_changed='^.sections_changed',
-            groupbygrid=frame.grid.js_widget,linkedTo=linkedTo,_delay=200)
+
 
         gridId = frame.grid.attributes['nodeId']
         frame.dataController("""genro.grid_configurator.loadView(gridId, (currentView || favoriteView));
@@ -167,6 +176,7 @@ class TableHandlerGroupBy(BaseComponent):
                                     return;
                                 }
                                 var originalAttr = genro.wdgById(_linkedTo+'_grid').collectionStore().storeNode.currentAttributes();
+                                console.log('originalAttr',originalAttr);
                                 var runKwargs = objectUpdate({},originalAttr);
                                 var storeKw = objectExtract(runKwargs,_excludeList);
                                 if(storeKw._sections){
@@ -176,6 +186,7 @@ class TableHandlerGroupBy(BaseComponent):
                                 if(condition){
                                     kwargs.condition = kwargs.condition? kwargs.condition +' AND '+condition:condition;
                                 }
+                                console.log('calling groupbystore',kwargs,originalAttr)
                                 """,
                                 _excludeList="""columns,sortedBy,currentFilter,customOrderBy,row_count,hardQueryLimit,limit,liveUpdate,method,nodeId,selectionName,
                             selectmethod,sqlContextName,sum_columns,table,timeout,totalRowCount,userSets,_sections,
@@ -284,7 +295,8 @@ class TableHandlerGroupBy(BaseComponent):
             output='^.output',
             treeRoot='^.treeRootName')
         return frame
-        
+
+
     @public_method
     def _thg_selectgroupby(self,struct=None,groupLimit=None,groupOrderBy=None,**kwargs):
         columns_list = list()
@@ -302,7 +314,6 @@ class TableHandlerGroupBy(BaseComponent):
         def asName(field,group_aggr):
             return '%s_%s' %(field.replace('.','_').replace('@','_').replace('-','_'),
                     group_aggr.replace('.','_').replace('@','_').replace('-','_').replace(' ','_').lower())
-        pkeyFields = []
         for v in struct['#0.#0'].digest('#a'):
             if v['field'] =='_grp_count' or v.get('calculated'):
                 continue
@@ -362,7 +373,6 @@ class TableHandlerGroupBy(BaseComponent):
         if groupLimit:
             kwargs['limit'] = groupLimit
         selection = self.app._default_getSelection(_aggregateRows=False,**kwargs)
-
         #_thgroup_pkey column 
         group_list_keys = [c.replace('@','_').replace('.','_').replace('$','_') for c in group_list]
         def cb(row):
@@ -370,6 +380,7 @@ class TableHandlerGroupBy(BaseComponent):
             resdict['_thgroup_pkey'] = '|'.join([str(row.get(c) or '_') for c in group_list_keys])
             return resdict
         selection.apply(cb)
+
         
         return selection    
 

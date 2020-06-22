@@ -570,6 +570,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 genro.dom.removeClass(sourceNode.attr.configuratorId || frameNode,'treeShowTrash');
             });
             sourceNode._showTrash=function(show){
+                console.log('showtrash',sourceNode.attr ,frameNode);
                 genro.dom.addClass(sourceNode.attr.configuratorId || frameNode,'treeShowTrash');
             };
             sourceNode.attr.onTrashed = sourceNode.attr.onTrashed || 'this.widget.deleteColumn(data);';
@@ -1209,7 +1210,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 );
             }
             genro.setData(this.sourceNode.attrDatapath('selectedNodes'), 
-                            selNodes, {'count':selNodes.len()});
+                            selNodes, {'count':selNodes?selNodes.len():0});
         }
         if(this.sourceNode.attr.selectedId) {
             this.sourceNode.setAttributeInDatasource('selectedId', selectedId, null, row, true);
@@ -1880,7 +1881,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         } else if (dragmode == 'column') {
             var textcol = '';
             var field = event.cell.field;
-            columndata = [];
+            var columndata = [];
             for (var i = 0; i < widget.rowCount; i++) {
                 var row = widget.rowByIndex(i, true);
                 var v = row ? row[field] : '';
