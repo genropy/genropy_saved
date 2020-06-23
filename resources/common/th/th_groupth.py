@@ -28,14 +28,14 @@ from gnr.core.gnrbag import Bag
 class TableHandlerGroupBy(BaseComponent):
     js_requires = 'gnrdatasets,th/th_groupth'
 
-    @extract_kwargs(condition=True,store=True,grid=True)
+    @extract_kwargs(condition=True,store=True,grid=True,tree=dict(slice_prefix=False))
     @struct_method
     def th_groupByTableHandler(self,pane,frameCode=None,title=None,table=None,linkedTo=None,
                                 struct=None,where=None,viewResource=None,
                                 condition=None,condition_kwargs=None,store_kwargs=None,datapath=None,
                                 treeRoot=None,configurable=True,
                                 dashboardIdentifier=None,static=False,pbl_classes=None,
-                                grid_kwargs=True,groupMode=None,**kwargs):
+                                grid_kwargs=None,tree_kwargs=None,groupMode=None,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = table or inattr.get('table')
         if not (dashboardIdentifier or where or condition):
@@ -137,7 +137,7 @@ class TableHandlerGroupBy(BaseComponent):
             }
             """,structrow='=.struct.#0.#0',showCounterCol='^.showCounterCol',_if='structrow')
             frame.stackedView = self._thg_stackedView(gridstack,title=title,grid=frame.grid,frameCode=frameCode,linkedTo=linkedTo,table=table)
-            frame.treeView = self._thg_treeview(sc,title=title,grid=frame.grid,treeRoot=treeRoot,linkedTo=linkedTo)
+            frame.treeView = self._thg_treeview(sc,title=title,grid=frame.grid,treeRoot=treeRoot,linkedTo=linkedTo,tree_kwargs=tree_kwargs)
             frame.dataController("""
                 grid.collectionStore().loadInvisible = always || genro.dom.isVisible(sc);
             """,output='^.output',groupMode='^.groupMode',always='=.always',
@@ -176,7 +176,6 @@ class TableHandlerGroupBy(BaseComponent):
                                     return;
                                 }
                                 var originalAttr = genro.wdgById(_linkedTo+'_grid').collectionStore().storeNode.currentAttributes();
-                                console.log('originalAttr',originalAttr);
                                 var runKwargs = objectUpdate({},originalAttr);
                                 var storeKw = objectExtract(runKwargs,_excludeList);
                                 if(storeKw._sections){
@@ -186,7 +185,6 @@ class TableHandlerGroupBy(BaseComponent):
                                 if(condition){
                                     kwargs.condition = kwargs.condition? kwargs.condition +' AND '+condition:condition;
                                 }
-                                console.log('calling groupbystore',kwargs,originalAttr)
                                 """,
                                 _excludeList="""columns,sortedBy,currentFilter,customOrderBy,row_count,hardQueryLimit,limit,liveUpdate,method,nodeId,selectionName,
                             selectmethod,sqlContextName,sum_columns,table,timeout,totalRowCount,userSets,_sections,
@@ -252,7 +250,7 @@ class TableHandlerGroupBy(BaseComponent):
         return frame
 
 
-    def _thg_treeview(self,parentStack,title=None, grid=None,treeRoot=None,linkedTo=None,**kwargs):
+    def _thg_treeview(self,parentStack,title=None, grid=None,treeRoot=None,linkedTo=None,tree_kwargs=None,**kwargs):
         frame = parentStack.framePane(title='Tree View',pageName='tree')
         bar = frame.top.slotToolbar('5,ctitle,parentStackButtons,10,groupByModeSelector,addTreeRoot,*,searchOn,dashboardsMenu,5',
                                     dashboardsMenu_linkedTo=linkedTo)
@@ -269,6 +267,7 @@ class TableHandlerGroupBy(BaseComponent):
                 return;
             }
             lastTs = groupMode=='stackedview'?changets_stackedview:changets_flatview;
+            var treekw = objectExtract(_kwargs,'tree_*',true);
             if(changets_tree!=lastTs){
                 var struct = flatStruct;
                 var store = flatStore;
@@ -277,9 +276,9 @@ class TableHandlerGroupBy(BaseComponent):
                     store = stackedStore;
                 }
                 if(nodeLabel!='treeRootName'){
-                    genro.groupth.buildGroupTree(pane,struct);
+                    genro.groupth.buildGroupTree(pane,struct,treekw);
                 }
-                SET .treestore = genro.groupth.groupTreeData(store,struct,treeRoot);
+                SET .treestore = genro.groupth.groupTreeData(store,struct,treeRoot,treekw);
             }
             """,
             pane=pane,
@@ -293,7 +292,7 @@ class TableHandlerGroupBy(BaseComponent):
             changets_stackedview = '^.changets.stackedview',
             groupMode='^.groupMode',
             output='^.output',
-            treeRoot='^.treeRootName')
+            treeRoot='^.treeRootName',**tree_kwargs)
         return frame
 
 

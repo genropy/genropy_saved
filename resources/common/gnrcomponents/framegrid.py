@@ -218,22 +218,42 @@ class FrameGridTools(BaseComponent):
         
     @public_method
     def fg_remoteGrouper(self,pane,table=None,groupedTh=None,**kwargs):
+        onTreeNodeSelected = """var item = p_0.item;
+                                var grouper_cols = [];
+                                var currItem = item;
+                                var row = {{}};
+                                while(currItem.label != 'treestore'){{
+                                    let cell = currItem.attr._cell;
+                                    grouper_cols.push(cell)
+                                    row[cell.field_getter] = currItem.attr.value;
+                                    currItem = currItem.getParentNode();
+                                }}
+                                var groupedStore = genro.nodeById('{groupedTh}_grid_store');
+                                groupedStore.store.loadData({{'grouper_row':row,'grouper_cols':grouper_cols}});
+        """.format(groupedTh=groupedTh)
         gth = pane.groupByTableHandler(table=table,frameCode='{groupedTh}_grouper'.format(groupedTh=groupedTh),
-                            #grid_autoSelect=True,
+                            grid_autoSelect=True,
                             configurable=False,
                             grid_selectedIndex='.selectedIndex',#'#{groupedTh}_frame.grouper_index'.format(groupedTh=groupedTh),
                             grid_selected__thgroup_pkey='.currentGrouperPkey',#'#{groupedTh}_frame.grouper_pkey'.format(groupedTh=groupedTh),
                             linkedTo=groupedTh,
-                            pbl_classes=True,margin='2px',**kwargs)
+                            pbl_classes=True,margin='2px',
+                            tree_selfsubscribe_onSelected=onTreeNodeSelected,
+                            **kwargs)
         gth.viewConfigurator(table,queryLimit=False,toolbar=True)
+        #gth.grid.dataController("""""",_onBuilt=True)
         gth.grid.dataController("""
+                            if(!currentGrouperPkey){{
+                                return;
+                            }}
                             var groupedStore = genro.nodeById('{groupedTh}_grid_store');
-                            groupedStore.store.loadData({{'grouper_index':selectedIndex,'grouper_pkey':currentGrouperPkey}});
+                            var row = grid.rowByIndex(selectedIndex);
+                            var grouper_cols = grid.getColumnInfo().getNodes().map(n=>objectExtract(n.attr.cell,'field,original_field,group_aggr,field_getter',true));
+                            groupedStore.store.loadData({{'grouper_row':row,'grouper_cols':grouper_cols}});
                             """.format(groupedTh=groupedTh),
                             selectedIndex='^.selectedIndex',
                             currentGrouperPkey='^.currentGrouperPkey',
-                            _if='currentGrouperPkey',_delay=1)
-
+                            _if='currentGrouperPkey',_delay=1,grid=gth.grid.js_widget)
 
         gth.top.bar.replaceSlots('#','2,stackButtons,*,viewsMenu,2')
 

@@ -2116,6 +2116,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
             hideValues:true,
             background:'white',
             searchColumn:searchColumn,
+            selectedLabelClass:'selectedTreeNode',
             _class:hasCheckbox?'treegrid branchtree' :'treegrid branchtree noIcon',
             connect__expandNode:function(){
                 gnrwdg.updateScroll();
@@ -2170,7 +2171,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         if(!this.mainCellSize){
             var otherSize = 0;
             this.columns_bag.getNodes().slice(1).forEach(n=>otherSize+=parseInt(n.attr.size));
-            this.mainCellSize = Math.max((this.centerNode.domNode.clientWidth-70-otherSize),200);
+            this.mainCellSize = Math.max((this.centerNode.domNode.clientWidth-70-otherSize),100);
         }
         this.treeNode.widget.updateLabels();
         this.footersHeadersHandler('header');
@@ -2235,9 +2236,9 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         var sn = this.sourceNode;
         var colkeys = this.columns_bag.keys().slice(1);
         var tplpars = {};
-        var mainCellSize = this.mainCellSize+21;//tree margin
+        var mainCellSize = this.mainCellSize+18;//tree margin
         var colswidth = maxwidth-this.mainCellSize-35;//border
-        var customKw,cellstyle,objStyle,conten,sizet;
+        var customKw,cellstyle,objStyle;
         colkeys.forEach(function(key){
             n = columns_bag.getNode(key);
             cell = sn.evaluateOnNode(n.attr);
@@ -2247,7 +2248,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
             objectExtract(cell,'dtype,format,style,cellClass');
             objectUpdate(cell,customKw);
             if(!cell.hidden){
-                size=parseInt(cell.size);
+                var size=parseInt(cell.size);
                 if ( stringEndsWith((size+''),'%') ){
                     size=Math.round(maxwidth*parseInt(size)/100)
                 }
@@ -2255,13 +2256,12 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
                                          sn.evaluateOnNode(genro.dom.getStyleDict(objectUpdate({},cell), [ 'width'])))
                 objStyle['width']=size+'px'
                 cellstyle=objectAsStyle(objStyle)
-                content = cell[contentKey];
+                var content = cell[contentKey];
                 cell.dtype = cell.dtype || guessDtype(content);
                 l.push('<div class="treecell cell_'+(cell.dtype || 'T') +' '+(cell.cellClass || '')+' " style="'+cellstyle+'">'+htmlCellContent(content,cell)+'</div>');
                 currx += size+1 || 0;
             }
         })
-        var storeNode = genro.getDataNode(this.absStorepath);
         var rowwidth = maxwidth;
         objectExtract(mainCell,'dtype,format,style,cellClass');
         objectUpdate(mainCell,pars);
@@ -2275,7 +2275,7 @@ dojo.declare("gnr.widgets.TreeGrid", gnr.widgets.gnrwdg, {
         this.cellsWidth = currx;
         this.viewPortWidth = colswidth;
         tplpars['maincell'] = '<div class="treecell maincell'+(mainCell.cellClass || '')+' " style="'+cellstyle+'"><div class="treeCellContent">'+(mainCell[contentKey] || '&nbsp;')+'</div></div>';
-        tplpars['columns'] = '<div class="treeerow_viewport" style="width:'+colswidth+'px;"><div class="treerow_columns" style="width:'+(currx+1)+'px;">'+l.join('')+'</div></div>'
+        tplpars['columns'] = '<div class="treeerow_viewport" style="width:'+colswidth+'px;margin-left:-3px;"><div class="treerow_columns" style="width:'+(currx+1)+'px;">'+l.join('')+'</div></div>'
         
         var elem = document.createElement('div');
         elem.innerHTML = dataTemplate('<div class="treerow treerow_'+mode+'" style="width:'+rowwidth+'px;">$maincell $columns</div>',tplpars);

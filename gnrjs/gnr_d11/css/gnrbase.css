@@ -4671,9 +4671,10 @@ div[disabled='true'], div[disabled='disabled']{
     border-left: 1px solid #ddd;
 }
 
-.treeGridCenter .selectedTreeNode{
+
+.treeGridCenter .selectedTreeNode .treecell{
     font-weight: normal;
-    background-color: rgba(241, 205, 82, .2);
+    background-color: #AFCBEC !important;
 }
 
 
@@ -4711,7 +4712,7 @@ div[disabled='true'], div[disabled='disabled']{
 }
 
 .treeCellContent{
-    padding-left: 3px;
+    padding-left: 0px;
     padding-right: 3px;
 }
 
@@ -4743,7 +4744,7 @@ div[disabled='true'], div[disabled='disabled']{
     position: absolute;
     top:0px;
     right:2px;
-    left:1px;
+    left:0px;
     bottom: -1px;
 }
 .treegrid .treerow_columns{
@@ -4835,6 +4836,12 @@ div[disabled='true'], div[disabled='disabled']{
     width: 16px;
     cursor: pointer;
 }
+.treeGridCenter .branchtree .dijitTreeExpando{
+    width: 14px;
+}
+.treeGridCenter .treegrid.branchtree .dijitTreeContent{
+    margin-left: 15px;
+}
 
 .branchtree .dijitTreeExpando.dijitTreeExpandoClosed{
     background: url(icons/base10/tinyCloseBranch.png) no-repeat center center;
@@ -4850,6 +4857,9 @@ div[disabled='true'], div[disabled='disabled']{
 .branchtree .dijitTreeLabel {
     padding-left: 2px;
     white-space: nowrap;
+}
+.treeGridCenter .branchtree .dijitTreeLabel {
+    padding-left: 0;
 }
 
 .branchtree.treeLongLabels .dijitTreeLabel {
