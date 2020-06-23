@@ -1,4 +1,4 @@
-genro_plugin_groupth = {
+var genro_plugin_groupth = {
     buildGroupTree:function(pane,structBag){
         pane.getValue().popNode('treeroot');
         var root = pane._('div','treeroot').getParentNode();
@@ -28,7 +28,7 @@ genro_plugin_groupth = {
             return;
         }
         var result = new gnr.GnrBag();
-        var treeData;
+        var treedata;
         if(rootName){
             treedata = new gnr.GnrBag();
             result.setItem('_root_',treedata,{'description':rootName});
@@ -266,7 +266,7 @@ genro_plugin_groupth = {
             fb.addField('numberTextBox',{value:'^.max_value',lbl:'Max value',width:'5em',default_value:null});
 
         }else if(dateTime){
-            values = genro.commonDatasets.datetimes_chunk.join(',');
+            let values = genro.commonDatasets.datetimes_chunk.join(',');
             var tb = fb.addField('textbox',{lbl:_T('Date aggregator'),value:prefix+'group_aggr'});
             tb._('ComboMenu',{values:values,action:function(kw,ctx){
                 var cv = this.attr.attachTo.widget.getValue();
