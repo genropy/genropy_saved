@@ -16,7 +16,7 @@ class View(BaseComponent):
         r.fieldcell('bcc_address',width='18em')
         r.fieldcell('uid',width='7em')
         r.fieldcell('send_date',width='7em')
-        r.fieldcell('sent',width='7em')
+        #r.fieldcell('sent',width='7em') #use send_date instead
         #r.fieldcell('user_id',width='35em')
         r.fieldcell('account_id',width='12em')
 
@@ -150,25 +150,26 @@ class Form(BaseComponent):
                                                     fld_width='100%',
                                                     width='100%',
                                                     colswidth='auto')
+        fb.field('in_out')
+        fb.field('subject', colspan=3)
         fb.field('to_address',colspan=2)
         fb.field('from_address',colspan=2)
         fb.field('cc_address',colspan=2)
         fb.field('bcc_address',colspan=2)
-        fb.field('subject',colspan=4)
+        
 
-        fb.field('uid')
+        #fb.field('uid')
         fb.field('send_date')
-        fb.field('sent',html_label=True)
+        #fb.field('sent',html_label=True)
         fb.field('html',html_label=True)
-
-        fb.field('user_id')
-        fb.field('account_id', colspan=2)
         fb.field('__is_draft', lbl='Draft')
 
-        fb.field('error_msg', colspan=2)
-        fb.field('error_ts', colspan=2)
-        fb.field('in_out')
 
+        #fb.field('user_id')
+        #fb.field('account_id', colspan=2)
+        
+        fb.field('error_msg', colspan=4)
+        fb.field('error_ts', colspan=4)
         
 
         fb.button('Send message', hidden='^.send_date',fire='#FORM.send_message')
