@@ -16,10 +16,12 @@ class BaseResourceMail(BaseResourceBatch):
         self.mail_handler = self.page.getService('mail')
 
     def send_one_template(self,record=None,to_address=None,cc_address=None,subject=None,body=None,attachments=None,**kwargs):
+        print ('send_one_template')
         self.mail_handler.sendmail_template(record,body=body,to_address=to_address,attachments=attachments,
                                             cc_address=cc_address,subject=subject,**kwargs)
 
     def send_one_email(self,**kwargs):
+        print ('send_one_email')
         if self.db.package('email'):
             self.mail_handler.sendmail(account_id=self.batch_parameters.get('account_id'),**kwargs)
         else:
