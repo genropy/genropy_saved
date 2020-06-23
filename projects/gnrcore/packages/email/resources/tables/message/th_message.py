@@ -135,6 +135,14 @@ class ViewFromDashboard(View):
 
 class Form(BaseComponent):
     py_requires = "gnrcomponents/attachmanager/attachmanager:AttachManager"
+
+    def attemptStruct(self,struct ):
+
+        r = struct.view().rows()
+        r.cell('tag',name='Tag', width='7em')
+        r.cell('ts',name='Ts')
+        r.cell('error',name='Error', width='100%')
+
     def th_form(self, form):
         bc = form.center.borderContainer()
         top = bc.contentPane(region='top',datapath='.record')
@@ -159,6 +167,7 @@ class Form(BaseComponent):
 
         fb.field('error_msg', colspan=2)
         fb.field('error_ts', colspan=2)
+        fb.field('in_out')
 
         
 
@@ -175,7 +184,13 @@ class Form(BaseComponent):
         sc.attachmentGrid(pbl_classes=True)
         tc.dataController("sc.switchPage(in_out=='O'?1:0)",sc=sc.js_widget,in_out='^#FORM.record.in_out')
         tc.contentPane(title='Body plain').simpleTextArea(value='^.record.body_plain',height='100%')
-        tc.contentPane(title='Errors', region='center',overflow='hidden').quickGrid('^#FORM.record.sending_attempt')
+        errors_pane = tc.contentPane(title='Errors', region='center', datapath='.record')
+        errors_pane.bagGrid(frameCode='sending_attempts',title='Attempts',datapath='#FORM.errors',
+                                                            struct=self.attemptStruct,
+                                                            storepath='#FORM.record.sending_attempt',
+                                                            pbl_classes=True,margin='2px',
+                                                            addrow=False,delrow=False,datamode='attr')
+
 
 class FormFromDashboard(Form):
 
