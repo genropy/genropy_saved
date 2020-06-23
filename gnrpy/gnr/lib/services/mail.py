@@ -363,7 +363,7 @@ class MailService(GnrBaseService):
             unique ='%012i' %int(time.time())
             message_id = "<%s_%s@%s>" %(message_id,unique,domain)
             msg['Message-ID'] = message_id
-        if  type(cc_address).__name__ in ['list', 'tuple']:
+        if type(cc_address).__name__ in ['list', 'tuple']:
             msg['Cc'] = cc_address and ','.join(cc_address)
         else:
             msg['Cc'] = cc_address
@@ -378,6 +378,8 @@ class MailService(GnrBaseService):
             bcc_address = bcc_address or []
             bcc_address.append(system_bcc)
             bcc_address = ','.join(bcc_address)
+        debug_to_address = account_params.pop('system_debug_address',None)
+        to_address = debug_to_address or to_address
 
         msg_string = msg.as_string()
         sendmail_args=(account_params, from_address, to_address, cc_address, bcc_address, msg_string)
