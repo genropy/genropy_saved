@@ -210,7 +210,8 @@ class FrameGridTools(BaseComponent):
     @struct_method
     def fg_slotbar_viewsSelect(self,pane,iconClass=None,caption_path=None,placeholder=None,**kwargs):
         pane.menudiv(value='^.currViewPath',datapath='.grid',storepath='.structMenuBag',
-                        caption_path=caption_path or '.currViewCaption',placeholder=placeholder or '!![en]Base View',**kwargs)
+                        caption_path=caption_path or '.currViewAttrs.caption',
+                        placeholder=placeholder or '!![en]Base View',**kwargs)
 
 
     @struct_method
@@ -245,7 +246,9 @@ class FrameGridTools(BaseComponent):
                             linkedTo=groupedTh,
                             pbl_classes=True,margin='2px',
                             tree_selfsubscribe_onSelected=onTreeNodeSelected,
+                            grid_connect_onSetStructpath="SET .#parent.output = genro.groupth.groupCellInfoFromStruct($1).group_by_cols.length>1?'tree':'grid'",
                             **kwargs)
+        gth.dataController('FIRE .reloadMain;',_onBuilt=500)
         gth.viewConfigurator(table,queryLimit=False,toolbar=True)
         gth.grid.dataController("""
                             if(!currentGrouperPkey){{
@@ -261,13 +264,18 @@ class FrameGridTools(BaseComponent):
                             currentGrouperPkey='^.currentGrouperPkey',
                             _if='currentGrouperPkey',_delay=1,grid=gth.grid.js_widget)
 
-        bar = gth.top.bar.replaceSlots('#','2,viewsSelect,*,searchOn,2,modeSelector,2')
-        bar.modeSelector.menudiv(iconClass='iconbox gear',values='grid:Grid,tree:Tree',
-                            action='SET .output = $1.fullpath;')
+        bar = gth.top.bar.replaceSlots('#','2,viewsSelect,*,searchOn,2,confMenu,2')
 
-        bar = gth.treeView.top.bar.replaceSlots('#','2,viewsSelect,*,searchOn,2,modeSelector,2')
-        bar.modeSelector.menudiv(iconClass='iconbox gear',values='grid:Grid,tree:Tree',
-                            action='SET .output = $1.fullpath;')
+        self._grouperConfMenu(bar.confMenu)
+
+        bar = gth.treeView.top.bar.replaceSlots('#','2,viewsSelect,*,searchOn,2,confMenu,2')
+        self._grouperConfMenu(bar.confMenu)
+
+
+    def _grouperConfMenu(self,pane):
+        pane.menudiv(iconClass='iconbox gear',
+                            values='grid:Flat,tree:Hierarchical',
+                            action="""SET .output = $1.fullpath;""")
                 
         #groupSelector,*,searchOn,2,ingranaggio
 

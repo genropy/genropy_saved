@@ -783,7 +783,7 @@ class TableHandlerView(BaseComponent):
                                 """,
                             currentView="^.grid.currViewPath",
                             favoriteView='^.grid.favoriteViewPath',
-                            gridId=gridId)
+                            gridId=gridId,_onBuilt=1)
         q = Bag()
         pyviews = self._th_hook('struct',mangler=th_root,asDict=True)
         for k,v in pyviews.items():

@@ -384,7 +384,6 @@ class TableHandlerGroupBy(BaseComponent):
             resdict['_thgroup_pkey'] = '|'.join([str(row.get(c) or '_') for c in group_list_keys])
             return resdict
         selection.apply(cb)
-
         
         return selection    
 

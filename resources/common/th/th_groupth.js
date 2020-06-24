@@ -32,6 +32,28 @@ var genro_plugin_groupth = {
         });
         root.unfreeze();
     },
+    groupCellInfoFromStruct:function(struct){
+        var result = {};
+        result.group_by_cols = [];
+        result.formulalist = [];
+        var f,cell;
+        struct.getItem('#0.#0').forEach(function(n){
+            if(!(n.attr.group_aggr && 'NLIRF'.indexOf(n.attr.dtype)>=0 || n.attr.group_nobreak || n.attr.formula) ){
+                f = n.attr.field.replace(/\W/g, '_');
+                if(n.attr.group_aggr){
+                    f += '_'+n.attr.group_aggr.replace(/\W/g, '_').toLowerCase();
+                }
+                cell = objectExtract(n.attr,'field,group_aggr',true);
+                cell.field_getter = f;
+                cell.original_field = cell.field;
+                cell.dtype = n.attr.dtype;
+                result.group_by_cols.push(cell);
+            }else if(n.attr.formula){
+                result.formulalist.push([n.attr.field,n.attr.formula]);
+            }
+        });
+        return result;
+    },
 
     groupTreeData:function(gridstore,structBag,rootName){
         if(!(gridstore && structBag && structBag.getItem('#0.#0'))){
@@ -46,24 +68,9 @@ var genro_plugin_groupth = {
             treedata = result;
         }
         var row,kl,description,treepath,value;
-        var group_by_cols = [];
-        var f;
-        var formulalist = [];
-        structBag.getItem('#0.#0').forEach(function(n){
-            if(!(n.attr.group_aggr && 'NLIRF'.indexOf(n.attr.dtype)>=0 || n.attr.group_nobreak || n.attr.formula) ){
-                f = n.attr.field.replace(/\W/g, '_');
-                if(n.attr.group_aggr){
-                    f += '_'+n.attr.group_aggr.replace(/\W/g, '_').toLowerCase();
-                }
-                let cell = objectExtract(n.attr,'field,group_aggr',true);
-                cell.field_getter = f;
-                cell.original_field = cell.field;
-                cell.dtype = n.attr.dtype;
-                group_by_cols.push(cell);
-            }else if(n.attr.formula){
-                formulalist.push([n.attr.field,n.attr.formula]);
-            }
-        });
+        var info = this.groupCellInfoFromStruct(structBag);
+        var group_by_cols = info.group_by_cols;
+        var formulalist = info.formulalist;   
         gridstore.forEach(function(n){
             kl = [];
             row = objectUpdate({},n.attr);
