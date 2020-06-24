@@ -365,7 +365,7 @@ class MailService(GnrBaseService):
             unique ='%012i' %int(time.time())
             message_id = "<%s_%s@%s>" %(message_id,unique,domain)
             msg['Message-ID'] = message_id
-        if  type(cc_address).__name__ in ['list', 'tuple']:
+        if type(cc_address).__name__ in ['list', 'tuple']:
             msg['Cc'] = cc_address and ','.join(cc_address)
         else:
             msg['Cc'] = cc_address
