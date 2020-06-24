@@ -16,14 +16,14 @@ class GnrCustomWebPage(object):
         b = self.getComuniGrouped()
         root.data('albero_comuni_z',b)   
         root.dataFormula('albero_comuni','albero_comuni.deepCopy()',albero_comuni='=albero_comuni_z',_onStart=1000)
-        bc = root.borderContainer()
+        bc = root.borderContainer(height='500px')
         left = bc.contentPane(region='left',width='600px',splitter=True)
         bc.contentPane(region='center',background='red')
-        tree = left.treeGrid(storepath='albero_comuni')
-        tree.column('descrizione',name='Descrizione',
+        tree = left.treeGrid(storepath='albero_comuni',headers=True)
+        tree.column('descrizione',header='Descrizione',
                     contentCb="""return this.attr.description || (this.attr.codice_comune +'-'+ this.attr.denominazione)""")
-        tree.column('superficie',dtype='L',size=60,emptyValue=0,name='Sup.')
-        tree.column('popolazione_residente',dtype='L',size=60,emptyValue=0,name='Pop.')
+        tree.column('superficie',dtype='L',size=60,emptyValue=0,header='Sup.')
+        tree.column('popolazione_residente',dtype='L',size=60,emptyValue=0,header='Pop.')
         bc.contentPane(region='bottom',height='150px',splitter=True,background='green')
 
     def test_2_dynamic(self,root,**kwargs):

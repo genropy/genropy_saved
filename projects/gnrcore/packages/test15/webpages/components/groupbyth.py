@@ -34,7 +34,8 @@ class GnrCustomWebPage(object):
 
 
     def test_2_leftright(self, pane):
-        pt = pane.plainTableHandler(table='fatt.fattura_riga', height='500px', groupable=True)
+        pt = pane.plainTableHandler(table='fatt.fattura_riga', height='500px',
+                                        view_store_onStart=True, groupable=True)
         #l = pt.view.left # .framePane(width='200px', background='red', closable=True)
         #print(x)
         #bc = pane.borderContainer(height='600px',width='1000px')
