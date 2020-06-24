@@ -1637,6 +1637,8 @@ class GnrWebPage(GnrBaseWebPage):
             resource = None
         if not resource:
             resource = self.importResource('tables/%s/%s' %(table,path),classname=classname,pkg=pkg)
+        if not resource:
+            resource = self.importResource('tables/_default/%s' %path,classname=classname,pkg=pkg)
         return resource
         
     @public_method
