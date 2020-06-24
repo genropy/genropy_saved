@@ -241,6 +241,7 @@ class FrameGridTools(BaseComponent):
         gth = pane.groupByTableHandler(table=table,frameCode='{groupedTh}_grouper'.format(groupedTh=groupedTh),
                             grid_autoSelect=True,
                             configurable=False,
+                            grid_configurable=True,
                             grid_selectedIndex='.selectedIndex',
                             grid_selected__thgroup_pkey='.currentGrouperPkey',
                             linkedTo=groupedTh,
@@ -249,7 +250,8 @@ class FrameGridTools(BaseComponent):
                             grid_connect_onSetStructpath="SET .#parent.output = genro.groupth.groupCellInfoFromStruct($1).group_by_cols.length>1?'tree':'grid'",
                             **kwargs)
         gth.dataController('FIRE .reloadMain;',_onBuilt=500)
-        gth.viewConfigurator(table,queryLimit=False,toolbar=True)
+        if self.application.checkResourcePermission('admin', self.userTags):
+            gth.viewConfigurator(table,queryLimit=False,toolbar=True)
         gth.grid.dataController("""
                             if(!currentGrouperPkey){{
                                 return;
@@ -273,7 +275,7 @@ class FrameGridTools(BaseComponent):
 
 
     def _grouperConfMenu(self,pane):
-        pane.menudiv(iconClass='iconbox gear',
+        pane.menudiv(iconClass='iconbox gear',_tags='admin',
                             values='grid:Flat,tree:Hierarchical',
                             action="""SET .output = $1.fullpath;""")
                 
