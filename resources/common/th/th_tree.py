@@ -559,3 +559,33 @@ class TableHandlerHierarchicalView(BaseComponent):
         self.db.commit()
 
 
+    @struct_method
+    def ht_structureTree(self,pane,view=None,structure_field=None,**kwargs):
+        viewAttr = view.getInheritedAttributes()
+        tblobj = self.db.table(viewAttr.get('table'))
+        structure_tblobj = tblobj.column(structure_field).relatedTable().dbtable
+        structureTree = pane.tree(storepath='.store',_class='fieldsTree', hideValues=True,
+                        datapath='#{frameCode}_frame.structuretree'.format(**viewAttr),
+                        selectedLabelClass='selectedTreeNode',
+                        labelAttribute='caption',
+                        selected_pkey='.pkey',
+                        selected_hierarchical_pkey='.hierarchical_pkey',                          
+                        selectedPath='.path',  
+                        identifier='treeIdentifier',margin='6px',
+                    ).htableViewStore(table=structure_tblobj.fullname,**kwargs)
+        if structure_field.startswith('@'):
+            sf = structure_field.split('.')
+            hpkey_ref = '%s.@%s.hierarchical_pkey' %(sf[0],sf[-1]) 
+            fkey_ref = structure_field
+        else:
+            hpkey_ref = '@%s.hierarchical_pkey' %structure_field 
+            fkey_ref = '$%s' %structure_field
+        view.store.attributes.update(where = """
+                                        ( (:selected_pkey IS NOT NULL) AND (%s ILIKE (:hierarchical_pkey || '%s') OR :hierarchical_pkey IS NULL)  
+                                            OR ( (%s IS NULL) AND (:selected_pkey IS NULL) ) )
+                                    """ %(hpkey_ref,'%%',fkey_ref),
+                                hierarchical_pkey='^.structuretree.hierarchical_pkey',
+                                selected_pkey='^.structuretree.pkey',_delay=500)
+        return structureTree
+
+

@@ -24,7 +24,8 @@ class TableHandlerView(BaseComponent):
     @extract_kwargs(condition=True,store=True,sections=True)
     @struct_method
     def th_tableViewer(self,pane,frameCode=None,table=None,th_pkey=None,viewResource=None,
-                       virtualStore=None,condition=None,condition_kwargs=None,sections_kwargs=None,**kwargs):
+                       virtualStore=None,condition=None,condition_kwargs=None,
+                       structure_field=None,sections_kwargs=None,**kwargs):
         self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
         options = self._th_hook('options',mangler=frameCode)() or dict()
         kwargs.update(dictExtract(options,'grid_'),slice_prefix=False)
@@ -63,6 +64,11 @@ class TableHandlerView(BaseComponent):
         if viewhook:
             viewhook(view)
         self._th_view_printEditorDialog(view)
+        if structure_field:
+            view.left.borderContainer(closable=True,width='300px',
+                                    border_right='1px solid silver'
+                                    ).contentPane(region='center'
+                                    ).structureTree(structure_field=structure_field,view=view)
         return view
     
     def _th_view_printEditorDialog(self,view):
