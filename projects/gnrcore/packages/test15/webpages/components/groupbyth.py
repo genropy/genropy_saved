@@ -30,5 +30,21 @@ class GnrCustomWebPage(object):
                                 border='1px solid silver')
 
     def test_1_dashboard(self, pane):
-        pane.groupByTableHandler(table='fatt.fattura',height='400px',width='600px',
+        pane.groupByTableHandler(table='fatt.fattura_riga',height='400px',width='600px',static=True,
                                 dashboardIdentifier='per_zona',configurable=False)
+
+
+    def test_2_leftright(self, pane):
+        pt = pane.plainTableHandler(table='fatt.fattura_riga', height='500px',
+                                        view_store_onStart=True, groupable=True)
+        #l = pt.view.left # .framePane(width='200px', background='red', closable=True)
+        #print(x)
+        #bc = pane.borderContainer(height='600px',width='1000px')
+        #leftBc = bc.borderContainer(width='20%', splitter=True)
+        #leftTop = leftBc.contentPane(region='top', height='30px')
+        #leftCenter = leftBc.contentPane(region='center').groupByTableHandler(table='fatt.fattura',
+        #                                                                    height='400px',width='600px',
+        #                                                                    dashboardIdentifier='per_zona',
+        #                                                                    configurable=False)
+        #bc.contentPane(region='center').div('right')
+#

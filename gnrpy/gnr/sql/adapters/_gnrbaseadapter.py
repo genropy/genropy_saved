@@ -473,12 +473,25 @@ class SqlDbAdapter(object):
 
     def emptyTable(self, dbtable):
         """Delete all table rows of the specified *dbtable* table
-        
         :param dbtable: specify the :ref:`database table <table>`. More information in the
                         :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
         """
         tblobj = dbtable.model
         sql = 'DELETE FROM %s;' % (tblobj.sqlfullname)
+        return self.dbroot.execute(sql, dbtable=dbtable.fullname)
+
+    def fillFromSqlTable(self, dbtable, sqltablename):
+        """Copy all table rows from table sqltablename into dbtable
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+        :ref:`sqltablename` name of the source table
+        """
+        tblobj = dbtable.model
+        columns = ', '.join(tblobj.columns.keys())
+        print('cols',columns)
+        sql = """INSERT INTO {dest_table}({columns})
+                 SELECT {columns} FROM {source_table};""".format(dest_table = tblobj.sqlfullname, 
+                                                        source_table = sqltablename,columns=columns)
+        print('SQL', sql)
         return self.dbroot.execute(sql, dbtable=dbtable.fullname)
 
     def analyze(self):
@@ -560,7 +573,6 @@ class SqlDbAdapter(object):
             ALTER TABLE %(sqltable)s DROP CONSTRAINT IF EXISTS %(old_fkey_name)s;
         """
         self.dbroot.execute(command %kwargs)
-
 
     def dropColumn(self, sqltable,sqlname,cascade=False):
         """Drop column"""

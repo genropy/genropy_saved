@@ -210,10 +210,90 @@ class FrameGridTools(BaseComponent):
         pane.menudiv(iconClass= iconClass or 'iconbox list',datapath='.grid',storepath='.structMenuBag',selected_fullpath='.currViewPath')
 
     @struct_method
+    def fg_slotbar_viewsSelect(self,pane,iconClass=None,caption_path=None,placeholder=None,**kwargs):
+        pane.menudiv(value='^.currViewPath',datapath='.grid',storepath='.structMenuBag',
+                        caption_path=caption_path or '.currViewAttrs.caption',
+                        placeholder=placeholder or '!![en]Base View',**kwargs)
+
+
+    @struct_method
+    def fg_viewGrouper(self,view,table=None,region=None):
+        bc = view.grid_envelope.borderContainer(region='left',width='300px',closable='close',
+                                        splitter=True,border_right='1px solid silver',
+                                        selfsubscribe_closable_change="""SET .use_grouper = $1.open;""")
+        bc.contentPane(region='center',datapath='.grouper').remote(self.fg_remoteGrouper,
+                                                groupedTh=view.attributes.get('frameCode'),
+                                                table=table)
+        
+    @public_method
+    def fg_remoteGrouper(self,pane,table=None,groupedTh=None,**kwargs):
+        onTreeNodeSelected = """var item = p_0.item;
+                                var grouper_cols = [];
+                                var currItem = item;
+                                var row = {{}};
+                                while(currItem.label != 'treestore'){{
+                                    let cell = currItem.attr._cell;
+                                    grouper_cols.push(cell)
+                                    row[cell.field_getter] = currItem.attr.value;
+                                    currItem = currItem.getParentNode();
+                                }}
+                                var groupedStore = genro.nodeById('{groupedTh}_grid_store');
+                                groupedStore.store.loadData({{'grouper_row':row,'grouper_cols':grouper_cols}});
+        """.format(groupedTh=groupedTh)
+        gth = pane.groupByTableHandler(table=table,frameCode='{groupedTh}_grouper'.format(groupedTh=groupedTh),
+                            grid_autoSelect=True,
+                            configurable=False,
+                            grid_configurable=True,
+                            grid_selectedIndex='.selectedIndex',
+                            grid_selected__thgroup_pkey='.currentGrouperPkey',
+                            linkedTo=groupedTh,
+                            pbl_classes=True,margin='2px',
+                            tree_selfsubscribe_onSelected=onTreeNodeSelected,
+                            grid_connect_onSetStructpath="SET .#parent.output = genro.groupth.groupCellInfoFromStruct($1).group_by_cols.length>1?'tree':'grid'",
+                            **kwargs)
+        gth.dataController('FIRE .reloadMain;',_onBuilt=500)
+        if self.application.checkResourcePermission('admin', self.userTags):
+            gth.viewConfigurator(table,queryLimit=False,toolbar=True)
+        gth.grid.dataController("""
+                            if(!currentGrouperPkey){{
+                                return;
+                            }}
+                            var groupedStore = genro.nodeById('{groupedTh}_grid_store');
+                            var row = grid.rowByIndex(selectedIndex);
+                            var cols = grid.getColumnInfo().getNodes();
+                            var grouper_cols = cols.map(n=>objectExtract(n.attr.cell,'field,original_field,group_aggr,field_getter,dtype',true));
+                            groupedStore.store.loadData({{'grouper_row':row,'grouper_cols':grouper_cols}});
+                            """.format(groupedTh=groupedTh),
+                            selectedIndex='^.selectedIndex',
+                            currentGrouperPkey='^.currentGrouperPkey',
+                            _if='currentGrouperPkey',_delay=1,grid=gth.grid.js_widget)
+
+        bar = gth.top.bar.replaceSlots('#','2,viewsSelect,*,searchOn,2,confMenu,2')
+
+        self._grouperConfMenu(bar.confMenu)
+
+        bar = gth.treeView.top.bar.replaceSlots('#','2,viewsSelect,*,searchOn,2,confMenu,2')
+        self._grouperConfMenu(bar.confMenu)
+
+
+    def _grouperConfMenu(self,pane):
+        pane.menudiv(iconClass='iconbox gear',_tags='admin',
+                            values='grid:Flat,tree:Hierarchical',
+                            action="""SET .output = $1.fullpath;""")
+                
+        #groupSelector,*,searchOn,2,ingranaggio
+
+
+        
+        
+
+    @struct_method
     def fg_viewConfigurator(self,view,table=None,queryLimit=None,region=None,configurable=None,toolbar=True):
         grid = view.grid
         grid.attributes['configurable'] = True
+        frameCode = view.attributes.get('frameCode')
         right = view.grid_envelope.borderContainer(region=region or 'right',width='160px',closable='close',
+                                        nodeId='{frameCode}_configurator'.format(frameCode=frameCode),
                                         splitter=True,border_left='1px solid silver')
         gridId = grid.attributes.get('nodeId')
         if toolbar:
@@ -248,7 +328,7 @@ class FrameGrid(BaseComponent):
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,viewResource=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
                     footer_kwargs=None,columnset_kwargs=None,footer=None,columnset=None,fillDown=None,
-                    _newGrid=None,selectedPage=None,configurable=None,printRows=None,**kwargs):
+                    _newGrid=None,selectedPage=None,configurable=None,printRows=None,groupable=False,**kwargs):
         pane.attributes.update(overflow='hidden')
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         frame.center.stackContainer(selectedPage=selectedPage)
@@ -283,7 +363,9 @@ class FrameGrid(BaseComponent):
             top_kwargs['slotbar_view'] = frame
             frame.top.slotToolbar(**top_kwargs)
         if table and configurable:
-            frame.viewConfigurator(table=table,configurable=configurable)   
+            frame.viewConfigurator(table=table,configurable=configurable) 
+        if table and groupable:
+            frame.viewGrouper(table=table)  
 
         return frame
 

@@ -24,7 +24,7 @@ class TableScriptRunner(BaseComponent):
             optionsEnabled = self.db.application.allowedByPreference(optionsEnabled)
         hasOptions = hasattr(self, 'table_script_option_pane') and optionsEnabled
         hasParameters = hasattr(self, 'table_script_parameters_pane')
-        pane.data('gnr.dialog_scheduler.pars',Bag(dict(resource_path=batch_dict.get('resource_path'),table=batch_dict.get('table') or self.tblobj.name)))
+        pane.data('gnr.dialog_scheduler.pars',Bag(dict(resource_path=batch_dict.get('resource_path'),table=batch_dict.get('table') or self.tblobj.fullname)))
         if hasOptions:
             return self._scheduler_footer(pane.optionsDialog.footerNode.bar,batch_dict=batch_dict,extra_parameters=extra_parameters)
         if hasParameters:

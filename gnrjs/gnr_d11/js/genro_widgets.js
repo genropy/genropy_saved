@@ -1897,6 +1897,7 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
             }
             bc._layoutChildren(side);
             bc.layout();
+            pane.publish('closable_change',{open:!toClose});
         }
         genro.dom.setClass(pane,'closableSide_'+orientation,true);
         var closablePars = objectExtract(kw,'closable_*');

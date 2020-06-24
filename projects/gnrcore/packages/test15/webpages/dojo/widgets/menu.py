@@ -33,6 +33,11 @@ class GnrCustomWebPage(object):
         pane.menudiv(disabled='^.disabled',storepath='.menudata',iconClass='add_row',label='Piero')
         pane.dataRemote('.menudata', 'menudata', cacheTime=5)
 
+    def test_12_menudiv_caption(self, pane):
+        #pane.data('.opzione','p',label='Pippo')
+        pane.menudiv(value='^.opzione',values='p:Pippo,z:Zio,r:Rummo,g:Gennaro o pizzaiolo',
+                    placeholder='Scegli',color='red',font_size='20px')
+
     def test_2_base(self, pane):
         """Basic 2"""
         menudiv = pane.div('-MENU-',height='20px',width='50px',background='teal')

@@ -33,11 +33,11 @@ class View(BaseComponent):
     def th_query(self):
         return dict(column='nome',op='contains', val='')
 
-    def th_sections_zone(self):
-        return [dict(code='nord',caption='!![it]Nord',condition='@regione.zona ILIKE :zona',condition_zona='%%Nord%%'),
-                dict(code='centro',caption='!![it]Centro',condition='@regione.zona=:zona',condition_zona='Centro'),
-                dict(code='sud',caption='!![it]Sud',condition='@regione.zona=:zona',condition_zona='Sud'),
-                dict(code='isole',caption='!![it]Isole',condition='@regione.zona=:zona',condition_zona='Isole')]
+   #def th_sections_zone(self):
+   #    return [dict(code='nord',caption='!![it]Nord',condition='@regione.zona ILIKE :zona',condition_zona='%%Nord%%'),
+   #            dict(code='centro',caption='!![it]Centro',condition='@regione.zona=:zona',condition_zona='Centro'),
+   #            dict(code='sud',caption='!![it]Sud',condition='@regione.zona=:zona',condition_zona='Sud'),
+   #            dict(code='isole',caption='!![it]Isole',condition='@regione.zona=:zona',condition_zona='Isole')]
                 
     @public_method(remote_zona='^.zone.current')
     def sectionRegioni(self,zona=None):

@@ -7,25 +7,27 @@ from gnr.core.gnrbag import Bag,DirectoryResolver
 from gnr.core.gnrdecorator import public_method
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('userobject', pkey='id', name_long='!!User Object',name_plural='!!User Objects',rowcaption='$code,$objtype',broadcast='objtype')
+        tbl = pkg.table('userobject', pkey='id', name_long='!![en]User Object',name_plural='!![en]User Objects',rowcaption='$code,$objtype',broadcast='objtype')
         self.sysFields(tbl, id=True, ins=True, upd=True)
         tbl.column('identifier',size=':120',indexed=True,sql_value="COALESCE(:tbl,:pkg,'')||:objtype||:code|| CASE WHEN :private THEN :userid ELSE '' END",unique=True)
-        tbl.column('code', size=':40',name_long='!!Code', indexed='y') # a code unique for the same type / pkg / tbl
-        tbl.column('objtype',size=':20', name_long='!!Object Type', indexed='y')
-        tbl.column('pkg', size=':50',name_long='!!Package').relation('pkginfo.pkgid',relation_name='objects') # package code
-        tbl.column('tbl', size=':50',name_long='!!Table').relation('tblinfo.tblid',relation_name='objects') # full table name: package.table
-        tbl.column('userid',size=':50', name_long='!!User ID', indexed='y')
-        tbl.column('description',size=':50', name_long='!!Description', indexed='y')
-        tbl.column('notes', 'T', name_long='!!Notes')
-        tbl.column('data', 'X', name_long='!!Data')
-        tbl.column('authtags', 'T', name_long='!!Auth tags')
-        tbl.column('private', 'B', name_long='!!Private')
-        tbl.column('quicklist', 'B', name_long='!!Quicklist')
-        tbl.column('flags', 'T', name_long='!!Flags')
-        tbl.column('required_pkg', name_long='!!Required pkg')
-        tbl.column('preview',name_long='!![it]Preview')
+        tbl.column('code', size=':40',name_long='!![en]Code', indexed='y') # a code unique for the same type / pkg / tbl
+        tbl.column('objtype',size=':20', name_long='!![en]Object Type', indexed='y')
+        tbl.column('pkg', size=':50',name_long='!![en]Package').relation('pkginfo.pkgid',relation_name='objects') # package code
+        tbl.column('tbl', size=':50',name_long='!![en]Table').relation('tblinfo.tblid',relation_name='objects') # full table name: package.table
+        tbl.column('userid',size=':50', name_long='!![en]User ID', indexed='y')
+        tbl.column('description',size=':50', name_long='!![en]Description', indexed='y')
+        tbl.column('notes', 'T', name_long='!![en]Notes')
+        tbl.column('data', 'X', name_long='!![en]Data')
+        tbl.column('parameters', 'X', name_long='!![en]Parameters')
+
+        tbl.column('authtags', 'T', name_long='!![en]Auth tags')
+        tbl.column('private', 'B', name_long='!![en]Private')
+        tbl.column('quicklist', 'B', name_long='!![en]Quicklist')
+        tbl.column('flags', 'T', name_long='!![en]Flags')
+        tbl.column('required_pkg', name_long='!![en]Required pkg')
+        tbl.column('preview',name_long='!![en][it]Preview')
         tbl.formulaColumn('system_userobject',"$code LIKE :scode",var_scode='\_\_%%',dtype='B')
-        tbl.pyColumn('resource_status',name_long='!!Resources',required_columns='$data')
+        tbl.pyColumn('resource_status',name_long='!![en]Resources',required_columns='$data')
 
     
     def pyColumn_resource_status(self,record=None,**kwargs):

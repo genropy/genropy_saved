@@ -25,7 +25,8 @@ class TableHandlerView(BaseComponent):
     @extract_kwargs(condition=True,store=True,sections=True)
     @struct_method
     def th_tableViewer(self,pane,frameCode=None,table=None,th_pkey=None,viewResource=None,
-                       virtualStore=None,condition=None,condition_kwargs=None,sections_kwargs=None,**kwargs):
+                       virtualStore=None,condition=None,condition_kwargs=None,
+                       structure_field=None,sections_kwargs=None,**kwargs):
         self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
         options = self._th_hook('options',mangler=frameCode)() or dict()
         kwargs.update(dictExtract(options,'grid_'),slice_prefix=False)
@@ -64,6 +65,11 @@ class TableHandlerView(BaseComponent):
         if viewhook:
             viewhook(view)
         self._th_view_printEditorDialog(view)
+        if structure_field:
+            view.left.borderContainer(closable=True,width='300px',
+                                    border_right='1px solid silver'
+                                    ).contentPane(region='center'
+                                    ).structureTree(structure_field=structure_field,view=view)
         return view
     
     def _th_view_printEditorDialog(self,view):
@@ -183,7 +189,6 @@ class TableHandlerView(BaseComponent):
         if statsEnabled is None:
             statsEnabled = True if extendedQuery else False
         statsSlot = 'stats' if statsEnabled else False
-
         if extendedQuery:
             if 'adm' in self.db.packages and not self.isMobile:
                 templateManager = 'templateManager'
@@ -779,7 +784,7 @@ class TableHandlerView(BaseComponent):
                                 """,
                             currentView="^.grid.currViewPath",
                             favoriteView='^.grid.favoriteViewPath',
-                            gridId=gridId)
+                            gridId=gridId,_onBuilt=1)
         q = Bag()
         pyviews = self._th_hook('struct',mangler=th_root,asDict=True)
         for k,v in list(pyviews.items()):
@@ -999,7 +1004,6 @@ class TableHandlerView(BaseComponent):
         if _if:
             _else = "this.store.clear();"
         frame.dataController("""
-            console.log('multiStores',multiStores)
             grid.attr.multiStores = multiStores;
             grid.widget.setStructpath();
         """,multiStores='^.query.multiStores',grid=frame.grid)
@@ -1051,11 +1055,11 @@ class TableHandlerView(BaseComponent):
                                unlinkdict=unlinkdict,
                                userSets='.sets',_if=_if,_else=_else,
                                _sections='=.sections',
+                               _use_grouper='=.use_grouper',
                                limit='=.query.limit',
                                queryExtraPars='=.query.extraPars',
                                joinConditions='=.query.joinConditions',
                                hardQueryLimit='=.hardQueryLimit',
-                              # sum_columns='=.sum_columns',
                                _onStart=_onStart,
                                _th_root =th_root,
                                _POST =True,
@@ -1067,7 +1071,6 @@ class TableHandlerView(BaseComponent):
                                }
                                if(_sections){
                                     if(th_sections_manager.onCalling(_sections,kwargs)===false){
-                                        console.log('waiting quindi non parte rpc');
                                         return false;
                                     }
                                }
@@ -1085,6 +1088,12 @@ class TableHandlerView(BaseComponent):
                                     });
                                     kwargs['where'] = newwhere;
                                }
+                               if( _use_grouper){
+                                   if(th_grouper_manager.onCalling(kwargs)===false){
+                                       return false
+                                   }
+                               }
+
                                """
                                %self._th_hook('onQueryCalling',mangler=th_root,dflt='')(),
                                **store_kwargs)

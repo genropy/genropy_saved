@@ -6,7 +6,7 @@ pytz
 babel
 httplib2
 selectors34
-serpent
+serpent<1.30
 pyro4
 argparse
 xlrd

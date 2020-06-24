@@ -34,7 +34,7 @@ var genro_plugin_grid_configurator = {
             objtype = 'grpview';
         }
         var that = this;
-        saveCb = function(dlg) {
+        var saveCb = function(dlg) {
             var pagename = genro.getData('gnr.pagename');
             var flag =  pagename+'_'+gridId;
             var metadata = genro.getData(datapath);

@@ -1,12 +1,15 @@
-genro_plugin_groupth = {
-    buildGroupTree:function(pane,structBag){
+var genro_plugin_groupth = {
+    buildGroupTree:function(pane,structBag,treekw){
         pane.getValue().popNode('treeroot');
         var root = pane._('div','treeroot').getParentNode();
         if(!(structBag && structBag.getItem('#0.#0'))){
             return;
         }
         root.freeze();
-        var tr = root._('treeGrid',{storepath:'.treestore',autoCollapse:false,headers:true,_class:'groupby_tree'});
+        treekw = treekw || {};
+        var tr = root._('treeGrid',objectUpdate(treekw,{storepath:'.treestore',
+                                    autoCollapse:false,
+                                    headers:true,_class:'groupby_tree'}));
         var struct_row = structBag.getItem('#0.#0');
         tr._('treegrid_column',{field:'description',header:''});
         var fld,width;
@@ -15,12 +18,41 @@ genro_plugin_groupth = {
             if(n.attr.group_aggr && 'NLIRF'.indexOf(n.attr.dtype)>=0  || n.attr.group_nobreak || n.attr.calculated){
                 fld = n.attr.field.replace(/\W/g, '_');
                 fld += (n.attr.group_aggr?'_'+n.attr.group_aggr.replace(/\W/g, '_').toLowerCase():'');
-                width = n.attr.width && n.attr.width.endsWith('px')?parseInt(n.attr.width):120;
+                if(n.attr.width){
+                    width = parseInt(n.attr.width);
+                    if(n.attr.width.endsWith('em')){
+                        width = width*14;
+                    }
+                }else{
+                    width = 120;
+                }
                 tr._('treegrid_column',{field:fld,dtype:(n.attr.group_aggr && n.attr.group_nobreak)?'T':n.attr.dtype,
                                         size:width,header:n.attr.tree_name || n.attr.name,format:n.attr.format});
             }
         });
         root.unfreeze();
+    },
+    groupCellInfoFromStruct:function(struct){
+        var result = {};
+        result.group_by_cols = [];
+        result.formulalist = [];
+        var f,cell;
+        struct.getItem('#0.#0').forEach(function(n){
+            if(!(n.attr.group_aggr && 'NLIRF'.indexOf(n.attr.dtype)>=0 || n.attr.group_nobreak || n.attr.formula) ){
+                f = n.attr.field.replace(/\W/g, '_');
+                if(n.attr.group_aggr){
+                    f += '_'+n.attr.group_aggr.replace(/\W/g, '_').toLowerCase();
+                }
+                cell = objectExtract(n.attr,'field,group_aggr',true);
+                cell.field_getter = f;
+                cell.original_field = cell.field;
+                cell.dtype = n.attr.dtype;
+                result.group_by_cols.push(cell);
+            }else if(n.attr.formula){
+                result.formulalist.push([n.attr.field,n.attr.formula]);
+            }
+        });
+        return result;
     },
 
     groupTreeData:function(gridstore,structBag,rootName){
@@ -28,40 +60,31 @@ genro_plugin_groupth = {
             return;
         }
         var result = new gnr.GnrBag();
-        var treeData;
+        var treedata;
         if(rootName){
             treedata = new gnr.GnrBag();
             result.setItem('_root_',treedata,{'description':rootName});
         }else{
             treedata = result;
         }
-        var row,kl,description,treepath;
-        var group_by_cols = [];
-        var f;
-        var formulalist = [];
-        structBag.getItem('#0.#0').forEach(function(n){
-            if(!(n.attr.group_aggr && 'NLIRF'.indexOf(n.attr.dtype)>=0 || n.attr.group_nobreak || n.attr.formula) ){
-                f = n.attr.field.replace(/\W/g, '_');
-                if(n.attr.group_aggr){
-                    f += '_'+n.attr.group_aggr.replace(/\W/g, '_').toLowerCase();
-                }
-                group_by_cols.push(f);
-            }else if(n.attr.formula){
-                formulalist.push([n.attr.field,n.attr.formula]);
-            }
-        });
+        var row,kl,description,treepath,value;
+        var info = this.groupCellInfoFromStruct(structBag);
+        var group_by_cols = info.group_by_cols;
+        var formulalist = info.formulalist;   
         gridstore.forEach(function(n){
             kl = [];
             row = objectUpdate({},n.attr);
-            group_by_cols.forEach(function(k){
-                description = objectPop(row,k) || '-';
-                if(typeof(description)!='string'){
+            group_by_cols.forEach(function(cell){
+                let k = cell.field_getter;
+                value = objectPop(row,k) || '-';
+                description = value;
+                if(typeof(value)!='string'){
                     description = _F(description);
                 }
                 kl.push(flattenString(description,['.']));
                 treepath = kl.join('.');
                 if(!treedata.getNode(treepath)){
-                    treedata.setItem(treepath,null,{'description':description});
+                    treedata.setItem(treepath,null,{'description':description,_cell:cell,value:value});
                 }
             });
             objectUpdate(treedata.getAttr(kl),row);
@@ -226,7 +249,6 @@ genro_plugin_groupth = {
             genro.publish('floating_message',{messageType:'warning',message:_T('This kind of relation is not allowed in group by totalization')});
         } */
         var dtype = data.dtype;
-        var values;
         var that = this;
         var dflt = new gnr.GnrBag(data);
         if('RNLIF'.indexOf(dtype)>=0){
@@ -266,7 +288,7 @@ genro_plugin_groupth = {
             fb.addField('numberTextBox',{value:'^.max_value',lbl:'Max value',width:'5em',default_value:null});
 
         }else if(dateTime){
-            values = genro.commonDatasets.datetimes_chunk.join(',');
+            let values = genro.commonDatasets.datetimes_chunk.join(',');
             var tb = fb.addField('textbox',{lbl:_T('Date aggregator'),value:prefix+'group_aggr'});
             tb._('ComboMenu',{values:values,action:function(kw,ctx){
                 var cv = this.attr.attachTo.widget.getValue();

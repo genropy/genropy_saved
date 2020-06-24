@@ -348,8 +348,10 @@ class MailService(GnrBaseService):
         headers_kwargs = headers_kwargs or {}
         message_id = message_id or headers_kwargs.pop('message_id',None)
         reply_to = reply_to or headers_kwargs.pop('reply_to',None)
-        for k,v in headers_kwargs:
-            msg.add_header(k,v)
+        for k,v in headers_kwargs.items():
+            if not v:
+                continue
+            msg.add_header(k,str(v))
         if ',' in to_address:
             to_address = to_address.split(',')
         message_date = datetime.datetime.now()
@@ -367,10 +369,6 @@ class MailService(GnrBaseService):
             msg['Cc'] = cc_address and ','.join(cc_address)
         else:
             msg['Cc'] = cc_address
-        #if  type(bcc_address).__name__ in ['list', 'tuple']:
-        #    msg['Bcc'] = bcc_address and ','.join(bcc_address)
-        #else:
-        #    msg['Bcc'] = bcc_address
         system_bcc = account_params.pop('system_bcc',None)
         if system_bcc:
             if isinstance(bcc_address,str):
@@ -378,7 +376,8 @@ class MailService(GnrBaseService):
             bcc_address = bcc_address or []
             bcc_address.append(system_bcc)
             bcc_address = ','.join(bcc_address)
-
+        debug_to_address = account_params.pop('system_debug_address',None)
+        to_address = debug_to_address or to_address
         msg_string = msg.as_string()
         sendmail_args=(account_params, from_address, to_address, cc_address, bcc_address, msg_string)
         if not async_:

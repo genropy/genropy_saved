@@ -35,6 +35,8 @@ class Main(BaseResourcePrint):
 
     def pre_process(self):
         self.htmlMaker.row_table = getattr(self,'maintable',None)
+
+
         
     def table_script_parameters_pane(self,pane,extra_parameters=None,record_count=None,**kwargs):
         pane = pane.div(min_height='60px')        
@@ -89,7 +91,7 @@ class Main(BaseResourcePrint):
         fb.textbox(value='^.totalize_footer',lbl='!!Totals caption',hidden='^.totalize_mode?=!#v')
         _cleanWhere(where)
         where = where or Bag()
-        fb.data('.use_current_selection',len(where) is 0)
+        fb.data('.use_current_selection',len(where) == 0)
         if len(where) > 0 and not printParams.get('allow_only_saved_query'):
             fb.checkbox(value='^.use_current_selection',label='!!Use current selection')
         if record_count==1:

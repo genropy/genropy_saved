@@ -23,7 +23,7 @@ class GnrCustomWebPage(object):
     
     def test_1_firsttest(self,pane):
         bc = pane.borderContainer(height='600px')
-        b = Bag('/Users/fporcari/sviluppo/goodsoftware/projects/mbe/instances/western/xmenu.xml')
+        b = Bag('/Users/sporcari/sviluppo/genro/projects/gnrcore/packages/adm/localization.xml')
         bc.data('.treestore.root', b,label='Root')
         bc.contentPane(region='left',width='200px').tree(storepath='.treestore', labelAttribute='label',selectedPath='.selectedPath',hideValues=True)
         bc.dataController("""
@@ -93,7 +93,7 @@ class GnrCustomWebPage(object):
         """,branch='^.bageditor.store',selectedPath='=.selectedPath',treestore='=.treestore')
 
     def test_2_component(self,pane):
-        b = Bag('/Users/fporcari/sviluppo/goodsoftware/projects/mbe/instances/western/xmenu.xml')
+        b = Bag('/Users/sporcari/sviluppo/genro/projects/gnrcore/packages/adm/localization.xml')
         pane.data('.treestore.root', b,label='Root')
         pane.borderContainer(height='600px').contentPane(region='center').bagEditor(storepath='.treestore.root',labelAttribute='label',addrow=True,delrow=True,addcol=True)
 
@@ -114,6 +114,14 @@ class GnrCustomWebPage(object):
         bc.contentPane(region='center').multiValueEditor(value='^.dati')
 
     def test_4_multiValueEditor(self,pane):
-        pane.multiValueEditor(value=dict(nome='Gianni',eta=33,indirizzo='via del pero 12'))
+        bc = pane.borderContainer(height='300px')
+        bc.contentPane(region='center').multiValueEditor(value=dict(nome='Gianni',eta=33,indirizzo='via del pero 12'), 
+                                                            tools=False)
 
+    def test_5_prova(self, pane):
+        bc = pane.borderContainer(height='300px')
+        center = bc.contentPane(region='center')
+        m = center.div(lbl='Bellone', height='80px', width='300px', moveable=True, border='1px solid gray;')
+        m.multiValueEditor(height='100%', value=dict(nome='Gianni',eta=33,indirizzo='via del pero 12'), 
+                                                            tools=False)
 

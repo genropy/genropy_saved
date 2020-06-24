@@ -124,8 +124,8 @@ class Table(object):
                   reply_to=None, bcc_address=None, attachments=None,weak_attachments=None,
                  message_id=None,message_date=None,message_type=None,
                  html=False,doCommit=False,headers_kwargs=None,**kwargs):
-        message_date=message_date or self.db.workdate
-        extra_headers = Bag(dict(message_id=message_id,message_date=message_date,reply_to=reply_to))
+        message_date = message_date or self.db.workdate
+        extra_headers = Bag(dict(message_id=message_id,message_date=str(message_date),reply_to=reply_to))
         if headers_kwargs:
             extra_headers.update(headers_kwargs)
         account_id = account_id or self.db.application.getPreference('mail', pkg='adm')['email_account_id']
@@ -134,7 +134,6 @@ class Table(object):
             weak_attachments = ','.join([site.storageNode(p).fullpath for p in weak_attachments])
         use_dbstores = self.use_dbstores()
         dbstore = self.db.currentEnv.get('storename')
-        multidb = self.multidb
         envkw = {}
         if dbstore and self.multidb and use_dbstores:
             envkw['storename'] = self.db.rootstore
@@ -193,7 +192,6 @@ class Table(object):
             extra_headers['message_id'] = extra_headers['message_id'] or 'GNR_%(id)s' %message
             account_id = message['account_id']
             mp = self.db.table('email.account').getSmtpAccountPref(account_id)
-            debug_address = mp.pop('system_debug_address')
             bcc_address = message['bcc_address'] 
             attachments = self.db.table('email.message_atc').query(where='$maintable_id=:mid',mid=message['id']).fetch()
             attachments = [r['filepath'] for r in attachments]
@@ -202,7 +200,7 @@ class Table(object):
             if mp['system_bcc']:
                 bcc_address = '%s,%s' %(bcc_address,mp['system_bcc']) if bcc_address else mp['system_bcc']
             try:
-                mail_handler.sendmail(to_address=debug_address or message['to_address'],
+                mail_handler.sendmail(to_address = message['to_address'],
                                 body=message['body'], subject=message['subject'],
                                 cc_address=message['cc_address'], bcc_address=bcc_address,
                                 from_address=message['from_address'] or mp['from_address'],

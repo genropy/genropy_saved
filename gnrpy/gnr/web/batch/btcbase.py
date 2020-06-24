@@ -245,7 +245,6 @@ class BaseResourceBatch(object):
             selection_kwargs.update(self.batch_selection_kwargs) 
         if columns:
             selection_kwargs['columns'] = columns
-        print('getting_selection',self.batch_selection_savedQuery)
         if self.batch_selection_savedQuery:
             selection = self._selection_from_savedQuery(selection_kwargs)
 
