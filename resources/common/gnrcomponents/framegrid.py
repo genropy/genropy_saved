@@ -247,9 +247,12 @@ class FrameGridTools(BaseComponent):
                             linkedTo=groupedTh,
                             pbl_classes=True,margin='2px',
                             tree_selfsubscribe_onSelected=onTreeNodeSelected,
-                            grid_connect_onSetStructpath="SET .#parent.output = genro.groupth.groupCellInfoFromStruct($1).group_by_cols.length>1?'tree':'grid'",
                             **kwargs)
         gth.dataController('FIRE .reloadMain;',_onBuilt=500)
+        gth.dataController("""if(_reason=='node'){
+            SET .output = genro.groupth.groupCellInfoFromStruct(struct).group_by_cols.length>1?'tree':'grid'
+        }
+        """,struct='^.grid.struct')
         if self.application.checkResourcePermission('admin', self.userTags):
             gth.viewConfigurator(table,queryLimit=False,toolbar=True)
         gth.grid.dataController("""

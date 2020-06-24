@@ -47,31 +47,6 @@ class TableHandlerGroupBy(BaseComponent):
                 struct = self._th_hook('groupedStruct',mangler=linkedTo,defaultCb=self._thg_defaultstruct)
         if not linkedTo:
             self.subscribeTable(table,True,subscribeMode=True)
-        else:
-            pane.dataController("""
-                var groupbystore = genro.nodeById('{frameCode}_grid_store');
-                if(!groupbystore){{
-                    return;
-                }}
-                if(groupbystore.getRelativeData('.grid.currentGrouperPkey')){{
-                    return;
-                }}
-                groupbystore.store.loadData();
-            """.format(frameCode=frameCode),currentGrouperPkey='=.grid.currentGrouperPkey',
-                **{'subscribe_{linkedTo}_grid_onNewDatastore'.format(linkedTo=linkedTo):True})
-            pane.dataController("""
-                var groupbystore = genro.nodeById('{frameCode}_grid_store');
-                if(!groupbystore){{
-                    return;
-                }}
-                if(groupbystore.getRelativeData('.grid.currentGrouperPkey')){{
-                    return;
-                }}
-                groupbystore.store.loadData();""",
-            datapath='#{linkedTo}_frame'.format(linkedTo=linkedTo),
-            currentGrouperPkey='=.grid.currentGrouperPkey',
-            _runQuery='^.runQueryDo',_sections_changed='^.sections_changed',
-           linkedTo=linkedTo,_delay=200)
         frameCode = frameCode or 'thg_%s' %table.replace('.','_')
         datapath = datapath or '.%s' %frameCode
         rootNodeId = frameCode
@@ -195,8 +170,22 @@ class TableHandlerGroupBy(BaseComponent):
                             selectmethod,sqlContextName,sum_columns,table,timeout,totalRowCount,userSets,_sections,
                             _onCalling,_onResult,applymethod,sum_columns,prevSelectedDict""",
                     condition=condition,**store_kwargs)
-
-    
+        if linkedTo:
+            frame.dataController("""
+                var groupbystore = grid.collectionStore();
+                if(!groupbystore){
+                    return;
+                }
+                if(groupbystore.storeNode.getRelativeData('.grid.currentGrouperPkey')){
+                    return;
+                }
+                groupbystore.loadData();""",
+            grid = frame.grid.js_widget,
+            datapath='#{linkedTo}_frame'.format(linkedTo=linkedTo),
+            currentGrouperPkey='=.grid.currentGrouperPkey',
+            _runQuery='^.runQueryDo',_sections_changed='^.sections_changed',
+           linkedTo=linkedTo,_delay=200,
+           **{'subscribe_{linkedTo}_grid_onNewDatastore'.format(linkedTo=linkedTo):True})
 
 
     def _thg_defaultstruct(self,struct):
