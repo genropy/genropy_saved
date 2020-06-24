@@ -8,10 +8,14 @@ from gnr.web.gnrwebstruct import struct_method
 
 class UserObjectEditor(BaseComponent):
     def _wherePaneConfig(self,bc,table=None,frame=None):
-        bc.contentPane(query_table=table,
+        querypane = bc.contentPane(query_table=table,
                         onCreated="this.querymanager = new gnr.FakeTableHandler(this);",
                         nodeId='{frameCode}_query'.format(frameCode=frame.attributes['frameCode']),
                         margin='2px',region='center')   
+        bc.dataController("""if(_reason=='node'){
+                                querypane.querymanager.createQueryPane();
+                            }""",
+                        querypane=querypane,where='^.query')
         fb = bc.contentPane(region='bottom',datapath='.query').formbuilder()
         right = bc.roundedGroupFrame(region='right',width='50%',datapath='.query',title='!!Order by and limit')
         right.bottom.formbuilder().numberTextBox('^.limit',lbl='Limit',width='5em')

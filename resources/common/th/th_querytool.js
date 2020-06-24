@@ -48,15 +48,7 @@ dojo.declare("gnr.FakeTableHandler",null,{
                              column_caption:null});
             this.sourceNode.setRelativeData('.query.where',querybag);
         }
-        var that = this;
-        this.sourceNode.watch(function(){
-            return genro.dom.isVisible(genro.nodeById(that.th_root));
-        },function(){
-            TH(that.th_root).querymanager.buildQueryPane();
-        });
-        
-
-        
+        TH(this.th_root).querymanager.buildQueryPane();
     }
 });
 
@@ -426,7 +418,7 @@ dojo.declare("gnr.QueryManager", null, {
         var code = this.sourceNode.getRelativeData('.query.queryAttributes.code');
         var data = this.prepareQueryData();
         var that = this;
-        saveCb = function(dlg) {
+        var saveCb = function(dlg) {
             var metadata = genro.getData(datapath);
             if (!metadata.getItem('code')){
                 genro.publish('floating_message',{message:_T('Missing code'),messageType:'error'});
@@ -451,11 +443,7 @@ dojo.declare("gnr.QueryManager", null, {
         var sourceNode = this.sourceNode;
         var that = this;
         var finalize = function(data,run){
-            var customOrderBy;
-            var currViewPath;
-            var customLimit;
-            var joinConditions;
-            var multiStores;
+            var customOrderBy,currViewPath,customLimit,joinConditions,multiStores,where,customView;
             if(data.getItem('where')){
                 where = data.pop('where');
                 customOrderBy = data.pop('customOrderBy');
@@ -474,9 +462,7 @@ dojo.declare("gnr.QueryManager", null, {
             sourceNode.setRelativeData('.query.where',where);
             sourceNode.setRelativeData('.query.customOrderBy',customOrderBy);
             sourceNode.setRelativeData('.query.joinConditions',joinConditions);
-
             sourceNode.setRelativeData('.query.multiStores',multiStores);
-
             sourceNode.setRelativeData('.query.limit',customLimit);
             if(currViewPath && currViewPath!='__baseview__'){
                 sourceNode.setRelativeData('.grid.currViewPath',currViewPath);
@@ -678,7 +664,7 @@ dojo.declare("gnr.QueryManager", null, {
         var noValueIndicator = "<span >&nbsp;</span>";
         attr.jc_caption = this.getCaption('jc', attr);
         attr.not_caption = this.getCaption('not', attr);
-        cell = tr._('td');
+        var cell = tr._('td');
         if (i > 0) {
             cell._('div', {_class:'qb_div qb_jc floatingPopup',connectedMenu:this.relativeId('qb_jc_menu'),selected_fullpath:relpath + '?jc',
                 selected_caption:relpath + '?jc_caption',innerHTML:'^' + relpath + '?jc_caption'});
@@ -716,7 +702,7 @@ dojo.declare("gnr.QueryManager", null, {
             };
 
             input_attrs.position = 'relative';
-            that = this;
+            var that = this;
             input_attrs.connect_onclick = function(){
                 that.getHelper(this);
             }
@@ -724,7 +710,7 @@ dojo.declare("gnr.QueryManager", null, {
             input_attrs.disabled = "==(_op in _helperOp);";
             input_attrs._helperOp = this.helper_op_dict;
             input_attrs._op = '^' + relpath + '?op';
-            value_input = valtd._('textbox', input_attrs);
+            let value_input = valtd._('textbox', input_attrs);
             value_input._('div', {innerHTML:'^' + relpath,hidden:'==!(_op in _helperOp)',
                 _op:'^' + relpath + '?op',_helperOp:this.helper_op_dict,
                 _class:'helperField'});
@@ -738,6 +724,7 @@ dojo.declare("gnr.QueryManager", null, {
     _buildQueryGroup: function(sourceNode, querydata, level) {
         var bagnodes = querydata.getNodes();
         var node;
+        var oddeven;
         if (level % 2 == 0) {
             oddeven = 'qb_group qb_group_even';
         } else {

@@ -4985,6 +4985,14 @@ div[disabled='true'], div[disabled='disabled']{
 /* @end */
 
 /* @group Menu */
+.menudiv_text{
+    cursor: pointer;
+    padding-right: 12px;
+    display: inline-block;
+    font-size: .9em;
+    background: url(icons/base12/smallpopup.gif) no-repeat right;
+}
+
 ._common_d11__ .dijitMenu {
     border: 1px solid gray;
     background-color: whitesmoke;

@@ -208,6 +208,12 @@ class FrameGridTools(BaseComponent):
         pane.menudiv(iconClass= iconClass or 'iconbox list',datapath='.grid',storepath='.structMenuBag',selected_fullpath='.currViewPath')
 
     @struct_method
+    def fg_slotbar_viewsSelect(self,pane,iconClass=None,caption_path=None,placeholder=None,**kwargs):
+        pane.menudiv(value='^.currViewPath',datapath='.grid',storepath='.structMenuBag',
+                        caption_path=caption_path or '.currViewCaption',placeholder=placeholder or '!![en]Base View',**kwargs)
+
+
+    @struct_method
     def fg_viewGrouper(self,view,table=None,region=None):
         bc = view.grid_envelope.borderContainer(region='left',width='300px',closable='close',
                                         splitter=True,border_right='1px solid silver',
@@ -234,28 +240,36 @@ class FrameGridTools(BaseComponent):
         gth = pane.groupByTableHandler(table=table,frameCode='{groupedTh}_grouper'.format(groupedTh=groupedTh),
                             grid_autoSelect=True,
                             configurable=False,
-                            grid_selectedIndex='.selectedIndex',#'#{groupedTh}_frame.grouper_index'.format(groupedTh=groupedTh),
-                            grid_selected__thgroup_pkey='.currentGrouperPkey',#'#{groupedTh}_frame.grouper_pkey'.format(groupedTh=groupedTh),
+                            grid_selectedIndex='.selectedIndex',
+                            grid_selected__thgroup_pkey='.currentGrouperPkey',
                             linkedTo=groupedTh,
                             pbl_classes=True,margin='2px',
                             tree_selfsubscribe_onSelected=onTreeNodeSelected,
                             **kwargs)
         gth.viewConfigurator(table,queryLimit=False,toolbar=True)
-        #gth.grid.dataController("""""",_onBuilt=True)
         gth.grid.dataController("""
                             if(!currentGrouperPkey){{
                                 return;
                             }}
                             var groupedStore = genro.nodeById('{groupedTh}_grid_store');
                             var row = grid.rowByIndex(selectedIndex);
-                            var grouper_cols = grid.getColumnInfo().getNodes().map(n=>objectExtract(n.attr.cell,'field,original_field,group_aggr,field_getter',true));
+                            var cols = grid.getColumnInfo().getNodes();
+                            var grouper_cols = cols.map(n=>objectExtract(n.attr.cell,'field,original_field,group_aggr,field_getter,dtype',true));
                             groupedStore.store.loadData({{'grouper_row':row,'grouper_cols':grouper_cols}});
                             """.format(groupedTh=groupedTh),
                             selectedIndex='^.selectedIndex',
                             currentGrouperPkey='^.currentGrouperPkey',
                             _if='currentGrouperPkey',_delay=1,grid=gth.grid.js_widget)
 
-        gth.top.bar.replaceSlots('#','2,stackButtons,*,viewsMenu,2')
+        bar = gth.top.bar.replaceSlots('#','2,viewsSelect,*,searchOn,2,modeSelector,2')
+        bar.modeSelector.menudiv(iconClass='iconbox gear',values='grid:Grid,tree:Tree',
+                            action='SET .output = $1.fullpath;')
+
+        bar = gth.treeView.top.bar.replaceSlots('#','2,viewsSelect,*,searchOn,2,modeSelector,2')
+        bar.modeSelector.menudiv(iconClass='iconbox gear',values='grid:Grid,tree:Tree',
+                            action='SET .output = $1.fullpath;')
+                
+        #groupSelector,*,searchOn,2,ingranaggio
 
 
         

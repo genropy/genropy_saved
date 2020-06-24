@@ -49,11 +49,10 @@ class TableHandlerGroupBy(BaseComponent):
             self.subscribeTable(table,True,subscribeMode=True)
         else:
             pane.dataController("""
-  
                 var groupbystore = genro.nodeById('{frameCode}_grid_store');
-                if(!groupbystore){
+                if(!groupbystore){{
                     return;
-                }
+                }}
                 if(groupbystore.getRelativeData('.grid.currentGrouperPkey')){{
                     return;
                 }}
@@ -62,9 +61,9 @@ class TableHandlerGroupBy(BaseComponent):
                 **{'subscribe_{linkedTo}_grid_onNewDatastore'.format(linkedTo=linkedTo):True})
             pane.dataController("""
                 var groupbystore = genro.nodeById('{frameCode}_grid_store');
-                if(!groupbystore){
+                if(!groupbystore){{
                     return;
-                }
+                }}
                 if(groupbystore.getRelativeData('.grid.currentGrouperPkey')){{
                     return;
                 }}
