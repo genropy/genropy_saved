@@ -590,7 +590,8 @@ class TableHandlerHierarchicalView(BaseComponent):
         if condition:
             condition_list.append(condition)
         condition_list.append(structure_condition)
-        view.store.update(condition=' AND '.join(condition_list),**structure_condition_kwargs)
+        structure_condition_kwargs['condition'] = condition
+        view.store.update(structure_condition_kwargs)
         return structureTree
 
 
