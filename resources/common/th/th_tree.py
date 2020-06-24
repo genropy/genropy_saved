@@ -580,18 +580,16 @@ class TableHandlerHierarchicalView(BaseComponent):
         else:
             hpkey_ref = '@%s.hierarchical_pkey' %structure_field 
             fkey_ref = '$%s' %structure_field
-        structure_condition = """( (:st_pkey IS NOT NULL) AND (%s ILIKE (:st_hpkey || '%s') OR :st_hpkey IS NULL)  
-                                            OR ( (%s IS NULL) AND (:st_pkey IS NULL) ) )
-                                    """ %(hpkey_ref,'%%',fkey_ref)
-        structure_condition_kwargs = dict(st_hpkey='^.structuretree.hierarchical_pkey',
-                                st_pkey='^.structuretree.pkey')
+        cond_list = []
         condition = view.store.attributes.get('condition')
-        condition_list = []
         if condition:
-            condition_list.append(condition)
-        condition_list.append(structure_condition)
-        structure_condition_kwargs['condition'] = condition
-        view.store.update(structure_condition_kwargs)
+            cond_list.append(condition)
+        cond_list.append("""( (:selected_pkey IS NOT NULL) AND (%s ILIKE (:hierarchical_pkey || '%s') OR :hierarchical_pkey IS NULL)  
+                                OR ( (%s IS NULL) AND (:selected_pkey IS NULL) ) )
+                        """ %(hpkey_ref,'%%',fkey_ref))
+        view.store.attributes.update(condition = ' AND '.join(cond_list),
+                                hierarchical_pkey='^.structuretree.hierarchical_pkey',
+                                selected_pkey='^.structuretree.pkey',_delay=500)
         return structureTree
 
 
