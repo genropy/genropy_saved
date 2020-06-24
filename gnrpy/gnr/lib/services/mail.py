@@ -344,8 +344,10 @@ class MailService(GnrBaseService):
         message_id = message_id or headers_kwargs.pop('message_id',None)
         message_date = message_date or headers_kwargs.pop('message_date',None)
         reply_to = reply_to or headers_kwargs.pop('reply_to',None)
-        for k,v in headers_kwargs:
-            msg.add_header(k,v)
+        for k,v in headers_kwargs.items():
+            if not v:
+                continue
+            msg.add_header(k,str(v))
         if ',' in to_address:
             to_address = to_address.split(',')
         message_date = message_date or datetime.datetime.now()
@@ -374,7 +376,12 @@ class MailService(GnrBaseService):
             bcc_address = bcc_address or []
             bcc_address.append(system_bcc)
             bcc_address = ','.join(bcc_address)
+<<<<<<< HEAD
 
+=======
+        debug_to_address = account_params.pop('system_debug_address',None)
+        to_address = debug_to_address or to_address
+>>>>>>> ee5c4f47a... fix at line 351 in service mail.py there was a bug for in dictionary. Added .items()
         msg_string = msg.as_string()
         sendmail_args=(account_params, from_address, to_address, cc_address, bcc_address, msg_string)
         if not async:
