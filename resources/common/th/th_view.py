@@ -174,7 +174,7 @@ class TableHandlerView(BaseComponent):
     @extract_kwargs(top=True,preview=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
-                       top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,
+                       top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,groupable=None,
                        unlinkdict=None,searchOn=True,count=None,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
                        store_kwargs=None,parentForm=None,liveUpdate=None,bySample=None,resourceOptions=None,**kwargs):
         condition_kwargs = condition_kwargs
@@ -226,11 +226,13 @@ class TableHandlerView(BaseComponent):
         grid_kwargs.setdefault('loadingHider',loadingHider)
 
         grid_kwargs.setdefault('selfsubscribe_loadingData',"this.setRelativeData('.loadingData',$1.loading);if(this.attr.loadingHider!==false){this.setHiderLayer($1.loading,{message:'%s'});}" %self._th_waitingElement())
+        if groupable is None:
+            groupable = configurable and extendedQuery == '*'
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
                                struct = self._th_hook('struct',mangler=frameCode,defaultCb=structCb),
                                datapath = '.view',top_kwargs = top_kwargs,_class = 'frameGrid',
                                grid_kwargs = grid_kwargs,iconSize=16,_newGrid=True,advancedTools=True,
-                               configurable=configurable,**kwargs)  
+                               configurable=configurable,groupable=groupable,**kwargs)  
         if statsEnabled:
             self._th_handle_stats_pages(frame)
             if extendedQuery == '*':

@@ -53,9 +53,6 @@ class TableHandler(BaseComponent):
                             picker_kwargs=True,
                             dbstore=None,hider_kwargs=None,view_kwargs=None,preview_kwargs=None,parentForm=None,
                             form_kwargs=None,relation_kwargs=None,**kwargs):
-        if groupable is None:
-            groupable = configurable
-
         fkeyfield=None
         if relation:
             table,condition,fkeyfield = self._th_relationExpand(pane,relation=relation,condition=condition,
