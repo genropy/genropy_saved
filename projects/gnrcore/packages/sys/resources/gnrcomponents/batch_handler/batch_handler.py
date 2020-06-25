@@ -47,6 +47,7 @@ class TableScriptRunner(BaseComponent):
         th = pane.stackTableHandler(table='sys.task',default_command='=gnr.dialog_scheduler.pars.resource_path',
                                     default_table_name='=gnr.dialog_scheduler.pars.table',
                                     default_parameters='=#table_script_runner.data',
+                                    default_extra_parameters='=#table_script_runner.extra_parameters',
                                     default_user_id=self.avatar.user_id)
         th.view.store.attributes.update(where='$command=:rpath AND $table_name=:t',rpath='=gnr.dialog_scheduler.pars.resource_path',
                                         t='=gnr.dialog_scheduler.pars.table',

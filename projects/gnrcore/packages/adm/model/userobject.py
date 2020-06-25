@@ -16,8 +16,6 @@ class Table(object):
         tbl.column('description',size=':50', name_long='!![en]Description', indexed='y')
         tbl.column('notes', 'T', name_long='!![en]Notes')
         tbl.column('data', 'X', name_long='!![en]Data')
-        tbl.column('parameters', 'X', name_long='!![en]Parameters')
-
         tbl.column('authtags', 'T', name_long='!![en]Auth tags')
         tbl.column('private', 'B', name_long='!![en]Private')
         tbl.column('quicklist', 'B', name_long='!![en]Quicklist')

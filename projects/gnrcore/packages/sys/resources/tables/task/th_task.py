@@ -6,6 +6,7 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrbag import Bag
 
 class View(BaseComponent):
 
@@ -96,7 +97,13 @@ class Form(BaseComponent):
 
     def th_options(self):
         return dict(dialog_parentRatio=.9)
-        
+
+    @public_method
+    def th_onLoading(self, record, newrecord, loadingParameters, recInfo):
+        if newrecord and loadingParameters.get('extra_parameters'):
+            record['parameters'] = record['parameters'] or Bag()
+            record['parameters.extra_parameters']  = loadingParameters['extra_parameters']
+
         
 class FormFromTableScript(Form):
     def th_form(self,form):
