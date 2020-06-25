@@ -40,7 +40,7 @@ class TableHandler(BaseComponent):
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,pageName=None,readOnly=False,tag=None,
-                            lockable=False,pbl_classes=False,configurable=True,groupable=False,hider=True,searchOn=True,count=None,
+                            lockable=False,pbl_classes=False,configurable=True,groupable=None,hider=True,searchOn=True,count=None,
                             parentFormSave=None,
                             rowStatusColumn=None,
                             picker=None,addrow=True,addrowmenu=None,
@@ -55,7 +55,7 @@ class TableHandler(BaseComponent):
                             form_kwargs=None,relation_kwargs=None,**kwargs):
         if groupable is None:
             groupable = configurable
-            
+
         fkeyfield=None
         if relation:
             table,condition,fkeyfield = self._th_relationExpand(pane,relation=relation,condition=condition,
