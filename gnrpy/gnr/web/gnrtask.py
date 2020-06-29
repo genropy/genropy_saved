@@ -117,7 +117,7 @@ class GnrTaskWorker(object):
             return
         taskObj = task_class(page=page,resource_table=page.db.table(table),
                             batch_selection_savedQuery=task_execution['task_saved_query'])
-        taskparameters = task_execution['parameters']
+        taskparameters = task_execution['task_parameters']
         with self.db.tempEnv(connectionName='execution'):
             taskObj(parameters=Bag(taskparameters),task_execution_record=task_execution)
     
