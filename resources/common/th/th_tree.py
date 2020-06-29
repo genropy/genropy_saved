@@ -558,7 +558,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         dragtblobj.touchRecords(_pkeys=fkeys)
         self.db.commit()
 
-
+    
     @struct_method
     def ht_structureTree(self,pane,view=None,structure_field=None,**kwargs):
         viewAttr = view.getInheritedAttributes()

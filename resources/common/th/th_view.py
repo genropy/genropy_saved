@@ -21,12 +21,13 @@ class TableHandlerView(BaseComponent):
                      js_plugins/chartjs/chartjs:ChartManager
                      """
                          
-    @extract_kwargs(condition=True,store=True,sections=True)
+    @extract_kwargs(condition=True,store=True,sections=True,structure_field=True)
     @struct_method
     def th_tableViewer(self,pane,frameCode=None,table=None,th_pkey=None,viewResource=None,
                        virtualStore=None,condition=None,condition_kwargs=None,
-                       structure_field=None,sections_kwargs=None,**kwargs):
+                       structure_field=None,structure_field_kwargs=None,sections_kwargs=None,**kwargs):
         self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
+    
         options = self._th_hook('options',mangler=frameCode)() or dict()
         kwargs.update(dictExtract(options,'grid_'),slice_prefix=False)
         if options.get('addrow') and options.get('addrow') is not True:
@@ -68,7 +69,7 @@ class TableHandlerView(BaseComponent):
             view.left.borderContainer(closable=True,width='300px',
                                     border_right='1px solid silver'
                                     ).contentPane(region='center'
-                                    ).structureTree(structure_field=structure_field,view=view)
+                                    ).structureTree(structure_field=structure_field,view=view,**structure_field_kwargs)
         return view
     
     def _th_view_printEditorDialog(self,view):

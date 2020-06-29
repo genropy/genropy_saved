@@ -85,11 +85,8 @@ class TableHandler(BaseComponent):
             datapath = datapath or '.{}'.format(th_root)
         viewCode='V_{}'.format(th_root)
         formCode='F_{}'.format(th_root)
-
-        defaultModule = 'th_{}'.format(tableCode)
-        
+        defaultModule = 'th_{}'.format(table.split('.')[1])
         unlinkdict = kwargs.pop('store_unlinkdict',None)
-
         if pane.attributes.get('tag') == 'ContentPane':
             pane.attributes['overflow'] = 'hidden'
         wdg = pane.child(tag=tag,datapath=datapath or '.{}'.format(tableCode),

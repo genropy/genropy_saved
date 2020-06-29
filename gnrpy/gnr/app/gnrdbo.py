@@ -235,7 +235,7 @@ class TableBase(object):
     def sysFields(self, tbl, id=True, ins=True, upd=True, full_upd=False, ldel=True, user_ins=None, user_upd=None, 
                   draftField=False, invalidFields=None,invalidRelations=None,md5=False,
                   counter=None,hierarchical=None,hierarchical_virtual_roots=False,
-                    hierarchical_root_id=False,useProtectionTag=None,
+                    hierarchical_root_id=False,hdepth=None,useProtectionTag=None,
                   group='zzz', group_name='!![en]System',
                   df=None,counter_kwargs=None,**kwargs):
         """Add some useful columns for tables management (first of all, the ``id`` column)
@@ -312,7 +312,8 @@ class TableBase(object):
             hfields = []
             for fld in hierarchical.split(','):
                 if fld=='pkey':
-                    tbl.column('hierarchical_pkey',unique=True,group=group,_sysfield=True) 
+                    hierarchical_col = tbl.column('hierarchical_pkey',unique=True,group=group,
+                                                    name_long='!![en]Hierarchical pkey',_sysfield=True) 
                     tbl.column('_parent_h_pkey',group=group,_sysfield=True)
                     hfields.append(fld)
                 else:
@@ -323,9 +324,17 @@ class TableBase(object):
                     hcol = tbl.column(fld)
                     fld_caption=hcol.attributes.get('name_long',fld).replace('!![en]','')  
                     hfields.append(fld)
-                    tbl.column('hierarchical_%s'%fld,name_long='!![en]Hierarchical %s'%fld_caption,group=group,_sysfield=True,
-                                unique=unique)
+                    hierarchical_col = tbl.column('hierarchical_%s'%fld,name_long='!![en]Hierarchical %s'%fld_caption,
+                                unique=unique)  
                     tbl.column('_parent_h_%s'%fld,name_long='!![en]Parent Hierarchical %s'%fld_caption,group=group,_sysfield=True)
+                if hdepth:
+                    hcolattrs = hierarchical_col.attributes
+                    print('hcolattrs',hcolattrs)
+                    hcolattrs.update(variant='hdepth',variant_hdepth_levels=hdepth)
+                    if not hcolattrs.get('group'):
+                        hfld = 'hierarchical_%s'%fld
+                        hcolattrs['group'] = hfld
+                        tbl.attributes['group_{name}'.format(name=hfld)] = hcolattrs.get('name_long',hfld)
             tbl.attributes['hierarchical'] = ','.join(hfields)
             if not counter:
                 tbl.attributes.setdefault('order_by','$hierarchical_%s' %hfields[0] )
@@ -526,6 +535,12 @@ class TableBase(object):
         if not self.hierarchicalHandler:
             raise Exception('hlv variant only for hierarchical table')
         return self.hierarchicalHandler.variantColumn_hlv(field,**kwargs)
+
+    def variantColumn_hdepth(self,field,**kwargs):
+        """hierarchical_last_value"""
+        if not self.hierarchicalHandler:
+            raise Exception('hdepth variant only for hierarchical table')
+        return self.hierarchicalHandler.variantColumn_hdepth(field,**kwargs)
 
     def trigger_hierarchical_before(self,record,fldname,old_record=None,**kwargs):
         self.hierarchicalHandler.trigger_before(record,old_record=old_record)

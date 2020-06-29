@@ -180,7 +180,7 @@ class FrameGridTools(BaseComponent):
             pane.data('.current',','.join(dflt) if dflt else None)
         multiButton = multiButton is True or multiButton is None or multiButton and len(filtersetBag)<=multiButton
         if multiButton:
-            mb = pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,
+            pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,
                                 disabled='^.#parent.#parent.loadingData',**kwargs)
     
         else:
@@ -219,12 +219,15 @@ class FrameGridTools(BaseComponent):
         bc = view.grid_envelope.borderContainer(region='left',width='300px',closable='close',
                                         splitter=True,border_right='1px solid silver',
                                         selfsubscribe_closable_change="""SET .use_grouper = $1.open;""")
+        inattr = view.getInheritedAttributes()
         bc.contentPane(region='center',datapath='.grouper').remote(self.fg_remoteGrouper,
-                                                groupedTh=view.attributes.get('frameCode'),
+                                                groupedTh=inattr.get('frameCode'),
+                                                groupedThViewResource=inattr.get('th_viewResource'),
                                                 table=table)
         
     @public_method
-    def fg_remoteGrouper(self,pane,table=None,groupedTh=None,**kwargs):
+    def fg_remoteGrouper(self,pane,table=None,groupedTh=None,groupedThViewResource=None,**kwargs):
+        self._th_mixinResource(groupedTh,table=table,resourceName=groupedThViewResource,defaultClass='View')
         onTreeNodeSelected = """var item = p_0.item;
                                 var grouper_cols = [];
                                 var currItem = item;
