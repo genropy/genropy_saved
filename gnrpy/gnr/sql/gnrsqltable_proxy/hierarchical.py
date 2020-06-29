@@ -230,6 +230,21 @@ class HierarchicalHandler(object):
         kwargs.setdefault('format',colattr.get('format'))
         return [dict(name=name,select=select,**kwargs)]
 
+    def variantColumn_hdepth(self,field,levels=None,**kwargs):
+        result = []
+        colattr = self.tblobj.column(field).attributes
+        for i in range(1,levels):
+            colkw = dict(kwargs)
+            name = '{field}_{levidx:02}'.format(field=field,levidx=i)
+            colkw['name'] = name
+            colkw['sql_formula'] = "array_to_string((string_to_array(${field},'/'))[1\:{levidx}],'/')".format(field=field,levidx=i)
+            colkw.setdefault('name_long','{name_long} {levidx:02}'.format(name_long=colattr.get('name_long'),levidx=i))
+            colkw.setdefault('dtype',colattr.get('dtype'))
+            colkw.setdefault('format',colattr.get('format'))
+            colkw.setdefault('group',colattr.get('group') or field)
+            result.append(colkw)
+        return result 
+
 
     def trigger_before(self,record,old_record=None):
         tblobj = self.tblobj

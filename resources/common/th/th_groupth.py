@@ -90,7 +90,7 @@ class TableHandlerGroupBy(BaseComponent):
             if pbl_classes is None:
                 pbl_classes = True
             if pbl_classes:
-                bar = frame.top.slotBar(slots,_class='pbl_roundedGroupLabel',vtitle=title)
+                frame.top.slotBar(slots,_class='pbl_roundedGroupLabel',vtitle=title)
                 frame.attributes['_class'] = 'pbl_roundedGroup'
             else:
                 bar = frame.top.slotToolbar(slots)
