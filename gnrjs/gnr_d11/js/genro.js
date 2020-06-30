@@ -2139,7 +2139,7 @@ dojo.declare('gnr.GenroClient', null, {
         params = params || {height:'600',width:'900'};
         if (params) {
             if (typeof(params) != 'string') {
-                parlist = [];
+                let parlist = [];
                 for (var par in params) {
                     parlist.push(par + '=' + params[par]);
                 }
