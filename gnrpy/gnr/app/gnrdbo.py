@@ -366,7 +366,6 @@ class TableBase(object):
                     tbl.column('_parent_h_%s'%fld,name_long='!![en]Parent Hierarchical %s'%fld_caption,group=group,_sysfield=True)
                 if hdepth:
                     hcolattrs = hierarchical_col.attributes
-                    print('hcolattrs',hcolattrs)
                     hcolattrs.update(variant='hdepth',variant_hdepth_levels=hdepth)
                     if not hcolattrs.get('group'):
                         hfld = 'hierarchical_%s'%fld
