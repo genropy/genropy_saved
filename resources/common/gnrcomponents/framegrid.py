@@ -257,7 +257,7 @@ class FrameGridTools(BaseComponent):
         }
         """,struct='^.grid.struct')
         if self.application.checkResourcePermission('admin', self.userTags):
-            gth.viewConfigurator(table,queryLimit=False,toolbar=True)
+            gth.viewConfigurator(table,queryLimit=False,toolbar=True,closable=False)
         gth.grid.dataController("""
                             if(!currentGrouperPkey){{
                                 return;
@@ -272,18 +272,27 @@ class FrameGridTools(BaseComponent):
                             currentGrouperPkey='^.currentGrouperPkey',
                             _if='currentGrouperPkey',_delay=1,grid=gth.grid.js_widget)
 
-        bar = gth.top.bar.replaceSlots('#','2,viewsSelect,*,searchOn,2,confMenu,2')
+        bar = gth.top.bar.replaceSlots('#','2,viewsSelect,*,confMenu,2')
+        fcode = gth.attributes.get('frameCode')
+        self._grouperConfMenu(bar.confMenu,frameCode=fcode)
 
-        self._grouperConfMenu(bar.confMenu)
-
-        bar = gth.treeView.top.bar.replaceSlots('#','2,viewsSelect,*,searchOn,2,confMenu,2')
-        self._grouperConfMenu(bar.confMenu)
+        bar = gth.treeView.top.bar.replaceSlots('#','2,viewsSelect,*,confMenu,2')
+        self._grouperConfMenu(bar.confMenu,frameCode=fcode)
 
 
-    def _grouperConfMenu(self,pane):
+    def _grouperConfMenu(self,pane,frameCode=None):
         pane.menudiv(iconClass='iconbox gear',_tags='admin',
-                            values='grid:Flat,tree:Hierarchical',
-                            action="""SET .output = $1.fullpath;""")
+                            values='grid:Flat,tree:Hierarchical,conf:Toggle configurator',
+                            action="""
+                            let output;
+                            if($1.fullpath=='conf'){{
+                                SET .output = 'grid';
+                                let frameCode = '{frameCode}';
+                                genro.nodeById('{frameCode}_grid/parent/parent/parent/parent').publish('regions',{{right:{{show:'toggle'}}}});
+                            }}else{{
+                                SET .output = $1.fullpath;
+                            }}
+                        """.format(frameCode=frameCode))
                 
         #groupSelector,*,searchOn,2,ingranaggio
 
@@ -292,13 +301,15 @@ class FrameGridTools(BaseComponent):
         
 
     @struct_method
-    def fg_viewConfigurator(self,view,table=None,queryLimit=None,region=None,configurable=None,toolbar=True):
+    def fg_viewConfigurator(self,view,table=None,queryLimit=None,region=None,configurable=None,toolbar=True,closable=None):
         grid = view.grid
         grid.attributes['configurable'] = True
+        if closable is None:
+            closable = 'close'
         frameCode = view.attributes.get('frameCode')
-        right = view.grid_envelope.borderContainer(region=region or 'right',width='160px',closable='close',
+        right = view.grid_envelope.borderContainer(region=region or 'right',width='160px',closable=closable,
                                         nodeId='{frameCode}_configurator'.format(frameCode=frameCode),
-                                        splitter=True,border_left='1px solid silver')
+                                        splitter=True,border_left='1px solid silver',hidden=closable is False)
         gridId = grid.attributes.get('nodeId')
         if toolbar:
             confBar = right.contentPane(region='top')

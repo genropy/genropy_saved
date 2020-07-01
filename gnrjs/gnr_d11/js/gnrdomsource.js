@@ -1090,7 +1090,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 argValues.push(arguments[i]);
                 argNames.push('p_'+i);
             }
-            var currAttr = that.currentAttributes();
             funcApply(h, that.currentAttributes(),that,argNames,argValues);
         };
         var topic = (this.attr.nodeId || this.getStringId()) +'_'+command;
@@ -1098,7 +1097,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         subscriberNode.registerSubscription(topic,this,handler);
     },
     lazyBuildFinalize:function(widget){
-        var lazyBuild = objectPop(this.attr,'_lazyBuild');
         var content = this.getValue();
         if (content instanceof gnr.GnrBag){
             var nodes = content._nodes;
