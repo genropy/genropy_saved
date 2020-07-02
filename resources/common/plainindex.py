@@ -30,16 +30,15 @@ class PlainIndex(BaseComponent):
             root.data('directoryIndex',folder)
             box.tree(storepath='directoryIndex',
                 cursor='pointer',
-                connect_onDblClick="""
-                            var attr = $1.attr;
-                            if(attr.file_ext=='py'){
-                                genro.openWindow((window.location.pathname+'/'+attr.rel_path).replace('//','/'));
-                            }
-                            """,
                 connect_onClick="""
                             var attr = $1.attr;
                             if(attr.file_ext=='py'){
-                                genro.gotoURL((window.location.pathname+'/'+attr.rel_path).replace('//','/'));
+                                if($2.__eventmodifier=='Shift'){
+                                    window.open((window.location.pathname+'/'+attr.rel_path).replace('//','/'));
+                                }else{
+                                    genro.gotoURL((window.location.pathname+'/'+attr.rel_path).replace('//','/'));
+                                }
+                                
                             }
                             """,
                                 labelAttribute='caption',hideValues=True)
