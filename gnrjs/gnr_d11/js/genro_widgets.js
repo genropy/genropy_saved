@@ -1868,6 +1868,16 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
             dojo.connect(widget, 'addChild', dojo.hitch(this, 'onAddChild', widget));
             dojo.connect(widget, 'removeChild', dojo.hitch(this, 'onRemoveChild', widget));
         }
+        sourceNode.subscribe('regions',function(kw){
+            for(let region in kw){
+                let kwregion = kw[region];
+                if(kwregion){
+                    kwregion['region'] = region;
+                    this.widget.setRegions(kwregion);
+                }
+                
+            }
+        },sourceNode);
     },
 
 
@@ -2020,16 +2030,24 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         }
     },
     mixin_setRegions:function(value, kw) {
-        var region = kw.node.label;
+        let region,show,size;
+        if(value.region){
+            region = value.region;
+            show = value.show;
+            size = value.size;
+        }else{
+            region = kw.node.label;
+            size = kw.node.getValue();
+            show = kw.node.attr.show;
+        }
         if (('_' + region) in this) {
-            var size = kw.node.getValue();
             if (size) {
                 this['_' + region].style[(region == 'top' || region == 'bottom' ) ? "height" : "width"] = size;
                 this._layoutChildren();
             }
         }
-        if ('show' in kw.node.attr) {
-            this.showHideRegion_one(region, kw.node.attr.show);
+        if (show!==undefined) {
+            this.showHideRegion_one(region, show);
         }
     },
     mixin_getRegionVisibility: function(region) {

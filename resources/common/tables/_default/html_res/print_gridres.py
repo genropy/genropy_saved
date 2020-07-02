@@ -6,10 +6,13 @@
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
 #
+import math
+
 from gnr.web.gnrbaseclasses import TableScriptToHtml
 from gnr.core.gnrstring import templateReplace
 from gnr.core.gnrnumber import decimalRound
 from gnr.core.gnrlang import position
+
 
 
 from gnr.core.gnrbag import Bag
@@ -49,6 +52,7 @@ class Main(TableScriptToHtml):
         totalize_mode = self.parameter('totalize_mode') or printParams['totalize_mode']
         totalize_footer =  self.parameter('totalize_footer') or printParams['totalize_footer']
         totalize_carry = self.parameter('totalize_carry') or printParams['totalize_carry']
+        self.cell_characters_limit = {}
         if totalize_mode or totalize_footer or totalize_carry:
             self.totalize_mode = totalize_mode or 'doc'
             self.totalize_footer = totalize_footer or True
@@ -71,6 +75,9 @@ class Main(TableScriptToHtml):
                 c['mm_min_width'] = min_mm_elastic_width
             else:
                 c['mm_width'] = max(int(c['q_width']*tot_width),min_mm_width)
+            if c.get('character_limit'):
+                c['white_space'] = 'normal'
+                self.cell_characters_limit[c['field_getter']] = c.get('character_limit')
         #self.structAnalyze(struct)
         return dict(columns=self.gridColumnsFromStruct(struct=struct),
                     columnsets=self.gridColumnsetsFromStruct(struct))
@@ -151,6 +158,16 @@ class Main(TableScriptToHtml):
                                    border_width=0)
         row = layout.row()
         row.cell(self.getData('print_title'), content_class='caption')    
+
+
+    def calcRowHeight(self):
+        if not self.cell_characters_limit:
+            return self.grid_row_height
+        l = []
+        for k,v in self.cell_characters_limit.items():
+            txt = (self.rowData.get(k) or '')
+            l.append(math.ceil(len(txt)/float(v))) 
+        return max(l) * self.grid_row_height
 
     def outputDocName(self, ext=''):
         return '%s.%s' %(self.parameter('print_title') or self.page.getUuid() ,ext)
