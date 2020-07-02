@@ -2031,7 +2031,7 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
     },
     mixin_setRegions:function(value, kw) {
         let region,show,size;
-        if(value.region){
+        if(value && value.region){
             region = value.region;
             show = value.show;
             size = value.size;
