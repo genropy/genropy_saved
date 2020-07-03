@@ -48,7 +48,8 @@ class Form(BaseComponent):
             themes = ','.join([s.basename for s in themesSn.children() if s.isdir and not s.basename.startswith('.')])
             fb.field('theme', values=themes, tag='filteringSelect')
         fb.field('sphinx_path')
-
+        fb.field('examples_site')
+        fb.field('examples_directory')
         fb.field('custom_styles',tag='simpleTextArea',colspan=2,height='300px')
         example_pars_fb = top.div(margin='10px',margin_right='20px').formbuilder(cols=2,border_spacing='6px',
                                                     fld_width='100%',
