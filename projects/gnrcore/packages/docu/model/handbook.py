@@ -23,5 +23,7 @@ class Table(object):
         tbl.column('version', name_long='Version')
         tbl.column('author', name_long='Author')
         tbl.column('theme', name_long='Theme')
+        tbl.column('examples_site',name_long='Examples site')
+        tbl.column('examples_directory',name_long='Examples dir')
         tbl.column('last_exp_ts', dtype='DH', name_long='Last export ts')
         tbl.column('custom_styles',name_long='Custom styles')
