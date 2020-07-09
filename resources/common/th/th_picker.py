@@ -289,7 +289,7 @@ class THPicker(BaseComponent):
                     var kw = {dropPkey:mainpkey,tbl:tbl,one:one,many:many};
                     kw.dragPkeys = [fkey];
                     kw['_sourceNode'] = this;
-                    if(grid.gridEditor && grid.gridEditor.editorPars){
+                    if(grid.gridEditor && grid.gridEditor.editorPars && !(grid.gridEditor.autoSave && mainpkey)){
                         var rows = [];
                         dojo.forEach(kw.dragPkeys,function(fkey){
                             var r = {};

@@ -1087,7 +1087,10 @@ class TableBase(object):
             self.trigger_releaseCounters(record,backToDraft=True)
         else:
             for field in self.counterColumns():
-                self.db.table('adm.counter').assignCounter(tblobj=self,field=field,record=record)
+                self.assignCounterColumn(field=field,record=record)
+
+    def assignCounterColumn(self,field=None,record=None):
+        self.db.table('adm.counter').assignCounter(tblobj=self,field=field,record=record)
 
     @public_method
     def guessCounter(self,record=None,field=None,**kwargs):

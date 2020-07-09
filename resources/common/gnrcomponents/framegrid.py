@@ -215,7 +215,8 @@ class FrameGridTools(BaseComponent):
 
 
     @struct_method
-    def fg_viewGrouper(self,view,table=None,region=None):
+    def fg_viewGrouper(self,view,table=None,region=None,closable=None):
+        closable = 'close' if closable is None else closable
         bc = view.grid_envelope.borderContainer(region='left',width='300px',closable='close',
                                         splitter=True,border_right='1px solid silver',
                                         selfsubscribe_closable_change="""SET .use_grouper = $1.open;""")
@@ -242,7 +243,7 @@ class FrameGridTools(BaseComponent):
                                 groupedStore.store.loadData({{'grouper_row':row,'grouper_cols':grouper_cols}});
         """.format(groupedTh=groupedTh)
         gth = pane.groupByTableHandler(table=table,frameCode='{groupedTh}_grouper'.format(groupedTh=groupedTh),
-                            grid_autoSelect=True,
+                            #grid_autoSelect=True,
                             configurable=False,
                             grid_configurable=True,
                             grid_selectedIndex='.selectedIndex',
@@ -252,7 +253,9 @@ class FrameGridTools(BaseComponent):
                             tree_selfsubscribe_onSelected=onTreeNodeSelected,
                             **kwargs)
         gth.dataController('FIRE .reloadMain;',_onBuilt=500)
-        gth.dataController("""if(_reason=='node'){
+        gth.dataController("""
+        if(_reason=='node'){
+            PUT .output = null;
             SET .output = genro.groupth.groupCellInfoFromStruct(struct).group_by_cols.length>1?'tree':'grid'
         }
         """,struct='^.grid.struct')
