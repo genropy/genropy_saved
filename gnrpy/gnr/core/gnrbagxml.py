@@ -465,7 +465,7 @@ class BagToXml(object):
                 #
             #if value.find('\n')!=-1: value= '\n%s\n' % value
             if self.output_encoding:
-                value = value.encode(self.output_encoding, 'xmlcharrefreplace').decode('utf-8')
+                value = value.encode(self.output_encoding, 'ignore').decode('utf-8')
         if not value and tagName in self.self_closed_tags:
             result = '%s/>' % result
         else:
