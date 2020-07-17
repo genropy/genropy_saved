@@ -905,8 +905,8 @@ class SqlTable(GnrObject):
                 self.insert(r)
             duplicatedRecords.append(r)
         for n in self.model.relations:
-            joiner =  n.attr.get('joiner')
-            onDuplicate = joiner.get('onDuplicate','ignore')
+            joiner =  n.attr.get('joiner',{})
+            onDuplicate =  joiner.get('onDuplicate')
             if onDuplicate is None and (joiner.get('onDelete')=='cascade' or joiner.get('onDelete_sql')=='cascade'):
                 onDuplicate = 'recursive'
             if joiner and joiner['mode'] == 'M' and onDuplicate=='recursive':
