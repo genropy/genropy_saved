@@ -13,10 +13,11 @@ var THPicker = {
             var dfield = l.length==1?l[0]:l[1];
             destrow[dfield] = sourcerow[sfield];
         };
+        var drow;
         if(treepicker){
             kw.dragPkeys = [data.pkey];
             if(defaults){
-                var drow = {};
+                drow = {};
                 kw.dragDefaults = {};
                 defaults.split(',').forEach(function(d){cbdef(drow,data['_record'],d);});
                 kw.dragDefaults[data['pkey']] = drow;
@@ -27,7 +28,7 @@ var THPicker = {
             dojo.forEach(data,function(n){
                 pkeys.push(n['_pkey'])
                 if(defaults){
-                    var drow = {};
+                    drow = {};
                     defaults.split(',').forEach(function(d){cbdef(drow,n,d);});
                     dragDefaults[n['_pkey']] = drow;
                 }
@@ -44,7 +45,7 @@ var THPicker = {
         }
 
         kw._sourceNode = sourceNode;
-        if(grid.gridEditor && grid.gridEditor.editorPars){
+        if(grid.gridEditor && grid.gridEditor.editorPars && !(grid.gridEditor.autoSave && mainpkey)){
             var rows = [];
             dojo.forEach(kw.dragPkeys,function(fkey){
                 var r = {};
@@ -56,6 +57,14 @@ var THPicker = {
             });
             grid.gridEditor.addNewRows(rows);
         }else if(mainpkey){
+            if(grid.gridEditor && objectNotEmpty(grid.gridEditor.editorPars.default_kwargs)){
+                var editorDefaults = grid.sourceNode.evaluateOnNode(grid.gridEditor.editorPars.default_kwargs);
+                kw.dragDefaults = kw.dragDefaults || {};
+                kw.dragPkeys.forEach(function(pkey){
+                    kw.dragDefaults[pkey] = kw.dragDefaults[pkey] || {};
+                    objectUpdate(kw.dragDefaults[pkey],editorDefaults);
+                });
+            }
             genro.serverCall(rpcmethod,kw,function(){},null,'POST');
         }
 

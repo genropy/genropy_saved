@@ -906,7 +906,10 @@ class SqlTable(GnrObject):
             duplicatedRecords.append(r)
         for n in self.model.relations:
             joiner =  n.attr.get('joiner')
-            if joiner and joiner['mode'] == 'M' and (joiner.get('onDelete')=='cascade' or joiner.get('onDelete_sql')=='cascade'):
+            onDuplicate = joiner.get('onDuplicate','ignore')
+            if onDuplicate is None and (joiner.get('onDelete')=='cascade' or joiner.get('onDelete_sql')=='cascade'):
+                onDuplicate = 'recursive'
+            if joiner and joiner['mode'] == 'M' and onDuplicate=='recursive':
                 rellist = joiner['many_relation'].split('.')
                 fkey = rellist[-1]
                 subtable ='.'.join(rellist[:-1])

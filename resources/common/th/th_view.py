@@ -1069,6 +1069,7 @@ class TableHandlerView(BaseComponent):
                                httpMethod='WSK' if self.extraFeatures['wsk_grid'] else None,
                                _onCalling="""
                                %s
+                               delete this._currentGrouper;
                                if(kwargs.fkey && this.form && this.form.isLogicalDeleted()){
                                    kwargs.excludeLogicalDeleted = 'mark';
                                }
@@ -1092,11 +1093,8 @@ class TableHandlerView(BaseComponent):
                                     kwargs['where'] = newwhere;
                                }
                                if( _use_grouper){
-                                   if(th_grouper_manager.onCalling(kwargs)===false){
-                                       return false
-                                   }
+                                   this._currentGrouper = th_grouper_manager.onCalling(kwargs);
                                }
-
                                """
                                %self._th_hook('onQueryCalling',mangler=th_root,dflt='')(),
                                **store_kwargs)

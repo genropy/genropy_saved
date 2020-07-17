@@ -553,7 +553,7 @@ class DbModelSrc(GnrStructData):
     def relation(self, related_column, mode='relation', one_name=None,
                  many_name=None, eager_one=None, eager_many=None, one_one=None, child=None,
                  one_group=None, many_group=None, onUpdate=None, onUpdate_sql='cascade', onDelete=None,
-                 onDelete_sql=None, deferred=None, relation_name=None, **kwargs):
+                 onDelete_sql=None, deferred=None, relation_name=None,onDuplicate=None, **kwargs):
         """Add a relation between two :ref:`tables <table>`. This relation can be traveled in the
         direct direction (check the :ref:`relation` section) or in the inverse direction
         (check the :ref:`inverse_relation` section)
@@ -597,7 +597,7 @@ class DbModelSrc(GnrStructData):
                             onUpdate=onUpdate, onDelete=onDelete,
                             eager_one=eager_one, eager_many=eager_many,
                             onUpdate_sql=onUpdate_sql, onDelete_sql=onDelete_sql,
-                            relation_name=relation_name, **kwargs)
+                            relation_name=relation_name,onDuplicate=onDuplicate, **kwargs)
                             
 class DbModelObj(GnrStructObj):
     """Base class for all the StructObj in this module"""

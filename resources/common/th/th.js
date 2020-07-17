@@ -135,9 +135,9 @@ var th_grouper_manager = {
                 kwargs[`grouper_cnd_${idx}`] = row[cell.field_getter];
             }
         });
-
         kwargs._current_grouper = row._thgroup_pkey;
         kwargs.condition = condition.join(' AND ');
+        return kwargs.grouper_row;
     }
 };
 

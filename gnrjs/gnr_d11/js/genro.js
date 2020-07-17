@@ -1017,7 +1017,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     standardEventConnection:function(pane){
-        var pane = pane || genro.domById('mainWindow');
+        pane = pane || genro.domById('mainWindow');
         if(this.isDeveloper){
             dojo.connect(dojo.body(),'onmouseover',function(e){
                 if(e.shiftKey && e.altKey){
@@ -1041,14 +1041,14 @@ dojo.declare('gnr.GenroClient', null, {
     
     playSound:function(name, path, ext) {
         if(name.indexOf('$')==0){
-            var name = genro.userPreference('sys.sounds.'+name.slice(1));
+            name = genro.userPreference('sys.sounds.'+name.slice(1));
             if(!name){
                 return;
             }
         }
         if (!(name in genro.sounds)) {
-            var path = path || '/_gnr/11/sounds/';
-            var ext = ext || 'wav';
+            path = path || '/_gnr/11/sounds/';
+            ext = ext || 'wav';
             genro.sounds[name] = new Audio(path + name + '.' + ext);
         }
         genro.sounds[name].play();
@@ -1097,7 +1097,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     
     fireAfter: function(path, msg, timeout) {
-        var timeout = timeout || 1;
+        timeout = timeout || 1;
         var _path = path;
         var _msg = msg;
         if (this.pendingCallAfter[path]) {
