@@ -113,7 +113,6 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
         var parentDomNode;
         var sn = sourceNode;
         var placingId = objectPop(kw,'placingId'); 
-        var noConnector = objectPop(kw,'noConnector');
         while(!parentDomNode){
             sn = sn.getParentNode();
             parentDomNode = sn.getDomNode();
@@ -207,7 +206,6 @@ dojo.declare("gnr.widgets.MenuDiv", gnr.widgets.gnrwdg, {
             let caption_path = objectPop(kw,'caption_path') || `${value_path}?label`;
             let key = objectPop(kw,'key') || 'fullpath';
             let caption = objectPop(kw,'caption') || 'caption';
-            let default_value = objectPop(kw,'default');
             let placeholder = objectPop(kw,'placeholder') || 'Empty';
             box._('div',{innerHTML:`^${caption_path}?=#v||'${placeholder}'`});
             kw.action = `this.setRelativeData('${value_path}',$1['${key}']);this.setRelativeData('${caption_path}',$1['${caption}'] || $1.label);`;
@@ -1374,7 +1372,7 @@ dojo.declare("gnr.widgets.PaletteImporter", gnr.widgets.gnrwdg, {
         var s = matchGrid.widget.collectionStore().getData();
         s.setItem(p,!s.getItem(p));
         var previewStructCells = this.gridNode.getRelativeData('#WORKSPACE.struct.#0.#0')
-        var importfields = s.values().forEach(function(v){
+        s.values().forEach(function(v){
             var nprev = previewStructCells.getNode(v.getItem('source_field'));
             if(v.getItem('do_import')){
                 delete nprev.attr.hidden;

@@ -788,7 +788,6 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     canBeDropped:function(dataTransfer, sourceNode) {
         var dragSourceInfo = genro.dom.getDragSourceInfo(dataTransfer);
-        if(objectNotEmpty)
         if (dragSourceInfo.detachable) {
             return 'detach';
         }
