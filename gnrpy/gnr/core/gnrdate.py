@@ -106,6 +106,7 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
     * a date formatted according to locale (see babel doc): e.g. 4 28, 2008 (en_us) or 28-4-08 (it)
                            various separators are admitted: 28-4-08, 28/4/08, 28 4 08"""
     
+    datestr = datestr.lower()
     def addToDay(datestr, date):
         if '+' in datestr:
             days = int(datestr.split('+')[1].strip())
