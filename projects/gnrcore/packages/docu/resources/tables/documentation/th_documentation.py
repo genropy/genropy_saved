@@ -5,6 +5,9 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrbag import Bag
 
+class Page(BaseComponent):
+    pageOptions={'openMenu':False}
+    
 class View(BaseComponent):
 
     def th_struct(self,struct):
