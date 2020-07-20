@@ -530,6 +530,11 @@ class GnrWsgiSite(object):
         :param static_name: TODO"""
         return self.statics.get(static_name)
 
+    def getApiKeys(self,name):
+        node = self.gnrapp.config.getNode(f'api_keys.{name}')
+        if node:
+            return node.attr
+
     def exception(self, message):
         """TODO
 

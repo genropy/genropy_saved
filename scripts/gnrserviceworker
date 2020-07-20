@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+# encoding: utf-8
+import sys
+from gnr.core.gnrlang import gnrImport
+if __name__ == '__main__':
+    class_path = sys.argv[1]
+    remaining_args = sys.argv[2:]
+    class_kwargs = dict()
+    while remaining_args:
+        key = remaining_args.pop(0).replace('--','')
+        value = remaining_args.pop(0)
+        class_kwargs[key] = value
+    module = gnrImport(class_path)
+    service_class = getattr(module,'Service')
+    service = service_class(**class_kwargs)
+    service.run()
+    
