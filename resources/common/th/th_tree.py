@@ -235,7 +235,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                         excludeRoot=excludeRoot,subtable=subtable,**kwargs)
         form.htree = hviewTree
         hviewTree.dataController("this.form.load({destPkey:selected_pkey || '*norecord*'});",selected_pkey="^.tree.pkey")
-        hviewTree.dataController("""
+        hviewTree.dataController(r"""
             if(pkey==null){
                 tree.widget.setSelectedPath(null,{value:'root'});
             }
