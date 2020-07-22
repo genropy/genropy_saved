@@ -2233,7 +2233,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     //forms functions
     formInfo: function(name) {
-        var name = name || 'formPane';
+        name = name || 'formPane';
         var controllerPath = genro.formById(name).controllerPath;
         return genro._(controllerPath);
     },

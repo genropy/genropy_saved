@@ -34,6 +34,7 @@ from gnr.sql.gnrsqltable import SqlTable
 from gnr.sql.gnrsql_exceptions import GnrSqlException, GnrSqlMissingField, GnrSqlMissingTable,\
     GnrSqlMissingColumn, GnrSqlRelationError
 import threading
+import re
 
 logger = logging.getLogger(__name__)
 VIRTUAL_COLUMNS_CACHETIME = timedelta(0,300)
@@ -397,6 +398,15 @@ class DbModelSrc(GnrStructData):
                           fullname='%s.%s' %(pkg,name),
                           **kwargs)
 
+    def subtable(self, name,condition=None, **kwargs):
+        """Insert a :ref:`subtable` into a :ref:`table`
+        
+        :param name: the subtable name
+        """
+        if not 'subtables' in self:
+            self.child('subtable_list', 'subtables')
+        return self.child('subtable', 'subtables.%s' % name, condition=condition,**kwargs)
+    
     @extract_kwargs(variant=dict(slice_prefix=False)) 
     def column(self, name, dtype=None, size=None,
                default=None, notnull=None, unique=None, indexed=None,
@@ -981,6 +991,9 @@ class DbTableObj(DbModelObj):
         colconf = user_conf.getAttr('cols_permission.%s' %name) or dict()        
         return dict([('user_%s' %k,v) for k,v in colconf.items() if v is not None])
 
+    def subtable(self,name):
+        return self['subtables.{name}'.format(name=name)]
+
     def column(self, name):
         """Return a column object or None if it doesn't exists.
         
@@ -1429,6 +1442,21 @@ class DbTableAliasObj(DbModelObj):
         
     relation_path = property(_get_relation_path)
         
+        
+class DbSubtableObj(DbModelObj):
+    sqlclass = 'subtable'
+    
+    def getCondition(self,sqlparams=None):
+        kw = dict(self.attributes)
+        condition_kw = dictExtract(kw,'condition_')
+        condition = kw.pop('condition')
+        for k,v in condition_kw.items():
+            newk = 'subtable_condition_{k}'.format(k=k)
+            condition = re.sub("(:)(%s)(\\W|$)" %k,
+                                lambda m: '%s%s%s'%(m.group(1),newk,m.group(3)), condition)
+            sqlparams[newk] = v
+        return condition
+        
 class DbTblAliasListObj(DbModelObj):
     sqlclass = "tblalias_list"
         
@@ -1437,6 +1465,9 @@ class DbColAliasListObj(DbModelObj):
         
 class DbColumnListObj(DbModelObj):
     sqlclass = "column_list"
+        
+class DbSubtableListObj(DbModelObj):
+    sqlclass = "subtable_list"
         
 class DbIndexListObj(DbModelObj):
     sqlclass = "index_list"

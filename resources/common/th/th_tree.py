@@ -76,7 +76,7 @@ class HTableTree(BaseComponent):
     @extract_kwargs(related=True)
     @struct_method
     def ht_htableViewStore(self,treeNode,table=None,storepath='.store',caption_field=None,condition=None,caption=None,
-                               dbstore=None,root_id=None,columns=None,related_kwargs=None,resolved=False,**kwargs):
+                               dbstore=None,root_id=None,columns=None,related_kwargs=None,subtable=None,resolved=False,**kwargs):
         b = Bag()
         tblobj = self.db.table(table)
         caption = caption or tblobj.name_plural
@@ -84,10 +84,12 @@ class HTableTree(BaseComponent):
         storeRoot = treeNode.parent #to make it indipendent from tree rebuild
         if tree_datapath and storepath.startswith('.'): #htableViewStore can be used outside componet
             storepath = '%s%s' %(tree_datapath,storepath) #store storepath from the same point of tree
-        if condition or related_kwargs.get('condition'):
+        if condition or related_kwargs.get('condition') or subtable:
             storekw = dict(kwargs)
             for k,v in related_kwargs.items():
                 storekw['related_%s' %k] = v
+            if subtable:
+                storekw['_onBuilt'] = 1
             d = storeRoot.dataRpc(None,tblobj.getHierarchicalData,
                         table=table,
                         caption_field=caption_field,
@@ -95,7 +97,7 @@ class HTableTree(BaseComponent):
                         childname='store',caption=caption,dbstore=dbstore,
                         columns=columns,related_kwargs=related_kwargs,
                         nodeId='%s_hdata' %table.replace('.','_'),
-                        **storekw)
+                        subtable=subtable,**storekw)
             d.addCallback("""
                 var selectedIdentifier;
                 if(treeNode.attr.tag.toLocaleLowerCase()=='tree'){ //avoid paletteTree
@@ -157,7 +159,7 @@ class HTableTree(BaseComponent):
     @struct_method
     def ht_hTableTree(self,pane,storepath='.store',table=None,root_id=None,draggable=True,columns=None,
                         caption_field=None,condition=None,caption=None,dbstore=None,condition_kwargs=None,store_kwargs=True,related_kwargs=None,root_id_delay=None,
-                        moveTreeNode=True,excludeRoot=None,resolved=False,searchCode=None,**kwargs):
+                        moveTreeNode=True,excludeRoot=None,subtable=None,resolved=False,searchCode=None,**kwargs):
         
         treeattr = dict(storepath=storepath,hideValues=True,draggable=draggable,identifier='treeIdentifier',
                             labelAttribute='caption',selectedLabelClass='selectedTreeNode',searchCode=searchCode,dropTarget=True)
@@ -171,7 +173,7 @@ class HTableTree(BaseComponent):
         tree.htableViewStore(storepath=storepath,table=table,caption_field=caption_field,condition=condition,
                             root_id=root_id,columns=columns,
                             related_kwargs=related_kwargs,
-                            dbstore=dbstore,resolved=resolved,**store_kwargs)
+                            dbstore=dbstore,resolved=resolved,subtable=subtable,**store_kwargs)
         if moveTreeNode:
             treeattr = tree.attributes
             treeattr['onDrop_nodeattr']="""var into_pkey = dropInfo.treeItem.attr.pkey;
@@ -219,7 +221,7 @@ class TableHandlerHierarchicalView(BaseComponent):
     py_requires='th/th_picker:THPicker,th/th_tree:HTableTree'
 
     @struct_method
-    def ht_treeViewer(self,pane,caption_field=None,_class=None,excludeRoot=None,**kwargs):
+    def ht_treeViewer(self,pane,caption_field=None,_class=None,excludeRoot=None,subtable=None,**kwargs):
         pane.attributes['height'] = '100%'
         pane.attributes['overflow'] = 'hidden'
         box = pane.div(datapath='.#parent.hview',text_align='left',height='100%',childname='treebox')        
@@ -227,7 +229,8 @@ class TableHandlerHierarchicalView(BaseComponent):
         form = formNode.value
         form.store.handler('load',default_parent_id='=#FORM.record.parent_id')
         table = formNode.attr['table']
-        hviewTree = box.hviewTree(table=table,caption_field=caption_field,_class=_class or 'noIcon',excludeRoot=excludeRoot,**kwargs)
+        hviewTree = box.hviewTree(table=table,caption_field=caption_field,_class=_class or 'noIcon',
+                        excludeRoot=excludeRoot,subtable=subtable,**kwargs)
         form.htree = hviewTree
         hviewTree.dataController("this.form.load({destPkey:selected_pkey || '*norecord*'});",selected_pkey="^.tree.pkey")
         hviewTree.dataController("""
