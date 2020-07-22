@@ -42,6 +42,7 @@ class TableHandlerTreeResolver(BagResolver):
                    'related_kwargs':None,
                    '_isleaf':None,
                    'readOnly':False,
+                   'subtable':None,
                    '_page':None}
     classArgs = ['table','parent_id']
 
@@ -127,6 +128,7 @@ class TableHandlerTreeResolver(BagResolver):
         columns = self.columns or '*'
         q = tblobj.query(where=where,p_id=parent_id,r_id=self.root_id,columns='%s,$child_count,$%s' %(columns,caption_field),
                          condition_pkeys=condition_pkeys,
+                         subtable=self.subtable,
                          order_by=order_by,_storename=self.dbstore,**condition_kwargs)
         return q.fetch()
 
@@ -145,13 +147,14 @@ class TableHandlerTreeResolver(BagResolver):
                                             dbstore=self.dbstore,
                                             condition=self.condition,
                                             related_kwargs=self.related_kwargs,
+                                            subtable=self.subtable,
                                             _condition_id=self._condition_id,columns=self.columns)
             elif self.related_kwargs:
                 related_children = self.getRelatedChildren(pkey)
                 if related_children:
                     value = TableHandlerTreeResolver(_page=self._page,table=self.table,parent_id=pkey,caption_field=self.caption_field,
                                             dbstore=self.dbstore,condition=self.condition,related_kwargs=self.related_kwargs,
-                                            _condition_id=self._condition_id,columns=self.columns,_isleaf=True)
+                                            _condition_id=self._condition_id,columns=self.columns,subtable=self.subtable,_isleaf=True)
                     child_count = len(related_children)
                 elif not self.related_kwargs.get('_allowEmptyFolders'):
                     continue
@@ -252,7 +255,7 @@ class HierarchicalHandler(object):
         parent_id=record.get('parent_id')
         parent_record = None
         if parent_id:
-            parent_record = tblobj.query(where='$%s=:pid' %pkeyfield,pid=parent_id).fetch()
+            parent_record = tblobj.query(where='$%s=:pid' %pkeyfield,pid=parent_id,subtable='*').fetch()
             parent_record = parent_record[0] if parent_record else None
         for fld in tblobj.attributes.get('hierarchical').split(','):
             parent_h_fld='_parent_h_%s'%fld
@@ -270,7 +273,7 @@ class HierarchicalHandler(object):
         if old_record is None and record.get('_row_count') is None:
             #has counter and inserting a new record without '_row_count'
             where = '$parent_id IS NULL' if not record.get('parent_id') else '$parent_id =:p_id' 
-            last_counter = tblobj.readColumns(columns='$_row_count',where=where,
+            last_counter = tblobj.readColumns(columns='$_row_count',where=where,subtable='*',
                                         order_by='$_row_count desc',limit=1,p_id=parent_id)
             record['_row_count'] = (last_counter or 0)+1
         if old_record is None or tblobj.fieldsChanged('_row_count,_parent_h_count',record,old_record):
@@ -289,7 +292,7 @@ class HierarchicalHandler(object):
             changed_counter = (record['_row_count'] != old_record['_row_count']) or (record['_parent_h_count'] != old_record['_parent_h_count'])
         if changed_hfields or changed_counter:
             fetch = tblobj.query(where='$parent_id=:curr_id',addPkeyColumn=False, for_update=True,curr_id=record[tblobj.pkey],order_by=order_by,
-                                    bagFields=True).fetch()
+                                    bagFields=True,subtable='*').fetch()
             for k,row in enumerate(fetch):
                 new_row = dict(row)
                 for fld in changed_hfields:
@@ -305,7 +308,7 @@ class HierarchicalHandler(object):
     def getHierarchicalData(self,caption_field=None,condition=None,
                             condition_kwargs=None,caption=None,
                             dbstore=None,columns=None,related_kwargs=None,
-                            resolved=False,parent_id=None,root_id=None,alt_pkey_field=None,**kwargs):
+                            resolved=False,parent_id=None,root_id=None,alt_pkey_field=None,subtable=None,**kwargs):
         b = Bag()
         caption = caption or self.tblobj.name_plural
         condition_kwargs = condition_kwargs or dict()
@@ -313,7 +316,8 @@ class HierarchicalHandler(object):
         related_kwargs = related_kwargs or {}
         v = TableHandlerTreeResolver(_page=self.tblobj.db.currentPage,
                                         table=self.tblobj.fullname,caption_field=caption_field,condition=condition,dbstore=dbstore,columns=columns,related_kwargs=related_kwargs,
-                                                condition_kwargs=condition_kwargs,root_id=root_id,parent_id=parent_id,alt_pkey_field=alt_pkey_field)
+                                                condition_kwargs=condition_kwargs,root_id=root_id,parent_id=parent_id,alt_pkey_field=alt_pkey_field,
+                                                subtable=subtable)
         b.setItem('root',v,caption=caption,child_count=1,pkey='',treeIdentifier='_root_',table=self.tblobj.fullname,
                     search_method=self.tblobj.hierarchicalSearch,search_related_table=related_kwargs.get('table'),
                     search_related_path=related_kwargs.get('path'),search_related_caption_field=related_kwargs.get('caption_field'))

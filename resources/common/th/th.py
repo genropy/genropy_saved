@@ -51,7 +51,7 @@ class TableHandler(BaseComponent):
                             addrowmenu_kwargs=None,
                             export_kwargs=None,
                             liveUpdate=None,
-                            picker_kwargs=True,
+                            picker_kwargs=True,subtable=None,
                             dbstore=None,hider_kwargs=None,view_kwargs=None,preview_kwargs=None,parentForm=None,
                             form_kwargs=None,relation_kwargs=None,**kwargs):
         fkeyfield=None
@@ -66,6 +66,8 @@ class TableHandler(BaseComponent):
         if 'inheritProtect' in kwargs:
             view_kwargs['store_inheritProtect'] = kwargs['inheritProtect']
             form_kwargs['form_inheritProtect'] = kwargs.pop('inheritProtect')
+        if subtable:
+            view_kwargs['store_subtable'] = subtable
         tblobj = self.db.table(table)
         tblattr = tblobj.attributes
 

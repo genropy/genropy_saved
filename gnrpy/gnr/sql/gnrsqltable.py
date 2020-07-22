@@ -279,6 +279,14 @@ class SqlTable(GnrObject):
         result = self.model.column(name,**kwargs)
         return result
         
+    def subtable(self, name,**kwargs):
+        """Returns a :ref:`column` object.
+        
+        :param name: A column's name or a :ref:`relation <relations>` starting from
+                     the current :ref:`table`. (eg. ``@director_id.name``)"""
+        result = self.model.subtable(name,**kwargs)
+        return result
+
     def fullRelationPath(self, name):
         """TODO
         
@@ -968,6 +976,7 @@ class SqlTable(GnrObject):
               relationDict=None, sqlparams=None, excludeLogicalDeleted=True,
               excludeDraft=True,
               addPkeyColumn=True,
+              subtable=None,
               ignoreTableOrderBy=False,ignorePartition=False, locale=None,
               mode=None,_storename=None,checkPermissions=False,aliasPrefix=None, 
               joinConditions=None,jc_kwargs=None,**kwargs):
@@ -1014,7 +1023,8 @@ class SqlTable(GnrObject):
                          addPkeyColumn=addPkeyColumn,ignoreTableOrderBy=ignoreTableOrderBy,
                         locale=locale,_storename=_storename,
                         checkPermissions=checkPermissions,jc_kwargs=jc_kwargs,
-                         aliasPrefix=aliasPrefix,joinConditions=joinConditions,**kwargs)
+                         aliasPrefix=aliasPrefix,joinConditions=joinConditions,
+                         subtable=subtable,**kwargs)
         return query
 
 

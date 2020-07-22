@@ -26,10 +26,11 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_tableViewer(self,pane,frameCode=None,table=None,th_pkey=None,viewResource=None,
                        virtualStore=None,condition=None,condition_kwargs=None,
-                       structure_field=None,structure_field_kwargs=None,sections_kwargs=None,**kwargs):
+                       structure_field=None,structure_field_kwargs=None,sections_kwargs=None,store_kwargs=None,**kwargs):
         self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
     
         options = self._th_hook('options',mangler=frameCode)() or dict()
+        store_kwargs.setdefault('subtable',options.get('subtable'))
         kwargs.update(dictExtract(options,'grid_'),slice_prefix=False)
         if options.get('addrow') and options.get('addrow') is not True:
             kwargs['top_addrow_defaults'] = kwargs.get('top_addrow_defaults') or options['addrow']
@@ -54,7 +55,7 @@ class TableHandlerView(BaseComponent):
                                  condition=condition,condition_kwargs=condition_kwargs,
                                  _sections_dict=sections_kwargs,
                                  selectedPage='^.viewPage',resourceOptions=options,
-                                 **kwargs)
+                                 store_kwargs=store_kwargs,**kwargs)
         
         if queryBySample:
             self._th_handleQueryBySample(view,table=table,pars=queryBySample)

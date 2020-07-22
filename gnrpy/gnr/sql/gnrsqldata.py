@@ -471,7 +471,7 @@ class SqlQueryCompiler(object):
                       group_by='', having='', for_update=False,
                       relationDict=None,
                       bagFields=False,
-                      storename=None,
+                      storename=None,subtable=None,
                       count=False, excludeLogicalDeleted=True,excludeDraft=True,
                       ignorePartition=False,ignoreTableOrderBy=False,
                       addPkeyColumn=True):
@@ -541,15 +541,21 @@ class SqlQueryCompiler(object):
             columns = ','.join(new_col_list)
             
         # translate @relname.fldname in $_relname_fldname and add them to the relationDict
+        currentEnv = self.db.currentEnv
+        if not subtable and currentEnv.get('subtable') \
+            and self.tblobj.subtable(currentEnv.get('subtable')) is not None:
+            subtable = currentEnv.get('subtable')
+        subtable = subtable or self.tblobj.attributes.get('default_subtable')      
         if where:
             where = PERIODFINDER.sub(self.expandPeriod, where)
-        currentEnv = self.db.currentEnv
         env_conditions = dictExtract(currentEnv,'env_%s_condition_' %self.tblobj.fullname.replace('.','_'))
         wherelist = [where]
         if env_conditions:
             for condition in list(env_conditions.values()):
                 wherelist.append('( %s )' %condition)
         wherelist.append(self.tblobj.dbtable.getPartitionCondition(ignorePartition=ignorePartition))
+        if subtable and subtable!='*':
+            wherelist.append(self.tblobj.dbtable.subtable(subtable).getCondition(sqlparams=self.sqlparams))
         where = ' AND '.join([w for w in wherelist if w])
         columns = self.updateFieldDict(columns)
         where = self.embedFieldPars(where)
@@ -933,7 +939,7 @@ class SqlQuery(object):
                  relationDict=None, sqlparams=None, bagFields=False,
                  joinConditions=None, sqlContextName=None,
                  excludeLogicalDeleted=True,excludeDraft=True,
-                 ignorePartition=False,
+                 ignorePartition=False,subtable=None,
                  addPkeyColumn=True, ignoreTableOrderBy=False,
                  locale=None,_storename=None,
                  checkPermissions=None,
@@ -946,6 +952,7 @@ class SqlQuery(object):
                               distinct=distinct, group_by=group_by,
                               limit=limit, offset=offset,for_update=for_update,
                               having=having)
+        self.subtable = subtable
         self.joinConditions = joinConditions or {}
         self.sqlContextName = sqlContextName
         self.relationDict = relationDict or {}
@@ -1020,6 +1027,7 @@ class SqlQuery(object):
                                                                   ignorePartition=self.ignorePartition,
                                                                   ignoreTableOrderBy=self.ignoreTableOrderBy,
                                                                   storename=self.storename,
+                                                                  subtable=self.subtable,
                                                                   **self.querypars)
                                                                   
     def cursor(self):
