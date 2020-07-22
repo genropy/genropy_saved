@@ -253,7 +253,7 @@ class HierarchicalHandler(object):
         parent_id=record.get('parent_id')
         parent_record = None
         if parent_id:
-            parent_record = tblobj.query(where='$%s=:pid' %pkeyfield,pid=parent_id).fetch()
+            parent_record = tblobj.query(where='$%s=:pid' %pkeyfield,pid=parent_id,subtable='*').fetch()
             parent_record = parent_record[0] if parent_record else None
         for fld in tblobj.attributes.get('hierarchical').split(','):
             parent_h_fld='_parent_h_%s'%fld
@@ -271,7 +271,7 @@ class HierarchicalHandler(object):
         if old_record is None and record.get('_row_count') is None:
             #has counter and inserting a new record without '_row_count'
             where = '$parent_id IS NULL' if not record.get('parent_id') else '$parent_id =:p_id' 
-            last_counter = tblobj.readColumns(columns='$_row_count',where=where,
+            last_counter = tblobj.readColumns(columns='$_row_count',where=where,subtable='*',
                                         order_by='$_row_count desc',limit=1,p_id=parent_id)
             record['_row_count'] = (last_counter or 0)+1
         if old_record is None or tblobj.fieldsChanged('_row_count,_parent_h_count',record,old_record):
@@ -290,7 +290,7 @@ class HierarchicalHandler(object):
             changed_counter = (record['_row_count'] != old_record['_row_count']) or (record['_parent_h_count'] != old_record['_parent_h_count'])
         if changed_hfields or changed_counter:
             fetch = tblobj.query(where='$parent_id=:curr_id',addPkeyColumn=False, for_update=True,curr_id=record[tblobj.pkey],order_by=order_by,
-                                    bagFields=True).fetch()
+                                    bagFields=True,subtable='*').fetch()
             for k,row in enumerate(fetch):
                 new_row = dict(row)
                 for fld in changed_hfields:
