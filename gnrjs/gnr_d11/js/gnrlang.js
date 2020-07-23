@@ -1171,6 +1171,9 @@ var gnrformatter = {
 
     format_B:function(value,format,formatKw){
         var format = format || 'true,false';
+        if(format=='semaphore'){
+            format = '<div class="greenLight">&nbsp;</div>,<div class="redLight">&nbsp;</div>,<div class="grayLight">&nbsp;</div>'
+        }
         format = format.split(',');
         return (value === null && format.length==3)?format[2]:(value?format[0]:format[1]);
     },
