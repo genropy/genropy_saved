@@ -138,23 +138,23 @@ class DynamicFieldsTable(GnrDboTable):
     def config_db(self,pkg):
         tblname = self._tblname
         tbl = pkg.table(tblname,pkey='id')
-        mastertbl = '%s.%s' %(pkg.parentNode.label,tblname.replace('_df',''))
-        self.df_dynamicFormFields(tbl,mastertbl)
+        maintbl = '%s.%s' %(pkg.parentNode.label,tblname.replace('_df',''))
+        self.df_dynamicFormFields(tbl,maintbl)
 
-    def df_dynamicFormFields(self,tbl,mastertbl):
-        pkgname,mastertblname = mastertbl.split('.')
-        tblname = '%s_df' %mastertblname
+    def df_dynamicFormFields(self,tbl,maintbl):
+        pkgname,maintblname = maintbl.split('.')
+        tblname = '%s_df' %maintblname
         assert tbl.parentNode.label == tblname,'table name must be %s' %tblname
         model = self.db.model
-        mastertbl =  model.src['packages.%s.tables.%s' %(pkgname,mastertblname)]
-        mastertbl.attributes['df_fieldstable'] = '%s.%s' %(pkgname,tblname)
-        mastertbl_name_long = mastertbl.attributes.get('name_long')
-        mastertbl.column('df_fbcolumns','L',group='_')
-        mastertbl.column('df_custom_templates','X',group='_')
+        maintbl =  model.src['packages.%s.tables.%s' %(pkgname,maintblname)]
+        maintbl.attributes['df_fieldstable'] = '%s.%s' %(pkgname,tblname)
+        maintbl_name_long = maintbl.attributes.get('name_long')
+        maintbl.column('df_fbcolumns','L',group='_')
+        maintbl.column('df_custom_templates','X',group='_')
         tbl.attributes.setdefault('caption_field','description')
         tbl.attributes.setdefault('rowcaption','$description')
-        tbl.attributes.setdefault('name_long','%s dyn field' %mastertbl_name_long)
-        tbl.attributes.setdefault('name_plural','%s dyn fields' %mastertbl_name_long)
+        tbl.attributes.setdefault('name_long','%s dyn field' %maintbl_name_long)
+        tbl.attributes.setdefault('name_plural','%s dyn fields' %maintbl_name_long)
         self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id')
         tbl.column('id',size='22',group='_',name_long='Id')
         tbl.column('code',name_long='!!Code')
@@ -192,19 +192,19 @@ class DynamicFieldsTable(GnrDboTable):
         #tbl.column('do_summary','B',name_long='!!Do summary')
         tbl.column('mandatory','B',name_long='!!Mandatory')
 
-        tbl.column('maintable_id',size='22',group='_',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
+        tbl.column('maintable_id',size='22',group='_',name_long=maintblname).relation('%s.%s.%s' %(pkgname,maintblname,maintbl.attributes.get('pkey')), 
                     mode='foreignkey', onDelete_sql='cascade', relation_name='dynamicfields',
                     one_group='_',many_group='_')
-        if mastertbl.attributes.get('hierarchical'):
+        if maintbl.attributes.get('hierarchical'):
             tbl.formulaColumn('hlevel',"""array_length(string_to_array(@maintable_id.hierarchical_pkey,'/'),1)""")
 
     def onSiteInited(self):
         if self.pkg.attributes.get('df_ok'):
             return
-        mastertbl = self.fullname.replace('_df','')
-        tblobj = self.db.table(mastertbl)
+        maintbl = self.fullname.replace('_df','')
+        tblobj = self.db.table(maintbl)
         if tblobj.column('df_fields') is not None:
-            print 'IMPORTING DynamicFields FROM LEGACY',mastertbl
+            print 'IMPORTING DynamicFields FROM LEGACY',maintbl
             tblobj.df_importLegacyScript()
             return True
             

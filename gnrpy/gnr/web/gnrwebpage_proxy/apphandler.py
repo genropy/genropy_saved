@@ -835,14 +835,14 @@ class GnrWebAppHandler(GnrBaseProxy):
             resultAttributes['whereAsPlainText'] = self.db.whereTranslator.toHtml(tblobj,wherebag)
         resultAttributes['hardQueryLimitOver'] = hardQueryLimit and resultAttributes['totalrows'] == hardQueryLimit
         with self.page.pageStore() as store:
-            slaveSelections = store.getItem('slaveSelections.%s' %selectionName)
-            if slaveSelections:
-                for page_id,grids in slaveSelections.items():
+            subordinateSelections = store.getItem('subordinateSelections.%s' %selectionName)
+            if subordinateSelections:
+                for page_id,grids in subordinateSelections.items():
                     if self.page.site.register.exists(page_id,register_name='page'):
                         for nodeId in grids.keys():
                             self.page.clientPublish('%s_refreshLinkedSelection' %nodeId,value=True,page_id=page_id)
                     else:
-                        slaveSelections.popNode(page_id)
+                        subordinateSelections.popNode(page_id)
         return (result, resultAttributes)
 
     def _getSelection_columns(self, tblobj, columns, expressions=None):
@@ -899,9 +899,9 @@ class GnrWebAppHandler(GnrBaseProxy):
     
 
     def _handleLinkedSelection(self,selectionName=None):
-        with self.page.pageStore() as slaveStore:
+        with self.page.pageStore() as subordinateStore:
             lsKey = 'linkedSelectionPars.%s' %selectionName
-            linkedSelectionPars = slaveStore.getItem(lsKey)
+            linkedSelectionPars = subordinateStore.getItem(lsKey)
             if not linkedSelectionPars:
                 return
             linkedPkeys = linkedSelectionPars['pkeys']
@@ -910,31 +910,31 @@ class GnrWebAppHandler(GnrBaseProxy):
                 linkedSelectionPars['command'] = None
                 gridNodeId = linkedSelectionPars['gridNodeId']
                 if linkedSelectionPars['linkedPageId']:
-                    with self.page.pageStore(linkedSelectionPars['linkedPageId']) as masterStore:
-                        slavekey = 'slaveSelections.%(linkedSelectionName)s' %linkedSelectionPars
-                        slaveSelections = masterStore.getItem(slavekey) or Bag()
-                        grids = slaveSelections[self.page.page_id] or Bag()
+                    with self.page.pageStore(linkedSelectionPars['linkedPageId']) as mainStore:
+                        subordinatekey = 'subordinateSelections.%(linkedSelectionName)s' %linkedSelectionPars
+                        subordinateSelections = mainStore.getItem(subordinatekey) or Bag()
+                        grids = subordinateSelections[self.page.page_id] or Bag()
                         if command=='subscribe':
                             grids[gridNodeId] = True
                         else:
                             grids.popNode(gridNodeId)
                         if grids:
-                            slaveSelections[self.page.page_id] = grids
+                            subordinateSelections[self.page.page_id] = grids
                         else:
-                            slaveSelections.popNode(self.page.page_id)
-                        if slaveSelections:
-                            masterStore.setItem(slavekey, slaveSelections)
+                            subordinateSelections.popNode(self.page.page_id)
+                        if subordinateSelections:
+                            mainStore.setItem(subordinatekey, subordinateSelections)
                         else:
-                            masterStore.popNode(slavekey)
+                            mainStore.popNode(subordinatekey)
                 if command == 'unsubscribe':
                     for k in linkedSelectionPars.keys():
                         linkedSelectionPars[k] = None
-                slaveStore.setItem(lsKey,linkedSelectionPars)
-        if linkedSelectionPars['masterTable']:
+                subordinateStore.setItem(lsKey,linkedSelectionPars)
+        if linkedSelectionPars['mainTable']:
             if not linkedPkeys:
-                linkedPkeys = self.page.freezedPkeys(self.db.table(linkedSelectionPars['masterTable']),linkedSelectionPars['linkedSelectionName'],
+                linkedPkeys = self.page.freezedPkeys(self.db.table(linkedSelectionPars['mainTable']),linkedSelectionPars['linkedSelectionName'],
                                                             page_id=linkedSelectionPars['linkedPageId'])
-            where = ' OR '.join([" (%s IN :_masterPkeys) " %r for r in linkedSelectionPars['relationpath'].split(',')])
+            where = ' OR '.join([" (%s IN :_mainPkeys) " %r for r in linkedSelectionPars['relationpath'].split(',')])
             return dict(where=' ( %s ) ' %where,linkedPkeys=linkedPkeys.split(',') if isinstance(linkedPkeys,basestring) else linkedPkeys)
 
 
@@ -952,7 +952,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         linkedSelectionKw = self._handleLinkedSelection(selectionName=selectionName) if selectionName else None
         if linkedSelectionKw:
             where = linkedSelectionKw['where']
-            kwargs['_masterPkeys'] = linkedSelectionKw['linkedPkeys']
+            kwargs['_mainPkeys'] = linkedSelectionKw['linkedPkeys']
         elif pkeys:
             if isinstance(pkeys, basestring):
                 pkeys = pkeys.strip(',').split(',')

@@ -173,7 +173,7 @@ class GnrDboPackage(object):
 
 
     def startupData_tables(self):
-        return  [tbl for tbl in self.db.tablesMasterIndex()[self.name].keys() if self.table(tbl).dbtable.isInStartupData()]
+        return  [tbl for tbl in self.db.tablesMainIndex()[self.name].keys() if self.table(tbl).dbtable.isInStartupData()]
 
     @public_method
     def createStartupData(self,basepath=None):
@@ -565,15 +565,15 @@ class TableBase(object):
             self.db.commit()
 
     def sysRecord(self,syscode):
-        sysRecord_masterfield = self.attributes.get('sysRecord_masterfield') or self.pkey
+        sysRecord_mainfield = self.attributes.get('sysRecord_mainfield') or self.pkey
         
         def createCb(key):
             with self.db.tempEnv(connectionName='system',storename=self.db.rootstore):
                 record = getattr(self,'sysRecord_%s' %syscode)()
                 record['__syscode'] = key
-                masterfield_value = record[sysRecord_masterfield]
-                if masterfield_value is not None:
-                    oldrecord = self.query(where='$%s=:mv' %sysRecord_masterfield,mv=masterfield_value,
+                mainfield_value = record[sysRecord_mainfield]
+                if mainfield_value is not None:
+                    oldrecord = self.query(where='$%s=:mv' %sysRecord_mainfield,mv=mainfield_value,
                                                 addPkeyColumn=False).fetch()
                     if oldrecord:
                         oldrecord = oldrecord[0]
@@ -967,19 +967,19 @@ class GnrDboTable(TableBase):
         return self.attributes.get('multidb')
 
 
-    def populateFromMasterDb(self,master_db=None,from_table=None,**kwargs):
+    def populateFromMainDb(self,main_db=None,from_table=None,**kwargs):
         print 'populating %s from %s' %(self.fullname,from_table or '')
         descendingRelations = self.model.manyRelationsList(cascadeOnly=True)
         ascendingRelations = self.model.oneRelationsList(foreignkeyOnly=True)
-        onPopulatingFromMasterDb = getattr(self,'onPopulatingFromMasterDb',None)
+        onPopulatingFromMainDb = getattr(self,'onPopulatingFromMainDb',None)
 
-        if onPopulatingFromMasterDb:
-            onPopulatingFromMasterDb(master_db=master_db,from_table=from_table,query_kwargs=kwargs)
-        f = master_db.table(self.fullname).query(bagFields=True,addPkeyColumn=False,**kwargs).fetch()
+        if onPopulatingFromMainDb:
+            onPopulatingFromMainDb(main_db=main_db,from_table=from_table,query_kwargs=kwargs)
+        f = main_db.table(self.fullname).query(bagFields=True,addPkeyColumn=False,**kwargs).fetch()
         valuesset = self._getTableCache(self.fullname)
         for r in f:
             r = dict(r)
-            self.populateAscendingRelationsFromMasterDb(r,master_db=master_db,ascendingRelations=ascendingRelations)
+            self.populateAscendingRelationsFromMainDb(r,main_db=main_db,ascendingRelations=ascendingRelations)
             if r[self.pkey] in valuesset:
                 continue
             self.raw_insert(r)
@@ -987,11 +987,11 @@ class GnrDboTable(TableBase):
             valuesset.add(r[self.pkey])
             for tbl,fkey in descendingRelations:
                 if tbl!=from_table and tbl!=self.fullname:
-                    self.db.table(tbl).populateFromMasterDb(master_db,where='$%s=:fkey' %fkey, fkey=r[self.pkey])
+                    self.db.table(tbl).populateFromMainDb(main_db,where='$%s=:fkey' %fkey, fkey=r[self.pkey])
         print '\n'
 
 
-    def populateAscendingRelationsFromMasterDb(self,record,master_db=None,ascendingRelations=None,foreignkeyOnly=None):
+    def populateAscendingRelationsFromMainDb(self,record,main_db=None,ascendingRelations=None,foreignkeyOnly=None):
         currentEnv = self.db.currentEnv
         if not ascendingRelations:
             p = '%s_one_relations' %self.fullname.replace('.','_')
@@ -1005,7 +1005,7 @@ class GnrDboTable(TableBase):
             tblobj= self.db.table(table)
             fkeyvalue = record[fkey]
             if fkeyvalue and not fkeyvalue in valuesset:
-                tblobj.populateFromMasterDb(master_db=master_db,where='$%s=:f' %pkey,f=fkeyvalue,from_table=self.fullname)
+                tblobj.populateFromMainDb(main_db=main_db,where='$%s=:f' %pkey,f=fkeyvalue,from_table=self.fullname)
             
 
     def _getTableCache(self,table):
@@ -1022,7 +1022,7 @@ class GnrDboTable(TableBase):
         
 class HostedTable(GnrDboTable):
     def hosting_config(self,tbl,mode=None):
-        if mode=='slave' and self.db.application.hostedBy:
+        if mode=='subordinate' and self.db.application.hostedBy:
             tbl.attributes['readOnly'] = True
 
 class AttachmentTable(GnrDboTable):
@@ -1031,19 +1031,19 @@ class AttachmentTable(GnrDboTable):
     def config_db(self,pkg):
         tblname = self._tblname
         tbl = pkg.table(tblname,pkey='id')
-        mastertbl = '%s.%s' %(pkg.parentNode.label,tblname.replace('_atc',''))
+        maintbl = '%s.%s' %(pkg.parentNode.label,tblname.replace('_atc',''))
 
-        pkgname,mastertblname = mastertbl.split('.')
-        tblname = '%s_atc' %mastertblname
+        pkgname,maintblname = maintbl.split('.')
+        tblname = '%s_atc' %maintblname
         assert tbl.parentNode.label == tblname,'table name must be %s' %tblname
         model = self.db.model
-        mastertbl =  model.src['packages.%s.tables.%s' %(pkgname,mastertblname)]
-        mastertbl.attributes['atc_attachmenttable'] = '%s.%s' %(pkgname,tblname)
-        mastertbl_name_long = mastertbl.attributes.get('name_long')        
+        maintbl =  model.src['packages.%s.tables.%s' %(pkgname,maintblname)]
+        maintbl.attributes['atc_attachmenttable'] = '%s.%s' %(pkgname,tblname)
+        maintbl_name_long = maintbl.attributes.get('name_long')        
         tbl.attributes.setdefault('caption_field','description')
         tbl.attributes.setdefault('rowcaption','$description')
-        tbl.attributes.setdefault('name_long','%s  Attachment' %mastertbl_name_long)
-        tbl.attributes.setdefault('name_plural','%s Attachments' %mastertbl_name_long)
+        tbl.attributes.setdefault('name_long','%s  Attachment' %maintbl_name_long)
+        tbl.attributes.setdefault('name_plural','%s Attachments' %maintbl_name_long)
 
         self.sysFields(tbl,id=True, ins=False, upd=False,counter='maintable_id')
         tbl.column('id',size='22',group='_',name_long='Id')
@@ -1052,7 +1052,7 @@ class AttachmentTable(GnrDboTable):
         tbl.column('mimetype' ,name_long='!!Mimetype')
         tbl.column('text_content',name_long='!!Content')
         tbl.column('info' ,'X',name_long='!!Additional info')
-        tbl.column('maintable_id',size='22',group='*',name_long=mastertblname).relation('%s.%s.%s' %(pkgname,mastertblname,mastertbl.attributes.get('pkey')), 
+        tbl.column('maintable_id',size='22',group='*',name_long=maintblname).relation('%s.%s.%s' %(pkgname,maintblname,maintbl.attributes.get('pkey')), 
                     mode='foreignkey', onDelete_sql='cascade',onDelete='cascade', relation_name='atc_attachments',
                     one_group='_',many_group='_',deferred=True)
         tbl.formulaColumn('fileurl',"'/_vol/' || $filepath",name_long='Fileurl')

@@ -1238,15 +1238,15 @@ class SqlSelection(object):
                     newdata.append(d)
                     datadict[d['pkey']] = d
                 else:
-                    masterRow = datadict[d['pkey']]
+                    mainRow = datadict[d['pkey']]
                     for col in mixColumns:
-                        if d[col] not in masterRow[col]:
-                            masterRow[col].append(d[col])
-                            masterRow[col].sort()
+                        if d[col] not in mainRow[col]:
+                            mainRow[col].append(d[col])
+                            mainRow[col].sort()
                     if aggregateDict:
                         for k,v in aggregateDict.items():
                             subfld = v[0]
-                            sr = masterRow[subfld].setdefault(d[v[2]],{})
+                            sr = mainRow[subfld].setdefault(d[v[2]],{})
                             sr[v[1]] = d[k]
             data = newdata
             for d in data:

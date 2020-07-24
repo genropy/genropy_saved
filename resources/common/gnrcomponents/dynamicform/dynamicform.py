@@ -208,16 +208,16 @@ class DynamicForm(BaseComponent):
     def df_fieldsGrid(self,pane,**kwargs):
         pane.attributes.update(overflow='hidden')
         bc = pane.borderContainer()
-        mastertable = pane.getInheritedAttributes()['table']
-        mastertblobj = self.db.table(mastertable)
+        maintable = pane.getInheritedAttributes()['table']
+        maintblobj = self.db.table(maintable)
         tc = bc.stackContainer(region='bottom',height='70%',splitter=True,hidden=True)
-        self.df_previewForm(tc.framePane(title='!!Preview'),mastertable=mastertable)
-        self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'),mastertable)        
+        self.df_previewForm(tc.framePane(title='!!Preview'),maintable=maintable)
+        self.df_summaryTemplates(tc.framePane(title='!!Summary Templates'),maintable)        
         center = bc.contentPane(region='center',overflow='hidden')
-        if mastertblobj.column('df_fields') is None:
+        if maintblobj.column('df_fields') is None:
             th = self.df_fieldsTableGrid(center,**kwargs)
         else:
-            th = self.df_fieldsBagGrid(center,mastertable=mastertable,**kwargs)
+            th = self.df_fieldsBagGrid(center,maintable=maintable,**kwargs)
         bar = th.view.top.bar.replaceSlots('*,delrow','fbfields,showpreview,*,delrow')
         bar.replaceSlots('addrow','addrow,duprow')
         bar.showpreview.checkbox(value='^#FORM.dynamicFormTester.showpreview',label='Preview')
@@ -227,8 +227,8 @@ class DynamicForm(BaseComponent):
         fb.textbox(value='^#FORM.record.df_colswidth',lbl='!!Colswidth',width='10em')
         return th
 
-    def df_fieldsBagGrid(self,pane,mastertable=None,**kwargs):
-        rootcode = '%s_df' %mastertable.replace('.','_')
+    def df_fieldsBagGrid(self,pane,maintable=None,**kwargs):
+        rootcode = '%s_df' %maintable.replace('.','_')
         bh = pane.contentPane(datapath='#FORM.%s' %rootcode,nodeId=rootcode,overflow='hidden')
         
         view = bh.bagGrid(frameCode='V_%s' %rootcode,storepath='#FORM.record.df_fields',
@@ -272,7 +272,7 @@ class DynamicForm(BaseComponent):
                                                 """,
                                         searchOn=searchOn,title=title,**kwargs)
 
-    def df_previewForm(self,frame,mastertable=None):
+    def df_previewForm(self,frame,maintable=None):
         bar = frame.top.slotToolbar('parentStackButtons,*,tplmenu,3')
         menuslot = bar.tplmenu.div()
         menuslot.div('^#FORM.dynamicFormTester.tplToShow',_class='floatingPopup',font_size='.9em',font_weight='bold',color='#555',cursor='pointer',padding='2px',rounded=4)
@@ -292,7 +292,7 @@ class DynamicForm(BaseComponent):
                         _delay=100,_if='tplToShow')
         bc.dataController("currdata.clear();",_fired='^#FORM.pkey',currdata='=#FORM.dynamicFormTester.data')
         
-        bc.contentPane(region='center').dynamicFieldsTestPane(df_table=mastertable,df_pkey='^#FORM.pkey',
+        bc.contentPane(region='center').dynamicFieldsTestPane(df_table=maintable,df_pkey='^#FORM.pkey',
                                                     _fired='^#FORM.dynamicFormTester._refresh_fields',
                                                     datapath='#FORM.dynamicFormTester.data',_if='showpreview',showpreview='^#FORM.dynamicFormTester.showpreview')
 

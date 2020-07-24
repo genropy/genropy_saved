@@ -127,7 +127,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
 
     def _managerConnection(self):
         dbroot = self.dbroot
-        kwargs = dict(host=dbroot.host, database='master', user=dbroot.user,
+        kwargs = dict(host=dbroot.host, database='main', user=dbroot.user,
                       password=dbroot.password, port=dbroot.port, as_dict=True)
         kwargs = dict([(k, v) for k, v in kwargs.items() if v != None])
         #conn =  psycopg2.connect(**kwargs)

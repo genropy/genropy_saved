@@ -103,8 +103,8 @@ class Package(GnrDboPackage):
 
     def checkFullSyncTables_do(self,errorlog_folder=None,dbstores=None,packages=None,tbllist=None):
         errors = Bag()
-        master_index = self.db.tablesMasterIndex()['_index_'] 
-        for tbl in master_index.digest('#a.tbl'):
+        main_index = self.db.tablesMainIndex()['_index_'] 
+        for tbl in main_index.digest('#a.tbl'):
             if tbllist and tbl not in tbllist:
                 continue
             pkg,tblname = tbl.split('.')
@@ -222,20 +222,20 @@ class MultidbTable(object):
         else:
             if self.multidb=='parent':
                 record['__protected_by_mainstore'] = True
-            slaveEventHook = getattr(self,'onSlaveSyncing',None)
-            if slaveEventHook:
-                slaveEventHook(record,event='inserting')
+            subordinateEventHook = getattr(self,'onSubordinateSyncing',None)
+            if subordinateEventHook:
+                subordinateEventHook(record,event='inserting')
             self.checkForeignKeys(record)
 
     def trigger_onUpdating_multidb(self, record,old_record=None,**kwargs):
         if self.db.usingRootstore():
             if old_record.get('__multidb_default_subscribed') != record.get('__multidb_default_subscribed'):
-                self._onUpdating_master(record,old_record=old_record,**kwargs)
+                self._onUpdating_main(record,old_record=old_record,**kwargs)
         else:
             print 'trigger_onUpdating_multidb'
-            self._onUpdating_slave(record,old_record=old_record)
+            self._onUpdating_subordinate(record,old_record=old_record)
             
-    def _onUpdating_master(self, record,old_record=None,**kwargs):
+    def _onUpdating_main(self, record,old_record=None,**kwargs):
         if record['__multidb_default_subscribed']:
             for f in self.relations_one.keys():
                 if record.get(f):
@@ -249,12 +249,12 @@ class MultidbTable(object):
         else:
             raise GnrMultidbException(description='Multidb exception',msg="You cannot unset default subscription")
 
-    def _onUpdating_slave(self, record,old_record=None,**kwargs):
-        print '_onUpdating_slave',self.db.currentEnv.get('storename')
+    def _onUpdating_subordinate(self, record,old_record=None,**kwargs):
+        print '_onUpdating_subordinate',self.db.currentEnv.get('storename')
         if self.db.currentEnv.get('_multidbSync'):
-            slaveEventHook = getattr(self,'onSlaveSyncing',None)
-            if slaveEventHook:
-                slaveEventHook(record,old_record=old_record,event='updating')
+            subordinateEventHook = getattr(self,'onSubordinateSyncing',None)
+            if subordinateEventHook:
+                subordinateEventHook(record,old_record=old_record,event='updating')
             #print 'before checkLocalUnify'
             #self.checkLocalUnify(record,old_record=old_record) #REMOVED UNIFY CUSTOM FOR MULTDB MAKE IT USELESS
             self.checkForeignKeys(record,old_record=old_record)
@@ -263,7 +263,7 @@ class MultidbTable(object):
             if onLocalWrite!='merge':
                 raise GnrMultidbException(description='Multidb exception',
                                             msg="You cannot update this record in a synced store %s" %self.fullname)
-    #def onSlaveSyncing(self,record=None,old_record=None,event=None):
+    #def onSubordinateSyncing(self,record=None,old_record=None,event=None):
     #    pass
 
     def trigger_onDeleting_multidb(self, record,**kwargs):      
@@ -463,7 +463,7 @@ class MultidbTable(object):
         tblsub = self.db.table('multidb.subscription')
         for storename in subscribedStores:
             tblsub.syncStore(event=event,storename=storename,tblobj=self,pkey=pkey,
-                            master_record=record,master_old_record=old_record,mergeUpdate=mergeUpdate)
+                            main_record=record,main_old_record=old_record,mergeUpdate=mergeUpdate)
   
     def getSubscribedStores(self,record):
         multidb = self.multidb

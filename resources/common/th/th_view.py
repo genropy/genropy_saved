@@ -638,7 +638,7 @@ class TableHandlerView(BaseComponent):
                         dragClass='draggedItem',
                         selfsubscribe_runbtn="""
                             var currLinkedSelection = GET .#parent.linkedSelectionPars;
-                            if(currLinkedSelection && currLinkedSelection.getItem('masterTable')){
+                            if(currLinkedSelection && currLinkedSelection.getItem('mainTable')){
                                 SET .#parent.linkedSelectionPars.command = 'unsubscribe';
                             }
                             if($1.modifiers=='Shift'){
@@ -737,15 +737,15 @@ class TableHandlerView(BaseComponent):
             if(pkeys){
                 reason = 'selectedOnly';
                 caption = selectedOnlyCaption;
-            } else if(linkedSelectionPars && linkedSelectionPars.getItem('masterTable')){
-                var masterTableCaption = linkedSelectionPars.getItem('masterTableCaption');
+            } else if(linkedSelectionPars && linkedSelectionPars.getItem('mainTable')){
+                var mainTableCaption = linkedSelectionPars.getItem('mainTableCaption');
                 tooltip = linkedSelectionPars.getItem('pathDescription');
                 if(!linkedSelectionPars.getItem('linkedSelectionName')){
                     reason = 'linkedSelectionPkeys';
-                    caption = linkedSelectionCaption+masterTableCaption;
+                    caption = linkedSelectionCaption+mainTableCaption;
                 }else{
                     reason = 'syncSelection';
-                    caption = syncSelectionCaption+masterTableCaption;
+                    caption = syncSelectionCaption+mainTableCaption;
                 }
             }
             SET .query.pkeys = null;
@@ -1079,11 +1079,11 @@ class THViewUtils(BaseComponent):
             var linkedSelectionName = $1.data.selectionName;
             var linkedPageId = $1.dragSourceInfo.page_id;
             var gridNodeId = this.attr.nodeId;
-            var masterTable = $1.data.table;
-            var slaveTable = this.attr.table;
-            var cb = function(selectedPath,masterTableCaption,pathDescription){
-                var kw = {pkeys:pkeys,relationpath:selectedPath,slaveTable:slaveTable,
-                            masterTable:masterTable,masterTableCaption:masterTableCaption,
+            var mainTable = $1.data.table;
+            var subordinateTable = this.attr.table;
+            var cb = function(selectedPath,mainTableCaption,pathDescription){
+                var kw = {pkeys:pkeys,relationpath:selectedPath,subordinateTable:subordinateTable,
+                            mainTable:mainTable,mainTableCaption:mainTableCaption,
                             command:'subscribe',pathDescription:pathDescription};
                 if(persistent){
                     kw.linkedSelectionName = linkedSelectionName;
@@ -1095,25 +1095,25 @@ class THViewUtils(BaseComponent):
             }
 
             genro.serverCall('th_searchRelationPath',{
-                    table:masterTable,
-                    destTable:slaveTable},
+                    table:mainTable,
+                    destTable:subordinateTable},
                     function(result){
                         var v = result.relpathlist;
-                        var masterTableCaption = result.masterTableCaption;
+                        var mainTableCaption = result.mainTableCaption;
                         var cbdict = objectFromString(result.cbvalues);
                         if(v.length>1){
-                            genro.dlg.prompt(_T('Warning'),{msg:_T('Multiple relation to table ')+masterTableCaption,
+                            genro.dlg.prompt(_T('Warning'),{msg:_T('Multiple relation to table ')+mainTableCaption,
                                                             widget:'checkBoxText',
                                                             wdg_values:result.cbvalues,
                                                             wdg_cols:1,
                                                             action:function(r){
                                                                     if(!r){return;}
                                                                     var captionPath = r.split(',').map(function(k){return cbdict[k]}).join('<br/>OR ');
-                                                                    cb(r,masterTableCaption,captionPath)
+                                                                    cb(r,mainTableCaption,captionPath)
                                                                 }
                                                             });
                         }else{
-                            cb(v[0],masterTableCaption,cbdict[v[0]]);
+                            cb(v[0],mainTableCaption,cbdict[v[0]]);
                         }
                     });
             genro.lockScreen(false,'searchingRelation');
@@ -1145,7 +1145,7 @@ class THViewUtils(BaseComponent):
             values.append('%s:%s' %(relpath,'/'.join(caption_path)))
             cbdict[relpath] = caption_path
 
-        return dict(relpathlist=result,masterTableCaption=self._(self.db.table(table).name_long),cbvalues=','.join(values))
+        return dict(relpathlist=result,mainTableCaption=self._(self.db.table(table).name_long),cbvalues=','.join(values))
 
 
 

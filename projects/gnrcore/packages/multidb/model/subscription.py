@@ -82,7 +82,7 @@ class Table(object):
    #        self.addSubscription(table=table,pkey=destPkey,dbstore=store['dbstore'])
 
     def syncStore(self,subscription_record=None,event=None,storename=None,
-                  tblobj=None,pkey=None,master_record=None,master_old_record=None,mergeUpdate=None):
+                  tblobj=None,pkey=None,main_record=None,main_old_record=None,mergeUpdate=None):
         if subscription_record:
             table = subscription_record['tablename']
             pkey = subscription_record[self.tableFkey(table)]
@@ -90,8 +90,8 @@ class Table(object):
             storename = subscription_record['dbstore']
         if not self.db.dbstores.get(storename):
             return
-        if master_record:
-            data_record = deepcopy(master_record)
+        if main_record:
+            data_record = deepcopy(main_record)
         else:
             data_record = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
             if data_record:
@@ -112,7 +112,7 @@ class Table(object):
                     if event=='U':
                         if mergeUpdate:
                             for k,v in data_record.items(): 
-                                if (v!=old_record[k]) and (old_record[k] != master_old_record[k]):
+                                if (v!=old_record[k]) and (old_record[k] != main_old_record[k]):
                                     data_record.pop(k)
                         tblobj.update(data_record,old_record=old_record)
                     else:

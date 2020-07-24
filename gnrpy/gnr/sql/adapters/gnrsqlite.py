@@ -135,11 +135,11 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         return [r[1] for r in self.dbroot.execute("PRAGMA database_list;").fetchall()]
 
     def _list_tables(self, schema):
-        query = "SELECT name FROM %s.sqlite_master WHERE type='table';" % (schema,)
+        query = "SELECT name FROM %s.sqlite_main WHERE type='table';" % (schema,)
         return [r[0] for r in self.dbroot.execute(query).fetchall()]
 
     def _list_views(self, schema):
-        query = "SELECT name FROM %s.sqlite_master WHERE type='view';" % (schema,)
+        query = "SELECT name FROM %s.sqlite_main WHERE type='view';" % (schema,)
         return [r[0] for r in self.dbroot.execute(query).fetchall()]
 
     def _list_columns(self, schema, table):

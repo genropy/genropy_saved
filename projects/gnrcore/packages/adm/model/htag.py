@@ -7,7 +7,7 @@ class Table(object):
         tbl = pkg.table('htag', pkey='id', name_long='!!Tag',
                         rowcaption='$code,$description',caption_field='hierarchical_description',
                         newrecord_caption='!!New tag',hierarchical_caption_field='description',
-                        sysRecord_masterfield='hierarchical_code')
+                        sysRecord_mainfield='hierarchical_code')
         self.sysFields(tbl,hierarchical='code:unique,description')
         #self.htableFields(tbl)
         #tbl.column('parent_code').relation('htag.code',onDelete='cascade')
