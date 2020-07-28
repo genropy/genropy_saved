@@ -123,7 +123,7 @@ var th_grouper_manager = {
             return;
         }
         let row = kwargs.grouper_row;
-        let cols = kwargs.grouper_cols;
+        let cols = kwargs._grouper_cols;
         let condition = [];
         if(kwargs.condition){
             condition.push(kwargs.condition);
