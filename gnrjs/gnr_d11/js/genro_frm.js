@@ -760,12 +760,14 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.sourceNode.setHiderLayer(waiting,{message:'<div class="form_waiting"></div>',z_index:999999});
     },
 
-    setFormError:function(errorcode,message){
+    setFormError:function(errorcode,message,showMessage){
         if(message===false){
             this.formErrors.popNode(errorcode);
         }else{
             this.formErrors.setItem(errorcode,message);
-            this.publish('message',{message:message,sound:'$error',messageType:'error'});
+            if(showMessage!==false){
+                this.publish('message',{message:message,sound:'$error',messageType:'error'});
+            }
         }
         this.updateStatus();
     },
