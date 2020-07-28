@@ -42,16 +42,17 @@ class Form(BaseComponent):
 
         center = bc.roundedGroupFrame(title='Parameters',region='center')
         center.center.contentPane().remote(self.buildServiceParameters,service_type='=.service_type',implementation='=.implementation',
-                                                    _if="service_type && implementation",
+                                                    service_name='=.service_name', _if="service_type && implementation",
                                                     _fired='^#FORM.controller.loaded')
 
 
     @public_method
-    def buildServiceParameters(self,pane,service_type=None,implementation=None,**kwargs):
+    def buildServiceParameters(self,pane,service_type=None,implementation=None,service_name=None,**kwargs):
         mixinpath = '/'.join(['services',service_type,implementation])
         self.mixinComponent('%s:ServiceParameters' %mixinpath,safeMode=True)
         if hasattr(self,'service_parameters'):
-            self.service_parameters(pane,datapath='.parameters')
+            self.service_parameters(pane,datapath='.parameters', service_name=service_name,
+                                    service_type=service_type, implementation=implementation)
 
     def th_options(self):
         return dict(form_add=self.db.table('sys.service').getAvailableServiceTree(),

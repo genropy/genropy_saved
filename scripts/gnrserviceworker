@@ -2,16 +2,20 @@
 # encoding: utf-8
 import sys
 from gnr.core.gnrlang import gnrImport
+from gnr.app.gnrdeploy import PathResolver
+import os
+
 if __name__ == '__main__':
-    class_path = sys.argv[1]
-    remaining_args = sys.argv[2:]
-    class_kwargs = dict()
-    while remaining_args:
-        key = remaining_args.pop(0).replace('--','')
-        value = remaining_args.pop(0)
-        class_kwargs[key] = value
-    module = gnrImport(class_path)
+    instance_name,package_name,service_type,service_name = sys.argv[1].split('.')
+    path_resolver = PathResolver()
+    package_path = path_resolver.package_name_to_path(package_name)
+    module_path = os.path.join(package_path,'lib','services', service_type,'service.py')
+    module = gnrImport(module_path)
     service_class = getattr(module,'Service')
-    service = service_class(**class_kwargs)
+    service = service_class(instance_name=instance_name, package_name=package_name, 
+                                service_name=service_name)
     service.run()
     
+    #TO RUN SERVICE USE:
+    #gnrserviceworker instance.package.servicetype.servicename
+    #e.g. gnrserviceworker sandbox.telegram.telegram.gnrspiderbot
