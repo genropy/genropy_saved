@@ -50,7 +50,8 @@ class Table(object):
         return preference.deepcopy()
 
     def getPreference(self, path, pkg=None, dflt=None, mandatoryMsg=None):
-        prefdata = self.getStorePreferences() if self.db.package('multidb') and not self.db.usingRootstore() else self.getMainStorePreference()
+        prefdata = self.getStorePreferences() if self.db.package('multidb') \
+                    and not self.db.usingRootstore() else self.getMainStorePreference()
         if path=='*':
             path = None
             pkg = None

@@ -232,6 +232,7 @@ class SqlQueryCompiler(object):
                         sq_pars.setdefault('ignorePartition',True)
                         sq_pars.setdefault('excludeDraft',False)
                         sq_pars.setdefault('excludeLogicalDeleted',False)
+                        sq_pars.setdefault('subtable','*')
                         aliasPrefix = '%s_t' %alias
                         sq_where = THISFINDER.sub(expandThis,sq_where)
                         sql_text = self.db.queryCompile(table=sq_table,where=sq_where,aliasPrefix=aliasPrefix,addPkeyColumn=False,ignoreTableOrderBy=True,**sq_pars)
@@ -531,9 +532,9 @@ class SqlQueryCompiler(object):
             
         # translate @relname.fldname in $_relname_fldname and add them to the relationDict
         currentEnv = self.db.currentEnv
-        if not subtable and currentEnv.get('subtable') \
-            and self.tblobj.subtable(currentEnv.get('subtable')) is not None:
-            subtable = currentEnv.get('subtable')
+        context_subtables = currentEnv.get('context_subtables',Bag()).getItem(self.tblobj.fullname)
+        if not subtable and context_subtables:
+            subtable = context_subtables
         subtable = subtable or self.tblobj.attributes.get('default_subtable')      
         if where:
             where = PERIODFINDER.sub(self.expandPeriod, where)
