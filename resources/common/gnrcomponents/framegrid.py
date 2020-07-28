@@ -240,7 +240,7 @@ class FrameGridTools(BaseComponent):
                                     currItem = currItem.getParentNode();
                                 }}
                                 var groupedStore = genro.nodeById('{groupedTh}_grid_store');
-                                groupedStore.store.loadData({{'grouper_row':row,'grouper_cols':grouper_cols}});
+                                groupedStore.store.loadData({{'grouper_row':row,'_grouper_cols':grouper_cols}});
         """.format(groupedTh=groupedTh)
         gth = pane.groupByTableHandler(table=table,frameCode='{groupedTh}_grouper'.format(groupedTh=groupedTh),
                             #grid_autoSelect=True,
@@ -269,7 +269,7 @@ class FrameGridTools(BaseComponent):
                             var row = grid.rowByIndex(selectedIndex);
                             var cols = grid.getColumnInfo().getNodes();
                             var grouper_cols = cols.map(n=>objectExtract(n.attr.cell,'field,original_field,group_aggr,field_getter,dtype',true));
-                            groupedStore.store.loadData({{'grouper_row':row,'grouper_cols':grouper_cols}});
+                            groupedStore.store.loadData({{'grouper_row':row,'_grouper_cols':grouper_cols}});
                             """.format(groupedTh=groupedTh),
                             selectedIndex='^.selectedIndex',
                             currentGrouperPkey='^.currentGrouperPkey',
