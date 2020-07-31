@@ -18,4 +18,4 @@ if __name__ == '__main__':
     
     #TO RUN SERVICE USE:
     #gnrserviceworker instance.package.servicetype.servicename
-    #e.g. gnrserviceworker sandbox.telegram.telegram.gnrspiderbot
+    #e.g. gnrserviceworker sandboxpg.genrobot.telegram.telegram
