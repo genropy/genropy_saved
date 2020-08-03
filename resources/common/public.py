@@ -329,6 +329,12 @@ class TableHandlerMain(BaseComponent):
         pane.dataController("genro.dom.setClass(pane,'th_filterActive',activeFilter)",
                 activeFilter='^.query.activeFilter', _onStart=True,pane=pane.parent.parent.parent)
                 
+
+    @property
+    def pageResource(self):
+        return  self._call_kwargs.get('th_pageResource') or 'Page'
+
+
     def th_options(self):
         return dict()
 
