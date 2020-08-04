@@ -330,8 +330,7 @@ class TableHandlerMain(BaseComponent):
                 activeFilter='^.query.activeFilter', _onStart=True,pane=pane.parent.parent.parent)
                 
 
-    @property
-    def pageResource(self):
+    def getPageResource(self):
         return  self._call_kwargs.get('th_pageResource') or 'Page'
 
 
