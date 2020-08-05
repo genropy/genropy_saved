@@ -1429,7 +1429,9 @@ class SqlTable(GnrObject):
                 if record.get(ofld) == old_record.get(ofld):
                     return
                 relatedTable = self.db.table(mtbl, pkg=mpkg)
-                sel = relatedTable.query(columns='*', where='%s = :pid' % mfld,
+                sel = relatedTable.query(columns='*', where='%s = :pid' % mfld,subtable='*',
+                                         excludeDraft=False,ignorePartition=True,
+                                         excludeLogicalDeleted=False,
                                          pid=old_record[ofld], for_update=True).fetch()
                 if sel:
                     if onUpdate in ('r', 'raise'):
@@ -1456,7 +1458,9 @@ class SqlTable(GnrObject):
                 if not usingRootstore and relatedTable.use_dbstores() is False:
                     continue
                 sel = relatedTable.query(columns='*', where='$%s = :pid' % mfld,
-                                         pid=record[ofld], for_update=True,excludeDraft=False,
+                                         pid=record[ofld], for_update=True,
+                                         subtable='*',ignorePartition=True,
+                                         excludeDraft=False,
                                          excludeLogicalDeleted=False).fetch()
                 if sel:
                     if onDelete in ('r', 'raise'):
