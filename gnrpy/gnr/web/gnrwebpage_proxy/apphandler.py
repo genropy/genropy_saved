@@ -573,6 +573,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         result = dict([(k[6:], v) for k, v in kwargs.items() if k.startswith('apply_')])
         if optkwargs:
             result.update(optkwargs)
+        if kwargs.get('subtable'):
+            result['subtable'] = kwargs['subtable']
         return result
 
     @public_method

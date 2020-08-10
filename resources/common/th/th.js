@@ -177,6 +177,7 @@ var th_sections_manager = {
         var currentSections = [];
         var original_condition = kwargs['condition'];
         var andlist = [];
+        var subtables = [];
         sections.forEach(function(n){
             var sectionsbag = n.getValue();
             if(!sectionsbag.getItem('enabled') || sectionsbag.getItem('excluded')){
@@ -202,6 +203,9 @@ var th_sections_manager = {
                     }
                     orlist.push(' ('+cond+') ');
                 }
+                if (cn.attr.subtable){
+                    subtables = subtables.concat(cn.attr.subtable.split(','));
+                }
             });
             if(orlist.length>0){
                 andlist.push(' (' +orlist.join(' OR ')+') ');
@@ -215,6 +219,9 @@ var th_sections_manager = {
             condition = sections_condition || original_condition;
         }
         kwargs['condition'] =condition;
+        if (subtables.length>0){
+            kwargs['subtable'] = arrayUniquify(subtables).join(',');
+        }
     },
     getSectionTitle:function(sections){
         var captions = [];

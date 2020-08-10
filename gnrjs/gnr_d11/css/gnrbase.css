@@ -4843,6 +4843,10 @@ div[disabled='true'], div[disabled='disabled']{
     margin-left: 15px;
 }
 
+.treegridcheckbox .treeGridCenter .treegrid.branchtree .dijitTreeContent{
+    margin-left: 30px;
+}
+
 .branchtree .dijitTreeExpando.dijitTreeExpandoClosed{
     background: url(icons/base10/tinyCloseBranch.png) no-repeat center center;
 }
