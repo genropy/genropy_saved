@@ -107,7 +107,13 @@ var th_dash_tableviewer = {
 
 var th_grouper_manager = {
     prepareSqlCol:function(cell){
-        let f = cell.original_field.startsWith('@')?cell.original_field : '$'+cell.original_field;
+        let f;
+        if(cell.queryfield){
+            f = cell.queryfield.split(' AS ')[0];
+        }else{
+            f = cell.original_field;
+        }
+        f = f.startsWith('@')?f : '$'+f;
         let group_aggr = cell.group_aggr;
         if(!group_aggr){
             return f;

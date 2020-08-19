@@ -200,7 +200,7 @@ class FrameGridTools(BaseComponent):
 
     @struct_method
     def fg_slotbar_configuratorPalette(self,pane,iconClass='iconbox spanner',**kwargs):
-        pane.slotButton('!!Open Configurator',iconClass=iconClass,publish='configuratorPalette')
+        pane.slotButton('!!Open Configurator',iconClass=iconClass,publish='configuratorPalette',**kwargs)
 
 
     @struct_method
@@ -268,14 +268,14 @@ class FrameGridTools(BaseComponent):
                             var groupedStore = genro.nodeById('{groupedTh}_grid_store');
                             var row = grid.rowByIndex(selectedIndex);
                             var cols = grid.getColumnInfo().getNodes();
-                            var grouper_cols = cols.map(n=>objectExtract(n.attr.cell,'field,original_field,group_aggr,field_getter,dtype',true));
+                            var grouper_cols = cols.map(n=>objectExtract(n.attr.cell,'field,original_field,group_aggr,field_getter,dtype,queryfield',true));
                             groupedStore.store.loadData({{'grouper_row':row,'_grouper_cols':grouper_cols}});
                             """.format(groupedTh=groupedTh),
                             selectedIndex='^.selectedIndex',
                             currentGrouperPkey='^.currentGrouperPkey',
                             _if='currentGrouperPkey',_delay=1,grid=gth.grid.js_widget)
 
-        bar = gth.top.bar.replaceSlots('#','2,viewsSelect,*,confMenu,2')
+        bar = gth.top.bar.replaceSlots('#','2,viewsSelect,*,configuratorPalette,2,confMenu,2')
         fcode = gth.attributes.get('frameCode')
         self._grouperConfMenu(bar.confMenu,frameCode=fcode)
 
@@ -292,9 +292,9 @@ class FrameGridTools(BaseComponent):
                                 SET .output = 'grid';
                                 let frameCode = '{frameCode}';
                                 genro.nodeById('{frameCode}_grid/parent/parent/parent/parent').publish('regions',{{right:{{show:'toggle'}}}});
-                            }}else{{
-                                SET .output = $1.fullpath;
+                                return;
                             }}
+                            SET .output = $1.fullpath;
                         """.format(frameCode=frameCode))
                 
         #groupSelector,*,searchOn,2,ingranaggio

@@ -43,7 +43,7 @@ var genro_plugin_groupth = {
                 if(n.attr.group_aggr){
                     f += '_'+n.attr.group_aggr.replace(/\W/g, '_').toLowerCase();
                 }
-                cell = objectExtract(n.attr,'field,group_aggr',true);
+                cell = objectExtract(n.attr,'field,queryfield,group_aggr',true);
                 cell.field_getter = f;
                 cell.original_field = cell.field;
                 cell.dtype = n.attr.dtype;
@@ -145,7 +145,6 @@ var genro_plugin_groupth = {
         var grpcol = [];
         var valuecols = [];
         var nobreak = [];
-        var fld;
         var attr;
         struct_row.forEach(function(n){
             attr = objectUpdate({},n.attr);
