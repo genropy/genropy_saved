@@ -691,6 +691,8 @@ class TableBase(object):
         sysRecord_masterfield = self.attributes.get('sysRecord_masterfield') or self.pkey
         with self.db.tempEnv(connectionName='system'):
             record = getattr(self,'sysRecord_%s' %syscode)()
+            if not record:
+                return
             record['__syscode'] = syscode
             masterfield_value = record[sysRecord_masterfield]
             if masterfield_value is not None:

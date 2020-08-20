@@ -240,7 +240,7 @@ class HierarchicalHandler(object):
             colkw = dict(kwargs)
             name = '{field}_{levidx:02}'.format(field=field,levidx=i)
             colkw['name'] = name
-            colkw['sql_formula'] = "array_to_string((string_to_array(${field},'/'))[1\:{levidx}],'/')".format(field=field,levidx=i)
+            colkw['sql_formula'] = r"array_to_string((string_to_array(${field},'/'))[1\:{levidx}],'/')".format(field=field,levidx=i)
             colkw.setdefault('name_long','{name_long} {levidx:02}'.format(name_long=colattr.get('name_long'),levidx=i))
             colkw.setdefault('dtype',colattr.get('dtype'))
             colkw.setdefault('format',colattr.get('format'))

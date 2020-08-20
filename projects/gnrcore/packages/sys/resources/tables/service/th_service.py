@@ -40,18 +40,22 @@ class Form(BaseComponent):
         #fb.field('daemon',colspan=1,html_label=True)
         fb.field('disabled',colspan=1,html_label=True)
 
-        center = bc.roundedGroupFrame(title='Parameters',region='center')
-        center.center.contentPane().remote(self.buildServiceParameters,service_type='=.service_type',implementation='=.implementation',
+        center = bc.contentPane(region='center')
+        center.contentPane().remote(self.buildServiceParameters,service_type='=.service_type',
+                                                    implementation='=.implementation',
+                                                    service_name='=.service_name', 
                                                     _if="service_type && implementation",
-                                                    _fired='^#FORM.controller.loaded')
+                                                    _fired='^#FORM.controller.loaded',
+                                                    _async=True,_waitingMessage=True)
 
 
     @public_method
-    def buildServiceParameters(self,pane,service_type=None,implementation=None,**kwargs):
+    def buildServiceParameters(self,pane,service_type=None,implementation=None,service_name=None,**kwargs):
         mixinpath = '/'.join(['services',service_type,implementation])
         self.mixinComponent('%s:ServiceParameters' %mixinpath,safeMode=True)
         if hasattr(self,'service_parameters'):
-            self.service_parameters(pane,datapath='.parameters')
+            self.service_parameters(pane,datapath='.parameters', service_name=service_name,
+                                    service_type=service_type, implementation=implementation)
 
     def th_options(self):
         return dict(form_add=self.db.table('sys.service').getAvailableServiceTree(),

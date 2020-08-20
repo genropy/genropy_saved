@@ -15,7 +15,7 @@ class Service(MailService):
 class ServiceParameters(BaseComponent):
     def service_parameters(self,pane,datapath=None,**kwargs):
         fb = pane.formbuilder(datapath=datapath)
-        fb.textbox(value='^.from_address',lbl='From adddress')
+        fb.textbox(value='^.from_address',lbl='From address')
         fb.textbox(value='^.smtp_host',lbl='Smtp host')
         fb.textbox(value='^.user',lbl='User')
         fb.textbox(value='^.password',lbl='Password',type='password')

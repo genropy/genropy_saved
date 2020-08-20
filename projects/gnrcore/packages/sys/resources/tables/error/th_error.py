@@ -19,7 +19,7 @@ class View(BaseComponent):
         r.fieldcell('notes')
 
     def th_order(self):
-        return 'description'
+        return '__ins_ts:d'
 
     def th_query(self):
         return dict(column='description', op='contains', val='')

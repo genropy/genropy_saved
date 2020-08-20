@@ -161,10 +161,10 @@ class Main(BaseResourceBatch):
             rst = lbag['rst'] or ''
             df_rst = self.doctable.dfAsRstTable(record['id'])
             if df_rst:
-                rst = '%s\n\n**Parameters:**\n\n%s' %(rst,df_rst) 
+                rst = '%s'%rst + '<hr>' + '\n\n**Parameters:**\n\n%s'%df_rst 
             atc_rst = self.doctable.atcAsRstTable(record['id'], host=self.page.external_host)
             if atc_rst:
-                rst = '%s\n\n**Attachments:**\n\n%s' %(rst,atc_rst)
+                rst = '%s'%rst + '<hr>' + '\n\n**Attachments:**\n\n%s'%atc_rst
 
             rst = IMAGEFINDER.sub(self.fixImages,rst)
             rst = LINKFINDER.sub(self.fixLinks, rst)

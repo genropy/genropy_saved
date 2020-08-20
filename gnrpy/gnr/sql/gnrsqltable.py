@@ -653,7 +653,7 @@ class SqlTable(GnrObject):
             if not in_cache:
                 result = self.record(virtual_columns=','.join(virtual_columns_set),ignoreMissing=ignoreMissing,**{keyField:pkey}).output('dict')
                 if (not result) and createCb:
-                    result = createCb(pkey)
+                    result = createCb(pkey) or result
                     if virtual_columns and result:
                         result = self.record(virtual_columns=','.join(virtual_columns_set),**{keyField:pkey}).output('dict')
                 cache.setItem(pkey,result,virtual_columns_set=virtual_columns_set)
