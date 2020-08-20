@@ -107,7 +107,13 @@ var th_dash_tableviewer = {
 
 var th_grouper_manager = {
     prepareSqlCol:function(cell){
-        let f = cell.original_field.startsWith('@')?cell.original_field : '$'+cell.original_field;
+        let f;
+        if(cell.queryfield){
+            f = cell.queryfield.split(' AS ')[0];
+        }else{
+            f = cell.original_field;
+        }
+        f = f.startsWith('@')?f : '$'+f;
         let group_aggr = cell.group_aggr;
         if(!group_aggr){
             return f;
@@ -123,7 +129,7 @@ var th_grouper_manager = {
             return;
         }
         let row = kwargs.grouper_row;
-        let cols = kwargs.grouper_cols;
+        let cols = kwargs._grouper_cols;
         let condition = [];
         if(kwargs.condition){
             condition.push(kwargs.condition);
@@ -177,6 +183,7 @@ var th_sections_manager = {
         var currentSections = [];
         var original_condition = kwargs['condition'];
         var andlist = [];
+        var subtables = [];
         sections.forEach(function(n){
             var sectionsbag = n.getValue();
             if(!sectionsbag.getItem('enabled') || sectionsbag.getItem('excluded')){
@@ -202,6 +209,9 @@ var th_sections_manager = {
                     }
                     orlist.push(' ('+cond+') ');
                 }
+                if (cn.attr.subtable){
+                    subtables = subtables.concat(cn.attr.subtable.split(','));
+                }
             });
             if(orlist.length>0){
                 andlist.push(' (' +orlist.join(' OR ')+') ');
@@ -215,6 +225,9 @@ var th_sections_manager = {
             condition = sections_condition || original_condition;
         }
         kwargs['condition'] =condition;
+        if (subtables.length>0){
+            kwargs['subtable'] = arrayUniquify(subtables).join(',');
+        }
     },
     getSectionTitle:function(sections){
         var captions = [];

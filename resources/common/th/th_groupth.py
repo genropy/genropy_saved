@@ -397,8 +397,8 @@ class TableHandlerGroupBy(BaseComponent):
         result.rowchild(label='!!Delete current dashboard',
                         action="""this.attributeOwnerNode('_dashboardRoot').publish('deleteCurrentDashboard');""")
         objtype = 'dash_groupby'
-        flags='groupth|%s' %rootNodeId
-        userobjects = self.db.table('adm.userobject').userObjectMenu(objtype=objtype,flags=flags,table=table)
+        #flags='groupth|%s' %rootNodeId
+        userobjects = self.db.table('adm.userobject').userObjectMenu(objtype=objtype,table=table)
         if len(userobjects)>0:
             loadAction = """this.attributeOwnerNode('_dashboardRoot').publish('loadDashboard',{pkey:$1.pkey});"""
             loadmenu = Bag()

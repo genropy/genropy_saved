@@ -304,6 +304,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
                 url = '/${$dbstore/}'+url;
             }
         }
+        if(kw.pageResource){
+            urlPars.th_pageResource = kw.pageResource;
+        }
         if(kw.formResource){
             urlPars.th_formResource = kw.formResource;
         }

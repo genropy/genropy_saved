@@ -2036,6 +2036,9 @@ class GnrWebPage(GnrBaseWebPage):
             for table in clientCachedRecord.split(','):
                 root.data('gnr.cachedRecord.%s' %table,None,
                             serverpath=self.db.table(table).cachedKey('cachedRecord'))
+        context_subtables = pageOptions.get('context_subtables')
+        if context_subtables:
+            root.data('gnr.context_subtables',Bag(context_subtables),dbenv=True,serverpath='rootenv.context_subtables')
         if self.root_page_id and self.root_page_id==self.parent_page_id:
             root.dataController("""var openMenu = genro.isMobile?false:openMenu;
                                if(openMenu===false){

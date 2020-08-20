@@ -1458,10 +1458,11 @@ class DbSubtableObj(DbModelObj):
         condition_kw = dictExtract(kw,'condition_')
         condition = kw.pop('condition')
         for k,v in condition_kw.items():
-            newk = 'subtable_condition_{k}'.format(k=k)
-            condition = re.sub("(:)(%s)(\\W|$)" %k,
-                                lambda m: '%s%s%s'%(m.group(1),newk,m.group(3)), condition)
-            sqlparams[newk] = v
+            if v not in ('*',None):
+                newk = 'subtable_condition_{k}'.format(k=k)
+                condition = re.sub("(:)(%s)(\\W|$)" %k,
+                                    lambda m: '%s%s%s'%(m.group(1),newk,m.group(3)), condition)
+                sqlparams[newk] = v
         return condition
         
 class DbTblAliasListObj(DbModelObj):
