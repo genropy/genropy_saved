@@ -1428,10 +1428,10 @@ class TotalizeTable(GnrDboTable):
 
     def tt_getvalue(self,record,pars):
         if 'cb' in pars:
-            return pars['cb'](record)
+            return pars['cb'](record) or 0
         if 'field' in pars:
-            return record[pars['field']]
-        return pars['const']
+            return record[pars['field']] or 0
+        return pars['const'] or 0
 
     def _tt_has_changes(self,record=None,old_record=None,tot_fields=None):
         for totalizer_field,pars in tot_fields.items():
