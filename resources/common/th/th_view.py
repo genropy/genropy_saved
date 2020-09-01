@@ -663,8 +663,10 @@ class TableHandlerView(BaseComponent):
                             condition_currdate=currdate,
                             isDefault=idx==0,
                             caption=self.toText(currdate,format='MMMM')))
-
-        endlast = datetime.date(currdate.year,min(currdate.month+1,12),1)
+        if currdate.month==12:
+            endlast = datetime.date((currdate.year+1),1,1)
+        else:
+            endlast = datetime.date(currdate.year,min(currdate.month+1,12),1)
         if over:
             sections.append(dict(code='after',condition='{column}>=:endlast'.format(column=column),
                                 condition_endlast=endlast,
