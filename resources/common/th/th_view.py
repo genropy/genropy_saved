@@ -9,6 +9,7 @@ from gnr.core.gnrdecorator import public_method,extract_kwargs,metadata
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import slugify
+from gnr.core.gnrdate import nextMonth
 
 
 class TableHandlerView(BaseComponent):
@@ -663,8 +664,7 @@ class TableHandlerView(BaseComponent):
                             condition_currdate=currdate,
                             isDefault=idx==0,
                             caption=self.toText(currdate,format='MMMM')))
-
-        endlast = datetime.date(currdate.year,currdate.month+1,1)
+        endlast = nextMonth(currdate)
         if over:
             sections.append(dict(code='after',condition='{column}>=:endlast'.format(column=column),
                                 condition_endlast=endlast,
