@@ -1428,10 +1428,10 @@ class TotalizeTable(GnrDboTable):
 
     def tt_getvalue(self,record,pars):
         if 'cb' in pars:
-            return pars['cb'](record) or 0
+            return pars['cb'](record)
         if 'field' in pars:
-            return record[pars['field']] or 0
-        return pars['const'] or 0
+            return record[pars['field']]
+        return pars['const']
 
     def _tt_has_changes(self,record=None,old_record=None,tot_fields=None):
         for totalizer_field,pars in tot_fields.items():
@@ -1469,10 +1469,10 @@ class TotalizeTable(GnrDboTable):
         with self.recordToUpdate(self.pkeyValue(tot_record),insertMissing=True,**tot_record) as tot:
             for totalizer_field,pars in tot_fields.items():
                 if addFromCurrent:
-                    value = self.tt_getvalue(record,pars) 
+                    value = self.tt_getvalue(record,pars) or 0
                     tot[totalizer_field] = (tot[totalizer_field] or value.__class__(0)) + value
                 if subtractFromOld:
-                    old_value = self.tt_getvalue(old_record,pars)
+                    old_value = self.tt_getvalue(old_record,pars) or 0
                     tot[totalizer_field] = (tot[totalizer_field] or old_value.__class__(0)) - old_value
             if tot['_refcount']<=0:
                 tot[self.pkey] = False
