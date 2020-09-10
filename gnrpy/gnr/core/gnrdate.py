@@ -78,6 +78,22 @@ def monthsFromDateRange(date_start=None,date_end=None,locale=None):
         curr_date = datetime.date(y,m,1)
     return result
 
+def nextMonth(date):
+    m = date.month 
+    y = date.year
+    if m==12:
+        m = 0
+        y += 1
+    return datetime.date(y,m+1,1)
+
+
+def prevMonth(date):
+    m = date.month 
+    y = date.year
+    if m==1:
+        m = 12
+        y -= 1
+    return datetime.date(y,m-1,1)
 
 def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None, locale=None, isEndPeriod=False):
     """Parse a string representing a date or a period. Return ``datetime.date``
