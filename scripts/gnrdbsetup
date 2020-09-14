@@ -209,6 +209,7 @@ if __name__ == '__main__':
             
         app.pkgBroadcast('onDbSetup,onDbSetup_*')
         if options.upgrade:
+            print('#### STORE {storename} ####'.format(storename=storename))
             app.pkgBroadcast('onDbUpgrade,onDbUpgrade_*')
             app.db.table('sys.upgrade').runUpgrades()
             app.db.commit()
