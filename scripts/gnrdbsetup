@@ -189,6 +189,7 @@ if __name__ == '__main__':
     for storename in stores:
         app.db.use_store(storename)
         if options.upgrade_only:
+            print('#### UPGRADE SCRIPTS IN STORE {storename} ####'.format(storename=storename))
             app.pkgBroadcast('onDbUpgrade,onDbUpgrade_*')
             app.db.table('sys.upgrade').runUpgrades()
             app.db.commit()
@@ -209,7 +210,6 @@ if __name__ == '__main__':
             
         app.pkgBroadcast('onDbSetup,onDbSetup_*')
         if options.upgrade:
-            print('#### STORE {storename} ####'.format(storename=storename))
             app.pkgBroadcast('onDbUpgrade,onDbUpgrade_*')
             app.db.table('sys.upgrade').runUpgrades()
             app.db.commit()
