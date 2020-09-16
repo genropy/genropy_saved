@@ -946,6 +946,15 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         menu.setItem('#id',null,{caption:_T('Export XLS'),action:"$2.widget.serverAction({command:'export',allRows:true,opt:{export_mode:'xls',downloadAs:$2.attr.nodeId+'_export'}});"});
     },
 
+    cm_plugin_copyCell:function(sourceNode,menu){
+        var copycell = function(){
+            let ot = this.widget.getParent().originalContextTarget;
+            if(ot){
+                genro.dom.copyInClipboard(ot);
+            }
+        }
+        menu.setItem('#id',null,{caption:_T('Copy cell'),action:copycell});
+    },
 
    // cm_plugin_print:function(sourceNode,menu){
    //     menu.setItem('#id',null,{caption:_T('Print'),action:"$2.widget.serverAction({command:'print',allRows:true,opt:{rawData:true,downloadAs:$2.attr.nodeId+'_print',respath:'print/_common/print_gridres'}});"});
@@ -981,6 +990,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 gridplugins = 'configurator,'+gridplugins;
             }
         }
+        gridplugins+=',copyCell';
         var contextMenuBag = sourceNode.getRelativeData('.contextMenu') || new gnr.GnrBag();
         gridplugins = gridplugins?gridplugins.split(','):[];
         var that = this;
