@@ -471,13 +471,16 @@ class SqlDbAdapter(object):
         sql = 'DELETE FROM %s WHERE %s IN :pkeyList;' % (tblobj.sqlfullname, tblobj.sqlnamemapper[tblobj.pkey])
         return self.dbroot.execute(sql, sqlargs=dict(pkeyList=pkeyList), dbtable=dbtable.fullname)
 
-    def emptyTable(self, dbtable):
+    def emptyTable(self, dbtable, truncate=None, cascade=None):
         """Delete all table rows of the specified *dbtable* table
-        :param dbtable: specify the :ref:`database table <table>`. More information in the
-                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
+            :param dbtable: specify the :ref:`database table <table>`. More information in the
+            :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
         """
         tblobj = dbtable.model
-        sql = 'DELETE FROM %s;' % (tblobj.sqlfullname)
+        if truncate:
+            sql = 'TRUNCATE %s %s;' % (tblobj.sqlfullname, 'CASCADE' * cascade)
+        else:
+            sql = 'DELETE FROM %s;' % (tblobj.sqlfullname)
         return self.dbroot.execute(sql, dbtable=dbtable.fullname)
 
     def fillFromSqlTable(self, dbtable, sqltablename):

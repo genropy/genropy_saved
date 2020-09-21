@@ -43,7 +43,7 @@ class ViewFromTask(BaseComponent):
         r.fieldcell('status')
 
     def th_top_custom(self,top):
-        top.bar.replaceSlots('vtitle','sections@secstat')
+        top.bar.replaceSlots('vtitle','sections@secstat,sections@insdate')
     
     @metadata(multiButton=True)
     def th_sections_secstat(self):
@@ -51,6 +51,20 @@ class ViewFromTask(BaseComponent):
             dict(code='active',condition="$status IN :st",condition_st=['running','waiting'],caption='Active'),
             dict(code='completed',condition="$status=:st",condition_st='completed',caption='Completed'),
             dict(code='error',condition="$status=:st",condition_st='error',caption='Error')
+        ]
+    
+    def th_sections_insdate(self):
+        from datetime import timedelta
+        return [
+            dict(code='today',condition="$__ins_ts>=:start_date",
+                        condition_start_date=self.workdate,
+                        caption='!![en]From Today'),
+            dict(code='this_week',condition="$__ins_ts>=:start_date",
+                        condition_start_date=self.workdate-timedelta(days=7),
+                        caption='!![en]Last 7 days'),
+            dict(code='this_month',condition="$__ins_ts>=:start_date",
+                        condition_start_date=self.workdate-timedelta(days=30),
+                        caption='!![en]Last 30 days')
         ]
 
 

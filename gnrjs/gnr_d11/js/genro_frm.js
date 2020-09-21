@@ -591,7 +591,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var defaultPrompt = 'defaultPrompt' in kw? kw.defaultPrompt:this.defaultPrompt;
         if(kw.destPkey=='*newrecord*' && defaultPrompt){
             var that = this;
-            kw.default_kw = kw.default_kw || {};
+            kw.default_kw = objectExtract(that.store.prepareDefaults(kw.default_kw),'default_*',true); // kw.default_kw || {};
             genro.dlg.prompt( _T(defaultPrompt.title || 'Fill parameters'),{
                 widget:defaultPrompt.fields,
                 dflt:new gnr.GnrBag(kw.default_kw),

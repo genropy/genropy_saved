@@ -2553,10 +2553,17 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         }
 
         dojo.connect(widget, 'onOpen', function() {
+            console.log('opening')
             genro.dom.addClass(document.body, 'openingMenu');
+            if(this.originalContextTarget){
+                genro.dom.addClass(this.originalContextTarget,'currentContextTarget');
+            }
         });
         dojo.connect(widget, 'onClose', function() {
             genro.dom.removeClass(document.body, 'openingMenu');
+            if(this.originalContextTarget){
+                genro.dom.removeClass(this.originalContextTarget,'currentContextTarget');
+            }
         });
         widget.modifiers = savedAttrs['modifiers'];
         widget.validclass = savedAttrs['validclass'];
@@ -2585,10 +2592,22 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     },
     
     versionpatch_11__contextMouse: function (e) {
-        this.originalContextTarget = e.target;
-        if(genro.dom.isDisabled(this.originalContextTarget,true)){
+        if(genro.dom.isDisabled(e.target,true)){
             return;
         }
+        var sourceNode = this.sourceNode;
+        var wdg = sourceNode.widget;
+        if( (wdg.modifiers || wdg.validclass ) && !(genro.wdg.filterEvent(e, wdg.modifiers, wdg.validclass)) ){
+            return;
+        }
+        var contextclick = (e.button==2 || genro.dom.getEventModifiers(e)=='Ctrl');
+        if(!wdg.modifiers){
+            if(!contextclick){
+                //not modifiers nor contextclick
+                return;
+            }
+        }
+        this.originalContextTarget = e.target;
         var ctxSourceNode;
         if (this.originalContextTarget) {
             if (this.originalContextTarget.sourceNode) {
@@ -2603,19 +2622,6 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         }
         genro._lastCtxTargetSourceNode = ctxSourceNode;
         this.ctxTargetSourceNode = ctxSourceNode;
-        var sourceNode = this.sourceNode;
-        var wdg = sourceNode.widget;
-
-        if( (wdg.modifiers || wdg.validclass ) && !(genro.wdg.filterEvent(e, wdg.modifiers, wdg.validclass)) ){
-            return;
-        }
-        var contextclick = (e.button==2 || genro.dom.getEventModifiers(e)=='Ctrl');
-        if(!wdg.modifiers){
-            if(!contextclick){
-                //not modifiers nor contextclick
-                return;
-            }
-        }
         if (sourceNode) {
             var resolver = sourceNode.getResolver();
             if (resolver && resolver.expired()) {

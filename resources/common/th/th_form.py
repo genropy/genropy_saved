@@ -266,14 +266,19 @@ class TableHandlerForm(BaseComponent):
             options.setdefault('_class','th_form_toolbar')
             form.top.slotToolbar(slots,form_add_defaults=form_add if form_add and form_add is not True else None,**options)
         if hierarchical:
+            form_attributes = form.attributes
+            fkeyfield = form_attributes.get('fkeyfield')
             leftkw = dict(splitter=True)
-            if hierarchical is True or hierarchical=='open':
+            if not fkeyfield and (hierarchical is True or hierarchical=='open'):
                 form.store.attributes.setdefault('startKey','*norecord*')
                 form.attributes.update(form_deleted_destPkey='*norecord*')
                 if hierarchical=='open':
                     leftkw['closable'] = 'open'      
-            elif hierarchical=='closed':
+            if hierarchical=='closed':
                 leftkw['closable'] = 'close'
+            if fkeyfield and not 'condition' in tree_kwargs:
+                tree_kwargs['condition'] = '${fkeyfield}=:curr_{fkeyfield}'.format(fkeyfield=fkeyfield)
+                tree_kwargs['condition_curr_{fkeyfield}'.format(fkeyfield=fkeyfield)] = '^#FORM/parent/#FORM.pkey'
             bar = form.left.slotBar('htreeSearchbar,htreeSlot,0',width=tree_kwargs.pop('width','200px'),border_right='1px solid silver',**leftkw)
             searchCode = form.attributes['frameCode']
             treeslots = '2,searchOn,*'

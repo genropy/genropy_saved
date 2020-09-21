@@ -2897,8 +2897,16 @@ div.cellContent{
     transition-property:background-color;
     background-color:transparent;
 }
-
-.externalChangedRow .cellContent{
+.copyingContent{
+    -moz-transition-property:background-color;
+    -webkit-transition-property:background-color;
+    -moz-transition-duration:1s;
+    -webkit-transition-duration:1s;
+    transition-duration:1s;
+    transition-property:background-color;
+    background-color:rgba(241, 145, 53, 0.50);
+}
+.currentContextTarget.cellContent{
     background-color:#C7FFB4;
 }
 

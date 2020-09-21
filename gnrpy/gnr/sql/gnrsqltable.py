@@ -1241,9 +1241,9 @@ class SqlTable(GnrObject):
             record[self.pkey] = self.newPkeyValue(record=record)
         return newkey
         
-    def empty(self):
+    def empty(self, truncate=None):
         """TODO"""
-        self.db.adapter.emptyTable(self)
+        self.db.adapter.emptyTable(self, truncate=None)
 
     def fillFromSqlTable(self, sqltablename):
         self.db.adapter.fillFromSqlTable(self, sqltablename)
