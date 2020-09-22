@@ -456,6 +456,16 @@ class SqlTable(GnrObject):
         return dict(name='{field}_unaccent'.format(field=field), 
                                             sql_formula=sql_formula,
                                             **kwargs)
+    
+    def variantColumn_fill(self, field, side='r', size=0, char='_', **kwargs):
+        sql_formula = "{side}pad(${field},{size},'{char}')".format(side=side,
+                                                                field=field,
+                                                                size=size,
+                                                                char=char)
+        return dict(name='{field}_{side}filled'.format(field=field,side=side), 
+                                            sql_formula=sql_formula,
+                                            **kwargs)
+
 
     #def variantColumn_repaccent(self, field, **kwargs):
     #    sql_formula= u"""unaccent(REGEXP_REPLACE(   
