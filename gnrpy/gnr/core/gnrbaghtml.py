@@ -685,7 +685,7 @@ class BagToHtml(object):
     def _rowDataCustomized(self,rowDataNode):
         if not rowDataNode:
             return dict()
-        if isinstance(rowDataNode, dict) or isinstance(rowDataNode,Bag):
+        if hasattr(rowDataNode,'keys'):
             rowData = rowDataNode
         elif self.row_mode == 'attribute':
             rowData = rowDataNode.attr
