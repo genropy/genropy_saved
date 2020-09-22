@@ -63,7 +63,7 @@ class Package(GnrDboPackage):
         caption = caption or tblattrs['name_long']
         if caption.startswith('!!'):
             caption = '[{caption}]'.format(caption=caption)
-        entity = '{code}:{caption}.format(code=code,caption=caption)
+        entity = '{code}:{caption}'.format(code=code,caption=caption)
         linked_attrs = {'linked_{k}'.format(k=k):v for k,v in kwargs.items()}
         if fkey in curr_columns:
             colsrc = src['columns'][fkey]
