@@ -101,7 +101,7 @@ class TmshResourceTable(object):
     def timesheetTable(self):
         return self.db.table('{}_tmsh'.format(self.fullname))
 
-    def onInsertedResource(self,record):
+    def trigger_onInsertedResource(self,record,**kwargs):
         self.initializeTimesheet(record)
     
     def initializeTimesheet(self,record):
