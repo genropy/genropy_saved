@@ -40,6 +40,8 @@ class TimeSheetTable(GnrDboTable):
         
         tbl.column('ts_start', dtype='DHZ', name_long='!![en]Start TS')
         tbl.column('ts_end', dtype='DHZ', name_long='!![en]End TS')
+        tbl.column('time_zone')
+        tbl.column('geocoords')
         self.onTableConfig(tbl)
         tbl.formulaColumn('ts_match',"""(CASE WHEN $ts_start IS NULL AND $ts_end IS NULL THEN TRUE
                                              WHEN $ts_start IS NULL 
@@ -114,7 +116,11 @@ class TimeSheetTable(GnrDboTable):
     def trigger_onDeleted(self,record=None):
         if self.isAllocated(record):
             self.deAllocateResource(record)
-            
+
+    def trigger_onUpdating(self,record=None,old_record=None):
+        if self.fieldsChanged(record,'resource_id'):
+            raise self.exception('business_logic',msg='You cannot change resource in timeslot')
+ 
     
     def trigger_onUpdated(self,record=None,old_record=None):
 
@@ -152,10 +158,10 @@ class TimeSheetTable(GnrDboTable):
     def findHoles(self,resource_pkeys=None,ts_start=None,ts_end=None,ts_max=None,for_update=None):
         if not isinstance(resource_pkeys,list):
             resource_pkeys = resource_pkeys.split(',')
-        return self.query(where="""$resource_id IN :res_id AND $is_allocated IS NOT TRUE 
+        return self.query(where="""($resource_id IN :res_id AND $is_allocated IS NOT TRUE) 
                                 AND ($ts_start IS NULL OR $ts_start<=:tstart) AND 
                                 ($ts_end IS NULL OR $ts_start + (:tend-:tstart) <=$ts_end)
-                                AND :tmax IS OR $ts_start<=:tmax""",for_update=for_update,
+                                AND (:tmax IS NULL OR $ts_start<=:tmax)""",for_update=for_update,
                                 res_id=resource_pkeys,tstart=ts_start,tend=ts_end,
                                 tmax=ts_max,order_by='$ts_start').fetchGrouped('resource_id')
 
