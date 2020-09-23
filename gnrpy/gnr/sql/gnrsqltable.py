@@ -503,6 +503,20 @@ class SqlTable(GnrObject):
                                             sql_formula='CAST(age(${field},{dref}) as TEXT)'.format(field=field, dref=dref),
                                             **kwargs)
 
+    def variantColumn_sharevalue(self, field, sharefield=None, **kwargs):
+        #dref = dateArg or ':env_workdate'
+        result = []
+        f = self.query(columns='{sharefield} AS _shval'.format(sharefield=sharefield),distinct=True).fetch()
+        for r in f:
+            shval = r['_shval'] 
+            sql_formula = "(CASE WHEN {sharefield} ='{shval}' THEN ${field} ELSE 0 END)".format(sharefield=sharefield,shval=shval,field=field)
+            print('sql_formula',sql_formula)
+            result.append(dict(name='{field}_{shval}'.format(field=field,shval=shval),
+                            sql_formula=sql_formula,
+                            var_shval=shval,dtype='N'))
+        return result
+  
+
     @property
     def availablePermissions(self):
         default_table_permissions = ['ins','upd','del','archive','export','import','print','mail','action']

@@ -2,6 +2,8 @@
 # encoding: utf-8
 from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage
 from gnr.core.gnrlang import instanceMixin
+from gnr.core.gnrdecorator import extract_kwargs
+import datetime
 
 class Package(GnrDboPackage):
     def config_attributes(self):
@@ -101,17 +103,55 @@ class TmshResourceTable(object):
     def timesheetTable(self):
         return self.db.table('{}_tmsh'.format(self.fullname))
 
-    def trigger_onInsertedResource(self,record,**kwargs):
-        self.initializeTimesheet(record)
+    def touch_timesheet(self,record,old_record=None):
+        self.tmsh_initializeTimesheet(record)
+
+    def trigger_onInsertedResource(self,record):
+        self.tmsh_initializeTimesheet(record)
     
-    def initializeTimesheet(self,record):
+    def tmsh_initializeTimesheet(self,record):
         tstable = self.timesheetTable()
         tsrec = tstable.newrecord(resource_id=record[self.pkey])
         tstable.insert(tsrec)
 
     def touch_timesheet(self,record,old_record=None):
-        self.initializeTimesheet(record)
-    
+        self.tmsh_initializeTimesheet(record)
+        
+    @extract_kwargs(duration=True)
+    def tmsh_allocate(self,resource_id=None,ts_start=None,ts_end=None,date_start=None,
+                        time_start=None,date_end=None,time_end=None,duration_kwargs=None,
+                        timezone=None,ts_max=None,best_fit=False,**kwargs):
+        tmsh_table = self.timesheetTable()
+        kw = tmsh_table.normalize(ts_start=ts_start,ts_end=ts_end,date_start=date_start,
+                        time_start=time_start,date_end=date_end,time_end=time_end,
+                        duration_kwargs=duration_kwargs,timezone=timezone)
+                        
+        self.timesheetTable().autoAllocate(resource_id=resource_id,ts_start=kw['ts_start'],
+                                            ts_end=kw['ts_end'],ts_max=ts_max,for_update=True,
+                                            **kwargs)
+
+                
+
+    def timechoords(self,date_start=None,date_end=None,
+                        time_start=None,time_end=None,
+                        dtstart = None,dtend=None,
+                        delta_minutes=None,delta_hour=None,
+                        delta_days=None,
+                        delta_month=None,
+                        delta_year=None):
+        result = {}
+
+
+
+        result['date_start'] = date_start or dtstart.date()
+        result['date_end'] = date_end or dtend.date()
+        result['time_start'] = time_start or dtstart.time()
+        result['time_end'] = time_end or dtend.time()
+        result['dtstart'] = datetime.datetime.combine(result['date_start'],result['time_start'])
+        result['dtend'] = datetime.datetime.combine(result['date_end'],result['time_end'])
+
+
+
                 
 
 class Table(GnrDboTable):

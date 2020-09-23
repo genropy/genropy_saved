@@ -148,3 +148,38 @@ class TimeSheetTable(GnrDboTable):
         if (ts_start is None and ts_end is None ) or (ts_start != ts_end):
             hole = self.newrecord(resource_id=resource_id,ts_start=ts_start,ts_end=ts_end)
             self.insert(hole)
+
+    def findHoles(self,resource_pkeys=None,ts_start=None,ts_end=None,ts_max=None,for_update=None):
+        if not isinstance(resource_pkeys,list):
+            resource_pkeys = resource_pkeys.split(',')
+        return self.query(where="""$resource_id IN :res_id AND $is_allocated IS NOT TRUE 
+                                AND ($ts_start IS NULL OR $ts_start<=:tstart) AND 
+                                ($ts_end IS NULL OR $ts_start + (:tend-:tstart) <=$ts_end)
+                                AND :tmax IS OR $ts_start<=:tmax""",for_update=for_update,
+                                res_id=resource_pkeys,tstart=ts_start,tend=ts_end,
+                                tmax=ts_max,order_by='$ts_start').fetchGrouped('resource_id')
+
+
+
+
+    def normalize(self,ts_start=None,ts_end=None,date_start=None,
+                        time_start=None,date_end=None,time_end=None,
+                        duration_kwargs=None,timezone=None):
+        if ts_start and ts_end:
+            return dict(ts_start=ts_start,ts_end=ts_end)
+    
+
+    def autoAllocate(self,resource_id=None,ts_start=None,ts_end=None,ts_max=None,**kwargs):
+        holes = self.findHoles(resource_pkeys=resource_id,ts_start=ts_start,
+                                ts_end=ts_end,ts_max=ts_max,for_update=True)
+        if not holes:
+            raise self.exception('business_logic',msg='No allocations slots available',code = 'TMSH-NO-HOLES')
+        #if not best_fit:
+        #    hole_record = holes[0]
+        #else:
+        #    hole_record = holes[0]
+        hole_record = holes[0]
+        old_record = dict(hole_record)
+        
+        hole_record.update(kwargs)
+        hole_record['ts_start'] = min(hole_record['ts_start'],)
