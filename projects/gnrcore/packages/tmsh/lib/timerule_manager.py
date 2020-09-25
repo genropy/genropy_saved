@@ -11,12 +11,12 @@ from gnr.core.gnrlist import sortByItem
 from gnr.core.gnrlang import uniquify, GnrException
 
 class TimeruleInvalidEventException(GnrException):
-    code = 'MBE_TR01'
+    code = 'TR01'
     description = '!!Invalid event'
     caption = "!!The event %(rowcaption)s is invalid: %(msg)s"
 
 class TimeruleInvalidRuleException(GnrException):
-    code = 'MBE_TR02'
+    code = 'TR02'
     description = '!!Invalid rule'
     caption = "!!The rule is invalid: %(msg)s"
 

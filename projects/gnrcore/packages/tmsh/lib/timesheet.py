@@ -22,8 +22,8 @@ class TimeSheetTable(GnrDboTable):
                                             .format(pkgname=pkgname,tblname=tblname)
         mastertbl_name_long = mastertbl.attributes.get('name_long')      
         tblattr =  tbl.attributes 
-        tblattr.setdefault('caption_field','description')
-        tblattr.setdefault('rowcaption','$description')
+        tblattr.setdefault('caption_field','timesheet_description')
+        tblattr.setdefault('rowcaption','$timesheet_description')
         tblattr.setdefault('name_long','{mastertbl_name_long} Time allocation'.format(mastertbl_name_long=mastertbl_name_long))
         tblattr.setdefault('name_plural','{mastertbl_name_long} Time allocations'.format(mastertbl_name_long=mastertbl_name_long))
         self.sysFields(tbl,id=True, ins=False, upd=False)
@@ -61,6 +61,9 @@ class TimeSheetTable(GnrDboTable):
                 ELSE $ts_start
             END)
         """,dtype='DHZ')
+        tbl.formulaColumn('timesheet_description','$id') #todo
+
+
     def onTableConfig(self,tbl):
         "overridable"
         pass
@@ -118,7 +121,7 @@ class TimeSheetTable(GnrDboTable):
             self.deAllocateResource(record)
 
     def trigger_onUpdating(self,record=None,old_record=None):
-        if self.fieldsChanged(record,'resource_id'):
+        if self.fieldsChanged('resource_id',record,old_record):
             raise self.exception('business_logic',msg='You cannot change resource in timeslot')
  
     
@@ -141,13 +144,14 @@ class TimeSheetTable(GnrDboTable):
         f = self.query(where='$resource_id=:rid AND ($ts_end=:slot_start OR $ts_start=:slot_end)',
                                 slot_start=ts_start,slot_end=ts_end,rid=record['resource_id'],
                                 order_by='COALESCE($ts_start,$ts_end)').fetch()
-        prevrec,nextrec =f[0],f[1]
-        if not self.isAllocated(prevrec):
-            ts_start = prevrec['ts_start']
-            self.raw_delete(prevrec)
-        if not self.isAllocated(nextrec):
-            ts_end = nextrec['ts_end']
-            self.raw_delete(nextrec)
+        if f:
+            prevrec,nextrec =f[0],f[1]
+            if not self.isAllocated(prevrec):
+                ts_start = prevrec['ts_start']
+                self.raw_delete(prevrec)
+            if not self.isAllocated(nextrec):
+                ts_end = nextrec['ts_end']
+                self.raw_delete(nextrec)
         self.makeHole(resource_id=record['resource_id'],ts_start=ts_start,ts_end=ts_end)        
 
     def makeHole(self,resource_id=None,ts_start=None,ts_end=None):

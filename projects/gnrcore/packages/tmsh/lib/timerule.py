@@ -10,11 +10,36 @@ from gnr.core.gnrdecorator import public_method
 
 
 
-class Table(object):
+class TimeRuleTable(object):
     def config_db(self, pkg):
-        tbl = pkg.table('timerule', pkey='id', name_long='!![en]Timerule',
-                        name_plural='!![en]Timerules',broadcast=True)
-        self.sysFields(tbl)
+        tblname = self._tblname
+        tbl = pkg.table(tblname,pkey='id')
+        mastertbl = "{}.{}".format(pkg.parentNode.label,tblname.replace('_tmru',''))
+        pkgname,mastertblname = mastertbl.split('.')
+        tblname = '{}_tmru'.format(mastertblname)
+        assert tbl.parentNode.label == tblname,'table name must be %s' %tblname
+        model = self.db.model
+        mastertbl =  model.src['packages.{pkgname}.tables.{mastertblname}'.format(pkgname=pkgname,mastertblname=mastertblname)]
+        mastertbl.attributes['tmru_table'] = '{pkgname}.{tblname}'\
+                                            .format(pkgname=pkgname,tblname=tblname)
+        mastertbl_name_long = mastertbl.attributes.get('name_long')      
+        tblattr =  tbl.attributes 
+        tblattr.setdefault('caption_field','timerule_description')
+        tblattr.setdefault('rowcaption','$timerule_description')
+        tblattr.setdefault('name_long','{mastertbl_name_long} Time allocation'.format(mastertbl_name_long=mastertbl_name_long))
+        tblattr.setdefault('name_plural','{mastertbl_name_long} Time allocations'.format(mastertbl_name_long=mastertbl_name_long))
+        structure_field = mastertbl.getAttr('structure_field')
+        self.sysFields(tbl,counter='resource_id' if not structure_field else 'resource_id,structure_resource_id')
+        tbl.column('id',size='22',group='_',name_long='Id')
+        maintable_pkey = mastertbl.attributes.get("pkey")
+        maintable_pkey_attr = mastertbl.getAttr('columns.{maintable_pkey}'.format(maintable_pkey=maintable_pkey))
+        tbl.column('resource_id',size=maintable_pkey_attr.get('size'),
+                        dtype=maintable_pkey_attr.get('dtype'),
+                        group='*',name_long=mastertblname
+                    ).relation('{pkgname}.{mastertblname}.{maintable_pkey}'.format(pkgname=pkgname,mastertblname=mastertblname,
+                                                                            maintable_pkey=maintable_pkey), 
+                    mode='foreignkey', onDelete_sql='cascade',onDelete='cascade', relation_name='tmsh_timerules',
+                    one_group='_',many_group='_',deferred=True)            
         tbl.column('rule_order', 'L', name_long='!![en]Order')
         tbl.column('is_exception','B', name_long='!![en]Exception')
         tbl.column('on_su', 'B', name_long='!![en]Sunday')
@@ -48,6 +73,7 @@ class Table(object):
                                           WHEN #THIS.valid_from IS NULL OR #THIS.valid_to IS NULL OR ((#THIS.valid_from <=:env_workdate) AND (#THIS.valid_to>:env_workdate)) THEN true 
                                           ELSE false END""", dbtype='B',name_long='!![en]Valid')
         tbl.formulaColumn('rule_type',"CASE WHEN #THIS.deny IS true THEN 'deny' ELSE 'normal' END", name_long='!![en]Priority code')
+        tbl.formulaColumn('timerule_description','$id') #todo
         
     def trigger_onInserting(self, record_data):
         if record_data['is_exception']:

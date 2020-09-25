@@ -6,7 +6,7 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method
 
 
-class View(BaseComponent):
+class TimeRuleView(BaseComponent):
     def th_struct(self,struct):
         r=struct.view().rows()
         self.paramentricView(r,deny_column=True)
@@ -31,13 +31,14 @@ class View(BaseComponent):
         if deny_column:
             r.fieldcell('deny', name='!!Deny',width='5em')
 
-class ViewFromResource(View):
+class ViewFromResource(TimeRuleView):
     def th_struct(self,struct):
         r = struct.view().rows()
         self.paramentricView(r, deny_column=True)
         
 
-class Form(BaseComponent):
+
+class TimeRuleForm(BaseComponent):
 
     def th_form(self, form):
         pane = form.record
@@ -49,7 +50,7 @@ class Form(BaseComponent):
         pane.div('Weekdays the timerule applies',margin_left='1em',_class='gnrfieldlabel',margin_bottom='3px',
                                          text_decoration='underline',font_style='italic')
 
-        fb = pane.formbuilder(cols=2,border_spacing='5px',dbtable='tmsh.timerule',width='100px')
+        fb = pane.formbuilder(cols=2,border_spacing='5px',width='100px')
         fb.field('on_mo',lbl='', label='!![en]Monday',label_class='gnrfieldlabel')
         fb.field('on_sa',lbl='', label='!![en]Saturday',label_class='gnrfieldlabel')
         fb.field('on_tu',lbl='', label='!![en]Tuesday',label_class='gnrfieldlabel')
@@ -101,7 +102,14 @@ class Form(BaseComponent):
                                 dialog_width='600px')
 
 
-class ExceptionForm(Form):
+class FormFromResource(TimeRuleForm):
+    def th_form(self, form):
+        pane = form.record
+        form.store.handler('save',waitingStatus=True)
+        self.parametricForm(pane)
+
+
+class ExceptionForm(TimeRuleForm):
     def th_form(self, form):
         pane = form.record
         form.store.handler('save',waitingStatus=True)
@@ -112,7 +120,7 @@ class ExceptionForm(Form):
         return 'valid_from'
 
 
-class ExceptionView(View):
+class ExceptionView(TimeRuleView):
     def th_struct(self, struct):
         r = struct.view().rows()
         r.fieldcell('_row_count',counter=True,hidden=True)

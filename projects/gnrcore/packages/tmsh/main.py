@@ -12,48 +12,43 @@ class Package(GnrDboPackage):
                     
 
     def onBuildingDbobj(self):
-        tbl_timerule = self.db.model.src['packages.tmsh.tables.timerule']
-        timerule_fkeys = []
         for pkgNode in self.db.model.src['packages']:
-            if not pkgNode.value:
+            package = pkgNode.value
+            if not package:
                 continue
-            tables = pkgNode.value['tables']
-            pkgname = pkgNode.label
-            for tblNode in tables:
-                tblname = tblNode.label
-                if '{tblname}_tmsh'.format(tblname=tblname) in tables:
-                    self._plugResourceTable(tblNode)
-                    timerule_fkeys.append(self.configureEntity(tbl_timerule,tblNode.label,
-                                        tbl='{pkgname}.{tblname}'.format(pkgname=pkgname,tblname=tblname),
-                                        relation_name='timerules'))
-                elif tblNode.label.endswith('_tmsh'):
-                    self._addAllocationFkeys(pkgNode,tblNode)
-        tbl_timerule.column('_row_count', dtype='L', name_long='!![en]Ord.', onInserting='setRowCounter',counter=True,
-                            _counter_fkey=','.join(timerule_fkeys),
-                            group='*',_sysfield=True)
-        tbl_timerule.attributes.setdefault('order_by','$_row_count')
-   
+            tables = package['tables']
+            tmsh_tables = [tblname for tblname in tables.keys() if tblname.endswith('_tmsh')]
+            for tmshtblname in tmsh_tables:
+                maintable = tmshtblname[:-5]
+                resTbl = tables.getNode(maintable)
+                tmshTbl = tables.getNode(tmshtblname)
+                self._plugResourceTable(resTbl)
+                self._plugTmshTable(pkgNode,tmshTbl)
+                tmruleTbl = tables.getNode('{}_tmru'.format(maintable))
+                if tmruleTbl:
+                    self._plugTmruTable(pkgNode,resTbl,tmruleTbl)
 
     def _plugResourceTable(self,tblNode):
         tblNode.attr['tmsh_resource'] = True
         pkeyColNode = tblNode.value.getNode("columns.{}".format(tblNode.attr['pkey']))
         pkeyColNode.attr['onInserted'] = 'onInsertedResource'
 
-    def _addAllocationFkeys(self,pkgNode,tblNode):
-        tbl = tblNode.label
-        pkg = pkgNode.label
-        tbl_mixins = self.db.model.mixins['tbl.{pkg}.{tbl}'.format(pkg=pkg,tbl=tbl)]
+    def _plugTmshTable(self,pkgNode,tblNode):
+        fkeys = self._addPluggedForeignKey(pkgNode,tblNode,'tmsh_')
+        tblNode.value.formulaColumn('is_allocated',"(COALESCE({}) IS NOT NULL)".format(','.join(fkeys)),dtype='B')
+
+    def _addPluggedForeignKey(self,pkgNode,tblNode,prefix):
+        tbl_mixins = self.db.model.mixins['tbl.{pkg}.{tbl}'.format(pkg=pkgNode.label,tbl=tblNode.label)]
         fkeys = []
         tblsrc = tblNode.value
-        for m in [k for k in dir(tbl_mixins) if k.startswith('tmsh_')]:
+        for m in [k for k in dir(tbl_mixins) if k.startswith(prefix)]:
             pars = getattr(tbl_mixins,m)()
             pars['code'] = m[5:]
-            fkey = self.configureEntity(tblsrc,**pars)
+            fkey = self._configureLinkedEntity(tblsrc,**pars)
             fkeys.append('${fkey}'.format(fkey=fkey))
-        tblsrc.formulaColumn('is_allocated',"(COALESCE({}) IS NOT NULL)".format(','.join(fkeys)),dtype='B')
-        
+        return fkeys
     
-    def configureEntity(self,src,code=None,caption=None,tbl=None,relation_name=None,**kwargs):
+    def _configureLinkedEntity(self,src,code=None,caption=None,tbl=None,relation_name=None,**kwargs):
         pkg,tblname = tbl.split('.')
         tblsrc = self.db.model.src['packages.{pkg}.tables.{tblname}'.format(pkg=pkg,tblname=tblname)]
         tblattrs = tblsrc.attributes
@@ -88,6 +83,20 @@ class Package(GnrDboPackage):
                                         mode='foreignKey',onDelete='cascade')
         return fkey
 
+    def _plugTmruTable(self,pkgNode,tblNode,timeRuleTbl):
+        tbl = tblNode.value
+        structure_field = tblNode.attr.get('structure_field')
+        if structure_field:
+            col =tbl['columns'].getNode(structure_field)
+            colattr = col.attr
+            relattr = col.value['relation'].attributes
+            timeRuleTbl.value.column('structure_resource_id',size=colattr.get('size'),
+                        dtype=colattr.get('dtype'),
+                        group='*',name_long='!![en]Structure',
+                    ).relation(relattr['related_column'],mode='foreignkey', onDelete_sql='cascade',
+                                onDelete='cascade', relation_name='tmsh_timerules',
+                    one_group='_',many_group='_',deferred=True) 
+
     def onApplicationInited(self):
         self.mixinMultidbMethods()
 
@@ -106,7 +115,7 @@ class TmshResourceTable(object):
     def touch_timesheet(self,record,old_record=None):
         self.tmsh_initializeTimesheet(record)
 
-    def trigger_onInsertedResource(self,record):
+    def trigger_onInsertedResource(self,record,**kwargs):
         self.tmsh_initializeTimesheet(record)
     
     def tmsh_initializeTimesheet(self,record):
@@ -114,9 +123,7 @@ class TmshResourceTable(object):
         tsrec = tstable.newrecord(resource_id=record[self.pkey])
         tstable.insert(tsrec)
 
-    def touch_timesheet(self,record,old_record=None):
-        self.tmsh_initializeTimesheet(record)
-        
+
     @extract_kwargs(duration=True)
     def tmsh_allocate(self,resource_id=None,ts_start=None,ts_end=None,date_start=None,
                         time_start=None,date_end=None,time_end=None,duration_kwargs=None,
@@ -125,11 +132,9 @@ class TmshResourceTable(object):
         kw = tmsh_table.normalize(ts_start=ts_start,ts_end=ts_end,date_start=date_start,
                         time_start=time_start,date_end=date_end,time_end=time_end,
                         duration_kwargs=duration_kwargs,timezone=timezone)
-                        
-        self.timesheetTable().autoAllocate(resource_id=resource_id,ts_start=kw['ts_start'],
+        tmsh_table.autoAllocate(resource_id=resource_id,ts_start=kw['ts_start'],
                                             ts_end=kw['ts_end'],ts_max=ts_max,for_update=True,
                                             **kwargs)
-
                 
 
     def timechoords(self,date_start=None,date_end=None,
@@ -140,9 +145,6 @@ class TmshResourceTable(object):
                         delta_month=None,
                         delta_year=None):
         result = {}
-
-
-
         result['date_start'] = date_start or dtstart.date()
         result['date_end'] = date_end or dtend.date()
         result['time_start'] = time_start or dtstart.time()
