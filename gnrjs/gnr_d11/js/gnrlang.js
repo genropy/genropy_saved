@@ -1829,7 +1829,7 @@ function deltaDays(dateStart,dateEnd,excludeWD){
 };
 
 function addDaysToDate(dateStart,daysToAdd,excludeWD){
-    var excludeWD = excludeWD || '';
+    excludeWD = excludeWD || '';
     var currDate = new Date(dateStart);
     var delta = 1;
     var wd;
@@ -1846,6 +1846,20 @@ function addDaysToDate(dateStart,daysToAdd,excludeWD){
     }
     return currDate;
 };
+
+function combineDateAndTime(date, time) {
+    if(!(date && time)){
+        return
+    }
+    let timeString = time.getHours() + ':' + time.getMinutes() + ':00';
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1; // Jan is 0, dec is 11
+    let day = date.getDate();
+    let dateString = '' + year + '-' + month + '-' + day;
+    let combined = new Date(dateString + ' ' + timeString);
+
+    return combined;
+}
 
 function localeParser(/*String*/value, /*Object?*/options) {
     // summary:

@@ -2245,7 +2245,7 @@ dojo.declare('gnr.GenroClient', null, {
     google:function(key){
         if(! this._googleHandler){
             this._googleHandler=this.wdg.getHandler('GoogleLoader')
-            this._googleHandler._mapkey = key || genro.getData('gnr.mapkey')
+            this._googleHandler._mapkey = key || genro._('gnr.api_keys.google?mapkey')
         } 
         return this._googleHandler;  
     },

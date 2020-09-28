@@ -3,6 +3,7 @@ import pytz
 import datetime
 from gnr.core.gnrlang import GnrException
 from gnr.app.gnrdbo import GnrDboTable
+from gnr.core.gnrbag import Bag
 
 
 class TimeSheetTable(GnrDboTable):
@@ -53,6 +54,10 @@ class TimeSheetTable(GnrDboTable):
                                              END)
                                         """,
                                         dtype='B')
+
+        tbl.formulaColumn('left_boundary_hole','($ts_start IS NULL)',dtype='B')
+        tbl.formulaColumn('right_boundary_hole','($ts_end IS NULL)',dtype='B')
+
         tbl.formulaColumn('ts_calc_start',"""
             (CASE WHEN $is_allocated IS TRUE 
                     THEN $ts_start
@@ -162,11 +167,14 @@ class TimeSheetTable(GnrDboTable):
     def findHoles(self,resource_pkeys=None,ts_start=None,ts_end=None,ts_max=None,for_update=None):
         if not isinstance(resource_pkeys,list):
             resource_pkeys = resource_pkeys.split(',')
-        return self.query(where="""($resource_id IN :res_id AND $is_allocated IS NOT TRUE) 
-                                AND ($ts_start IS NULL OR $ts_start<=:tstart) AND 
-                                ($ts_end IS NULL OR $ts_start + (:tend-:tstart) <=$ts_end)
-                                AND (:tmax IS NULL OR $ts_start<=:tmax)""",for_update=for_update,
-                                res_id=resource_pkeys,tstart=ts_start,tend=ts_end,
+        where = """($resource_id IN :res_id AND $is_allocated IS NOT TRUE) 
+                    AND ($ts_start IS NULL OR $ts_start<=:tstart) AND 
+                    (CASE WHEN $ts_end IS NULL THEN TRUE
+                        WHEN $ts_start IS NULL THEN :tend <= $ts_end
+                        ELSE $ts_start + (:tend-:tstart) <=$ts_end END)
+                    AND (:tmax IS NULL OR $ts_start<=:tmax)"""
+        return self.query(where=where,for_update=for_update,
+                            res_id=resource_pkeys,tstart=ts_start,tend=ts_end,
                                 tmax=ts_max,order_by='$ts_start').fetchGrouped('resource_id')
 
 
@@ -193,3 +201,14 @@ class TimeSheetTable(GnrDboTable):
         
         hole_record.update(kwargs)
         hole_record['ts_start'] = min(hole_record['ts_start'],)
+
+    def fc_events(self,where=None,**kwargs):
+        where_condition = ['$is_allocated IS TRUE']
+        if where:
+            where_condition.append(where)
+        result = Bag()
+        f = self.query(columns='$id,$ts_start AS start,$ts_end AS end, $resource_id AS resourceId,$allocation_description AS title',
+                    where= ' AND '.join(where_condition),**kwargs).fetch()
+        for r in f:
+            result.addItem(r['pkey'],None, _pkey=r['pkey'],_attributes=dict(r))
+        return result

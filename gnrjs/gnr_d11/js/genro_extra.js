@@ -64,6 +64,103 @@ dojo.declare("gnr.widgets.GoogleLoader", null, {
     }
 
 });
+dojo.declare("gnr.widgets.fullcalendar", gnr.widgets.baseHtml, {
+    constructor: function(application) {
+        this._domtag = 'div';
+    },
+    getAddOnDict:function(key){
+        return {}[key];
+    },
+    creating: function(attributes, sourceNode) {
+        var boxAttrs = objectExtract(attributes,'box_*');
+        var calAttrs = objectUpdate({},attributes);
+        var storepath = objectPop(calAttrs,storepath);
+        
+        objectPopAll(attributes);
+        objectUpdate(attributes,boxAttrs);
+        //var readOnly = objectPop(attributes,'readOnly');
+
+        return {calAttrs:calAttrs,storepath:storepath};
+    },
+
+    created:function(widget, savedAttrs, sourceNode){
+        var that = this;
+        if(sourceNode.attr.storepath){
+            sourceNode.attr.storepath = sourceNode.absDatapath(sourceNode.attr.storepath);
+            sourceNode.registerDynAttr('storepath');
+        }
+        var cb = function(){
+            setTimeout(function(){
+                that.initialize(widget,savedAttrs.calAttrs);
+            },000);
+        }
+        if(!window.FullCalendar){
+            this.loadFullCalendar(cb);
+        }else{
+            cb();
+        }
+    },
+
+    loadFullCalendar:function(cb){
+        var urlist = ['/_rsrc/js_libs/fullcalendar/premium/main.min.css'];
+        genro.dom.addHeaders(urlist,function(){
+            genro.dom.loadJs('/_rsrc/js_libs/fullcalendar/premium/main.js',cb);
+        });
+    },
+
+    initialize:function(domroot,calAttrs){
+        //dojo.style(domroot,{position:'relative'})
+        calAttrs.schedulerLicenseKey = genro._('gnr.api_keys.fullcalendar?schedulerLicenseKey');
+        var that = this;
+        calAttrs.eventSources = [function(info,successCallback,failureCallback){
+            return that.readEventStore(domroot.sourceNode,info,successCallback,failureCallback);
+        }]
+        var calendar = new FullCalendar.Calendar(domroot,calAttrs);
+        //dojo.style(domroot.firstChild,{height:'inherit',top:0,left:0,right:0,bottom:0,position:'absolute'})
+       
+        calendar.render();
+        calendar.sourceNode = domroot.sourceNode;
+        calendar.gnr = this;
+        calendar.sourceNode.externalWidget = calendar;
+        for (var prop in this) {
+            if (prop.indexOf('mixin_') == 0) {
+                calendar[prop.replace('mixin_', '')] = this[prop];
+            }
+        }
+    },
+
+    mixin_gnr_storepath:function(value,kw, trigger_reason){        
+        var calendar = this;
+        this.sourceNode.delayedCall(function(){
+            console.log('update')
+            calendar.refetchEvents();
+        }, 500,'updatingContent')    
+    },
+    
+    readEventStore:function(sourceNode,info,successCallback,failureCallback){
+        var store = sourceNode.getRelativeData(sourceNode.attr.storepath);
+        var events= []
+        if(!store){
+            return
+        }
+        store.getNodes().forEach(function(n){
+            let row = objectUpdate({},n.attr);
+            let v = n.getValue();
+            if(v){
+                objectUpdate(row,v.asDict());
+            }
+            if(row.start && row.end){
+                events.push(row);
+            }
+        });
+        if(!events.length){
+            events = [{title:'Prova',start:new Date()}]
+        }
+        console.log('successCallback',events);
+        successCallback(events);
+        
+    }
+});
 dojo.declare("gnr.widgets.codemirror", gnr.widgets.baseHtml, {
     constructor: function(application) {
         this._domtag = 'div';
