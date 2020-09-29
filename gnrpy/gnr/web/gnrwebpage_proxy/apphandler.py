@@ -1518,7 +1518,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         recInfo['table'] = dbtable
         _eager_record_stack = _eager_record_stack or []
         self._handleEagerRelations(record,_eager_level,_eager_record_stack=_eager_record_stack)
-        if newrecord and tblobj.counterColumns():
+        if newrecord and tblobj.counterColumns() and not recInfo.get('from_fld'):
             try:
                 tblobj._sequencesOnLoading(record,recInfo)
             except GnrSqlException, e:
