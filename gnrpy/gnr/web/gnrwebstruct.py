@@ -1119,8 +1119,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             parent = self.parent
         return parent
 
-    def fullcalendar_store(self,table,**kwargs):
-        pass
     def selectionStore(self,table=None,storeCode=None,storepath=None,columns=None,handler=None,**kwargs):
         """TODO
         

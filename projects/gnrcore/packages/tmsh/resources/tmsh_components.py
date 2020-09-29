@@ -1,12 +1,7 @@
-# -*- coding: utf-8 -*-
-from datetime import date,timedelta
-
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.web.gnrwebstruct import struct_method
 
-from gnr.core.gnrdecorator import public_method
-
-
-class View(BaseComponent):
+class TimeRuleView(BaseComponent):
     def th_struct(self,struct):
         r=struct.view().rows()
         self.paramentricView(r,deny_column=True)
@@ -31,13 +26,14 @@ class View(BaseComponent):
         if deny_column:
             r.fieldcell('deny', name='!!Deny',width='5em')
 
-class ViewFromResource(View):
+class ViewFromResource(TimeRuleView):
     def th_struct(self,struct):
         r = struct.view().rows()
         self.paramentricView(r, deny_column=True)
         
 
-class Form(BaseComponent):
+
+class TimeRuleForm(BaseComponent):
 
     def th_form(self, form):
         pane = form.record
@@ -49,7 +45,7 @@ class Form(BaseComponent):
         pane.div('Weekdays the timerule applies',margin_left='1em',_class='gnrfieldlabel',margin_bottom='3px',
                                          text_decoration='underline',font_style='italic')
 
-        fb = pane.formbuilder(cols=2,border_spacing='5px',dbtable='tmsh.timerule',width='100px')
+        fb = pane.formbuilder(cols=2,border_spacing='5px',width='100px')
         fb.field('on_mo',lbl='', label='!![en]Monday',label_class='gnrfieldlabel')
         fb.field('on_sa',lbl='', label='!![en]Saturday',label_class='gnrfieldlabel')
         fb.field('on_tu',lbl='', label='!![en]Tuesday',label_class='gnrfieldlabel')
@@ -101,7 +97,14 @@ class Form(BaseComponent):
                                 dialog_width='600px')
 
 
-class ExceptionForm(Form):
+class FormFromResource(TimeRuleForm):
+    def th_form(self, form):
+        pane = form.record
+        form.store.handler('save',waitingStatus=True)
+        self.parametricForm(pane)
+
+
+class ExceptionForm(TimeRuleForm):
     def th_form(self, form):
         pane = form.record
         form.store.handler('save',waitingStatus=True)
@@ -112,7 +115,7 @@ class ExceptionForm(Form):
         return 'valid_from'
 
 
-class ExceptionView(View):
+class ExceptionView(TimeRuleView):
     def th_struct(self, struct):
         r = struct.view().rows()
         r.fieldcell('_row_count',counter=True,hidden=True)
@@ -123,4 +126,44 @@ class ExceptionView(View):
         r.fieldcell('pm_end_time', width='5.7em', name='!!Out')
         r.fieldcell('deny', name='!!Deny')
     
+
+class TimeRuleEditor(BaseComponent):
     
+    @struct_method
+    def tmsh_timeRuleEditorDialog(self,pane,title=None,datapath=None,**kwargs):
+        dlg = pane.dialog(title=title or '!![en]Time rules',parentRatio=.9,
+                            datapath=datapath,closable=True,noModal=True)
+        bc = dlg.borderContainer()
+        top = bc.contentPane(region='top', height='50%')
+        bottom = bc.contentPane(region='center')
+        timerules_th = top.dialogTableHandler(relation='@tmsh_timerules',
+                                formResource='tmsh_components:FormFromResource',
+                                viewResource='tmsh_components:ViewFromResource',
+                                condition='$is_exception IS NOT TRUE',
+                                dialog_parentRatio=.9,
+                                dialog_title='[en]Time rules',
+                                margin='2px',pbl_classes=True) # 540px
+        timerules_th.form.store.handler('load',default_rule_order ='=#FORM/parent.view.store?totalrows')
+        timerules_th.view.grid.attributes.update(multiSelect=False,selfDragRows=True)
+        exception_th = bottom.dialogTableHandler(relation='@tmsh_timerules',
+                               datapath='.exceptions',
+                               formResource='tmsh_components:ExceptionForm',
+                                viewResource='tmsh_components:ExceptionView',
+                               condition='$is_exception IS TRUE',
+                               dialog_height='280px',
+                               dialog_width='600px', # 540px
+                               dialog_title='!![en]Exceptions',
+                               title='!![en]Exceptions',
+                               margin='2px',pbl_classes=True)
+        exception_th.view.grid.attributes.update(multiSelect=False,selfDragRows=True)
+        exception_th.form.store.handler('load',default_is_exception=True,
+                                        default_rule_order ='=#FORM/parent.view.store?totalrows')
+        return dlg
+
+    @struct_method
+    def tmsh_timeRuleEditorButton(self,pane,title=None,datapath=None,**kwargs):
+        dlg = pane.timeRuleEditorDialog(title=title,datapath=datapath or '#FORM.timerule_editor',**kwargs)
+        pane.button(label=title or '!![en]Edit Time rules',action='_dlg.show()',
+                    _dlg=dlg.js_widget,parentForm=True)
+
+        
