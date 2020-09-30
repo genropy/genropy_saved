@@ -4,7 +4,111 @@ import datetime
 from gnr.core.gnrlang import GnrException
 from gnr.app.gnrdbo import GnrDboTable
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrdate import toDHZ
 
+class TimeSheetAllocation(object):
+    @extract_kwargs(duration=True)
+    def __init__(self,tmsh_tblobj,ts_start=None,ts_end=None,ts_max=None,ts_min=None,
+                    date_start=None,time_start=None,
+                    date_end=None,time_end=None,
+                    timezone=None,duration=None,duration_kwargs=None,
+                    allocated_by=None,allocated_by_pkey=None):
+        self.tmsh_tblobj = tmsh_tblobj
+        self.db = tmsh_tblobj.db
+        self.ts_start = ts_start
+        self.ts_end = ts_end
+        self.ts_min = ts_min
+        self.ts_max = ts_max
+        self.duration = duration
+        self.timezone = timezone
+        self.date_start = date_start
+        self.time_start = time_start
+        self.date_end = date_end
+        self.time_end = time_end
+        self.duration_kwargs = duration_kwargs
+        self.allocation_tblobj = self.db.table(allocated_by)
+        pkg,tbl = allocated_by.split('.')
+        self.allocation_fkeyfield = 'le_{}_{}_{}'.format(pkg,tbl,self.allocation_tblobj.pkey)
+        self.allocated_by_pkey = allocated_by_pkey or self.allocation_tblobj.newPkeyValue()
+        self.calculate()
+    
+    def calculate(self):
+        if (not self.ts_start) and self.date_start and self.time_start:
+            self.ts_start = toDHZ(self.date_start,self.time_start,timezone=self.timezone)
+        if (not self.ts_end) and self.date_end and self.time_end:
+            self.ts_end = toDHZ(self.date_end,self.time_end,timezone=self.timezone)
+        if not self.duration:
+            if self.ts_end and self.ts_start:
+                self.duration = self.ts_end - self.ts_start
+            else:
+                self.duration = datetime.timedelta(**self.duration_kwargs)
+        if self.ts_start:
+            self.ts_min = min(self.ts_min,self.ts_start) if self.ts_min else self.ts_start
+        if self.ts_end:
+            self.ts_max = max(self.ts_max,self.ts_end) if self.ts_max else self.ts_end
+        if self.ts_start:
+            self.date_start = self.ts_start.date()
+            self.time_start = self.ts_start.time()
+        if self.ts_end:
+            self.date_end = self.ts_end.date()
+            self.time_end = self.ts_end.time()
+
+    def findHoles(self,resource_pkeys=None,for_update=None,strict=False):
+        where = ["($resource_id IN :_resource_pkeys AND $is_allocated IS NOT TRUE)"]
+        where.append("""
+        CASE WHEN $left_boundary_hole AND $right_boundary_hole
+                THEN TRUE
+            WHEN $left_boundary_hole 
+                THEN (CASE WHEN :_ts_min IS NULL THEN TRUE ELSE $ts_end -:_duration >=:_ts_min END)
+            WHEN $right_boundary_hole 
+                THEN (CASE WHEN :_ts_max IS NULL THEN TRUE ELSE $ts_start +:_duration <=:_ts_max END)
+            ELSE $duration>=EXTRACT(epoch FROM :_duration) END
+        """)
+        resource_pkeys = resource_pkeys if isinstance(resource_pkeys,list) else resource_pkeys.split(',')
+        result = self.tmsh_tblobj.query(where=' AND '.join(where),for_update=for_update,
+                            _resource_pkeys=resource_pkeys,
+                            _duration=self.duration,
+                            _ts_min=self.ts_min,
+                            _ts_max=self.ts_max,
+                            order_by='$ts_start'
+                       ).fetchGrouped('resource_id')
+        if strict:
+            for resource_id,holes in result.items():
+                if not holes:
+                    continue
+                hole = holes[0]
+                if not (self.ts_start and (hole['ts_start'] is None or hole['ts_start']==self.ts_start) or \
+                            (self.ts_end and (hole['ts_end'] is None or hole['ts_end']==self.ts_end))):
+                    result[resource_id] = []
+        return result
+                    
+                
+
+    def adaptHole(self,hole):
+        hole[self.allocation_fkeyfield] = self.allocated_by_pkey
+        if not self.ts_start:
+            self.ts_end = min(hole['ts_end'],self.ts_end) if hole['ts_end'] else self.ts_end
+            self.ts_start = self.ts_end - self.duration
+        else:
+            self.ts_start = max(hole['ts_start'], self.ts_start) if hole['ts_start'] else self.ts_start
+            self.ts_end = self.ts_start + self.duration
+        hole['ts_start'] = self.ts_start
+        hole['ts_end'] = self.ts_end
+        
+    
+    def reserveHole(self,hole):
+        old_hole = dict(hole)
+        self.adaptHole(hole)
+        self.tmsh_tblobj.update(hole,old_hole)
+
+    
+    def writeHole(self,hole,**kwargs):
+        self.adaptHole(hole)
+        record = self.allocation_tblobj.newrecord()
+        record.update(self.allocation_tblobj.tmsh_recordFromAllocation(self,**kwargs))
+        self.allocation_tblobj.insert(record)
+        
 
 class TimeSheetTable(GnrDboTable):
     def use_dbstores(self, **kwargs):
@@ -57,6 +161,9 @@ class TimeSheetTable(GnrDboTable):
 
         tbl.formulaColumn('left_boundary_hole','($ts_start IS NULL)',dtype='B')
         tbl.formulaColumn('right_boundary_hole','($ts_end IS NULL)',dtype='B')
+
+        tbl.formulaColumn('duration',"""CASE WHEN ($left_boundary_hole OR $right_boundary_hole) THEN NULL
+                                        ELSE EXTRACT(epoch FROM $ts_end - $ts_start) END""",dtype='L')
 
         tbl.formulaColumn('ts_calc_start',"""
             (CASE WHEN $is_allocated IS TRUE 
@@ -126,22 +233,16 @@ class TimeSheetTable(GnrDboTable):
             self.deAllocateResource(record)
 
     def trigger_onUpdating(self,record=None,old_record=None):
+        if self.isAllocated(old_record):
+            raise self.exception('business_logic',msg='You cannot change a busy timeslot')
         if self.fieldsChanged('resource_id',record,old_record):
             raise self.exception('business_logic',msg='You cannot change resource in timeslot')
- 
     
     def trigger_onUpdated(self,record=None,old_record=None):
-
         if self.fieldsChanged(self._allocationFkeys(),record,old_record):
-            if not self.isAllocated(old_record):
-                self.makeHole(resource_id=record['resource_id'],ts_start=old_record['ts_start'],ts_end=record['ts_start'])
-                self.makeHole(resource_id=record['resource_id'],ts_start=record['ts_end'],ts_end=old_record['ts_end'])
-            else:
-                self.delete(record)
-                
-        elif self.fieldsChanged('ts_start,ts_end',record, old_record):
-            self.deAllocateResource(old_record)
-            self.allocateResource(record)
+            #old record is not allocated see onUpdating
+            self.makeHole(resource_id=record['resource_id'],ts_start=old_record['ts_start'],ts_end=record['ts_start'])
+            self.makeHole(resource_id=record['resource_id'],ts_start=record['ts_end'],ts_end=old_record['ts_end'])
     
         
     def deAllocateResource(self,record):
@@ -164,22 +265,6 @@ class TimeSheetTable(GnrDboTable):
             hole = self.newrecord(resource_id=resource_id,ts_start=ts_start,ts_end=ts_end)
             self.insert(hole)
 
-    def findHoles(self,resource_pkeys=None,ts_start=None,ts_end=None,ts_max=None,for_update=None):
-        if not isinstance(resource_pkeys,list):
-            resource_pkeys = resource_pkeys.split(',')
-        where = """($resource_id IN :res_id AND $is_allocated IS NOT TRUE) 
-                    AND ($ts_start IS NULL OR $ts_start<=:tstart) AND 
-                    (CASE WHEN $ts_end IS NULL THEN TRUE
-                        WHEN $ts_start IS NULL THEN :tend <= $ts_end
-                        ELSE $ts_start + (:tend-:tstart) <=$ts_end END)
-                    AND (:tmax IS NULL OR $ts_start<=:tmax)"""
-        return self.query(where=where,for_update=for_update,
-                            res_id=resource_pkeys,tstart=ts_start,tend=ts_end,
-                                tmax=ts_max,order_by='$ts_start').fetchGrouped('resource_id')
-
-
-
-
     def normalize(self,ts_start=None,ts_end=None,date_start=None,
                         time_start=None,date_end=None,time_end=None,
                         duration_kwargs=None,timezone=None):
@@ -200,15 +285,18 @@ class TimeSheetTable(GnrDboTable):
         old_record = dict(hole_record)
         
         hole_record.update(kwargs)
-        hole_record['ts_start'] = min(hole_record['ts_start'],)
+        hole_record['ts_start'] = min(hole_record['ts_start'])
 
     def fc_events(self,where=None,**kwargs):
         where_condition = ['$is_allocated IS TRUE']
         if where:
             where_condition.append(where)
         result = Bag()
-        f = self.query(columns='$id,$ts_start AS start,$ts_end AS end, $resource_id AS resourceId,$allocation_description AS title',
+        f = self.query(columns='$id,$ts_start AS start,$ts_end AS end, $resource_id AS "resourceId",$allocation_description AS title',
                     where= ' AND '.join(where_condition),**kwargs).fetch()
         for r in f:
             result.addItem(r['pkey'],None, _pkey=r['pkey'],_attributes=dict(r))
         return result
+
+    def prepareAllocation(self,**kwargs):
+        return TimeSheetAllocation(self,**kwargs)

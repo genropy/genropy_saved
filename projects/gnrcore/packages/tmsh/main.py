@@ -55,32 +55,18 @@ class Package(GnrDboPackage):
         pkey = tblattrs.get('pkey')
         pkeycolAttrs = tblsrc.column(pkey).getAttr()
         rel = '{pkg}.{tblname}.{pkey}'.format(pkg=pkg,tblname=tblname,pkey=pkey)
-        fkey = 'le_{tblname}_{pkey}'.format(tblname=tblname,pkey=pkey)
-        curr_columns = src['columns']
+        fkey = 'le_{pkg}_{tblname}_{pkey}'.format(pkg=pkg,tblname=tblname,pkey=pkey)
         caption = caption or tblattrs['name_long']
         if caption.startswith('!!'):
             caption = '[{caption}]'.format(caption=caption)
         entity = '{code}:{caption}'.format(code=code,caption=caption)
         linked_attrs = {'linked_{k}'.format(k=k):v for k,v in kwargs.items()}
-        if fkey in curr_columns:
-            colsrc = src['columns'][fkey]
-            related_column = colsrc.getAttr('relation')['related_column']
-            rpkg,rtbl,rpkey = related_column.split('.')
-            if '{rpkg}.{rtbl}'.format(rpkg=rpkg,rtbl=rtbl) == tbl:
-                colattr = colsrc.attributes
-                entity = colattr['linked_entity'].split(',')
-                entity.append(entity)
-                colattr['linked_entity'] = ','.join(entity)
-                colattr.update(**kwargs)#da fare
-                return
-            else:
-                fkey = "le_{}".format(tbl.replace('.','_'))
         relation_name = relation_name or "{}_items".format(src.attributes['fullname'].split('.')[1])
         src.column(fkey, dtype=pkeycolAttrs.get('dtype'),_sysfield=True,group='_',
                     name_long=tblattrs.get('name_long'),
                     size=pkeycolAttrs.get('size'),linked_entity=entity,
                     **linked_attrs).relation(rel, relation_name=relation_name,
-                                        mode='foreignKey',onDelete='cascade')
+                                        mode='foreignKey',onDelete='cascade',deferred=True)
         return fkey
 
     def _plugTmruTable(self,pkgNode,tblNode,timeRuleTbl):
@@ -135,6 +121,9 @@ class TmshResourceTable(object):
         tmsh_table.autoAllocate(resource_id=resource_id,ts_start=kw['ts_start'],
                                             ts_end=kw['ts_end'],ts_max=ts_max,for_update=True,
                                             **kwargs)
+
+    def tmsh_allocation(self,**kwargs):
+        return self.timesheetTable().prepareAllocation(**kwargs)
                 
 
     def timechoords(self,date_start=None,date_end=None,

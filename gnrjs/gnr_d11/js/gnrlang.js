@@ -910,7 +910,7 @@ function convertFromText(value, t, fromLocale) {
         var k = value.lastIndexOf('::');
         if(k>=0){
             t = value.slice(k).slice(2);
-            if(['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','DHZ','P','X'].indexOf(t)>=0){
+            if(['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','DHZ','TD','P','X'].indexOf(t)>=0){
                 value = value.slice(0,k);
             }
         }
@@ -941,6 +941,8 @@ function convertFromText(value, t, fromLocale) {
     }
     else if (t == 'B') {
         return (value.toLowerCase() == 'true');
+    }else if(t=='TD'){
+        return value;
     }
     else if ((t == 'D') || (t == 'DH') || (t == 'DHZ')) {
         if (fromLocale) {

@@ -1,4 +1,5 @@
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.web.gnrwebstruct import struct_method
 
 class TimeRuleView(BaseComponent):
@@ -166,4 +167,24 @@ class TimeRuleEditor(BaseComponent):
         pane.button(label=title or '!![en]Edit Time rules',action='_dlg.show()',
                     _dlg=dlg.js_widget,parentForm=True)
 
+        
+class FullCalendar(BaseComponent):
+    py_requires = 'th/th_lib'
+    @extract_kwargs(condition=True)
+    @struct_method
+    def tmsh_timesheetStore(self,parent,relation=None,table=None,storepath=None,
+                                condition=None,condition_kwargs=None,liveUpdate='*',**kwargs):
+        if not storepath:
+            storepath = parent.attributes.get('storepath')
+        if relation:
+            table,condition,fkeyfield = self._th_relationExpand(parent,relation=relation,condition=condition,
+                        condition_kwargs=condition_kwargs,original_kwargs=kwargs)
+        self.subscribeTable(table,True,subscribeMode=liveUpdate)
+        rpcNode = parent.dataRpc(storepath,self.tmsh_getTimesheetEvents,table=table,
+                    condition=condition,**condition_kwargs)
+        parent.onDbChanges("""rpcNode.fireNode()""",rpcNode=rpcNode,table=table)
+
+    @public_method
+    def tmsh_getTimesheetEvents(self,table=None,condition=None,**kwargs):
+        return self.db.table(table).fc_events(where=condition,**kwargs)
         
