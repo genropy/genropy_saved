@@ -1439,8 +1439,15 @@ class TotalizeTable(GnrDboTable):
                 return True
         return False
             
+ 
 
     def tt_totalize(self,record=None,old_record=None,local_records=None):
+        if record and self.totalize_exclude(record):
+            record = None
+        if old_record and self.totalize_exclude(old_record):
+            old_record = None
+        if not record and not old_record:
+            return
         tot_keys,tot_fields = self.tt_totalize_pars()
         tot_record_new = self.tt_record(record,tot_keys) if record else None
         tot_record_old = self.tt_record(old_record,tot_keys) if old_record else None
