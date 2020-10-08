@@ -1799,6 +1799,18 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         
         colsBag.setItem('cellx_' + genro.time36Id(), null, kw, {'_position':toPos + 1});
     },
+    mixin_rowsDigest:function(kw){
+        var sel = kw.sel || this.selection.getSelected();
+        var result = {};
+        result.rowset = [];
+        result.pkeys = [];
+        result.valTextPlain = [];
+        result.valTextXml = [];
+        result.valTextHtml = [];
+        result.innerHtml = [];
+        sel.forEach(function(){})
+    },
+    
     onDragStart:function(dragInfo) {
         var dragmode = dragInfo.dragmode;
         var event = dragInfo.event;

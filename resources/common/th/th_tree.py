@@ -379,7 +379,8 @@ class TableHandlerHierarchicalView(BaseComponent):
     @extract_kwargs(relation=True)
     @struct_method
     def ht_relatedTableHandler(self,tree,th,dropOnRoot=True,
-                                inherited=None,relation_kwargs=None):
+                                inherited=None,relation_kwargs=None,
+                                root_fkey=None):
         relation_table = relation_kwargs.pop('table',None)
         vstore = th.view.store
         vstoreattr = vstore.attributes
@@ -399,7 +400,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         assert fkey_name or relation_table, 'If there is no relation: relation_table is mandatory'
         fkey_name_alt = dictExtract(vstoreattr,'_fkey_name_')
         condlist = []
-        condpars = dict(suffix='/%%',curr_hpkey='=#FORM.record.hierarchical_pkey',showInherited='^.showInherited')
+        condpars = dict(suffix='/%%',root_fkey=root_fkey,curr_hpkey='=#FORM.record.hierarchical_pkey',showInherited='^.showInherited')
         hiddencolumns = gridattr['hiddencolumns'].split(',') if gridattr.get('hiddencolumns') else []
         for k in list(relation_kwargs.keys()):
             altrelname = k.split('_')[0] #altrelname must not contain '_'
@@ -415,7 +416,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         rel_fkey_name = False 
         if fkey_name:
             hiddencolumns.append('@%s.hierarchical_pkey AS one_hpkey' %fkey_name)
-            condlist.append("""( CASE WHEN :fkey IS NULL 
+            condlist.append("""( CASE WHEN (:fkey IS NULL AND :root_fkey IS NULL) OR (:fkey =:root_fkey)
                                      THEN $%s IS NULL 
                                      ELSE (( :showInherited IS TRUE AND (@%s.hierarchical_pkey ILIKE (:curr_hpkey || :suffix)) ) OR ( $%s =:fkey ) ) 
                                  END ) """ %(fkey_name,fkey_name,fkey_name))                     

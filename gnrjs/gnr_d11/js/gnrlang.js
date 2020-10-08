@@ -910,7 +910,7 @@ function convertFromText(value, t, fromLocale) {
         var k = value.lastIndexOf('::');
         if(k>=0){
             t = value.slice(k).slice(2);
-            if(['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','DHZ','P','X'].indexOf(t)>=0){
+            if(['HTML','JS','RPC','JSON','NN','BAG','A','T','L','N','I','B','D','H','DH','DHZ','TD','P','X'].indexOf(t)>=0){
                 value = value.slice(0,k);
             }
         }
@@ -941,6 +941,8 @@ function convertFromText(value, t, fromLocale) {
     }
     else if (t == 'B') {
         return (value.toLowerCase() == 'true');
+    }else if(t=='TD'){
+        return value;
     }
     else if ((t == 'D') || (t == 'DH') || (t == 'DHZ')) {
         if (fromLocale) {
@@ -1832,7 +1834,7 @@ function deltaDays(dateStart,dateEnd,excludeWD){
 };
 
 function addDaysToDate(dateStart,daysToAdd,excludeWD){
-    var excludeWD = excludeWD || '';
+    excludeWD = excludeWD || '';
     var currDate = new Date(dateStart);
     var delta = 1;
     var wd;
@@ -1851,8 +1853,10 @@ function addDaysToDate(dateStart,daysToAdd,excludeWD){
 };
 
 function combineDateAndTime(date, time) {
+    if(!(date && time)){
+        return
+    }
     let timeString = time.getHours() + ':' + time.getMinutes() + ':00';
-
     let year = date.getFullYear();
     let month = date.getMonth() + 1; // Jan is 0, dec is 11
     let day = date.getDate();

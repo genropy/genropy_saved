@@ -217,11 +217,13 @@ class FrameGridTools(BaseComponent):
 
 
     @struct_method
-    def fg_viewGrouper(self,view,table=None,region=None,closable=None):
-        closable = 'close' if closable is None else closable
-        bc = view.grid_envelope.borderContainer(region='left',width='300px',closable='close',
+    def fg_viewGrouper(self,view,table=None,region=None,closable='close',width=None,**kwargs):
+        bc = view.grid_envelope.borderContainer(region='left',
+                                        width=width or '300px',
+                                        closable=closable,
                                         splitter=True,border_right='1px solid silver',
-                                        selfsubscribe_closable_change="""SET .use_grouper = $1.open;""")
+                                        selfsubscribe_closable_change="""SET .use_grouper = $1.open;""",
+                                        **kwargs)
         inattr = view.getInheritedAttributes()
         bc.contentPane(region='center',datapath='.grouper').remote(self.fg_remoteGrouper,
                                                 groupedTh=inattr.get('frameCode'),
@@ -277,11 +279,11 @@ class FrameGridTools(BaseComponent):
                             currentGrouperPkey='^.currentGrouperPkey',
                             _if='currentGrouperPkey',_delay=1,grid=gth.grid.js_widget)
 
-        bar = gth.top.bar.replaceSlots('#','2,viewsSelect,*,configuratorPalette,2,confMenu,2')
+        bar = gth.top.bar.replaceSlots('#','2,viewsSelect,*,configuratorPalette,2,searchOn,confMenu,2')
         fcode = gth.attributes.get('frameCode')
         self._grouperConfMenu(bar.confMenu,frameCode=fcode)
 
-        bar = gth.treeView.top.bar.replaceSlots('#','2,viewsSelect,*,confMenu,2')
+        bar = gth.treeView.top.bar.replaceSlots('#','2,viewsSelect,*,searchOn,confMenu,2')
         self._grouperConfMenu(bar.confMenu,frameCode=fcode)
 
 
@@ -385,7 +387,13 @@ class FrameGrid(BaseComponent):
         if table and configurable:
             frame.viewConfigurator(table=table,configurable=configurable) 
         if table and groupable:
-            frame.viewGrouper(table=table)  
+
+            groupable_kwargs = dict()
+            if isinstance(groupable,dict):
+                groupable_kwargs.update(groupable)
+            else:
+                groupable_kwargs['closable'] = 'close'
+            frame.viewGrouper(table=table,**groupable_kwargs)  
 
         return frame
 

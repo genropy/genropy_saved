@@ -46,6 +46,7 @@ class SqlDbAdapter(object):
                  'time without time zone': 'H', 
                  'time with time zone': 'HZ',
                  'timestamp without time zone': 'DH',
+                 'interval':'DT',
                  'timestamp with time zone': 'DHZ',
                  'numeric': 'N', 'money': 'M',
                  'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'bytea': 'O'}
@@ -57,6 +58,7 @@ class SqlDbAdapter(object):
                     'HZ': 'time without time zone',
                     'DH': 'timestamp without time zone',
                     'DHZ': 'timestamp with time zone',
+                    'DT':'interval',
                     'I': 'integer', 'L': 'bigint', 'R': 'real',
                     'serial': 'serial8', 'O': 'bytea'}
 

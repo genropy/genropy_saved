@@ -50,7 +50,10 @@ def autocast(**cast_kwargs):
             for k,v in kwargs.items():
                 dtype=cast_kwargs.get(k)
                 if dtype:
-                    kwargs[k]=converter.fromText(v,dtype)
+                    converted = converter.fromText(v,dtype)
+                    if isinstance(converted,tuple):
+                        converted = converted[0]
+                    kwargs[k]=converted
             res = func(*args, **kwargs)
             return res
         wrapper.__name__ = func.__name__

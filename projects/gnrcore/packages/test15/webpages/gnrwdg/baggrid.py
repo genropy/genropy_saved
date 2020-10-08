@@ -17,10 +17,11 @@ class GnrCustomWebPage(object):
     
     def test_0_firsttest(self,pane):
         """First test description"""
-        pane.data('gridstore',self.getDati())
-        pane.dataController('SET .gridstore = dati.deepCopy();',dati='=.dati',_fired='^loadBag')
+        pane.data('.dati',self.getDati())
+        pane.dataController('SET .gridstore = dati.deepCopy();',dati='=.dati',_fired='^.loadBag')
+        pane.dataFormula('.gridstore',"new gnr.GnrBag();",_onStart=True)
         frame = pane.bagGrid(frameCode='test',title='Test',struct=self.gridstruct,height='300px',
-                            table='glbl.localita',storepath='gridstore',
+                            table='glbl.localita',storepath='.gridstore',
                             default_provincia='MI',
                             default_qty=4)
         frame.bottom.button('Load',fire='.loadBag')
@@ -31,7 +32,7 @@ class GnrCustomWebPage(object):
                     table='glbl.provincia',caption_field='provincia_nome')
         r.cell('qty',dtype='N',name='Quantitativo',width='5em',edit=True)  
         r.cell('colli',dtype='L',name='Colli',width='5em',edit=True)  
-        r.cell('totale',dtype='L',name='Colli',width='5em',formula='colli*qty')  
+        r.cell('totale',dtype='L',name='Tot',width='5em',formula='colli*qty')  
         r.cell('cist',name='Codice istat')
        # r.cell('montano',dtype='B',edit=True)
 
@@ -321,3 +322,35 @@ class GnrCustomWebPage(object):
                                                     struct=struct,height='300px',
                                                     grid_configurable=True,
                                                     pbl_classes=True,margin='5px')
+
+    def test_99_mixedmode(self,pane):
+        frame = pane.bagGrid(frameCode='V_trasporti',struct=self.gridstruct,table='glbl.localita',
+                            storepath='.gridstore',height='400px')
+        form = frame.grid.linkedForm(frameCode='F_trasporti',
+                                 datapath='.form',loadEvent='onRowDblClick',
+                                 dialog_height='200px',dialog_width='350px',
+                                 dialog_title='Edit',handlerType='dialog',
+                                 childname='form',attachTo=pane,
+                                 store='memory',default_qty=1,
+                                 #store_pkeyField='code'
+                                 )
+        pane.data('.dati',self.getDati())
+        pane.dataController('SET .gridstore = dati.deepCopy();',dati='=.dati',_fired='^.loadBag')
+        frame.bottom.button('Load',fire='.loadBag')
+        self.miaForm(form)
+    
+    def miaForm(self,form):
+        fb = form.record.formbuilder()
+        fb.dbSelect(value='^.provincia',selected_codice_istat='.cist',
+                        dbtable='glbl.provincia',lbl='Provincia',
+                        selected_nome='.provincia_nome')
+        #r.fieldcell('provincia',edit=dict(selected_codice_istat='.cist'),
+        #            table='glbl.provincia',caption_field='provincia_nome')
+        fb.numberTextBox(value='^.qty',lbl='Qty')
+        fb.numberTextBox(value='^.colli',lbl='Colli')
+        bar = form.bottom.slotToolbar('*,cancelbtn,savebtn,5',height='20px')
+        bar.cancelbtn.slotButton('Cancello',action="this.form.abort()")
+        bar.savebtn.slotButton('Salva',action="this.form.save({destPkey:'*dismiss*'})")
+
+        #r.cell('totale',dtype='L',name='Colli',width='5em',formula='colli*qty')  
+        #r.cell('cist',name='Codice istat')

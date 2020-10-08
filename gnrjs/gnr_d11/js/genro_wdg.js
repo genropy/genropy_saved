@@ -200,6 +200,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'dygraph':'',
             'protovis':'',
             'codemirror':'',
+            'fullcalendar':'',
             'LightButton':''
         };
         this.updateWidgetCatalog();
@@ -1643,6 +1644,13 @@ dojo.declare("gnr.GridEditor", null, {
     },
 
     editableCell:function(col,row,clicked) {
+        const gridSourceNode = this.grid.sourceNode;
+        if(gridSourceNode.attr._linkedFormId){
+            var editInForm = gridSourceNode.currentFromDatasource(gridSourceNode.attr.editInForm);
+            if(editInForm){
+                return false;
+            }
+        }
         var cell = this.grid.getCell(col);
         if (!(cell.field in this.columns)){return false;}
         if ((cell.classes || '').indexOf('hiddenColumn')>=0){return false}
@@ -1651,12 +1659,12 @@ dojo.declare("gnr.GridEditor", null, {
         if(rowdict._is_readonly_row){
             return false;
         }
-        if(this.grid.sourceNode.currentFromDatasource(cell.editDisabled)){
+        if(gridSourceNode.currentFromDatasource(cell.editDisabled)){
             return false;
         }else if(clicked){
             return true;
-        }else if(this.grid.sourceNode.currentFromDatasource(cell.editLazy)){
-            var editpars = cell.edit==true?{}:this.grid.sourceNode.evaluateOnNode(cell.edit);
+        }else if(gridSourceNode.currentFromDatasource(cell.editLazy)){
+            var editpars = cell.edit==true?{}:gridSourceNode.evaluateOnNode(cell.edit);
             return (editpars.validate_notnull && this.grid.rowByIndex(row)[cell.field]===null);
         }else{
             return true;
@@ -1825,7 +1833,17 @@ dojo.declare("gnr.GridChangeManager", null, {
             return
         }
         var filtered_totalize = new gnr.GnrBag();
-        for(let k in this.totalizeColumns){
+        let totalizeColumns = this.totalizeColumns;
+        if(this.grid._virtual){
+            totalizeColumns = {};
+            for(let k in this.grid.cellmap){
+                let totalize = this.grid.cellmap[k].totalize;
+                if(totalize){
+                    totalizeColumns[k] = totalize;
+                }
+            }
+        }
+        for(let k in totalizeColumns){
             //this.updateTotalizer(k);
             var totvalue = filteredStore.sum(this.grid.datamode=='bag'?k:'#a.'+k);
             filtered_totalize.setItem(k,totvalue);

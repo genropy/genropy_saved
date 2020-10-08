@@ -325,9 +325,8 @@ class GnrClassCatalog(object):
         self.addClass(cls=datetime.datetime, key='DH', aliases=['DATETIME', 'DT','DHZ'], empty=None, typegetter=self.typegetter_datetime)
         self.addParser(datetime.datetime, self.parse_datetime)
         self.addSerializer("asText", datetime.datetime, self.serialize_datetime)
-
-       
         self.addClass(cls=datetime.timedelta, key='TD', aliases=['TIMEDELTA', 'TD'], empty=None)
+        
         self.addParser(datetime.timedelta, self.parse_timedelta)
         self.addSerializer("asText", datetime.timedelta, self.serialize_timedelta)
 

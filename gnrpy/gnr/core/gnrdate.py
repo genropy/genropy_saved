@@ -33,6 +33,7 @@ import datetime
 import calendar
 import copy
 import bisect
+import pytz
 
 from gnr.core import gnrlocale
 from gnr.core.gnrstring import splitAndStrip, anyWordIn, wordSplit, toText
@@ -40,6 +41,16 @@ from dateutil import rrule
 from babel import dates
 
 logger = logging.getLogger(__name__)
+
+def toDHZ(date,time,timezone=None):
+    ts = datetime.datetime.combine(date,time)
+    if timezone == 'LOCAL':
+        from pytz import reference as pytzref
+        localtz = pytzref.LocalTimezone()
+        timezone = localtz.tzname(ts)
+    timezone = timezone or 'UTC'
+    tz = pytz.timezone(timezone)
+    return tz.localize(ts) 
 
 def checkDateKeywords(keywords,datestr,locale):
     return anyWordIn(gnrlocale.getDateKeywords(keywords, locale), datestr) or anyWordIn(
