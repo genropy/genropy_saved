@@ -91,7 +91,6 @@ class GnrTaskWorker(object):
             f = self.tblobj.query(where=self.where,wcode=self.code,for_update='SKIP LOCKED',
                                     limit=1,order_by='$__ins_ts').fetch()
             if f:
-                print('.')
                 rec = f[0]
                 oldrec = dict(rec)
                 rec['start_ts'] = datetime.now()
