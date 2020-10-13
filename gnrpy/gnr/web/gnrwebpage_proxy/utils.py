@@ -74,7 +74,10 @@ class GnrWebUtils(GnrBaseProxy):
         title = """<div class="quickthermo_title">%s</div>""" %title if title else ""
         for idx,v in enumerate(iterator):
             if isinstance(v,basestring):
-                lbl = v
+                if labelfield:
+                    lbl = labelfield
+                else:
+                    lbl = v
             elif labelfield:
                 if labelfield in v:
                     lbl = v[labelfield]
