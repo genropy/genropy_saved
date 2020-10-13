@@ -2468,21 +2468,23 @@ div.dojoxDock {
 .quickthermo_box{
     background: white;
     border-radius: 4px;
-    padding: 5px;
-    border:1px solid #ccc;
+    border-left: 1px solid #efefef;
     box-shadow: 2px 2px 3px #666;
 }
 .quickthermo_title{
     font-variant: normal;
-    font-size: 18px;
-    color:#555;
+    font-size: 14px;
     text-align: center;
+    background: #666;
+    color: white;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
 }
 
 
 .quickthermo_caption{
     font-variant: normal;
-    font-size: 18px;
+    font-size: 12px;
     color:#555;
 }
 

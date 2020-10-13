@@ -69,9 +69,9 @@ class GnrWebUtils(GnrBaseProxy):
         interval = 1
         if maxidx and maxidx >1000:
             interval = maxidx/100
-        
+        title = title or self.page.localize('!![en]Executing')
         thermo = """<div class="quickthermo_box"> <div class="form_waiting"></div> </div>""" 
-        title = """<div class="quickthermo_title">%s</div>""" %title if title else ""
+        title = """<div class="quickthermo_title">%s</div>""" %title
         for idx,v in enumerate(iterator):
             if isinstance(v,basestring):
                 if labelfield:
@@ -89,7 +89,7 @@ class GnrWebUtils(GnrBaseProxy):
                 themropars = dict(maxidx=maxidx,idx=idx,lbl=lbl or 'item %s' %idx,thermo_width=thermo_width or '12em',
                                 title=title)
                 if maxidx:
-                    thermo = r"""<div class="quickthermo_box"> %(title)s <progress style="width:%(thermo_width)s" max="%(maxidx)s" value="%(idx)s"></progress> <div class="quickthermo_caption">%(idx)s/%(maxidx)s - %(lbl)s</div></div>""" %themropars
+                    thermo = r"""<div class="quickthermo_box"> %(title)s <progress style="width:%(thermo_width)s;margin-left:10px;margin-right:10px;" max="%(maxidx)s" value="%(idx)s"></progress> <div class="quickthermo_caption">%(idx)s/%(maxidx)s - %(lbl)s</div></div>""" %themropars
                 else:
                     thermo = """<div class="quickthermo_box"> %(title)s <div class="form_waiting"></div> <div class="quickthermo_caption">%(idx)s - %(lbl)s</div> </div>"""  %themropars
                 self.page.setInClientData(path,thermo,idx=idx,maxidx=maxidx,lbl=lbl)
