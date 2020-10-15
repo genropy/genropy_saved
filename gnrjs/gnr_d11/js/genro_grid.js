@@ -1231,6 +1231,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             this.sourceNode.setAttributeInDatasource('selectedRowData', rowDataBag);
         }
         this.sourceNode.setRelativeData('.currentSelectedPkeys',selectedPkeys);
+        this.sourceNode.setRelativeData('.selectionLength',selectedPkeys?selectedPkeys.length:0);
         this.sourceNode.publish('onSelectedRow',{'idx':idx,'selectedId':selectedId,
                                                 'grid':this,'selectedPkeys':selectedPkeys});
     },
