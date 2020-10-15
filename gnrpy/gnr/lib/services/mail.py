@@ -69,7 +69,7 @@ def clean_and_unescape(text):
         return text # leave as it is written
 
     text = re.sub(TAG_SELECTOR, '', text)
-    return re.sub("&#?\w+;", fixup, text)
+    return re.sub(r"&#?\w+;", fixup, text)
 
 
 
