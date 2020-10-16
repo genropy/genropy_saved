@@ -63,7 +63,7 @@ class Package(GnrDboPackage):
                     rel_tblname, rel_colname = colpath
                 else:
                     rel_pkg, rel_tblname, rel_colname = colpath
-                rel_multidb = self.db.model.src.getNode('packages.%s.tables.%s' %(rel_pkg,rel_tblname)).attr.get('multidb')
+                rel_multidb = self.db.model.src.getAttr('packages.%s.tables.%s' %(rel_pkg,rel_tblname),'multidb')
                 if rel_multidb and rel_multidb!='one':
                     multidb_fkeys.append(col.label)
         return ','.join(multidb_fkeys)

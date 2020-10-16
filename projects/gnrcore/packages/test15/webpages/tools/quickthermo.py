@@ -34,7 +34,7 @@ class GnrCustomWebPage(object):
         numero = numero or 20
         pausa = pausa or .5
         lista= ['Numero {i}'.format(i=i) for i in range(numero)]
-        for elem in self.utils.quickThermo(lista):
+        for elem in self.utils.quickThermo(lista,labelfield='prova'):
             self.log(elem)
             sleep(pausa)
 
