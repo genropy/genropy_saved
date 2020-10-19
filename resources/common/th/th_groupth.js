@@ -171,15 +171,15 @@ var genro_plugin_groupth = {
         var emptyrow = {};
         var formuladict,formulalist,newname,k,structNode;
 
-        grpcol.concat(nobreak).forEach(function(attr,idx){
-            resultStructRow.setItem('cell_'+resultStructRow.len(),null,objectUpdate({},attr));
+        grpcol.concat(nobreak).forEach(function(kw,idx){
+            resultStructRow.setItem('cell_'+resultStructRow.len(),null,objectUpdate({},kw));
         });
         colset.forEach(function(f,colsetidx){
             colsetDict[f]=colsetidx;
             formuladict = {};
             formulalist = [];
-            valuecols.forEach(function(attr){
-                attr = objectUpdate({},attr);
+            valuecols.forEach(function(kw){
+                attr = objectUpdate({},kw);
                 newname = attr.field+'_'+colsetidx;
                 if(attr.group_aggr){
                     newname+= '_'+attr.group_aggr.replace(/\W/g, '_').toLowerCase();

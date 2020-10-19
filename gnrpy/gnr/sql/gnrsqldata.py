@@ -441,9 +441,8 @@ class SqlQueryCompiler(object):
             else:
                 return ['%s.%s' % (path, k) for k in relflds.keys() if k.startswith(flt) and not k.startswith('@')]
         else:
-            return ['$%s' % k for k, dtype in self.relations.digest('#k,#a.dtype') if
-                    k.startswith(flt) and not k.startswith('@') and (dtype != 'X' or bagFields)]
-    
+            return self.tblobj.starColumns(bagFields)
+        
     def embedFieldPars(self,sql):
         for k,v in self.sqlparams.items():
             if isinstance(v,basestring):
@@ -685,6 +684,7 @@ class SqlQueryCompiler(object):
                              check the :ref:`relationdict` documentation section
         :param virtual_columns: TODO."""
         self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
+    
         if not 'pkey' in self.cpl.relationDict and self.tblobj.pkey:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
         self.init(lazy=lazy, eager=eager)
@@ -699,8 +699,7 @@ class SqlQueryCompiler(object):
                 xattrs['as'] = '%s_%s' %(self.aliasCode(0),fieldname)
             self.cpl.resultmap.setItem(fieldname,None,xattrs)
 
-        if virtual_columns:
-            self._handle_virtual_columns(virtual_columns)
+        self._handle_virtual_columns(virtual_columns)
         self.cpl.where = self._recordWhere(where=where)
         self.cpl.columns = ',\n       '.join(self.fieldlist)
         #self.cpl.limit = 2
@@ -721,6 +720,9 @@ class SqlQueryCompiler(object):
     def _handle_virtual_columns(self, virtual_columns):
         if isinstance(virtual_columns, basestring):
             virtual_columns = gnrstring.splitAndStrip(virtual_columns, ',')
+        virtual_columns = (virtual_columns or []) + self.tblobj.static_virtual_columns.keys()
+        if not virtual_columns:
+            return
         virtual_columns = uniquify([v[1:] if v.startswith('$') else v for v in virtual_columns])
         tbl_virtual_columns = self.tblobj.virtual_columns
         for col_name in virtual_columns:
@@ -957,8 +959,8 @@ class SqlQuery(object):
         self.aliasPrefix = aliasPrefix
         
         test = " ".join([v for v in (columns, where, order_by, group_by, having) if v])
-        rels = set(re.findall('\$(\w*)', test))
-        params = set(re.findall('\:(\w*)', test))
+        rels = set(re.findall(r'\$(\w*)', test))
+        params = set(re.findall(r'\:(\w*)', test))
         for r in rels:                             # for each $name in the query
             if r not in params:                    # if name is also present as :name skip
                 if r in self.sqlparams:            # if name is present in kwargs
