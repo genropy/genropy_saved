@@ -57,6 +57,7 @@ class DbModel(object):
         #self._db = weakref.ref(db)
         self.db = db
         self.src = DbModelSrc.makeRoot()
+        self.src._dbmodel = self
         self.obj = None
         self.relations = Bag()
         self._columnsWithRelations = {}
@@ -181,10 +182,6 @@ class DbModel(object):
             private_relation = relation_name is None and one_one != '*'
             default_relation_name = many_table if one_one=='*' else '_'.join(many_relation_tuple)
             relation_name = relation_name or default_relation_name
-            #if not  many_name:
-            #     many_name = link_one_name
-            #if not  one_name:
-            #     one_name = link_many_name
             case_insensitive = (mode == 'insensitive')
             foreignkey = (mode == 'foreignkey')
             many_relkey = '%s.%s.@%s' % (many_pkg, many_table, link_many_name)
@@ -216,6 +213,9 @@ class DbModel(object):
             #print 'The relation %s - %s was added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
             self.checkRelationIndex(many_pkg, many_table, many_field)
             self.checkRelationIndex(one_pkg, one_table, one_field)
+            if onDelete=='cascade':
+                self.checkAutoStatic(one_pkg=one_pkg, one_table=one_table, one_field=one_field,
+                                many_pkg=many_pkg,many_table=many_table,many_field=many_field)
         except Exception,e:
             if self.debug:
                 raise
@@ -234,7 +234,23 @@ class DbModel(object):
         indexname = '%s_%s_key' % (table, column)
         if column != tblobj.pkey and not indexname in tblobj.indexes:
             tblobj.indexes.children[indexname] = DbIndexObj(parent=tblobj.indexes, attrs=dict(columns=column))
-            
+
+    def checkAutoStatic(self,one_pkg=None, one_table=None, one_field=None,
+                            many_pkg=None,many_table=None,many_field=None):
+        manytable_src = self.src['packages'][many_pkg]['tables'][many_table]
+        onetable_src = self.src['packages'][one_pkg]['tables'][one_table]
+        manytblobj = self.obj[many_pkg]['tables'][many_table]
+        for systemField in ('draftField','logicalDeletionField'):
+            one_sf = onetable_src.attributes.get(systemField)
+            many_sf = manytable_src.attributes.get(systemField)
+            if one_sf and many_sf is None:
+                manytable_src.aliasColumn(one_sf,
+                                     '@{many_field}.{one_sf}'.format(many_field=many_field,one_sf=one_sf),
+                                     name_long='!![en]{many_field} {one_sf}'.format(many_field=many_field,one_sf=one_sf),
+                                                                                        group='zz',static=True)
+                manytable_src.attributes[systemField] = one_sf
+                manytblobj.attributes[systemField] = one_sf
+
     def load(self, source=None):
         """Load the modelsrc from a XML source
         
@@ -475,10 +491,18 @@ class DbModelSrc(GnrStructData):
                 raise GnrSqlException(error)
                 
         kwargs.update(variant_kwargs)
-        return self.child('virtual_column', 'virtual_columns.%s' % name,
+        vcsrc = self.child('virtual_column', 'virtual_columns.%s' % name,
                           relation_path=relation_path,select=select,exists=exists,
                           sql_formula=sql_formula, py_method=py_method,
                           virtual_column=True, variant=variant,**kwargs)
+        modelobj = self.root._dbmodel.obj
+        if modelobj:
+            tblname = self.parentNode.label
+            pkgname = self.parentNode.parentNode.parentNode.label
+            virtual_columns = modelobj[pkgname]['tables'][tblname]['virtual_columns']
+            obj = DbVirtualColumnObj(structnode=vcsrc.parentNode,parent=virtual_columns)
+            virtual_columns.children[obj.name.lower()] = obj
+        return vcsrc 
                           
     def aliasColumn(self, name, relation_path, **kwargs):
         """Insert an aliasColumn into a :ref:`table`, that is a column with a relation path.
@@ -931,6 +955,12 @@ class DbTableObj(DbModelObj):
         return virtual_columns
 
     @property
+    def static_virtual_columns(self):
+        return Bag([(colname,colobj) \
+                    for colname,colobj in self['virtual_columns'].items() \
+                        if colobj.attributes.get('static')])
+        
+    @property
     def dynamic_columns(self):
         result = Bag()
         dbtable = self.dbtable
@@ -985,6 +1015,11 @@ class DbTableObj(DbModelObj):
         return self['table_aliases']
         
     table_aliases = property(_get_table_aliases)
+
+    def starColumns(self,bagFields=False):
+        result = ['${}'.format(colname) for colname,colobj in self.columns.items() if bagFields or colobj.dtype!='X']
+        result += ['${}'.format(colname) for colname in self.static_virtual_columns.keys()]
+        return result
 
     def getColPermissions(self,name,**checkPermissions):
         user_conf = self.dbtable.getUserConfiguration(**checkPermissions)
