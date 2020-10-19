@@ -570,7 +570,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 genro.dom.removeClass(sourceNode.attr.configuratorId || frameNode,'treeShowTrash');
             });
             sourceNode._showTrash=function(show){
-                console.log('showtrash',sourceNode.attr ,frameNode);
                 genro.dom.addClass(sourceNode.attr.configuratorId || frameNode,'treeShowTrash');
             };
             sourceNode.attr.onTrashed = sourceNode.attr.onTrashed || 'this.widget.deleteColumn(data);';
