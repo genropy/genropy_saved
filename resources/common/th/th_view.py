@@ -30,6 +30,7 @@ class TableHandlerView(BaseComponent):
         self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
     
         options = self._th_hook('options',mangler=frameCode)() or dict()
+        structure_field = structure_field or options.get('structure_field')
         store_kwargs.setdefault('subtable',options.get('subtable'))
         kwargs.update(dictExtract(options,'grid_'),slice_prefix=False)
         if options.get('addrow') and options.get('addrow') is not True:
@@ -67,7 +68,9 @@ class TableHandlerView(BaseComponent):
         if viewhook:
             viewhook(view)
         self._th_view_printEditorDialog(view)
+
         if structure_field:
+            
             view.left.borderContainer(closable=True,width='300px',
                                     border_right='1px solid silver'
                                     ).contentPane(region='center'
