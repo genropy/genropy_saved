@@ -3977,8 +3977,9 @@ dojo.declare("gnr.widgets.MultiButton", gnr.widgets.gnrwdg, {
             attr.code = attr.code || n.label;
             if(attr.prev){
                 childItemsPrev.setItem(attr.code,null,attr);
+            }else{
+                childItemsPost.setItem(attr.code,null,attr);
             }
-            childItemsPost.setItem(attr.code,null,attr);
         });
         gnrwdg.childItemsPrev = childItemsPrev;
         gnrwdg.childItemsPost = childItemsPost;

@@ -1734,8 +1734,15 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 result.push(view);
             }
         }
-        
-
+        let view_0 = result[0];
+        if (view_0 && view_0.fixedColumn){
+            let cols = view_0.rows[0];
+            let fixedCols = []
+            for(let n = 0; n<view_0.fixedColumn; n++){
+                fixedCols.push(cols.shift());
+            }
+            result = [{rows:[fixedCols]}].concat(view_0);
+        }
         return result;
     },
     groupByFromStruct:function(struct, grouppable) {

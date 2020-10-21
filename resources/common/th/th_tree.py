@@ -97,7 +97,7 @@ class HTableTree(BaseComponent):
                         childname='store',caption=caption,dbstore=dbstore,
                         columns=columns,related_kwargs=related_kwargs,
                         nodeId='%s_hdata' %table.replace('.','_'),
-                        subtable=subtable,**storekw)
+                        subtable=subtable,resolved=resolved,**storekw)
             d.addCallback("""
                 var selectedIdentifier;
                 if(treeNode.attr.tag.toLocaleLowerCase()=='tree'){ //avoid paletteTree

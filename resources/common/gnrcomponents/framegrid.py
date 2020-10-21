@@ -348,7 +348,7 @@ class FrameGrid(BaseComponent):
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,dynamicStorepath=None,structpath=None,
                     datamode=None,table=None,viewResource=None,grid_kwargs=True,top_kwargs=None,iconSize=16,
                     footer_kwargs=None,columnset_kwargs=None,footer=None,columnset=None,fillDown=None,
-                    _newGrid=None,selectedPage=None,configurable=None,printRows=None,groupable=False,**kwargs):
+                    _newGrid=None,selectedPage=None,configurable=None,printRows=None,groupable=False,extendedLayout=True,**kwargs):
         pane.attributes.update(overflow='hidden')
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         frame.center.stackContainer(selectedPage=selectedPage)
@@ -376,7 +376,7 @@ class FrameGrid(BaseComponent):
                           datapath='.grid',
                           struct=struct,table=table,
                           parentFrame=frame.attributes.get('frameCode'), #considering autocalc frameCode
-                          _extendedLayout=True,
+                          _extendedLayout=extendedLayout,
                           **grid_kwargs)
         frame.grid = grid
         if top_kwargs:
