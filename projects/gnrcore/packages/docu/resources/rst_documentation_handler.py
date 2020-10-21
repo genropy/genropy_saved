@@ -80,7 +80,7 @@ class RstDocumentationHandler(BaseComponent):
     def rst_imageTab(self,pane):
         th = pane.attachmentGrid(pbl_classes=True,screenshot=True,design='headline')
         template_image = """.. image:: $fileurl
-    :width: 100px
+    :width: 200px
     :align: center
     :height: 100px"""
         template_figure= """.. figure:: stars.jpg
@@ -99,7 +99,7 @@ class RstDocumentationHandler(BaseComponent):
                                     var url = dragValues.gridrow.rowdata.fileurl;
                                     var ext = url.slice(url.lastIndexOf('.'));
                                     var tpl,tplname;
-                                    if(!['.jpg','.jpag','.png','.svg','.tiff'].includes(ext)){
+                                    if(!['.jpg','.jpeg','.png','.gif','.svg','.tiff'].includes(ext)){
                                         tplname = dragInfo.modifier=='Shift' ?'_tpl_link':'_tpl_iframedoc';
                                     }else{
                                         tplname = dragInfo.modifier=='Shift' ? '_tpl_figure':'_tpl_image';
