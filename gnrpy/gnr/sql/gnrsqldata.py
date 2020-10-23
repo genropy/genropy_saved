@@ -545,6 +545,17 @@ class SqlQueryCompiler(object):
         wherelist.append(self.tblobj.dbtable.getPartitionCondition(ignorePartition=ignorePartition))
         if subtable and subtable!='*':
             wherelist.append(self.tblobj.dbtable.subtable(subtable).getCondition(sqlparams=self.sqlparams))
+        logicalDeletionField = self.tblobj.logicalDeletionField
+        if logicalDeletionField:
+            if excludeLogicalDeleted is True:
+                wherelist.append('${} IS NULL'.format(logicalDeletionField))
+            elif excludeLogicalDeleted=='mark' and not (aggregate or count):
+                columns = '{columns},${logicalDeletionField} AS _isdeleted'.format(columns=columns, logicalDeletionField=logicalDeletionField) #add logicalDeletionField
+        
+        if excludeDraft is True:
+            draftField = self.tblobj.draftField
+            if draftField:
+                wherelist.append('${} IS NOT TRUE'.format(draftField))
         where = ' AND '.join([w for w in wherelist if w])
         columns = self.updateFieldDict(columns)
         where = self.embedFieldPars(where)
@@ -605,29 +616,7 @@ class SqlQueryCompiler(object):
         columns = gnrstring.templateReplace(columns, colPars, safeMode=True)
         
         # replace $fldname with tn.fldname: finally the real SQL where!
-        
         where = gnrstring.templateReplace(where, colPars)
-        #if excludeLogicalDeleted==True we have additional conditions in the where clause
-        logicalDeletionField = self.tblobj.logicalDeletionField
-        draftField = self.tblobj.draftField
-        if logicalDeletionField:
-            if excludeLogicalDeleted is True:
-                extracnd = '%s.%s IS NULL' % (self.aliasCode(0),logicalDeletionField)
-                if where:
-                    where = ' ( %s ) AND ( %s ) ' % (extracnd, where)
-                else:
-                    where = extracnd
-            elif excludeLogicalDeleted == 'mark':
-                if not (aggregate or count):
-                    columns = '%s, %s.%s AS _isdeleted' % (columns, self.aliasCode(0),logicalDeletionField) #add logicalDeletionField
-        if draftField:
-            if excludeDraft is True:
-                extracnd = '%s.%s IS NOT TRUE' %(self.aliasCode(0),draftField)
-                if where:
-                    where = ' ( %s ) AND ( %s )' % (extracnd, where)
-                else:
-                    where = extracnd
-        # add a special joinCondition for the main selection, not for JOINs
         if self.joinConditions:
             extracnd, one_one = self.getJoinCondition('*', '*', self.aliasCode(0))
             if extracnd:
