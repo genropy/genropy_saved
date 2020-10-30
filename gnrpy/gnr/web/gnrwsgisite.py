@@ -166,9 +166,9 @@ class GnrWsgiSite(object):
         :param code: TODO"""
         if getattr(self, 'debug', True):
             if code and code in OP_TO_LOG:
-                print '***** %s : %s' % (code, msg)
+                print ('***** %s : %s' % (code, msg))
             elif not code:
-                print '***** OTHER : %s' % (msg)
+                print ('***** OTHER : %s' % (msg))
 
     def setDebugAttribute(self, options):
         self.force_debug = False
