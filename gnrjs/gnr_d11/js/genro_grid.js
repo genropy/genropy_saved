@@ -4489,6 +4489,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         if(!table){
             return
         }
+        if(this.sourceNode.currentFromDatasource(cell.editDisabled)){
+            return;
+        }
         if (cell.customClasses.indexOf('cell_disabled')>=0){
             return;
         }
