@@ -126,11 +126,13 @@ class Table(object):
         period =period or None
         for r in l:
             i+=1
+            if not r['cnt'].isdigit():
+                continue
             cnt = int(r['cnt'])
             if date_field:
                 rdate = r[date_field]
                 if not rdate:
-                    print 'missing date'
+                    print('missing date')
                     errors.setItem('missing_date.%i' %i,None,cnt=cnt)
                     continue
                 if prev_date and prev_date>rdate:
