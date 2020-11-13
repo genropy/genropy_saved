@@ -110,7 +110,8 @@ class Table(object):
         dccol = "substr($%(fld)s, 1,%(nstart)i) || '%(placeholder)s' || substr($%(fld)s,%(lst)i)" %dict(fld=field,nstart=N_start,placeholder=placeholder,lst=N_start+delta+1)
         l = tblobj.query(columns=columns ,
                         where="%s = :sq" %dccol,
-                        sq=sq,excludeDraft=False).fetch()
+                        sq=sq,excludeDraft=False,
+                        excludeLogicalDeleted=False).fetch()
         i = 0
         errors = Bag()
         holes = Bag()

@@ -276,7 +276,7 @@ var genro_plugin_groupth = {
         prefix = prefix || '';
         prefix = '^.'+prefix;
         var numeric = 'RNLIF'.indexOf(dtype)>=0;
-        var dateTime = 'DDH'.indexOf(dtype)>=0;
+        var dateTime = ['DH','DHZ','D'].indexOf(dtype)>=0;
         if(numeric){
             fb.addField('filteringSelect',{value:prefix+'group_aggr',
                         values:'sum:Sum,avg:Average,min:Min,max:Max,break:Break,nobreak:No break',
