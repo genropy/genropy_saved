@@ -1792,6 +1792,9 @@ dojo.declare('gnr.GenroClient', null, {
         }
         if(parent){
             var parentGenro = this.getParentGenro();
+            if(!parentGenro){
+                return;
+            }
             var t=objectUpdate({},topic);
             objectPop(t,'iframe');
             objectPop(t,'parent');

@@ -99,7 +99,7 @@ class HTableTree(BaseComponent):
                         childname='store',caption=caption,dbstore=dbstore,
                         columns=columns,related_kwargs=related_kwargs,
                         nodeId='%s_hdata' %table.replace('.','_'),
-                        subtable=subtable,**storekw)
+                        subtable=subtable,resolved=resolved,**storekw)
             d.addCallback("""
                 var selectedIdentifier;
                 if(treeNode.attr.tag.toLocaleLowerCase()=='tree'){ //avoid paletteTree
@@ -376,11 +376,11 @@ class TableHandlerHierarchicalView(BaseComponent):
                                hpkey = '=.form.record.hierarchical_pkey',
                                _fired='^.form.controller.loaded',
                                add_label='!!Add')
-    @extract_kwargs(relation=True)
+    @extract_kwargs(relation=True,condition=True)
     @struct_method
     def ht_relatedTableHandler(self,tree,th,dropOnRoot=True,
                                 inherited=None,relation_kwargs=None,
-                                root_fkey=None):
+                                root_fkey=None,condition=None,condition_kwargs=None):
         relation_table = relation_kwargs.pop('table',None)
         vstore = th.view.store
         vstoreattr = vstore.attributes
@@ -400,6 +400,7 @@ class TableHandlerHierarchicalView(BaseComponent):
         assert fkey_name or relation_table, 'If there is no relation: relation_table is mandatory'
         fkey_name_alt = dictExtract(vstoreattr,'_fkey_name_')
         condlist = []
+        
         condpars = dict(suffix='/%%',root_fkey=root_fkey,curr_hpkey='=#FORM.record.hierarchical_pkey',showInherited='^.showInherited')
         hiddencolumns = gridattr['hiddencolumns'].split(',') if gridattr.get('hiddencolumns') else []
         for k in list(relation_kwargs.keys()):
@@ -436,7 +437,13 @@ class TableHandlerHierarchicalView(BaseComponent):
                 )
                 """ %(relation_name,rel_fkey_name,relation_name,rel_fkey_name))
                 hiddencolumns.append('@%s.@%s.hierarchical_pkey AS many_hpkey' %(relation_name,rel_fkey_name))
+                
         vstoreattr['condition'] = ' OR '.join(condlist)
+        if condition:
+            vstoreattr['condition'] ='{} AND {}'.format(vstoreattr['condition'],condition)
+        if condition_kwargs:
+            vstoreattr.update(condition_kwargs)
+
         vstoreattr['fullReloadOnChange'] = True
         vstoreattr.update(condpars)
         dragCode = 'hrows_%s' %dragTable.replace('.','_')

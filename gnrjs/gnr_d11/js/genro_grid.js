@@ -570,7 +570,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 genro.dom.removeClass(sourceNode.attr.configuratorId || frameNode,'treeShowTrash');
             });
             sourceNode._showTrash=function(show){
-                console.log('showtrash',sourceNode.attr ,frameNode);
                 genro.dom.addClass(sourceNode.attr.configuratorId || frameNode,'treeShowTrash');
             };
             sourceNode.attr.onTrashed = sourceNode.attr.onTrashed || 'this.widget.deleteColumn(data);';
@@ -1735,8 +1734,15 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 result.push(view);
             }
         }
-        
-
+        let view_0 = result[0];
+        if (view_0 && view_0.fixedColumn){
+            let cols = view_0.rows[0];
+            let fixedCols = []
+            for(let n = 0; n<view_0.fixedColumn; n++){
+                fixedCols.push(cols.shift());
+            }
+            result = [{rows:[fixedCols]}].concat(view_0);
+        }
         return result;
     },
     groupByFromStruct:function(struct, grouppable) {
@@ -4488,6 +4494,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         const table = this.sourceNode.attr.table; 
         if(!table){
             return
+        }
+        if(this.sourceNode.currentFromDatasource(cell.editDisabled)){
+            return;
         }
         if (cell.customClasses.indexOf('cell_disabled')>=0){
             return;

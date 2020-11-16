@@ -60,6 +60,7 @@ class TableHandler(BaseComponent):
                                                     condition_kwargs=condition_kwargs,
                                                     relation_kwargs=relation_kwargs,
                                                     default_kwargs=default_kwargs,original_kwargs=kwargs)
+
         if 'inheritLock' in kwargs:
             view_kwargs['store_inheritLock'] = kwargs['inheritLock']
             form_kwargs['form_inheritLock'] = kwargs.pop('inheritLock')
@@ -90,6 +91,9 @@ class TableHandler(BaseComponent):
         formCode='F_{}'.format(th_root)
         defaultModule = 'th_{}'.format(table.split('.')[1])
         unlinkdict = kwargs.pop('store_unlinkdict',None)
+        store_excludeDraft = kwargs.pop('store_excludeDraft',None)
+        store_excludeLogicalDeleted = kwargs.pop('store_excludeLogicalDeleted',None)
+
         if pane.attributes.get('tag') == 'ContentPane':
             pane.attributes['overflow'] = 'hidden'
         wdg = pane.child(tag=tag,datapath=datapath or '.{}'.format(tableCode),
@@ -185,6 +189,8 @@ class TableHandler(BaseComponent):
                                 grid_kwargs=grid_kwargs,unlinkdict=unlinkdict,searchOn=searchOn,title=title,
                                 preview_kwargs=preview_kwargs,
                                 parentForm=parentForm,liveUpdate=liveUpdate,
+                                excludeDraft = store_excludeDraft,
+                                excludeLogicalDeleted = store_excludeLogicalDeleted,
                                 **view_kwargs) 
         hiderRoot = wdg if kwargs.get('tag') == 'BorderContainer' else wdg.view
         if hider:

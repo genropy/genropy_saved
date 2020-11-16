@@ -31,7 +31,6 @@ class Table(object):
         tbl.aliasColumn('task_max_workers','@task_id.max_workers',dtype='L',name_long='!!Task Max workers')
         tbl.aliasColumn('task_active_workers','@task_id.active_workers',dtype='L',name_long='!!Task Active workers')
 
-        tbl.aliasColumn('task_command','@task_id.command',name_long='!!Task command',name_short='!!Command') # char(4)
         tbl.formulaColumn('status',"""
             (CASE WHEN $is_error IS TRUE THEN 'error'
                  WHEN $end_ts IS NOT NULL THEN 'completed'

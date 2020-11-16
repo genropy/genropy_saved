@@ -171,15 +171,15 @@ var genro_plugin_groupth = {
         var emptyrow = {};
         var formuladict,formulalist,newname,k,structNode;
 
-        grpcol.concat(nobreak).forEach(function(attr,idx){
-            resultStructRow.setItem('cell_'+resultStructRow.len(),null,objectUpdate({},attr));
+        grpcol.concat(nobreak).forEach(function(kw,idx){
+            resultStructRow.setItem('cell_'+resultStructRow.len(),null,objectUpdate({},kw));
         });
         colset.forEach(function(f,colsetidx){
             colsetDict[f]=colsetidx;
             formuladict = {};
             formulalist = [];
-            valuecols.forEach(function(attr){
-                attr = objectUpdate({},attr);
+            valuecols.forEach(function(kw){
+                attr = objectUpdate({},kw);
                 newname = attr.field+'_'+colsetidx;
                 if(attr.group_aggr){
                     newname+= '_'+attr.group_aggr.replace(/\W/g, '_').toLowerCase();
@@ -276,7 +276,7 @@ var genro_plugin_groupth = {
         prefix = prefix || '';
         prefix = '^.'+prefix;
         var numeric = 'RNLIF'.indexOf(dtype)>=0;
-        var dateTime = 'DDH'.indexOf(dtype)>=0;
+        var dateTime = ['DH','DHZ','D'].indexOf(dtype)>=0;
         if(numeric){
             fb.addField('filteringSelect',{value:prefix+'group_aggr',
                         values:'sum:Sum,avg:Average,min:Min,max:Max,break:Break,nobreak:No break',

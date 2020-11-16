@@ -434,6 +434,11 @@ class SqlTable(GnrObject):
         return self.model.columns
         
     @property
+    def virtual_columns(self):
+        """Returns the virtual columns DbColumnListObj object"""
+        return self.model.virtual_columns
+
+    @property
     def relations(self):
         """Returns the relations DbColumnListObj object"""
         return self.model.relations
@@ -458,6 +463,8 @@ class SqlTable(GnrObject):
         
     def counterColumns(self):
         return
+
+
 
     def variantColumn_unaccent(self, field, **kwargs):
         sql_formula=self.db.adapter.unaccentFormula(field)

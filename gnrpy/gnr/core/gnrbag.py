@@ -679,7 +679,6 @@ class Bag(GnrObject):
         
     def sum(self, what='#v'):
         """TODO
-        
         :param what: TODO"""
         if ',' in what:
             result = []
@@ -689,7 +688,17 @@ class Bag(GnrObject):
             return result
         else:
             return sum([n or 0 for n in self.digest(what)])
-            
+                
+    def summarizeAttributes(self,attrnames=None):
+        result = {}
+        for n in self:
+            if n.value:
+                n.attr.update(n.value.summarizeAttributes(attrnames))
+            for k in attrnames:
+                result[k] = result.get(k,0) + n.attr.get(k,0)
+        return result
+
+
     def get(self, label, default=None, mode=None):
         """TODO
         

@@ -522,7 +522,11 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
                 
                 if(structbag){
                     var colsets =  structbag.getItem('info.columnsets') || new gnr.GnrBag();
-                    structbag.getItem('view_0.rows_0').forEach(function(n){
+                    let gridrow = structbag.getItem('view_0.rows_0');
+                    if (!gridrow){
+                        return;
+                    }
+                    gridrow.forEach(function(n){
                         var c = objectUpdate({},n.attr);
                         if(c.name){
                             c.name = c.name.replace(/<br\/>/g,' ');
@@ -587,6 +591,9 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
     gnrwdg_captionGetter:function(kw){
         kw = kw || {};
         var g = this._fgetter({'D':true,'T':true,'A':true,'C':true,'L':true,'I':true},true);
+        if(!g){
+            return;
+        }
         var data = [];
         if(this.defaultCaptionField && !g.length){
             data.push({_pkey:this.defaultCaptionField,caption:this.defaultCaptionField});
@@ -730,7 +737,11 @@ dojo.declare("gnr.widgets.ChartPane", gnr.widgets.gnrwdg, {
 
         var fb = genro.dev.formbuilder(bc._('ContentPane',{region:'top'})._('div',{margin_right:'10px'}),1,{border_spacing:'3px',margin_top:'10px',width:'100%'});
         fb.addField('filteringSelect',{value:'^#WORKSPACE.chartType',colspan:1,width:'10em',values:genro.chartjs.chartTypes,lbl:'Type'});
-        var fistCap = this.captionGetter({_querystring:'*'}).data[0] || {};
+        let captions = this.captionGetter({_querystring:'*'});
+        if(!captions){
+            return;
+        }
+        var fistCap = captions.data[0] || {};
         fb.addField('callbackSelect',{value:'^#WORKSPACE.captionField',width:'10em',
                                         lbl_text_align:'right',
                                         lbl_class:'gnrfieldlabel',

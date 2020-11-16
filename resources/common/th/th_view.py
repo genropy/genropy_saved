@@ -31,6 +31,7 @@ class TableHandlerView(BaseComponent):
         self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
     
         options = self._th_hook('options',mangler=frameCode)() or dict()
+        structure_field = structure_field or options.get('structure_field')
         store_kwargs.setdefault('subtable',options.get('subtable'))
         kwargs.update(dictExtract(options,'grid_'),slice_prefix=False)
         if options.get('addrow') and options.get('addrow') is not True:
@@ -68,7 +69,9 @@ class TableHandlerView(BaseComponent):
         if viewhook:
             viewhook(view)
         self._th_view_printEditorDialog(view)
+
         if structure_field:
+            
             view.left.borderContainer(closable=True,width='300px',
                                     border_right='1px solid silver'
                                     ).contentPane(region='center'
@@ -180,8 +183,8 @@ class TableHandlerView(BaseComponent):
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,groupable=None,
                        unlinkdict=None,searchOn=True,count=None,title=None,root_tablehandler=None,structCb=None,preview_kwargs=None,loadingHider=True,
-                       store_kwargs=None,parentForm=None,liveUpdate=None,bySample=None,resourceOptions=None,**kwargs):
-        condition_kwargs = condition_kwargs
+                       store_kwargs=None,parentForm=None,liveUpdate=None,bySample=None,resourceOptions=None,
+                       excludeDraft=None,excludeLogicalDeleted=None,**kwargs):
         page_hooks = self._th_hook('page',mangler=frameCode,asDict=True)
         if condition:
             condition_kwargs['condition'] = condition
@@ -243,7 +246,10 @@ class TableHandlerView(BaseComponent):
                 frame.viewLinkedDashboard()
         self._th_handle_page_hooks(frame,page_hooks)
         self._th_menu_sources(frame,extendedQuery=extendedQuery,bySample=bySample)
-        self._th_viewController(frame,table=table,default_totalRowCount=extendedQuery == '*')
+        self._th_viewController(frame,table=table,
+                            default_totalRowCount=extendedQuery == '*',
+                            excludeDraft=excludeDraft,
+                            excludeLogicalDeleted=excludeLogicalDeleted)
         store_kwargs = store_kwargs or dict()
         store_kwargs['parentForm'] = parentForm
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
@@ -1283,20 +1289,26 @@ class TableHandlerView(BaseComponent):
             #_internalQueryTooltip='^.#parent.#parent.internalQuery.tooltip',
 
         
-    def _th_viewController(self,pane,table=None,th_root=None,default_totalRowCount=None):
+    def _th_viewController(self,pane,table=None,th_root=None,
+                        default_totalRowCount=None,excludeDraft=None,
+                                        excludeLogicalDeleted=None):
         table = table or self.maintable
         tblattr = dict(self.db.table(table).attributes)
         tblattr.pop('tag',None)
         pane.data('.table',table,**tblattr)
         options = self._th_hook('options',mangler=pane)() or dict()
-        excludeLogicalDeleted = options.get('excludeLogicalDeleted',True)
+        excludeLogicalDeleted = options.get('excludeLogicalDeleted',excludeLogicalDeleted)
+        if excludeLogicalDeleted is None:
+            excludeLogicalDeleted = True
+        if excludeDraft is None:
+            excludeDraft = True
         showLogicalDeleted = not excludeLogicalDeleted
         pane.data('.excludeLogicalDeleted', 'mark' if showLogicalDeleted else True)
         pane.dataController("""SET .excludeLogicalDeleted = show?'mark':true;
                                genro.dom.setClass(dojo.body(),'th_showLogicalDeleted',show);
                             """,show="^.showLogicalDeleted")
         pane.data('.showLogicalDeleted',showLogicalDeleted)
-        pane.data('.excludeDraft', options.get('excludeDraft',True))
+        pane.data('.excludeDraft', options.get('excludeDraft',excludeDraft))
         pane.data('.tableRecordCount',options.get('tableRecordCount',default_totalRowCount))
 
 

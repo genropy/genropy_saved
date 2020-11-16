@@ -174,7 +174,11 @@ class GnrSqlDb(GnrObject):
     def reuse_relation_tree(self):
         if self.application:
             return boolean(self.application.config['db?reuse_relation_tree']) is not False
-        return
+
+    @property
+    def auto_static_enabled(self):
+        if self.application:
+            return boolean(self.application.config['db?auto_static_enabled']) is not False
 
     def createModel(self):
         """TODO"""

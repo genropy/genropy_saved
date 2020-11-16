@@ -451,9 +451,8 @@ class SqlQueryCompiler(object):
             else:
                 return ['%s.%s' % (path, k) for k in list(relflds.keys()) if k.startswith(flt) and not k.startswith('@')]
         else:
-            return ['$%s' % k for k, dtype in self.relations.digest('#k,#a.dtype') if
-                    k.startswith(flt) and not k.startswith('@') and (dtype != 'X' or bagFields)]
-    
+            return self.tblobj.starColumns(bagFields)
+        
     def embedFieldPars(self,sql):
         for k,v in list(self.sqlparams.items()):
             if isinstance(v,basestring):
@@ -557,6 +556,17 @@ class SqlQueryCompiler(object):
         wherelist.append(self.tblobj.dbtable.getPartitionCondition(ignorePartition=ignorePartition))
         if subtable and subtable!='*':
             wherelist.append(self.tblobj.dbtable.subtable(subtable).getCondition(sqlparams=self.sqlparams))
+        logicalDeletionField = self.tblobj.logicalDeletionField
+        if logicalDeletionField:
+            if excludeLogicalDeleted is True:
+                wherelist.append('${} IS NULL'.format(logicalDeletionField))
+            elif excludeLogicalDeleted=='mark' and not (aggregate or count):
+                columns = '{columns},${logicalDeletionField} AS _isdeleted'.format(columns=columns, logicalDeletionField=logicalDeletionField) #add logicalDeletionField
+        
+        if excludeDraft is True:
+            draftField = self.tblobj.draftField
+            if draftField:
+                wherelist.append('${} IS NOT TRUE'.format(draftField))
         where = ' AND '.join([w for w in wherelist if w])
         columns = self.updateFieldDict(columns)
         where = self.embedFieldPars(where)
@@ -618,29 +628,7 @@ class SqlQueryCompiler(object):
         columns = gnrstring.templateReplace(columns, colPars, safeMode=True)
         
         # replace $fldname with tn.fldname: finally the real SQL where!
-        
         where = gnrstring.templateReplace(where, colPars)
-        #if excludeLogicalDeleted==True we have additional conditions in the where clause
-        logicalDeletionField = self.tblobj.logicalDeletionField
-        draftField = self.tblobj.draftField
-        if logicalDeletionField:
-            if excludeLogicalDeleted is True:
-                extracnd = '%s.%s IS NULL' % (self.aliasCode(0),logicalDeletionField)
-                if where:
-                    where = ' ( %s ) AND ( %s ) ' % (extracnd, where)
-                else:
-                    where = extracnd
-            elif excludeLogicalDeleted == 'mark':
-                if not (aggregate or count):
-                    columns = '%s, %s.%s AS _isdeleted' % (columns, self.aliasCode(0),logicalDeletionField) #add logicalDeletionField
-        if draftField:
-            if excludeDraft is True:
-                extracnd = '%s.%s IS NOT TRUE' %(self.aliasCode(0),draftField)
-                if where:
-                    where = ' ( %s ) AND ( %s )' % (extracnd, where)
-                else:
-                    where = extracnd
-        # add a special joinCondition for the main selection, not for JOINs
         if self.joinConditions:
             extracnd, one_one = self.getJoinCondition('*', '*', self.aliasCode(0))
             if extracnd:
@@ -697,6 +685,7 @@ class SqlQueryCompiler(object):
                              check the :ref:`relationdict` documentation section
         :param virtual_columns: TODO."""
         self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
+    
         if not 'pkey' in self.cpl.relationDict and self.tblobj.pkey:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
         self.init(lazy=lazy, eager=eager)
@@ -711,8 +700,7 @@ class SqlQueryCompiler(object):
                 xattrs['as'] = '%s_%s' %(self.aliasCode(0),fieldname)
             self.cpl.resultmap.setItem(fieldname,None,xattrs)
 
-        if virtual_columns:
-            self._handle_virtual_columns(virtual_columns)
+        self._handle_virtual_columns(virtual_columns)
         self.cpl.where = self._recordWhere(where=where)
         self.cpl.columns = ',\n       '.join(self.fieldlist)
         #self.cpl.limit = 2
@@ -733,6 +721,9 @@ class SqlQueryCompiler(object):
     def _handle_virtual_columns(self, virtual_columns):
         if isinstance(virtual_columns, basestring):
             virtual_columns = gnrstring.splitAndStrip(virtual_columns, ',')
+        virtual_columns = (virtual_columns or []) + self.tblobj.static_virtual_columns.keys()
+        if not virtual_columns:
+            return
         virtual_columns = uniquify([v[1:] if v.startswith('$') else v for v in virtual_columns])
         tbl_virtual_columns = self.tblobj.virtual_columns
         for col_name in virtual_columns:

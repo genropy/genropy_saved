@@ -131,9 +131,15 @@ class Main(BaseDashboardItem):
             r = struct.view().rows()
             r.fieldcell(tblobj.attributes.get('caption_field') or tblobj.pkey, name=tblobj.name_long, width='20em')
         th = pane.plainTableHandler(table=table,viewResource='_viewUOEdit',view_structCb=struct,
+        
                                     virtualStore=True,extendedQuery=True)
 
         view = th.view
+        view.attributes.update(
+            selfsubscribe_saveDashboard="th_dash_tableviewer.saveAsDashboard(this,$1);",
+            selfsubscribe_loadDashboard="th_dash_tableviewer.loadDashboard(this,$1);",
+            selfsubscribe_deleteCurrentDashboard="th_dash_tableviewer.deleteCurrentDashboard(this,$1);",
+        )
         view.dataController("view.publish('loadDashboard',{pkey:userobject_id})",_onBuilt=True,
                                     view=view,userobject_id=userobject_id,
                                     _if='userobject_id')

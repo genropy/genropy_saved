@@ -54,7 +54,10 @@ class TableHandlerCommon(BaseComponent):
             condition_kwargs['fkey'] = '=#FORM.pkey'
         if (relation_attr.get('onDelete')=='setnull') or (relation_attr.get('onDelete_sql')=='setnull'):
             original_kwargs['store_unlinkdict'] = dict(one_name = relation_attr.get('one_rel_name',tblrel.name_plural),field=relation_attr['many_relation'].split('.')[-1])
-        for suffix,altrelation in list(relation_kwargs.items()):
+        elif (relation_attr.get('onDelete')=='cascade'):
+            original_kwargs['store_excludeDraft'] = False
+            original_kwargs['store_excludeLogicalDeleted'] = False
+        for suffix,altrelation in relation_kwargs.items():
             alt_relation_attr = tblrel.model.relations.getAttr(altrelation, 'joiner')
             altcond,table,altfkey = self._th_relationExpand_one(tblrel,alt_relation_attr,condition=condition,condition_kwargs=condition_kwargs,suffix=suffix)
             relcondition = '%s OR %s' %(relcondition,altcond)
