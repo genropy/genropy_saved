@@ -220,7 +220,7 @@ class DbModel(object):
             if (onDelete=='cascade' and self.db.auto_static_enabled) or meta_kwargs.get('childmode'):
                 self.checkAutoStatic(one_pkg=one_pkg, one_table=one_table, one_field=one_field,
                                 many_pkg=many_pkg,many_table=many_table,many_field=many_field)
-        except Exception,e:
+        except Exception:
             if self.debug:
                 raise
             logger.error('The relation %s - %s cannot be added', str('.'.join(many_relation_tuple)), str(oneColumn))
