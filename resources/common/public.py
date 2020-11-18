@@ -358,6 +358,9 @@ class TableHandlerMain(BaseComponent):
         th_options.update(self.th_options())
         th_options.update(resource_options)
         th_options.update(th_kwargs)
+        defaultHardQueryLimit = self.application.config['db?hardQueryLimit']
+        if defaultHardQueryLimit and not 'hardQueryLimit' in th_options:
+            th_options['hardQueryLimit'] = defaultHardQueryLimit
         if current_kwargs:
             root.data('current',Bag(current_kwargs))
         return self._th_main(root,th_options=th_options,**kwargs)

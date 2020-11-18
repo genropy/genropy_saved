@@ -953,7 +953,7 @@ class TableHandlerView(BaseComponent):
             liveUpdate = True
         store_kwargs.setdefault('externalLiveUpdateDelay', externalLiveUpdateDelay)
         store_kwargs.setdefault('liveUpdate',liveUpdate)
-        hardQueryLimit = options.get('hardQueryLimit') or self.application.config['db?hardQueryLimit']
+        hardQueryLimit = options.get('hardQueryLimit')
         allowLogicalDelete = store_kwargs.pop('allowLogicalDelete',None) or options.get('allowLogicalDelete')
         frame.data('.hardQueryLimit',int(hardQueryLimit) if hardQueryLimit else None)
         frame.dataController("""
