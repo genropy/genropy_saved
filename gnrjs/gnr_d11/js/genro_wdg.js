@@ -1463,7 +1463,7 @@ dojo.declare("gnr.GridEditor", null, {
                     currdata = rowDataNode.getValue().getItem(attr.field);
                 }
                 var that = this;
-                var promptkw = {widget:attr.contentCb || attr.fields,
+                var promptkw = {widget:funcCreate(attr.contentCb) || attr.fields,
                     dflt:currdata?currdata.deepCopy():null,
                     mandatory:attr.validate_notnull,
                     action:function(result){
