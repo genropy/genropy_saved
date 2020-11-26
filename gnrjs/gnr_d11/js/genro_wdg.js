@@ -1823,8 +1823,8 @@ dojo.declare("gnr.GridChangeManager", null, {
         var selectedIdx =this.grid.getSelectedRowidx();
         if(selectedIdx.length>1){
             filteredStore = new gnr.GnrBag();
-            this.grid.getSelectedNodes().forEach(function(n){
-                filteredStore.setItem(n.label,n._value,n.attr);
+            this.grid.getSelectedNodes().forEach(function(n,idx){
+                filteredStore.addItem(`r_${idx}`,n._value,n.attr);
             });
         }else if(this.grid.isFiltered()){
             filteredStore = this.grid.storebag(true);
