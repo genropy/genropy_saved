@@ -191,6 +191,9 @@ class TableHandlerView(BaseComponent):
         pageHooksSelector = 'pageHooksSelector' if page_hooks else False
         batchAssign =  self.th_batchAssignEnabled(self.db.table(table))
         statsEnabled = resourceOptions.get('stats')
+        calling_grid_kwargs = grid_kwargs
+        grid_kwargs = dictExtract(resourceOptions,'grid_')
+        grid_kwargs.update(calling_grid_kwargs)
         if statsEnabled is None:
             statsEnabled = True if extendedQuery else False
         statsSlot = 'stats' if statsEnabled else False
