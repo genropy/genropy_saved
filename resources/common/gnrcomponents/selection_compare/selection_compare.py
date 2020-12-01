@@ -44,6 +44,7 @@ class SelectionCompare(BaseComponent):
                                        compareField=compareField,
                                        **right_kwargs)
         frame.right_side = right_frame
+
         leftgrid = left_th.view.grid
         leftgridattr = leftgrid.attributes
         rightgrid = right_th.view.grid
@@ -70,7 +71,8 @@ class SelectionCompare(BaseComponent):
             filteringColumn=compareField,
             filteringMode='^#ANCHOR.filteringMode'
         )
-
+        frame.leftgrid=leftgrid
+        frame.rightgrid=rightgrid
         return frame
 
     def comp_toolbar(self, top):
