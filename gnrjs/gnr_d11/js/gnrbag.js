@@ -659,7 +659,7 @@ dojo.declare("gnr.GnrBag", null, {
             h+='</thead>';
         }
         var rows ='';
-        var r,b,v,vnode,cell_kw,format,cells,dtype,style;
+        var r,b,v,vnode,cell_kw,format,cells,dtype;
         if(kw.cells===true){
             cells = hheadcel.keys();
         }else{
@@ -1103,7 +1103,7 @@ dojo.declare("gnr.GnrBag", null, {
 
     __str__: function(mode) {
 
-        var mode = mode || 'static';
+        mode = mode || 'static';
         var outlist = [];
         var el = null;
         var attrString = '';

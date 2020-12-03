@@ -1463,15 +1463,26 @@ dojo.declare("gnr.GridEditor", null, {
                     currdata = rowDataNode.getValue().getItem(attr.field);
                 }
                 var that = this;
-                var promptkw = {widget:funcCreate(attr.contentCb) || attr.fields,
+                var checkBeforeSet = attr.checkBeforeSet;
+                if(checkBeforeSet){
+                    checkBeforeSet = funcCreate(checkBeforeSet,'result,rowData',grid.sourceNode);
+                }
+                var promptkw = {widget:funcCreate(attr.contentCb,'pane,kwbox') || fields,
+                    onEnter:false,
                     dflt:currdata?currdata.deepCopy():null,
                     mandatory:attr.validate_notnull,
                     action:function(result){
-                          if(attr.rowTemplate){
-                              rowData.update(result);
-                          }else{
-                              that.setCellValue(row,attr.field,result);
-                          }
+                            if(checkBeforeSet){
+                                let error_message = checkBeforeSet(result,rowData);
+                                if(error_message){
+                                    return error_message;
+                                }
+                            }
+                            if(attr.rowTemplate || attr.rowEdit === true){
+                                rowData.update(result);
+                            }else{
+                                that.setCellValue(row,attr.field,result);
+                            }
                     }
                 };
                 if(remote){
@@ -1484,7 +1495,7 @@ dojo.declare("gnr.GridEditor", null, {
                 genro.dlg.prompt(attr.original_name || attr.field,promptkw, grid.sourceNode);
             }else{
                 var rowpath = this.widgetRootNode.absDatapath('.' + rowLabel);
-                genro.dlg.quickTooltipPane({datapath:rowpath,fields:attr.fields,domNode:cellNode,modal:attr.modal},
+                genro.dlg.quickTooltipPane({datapath:rowpath,fields:fields,domNode:cellNode,modal:attr.modal},
                                             funcCreate(attr.contentCb,'pane,kw',grid.sourceNode),
                                             {rowDataNode:rowDataNode,grid:grid,cell:cell});
             }
@@ -1916,7 +1927,6 @@ dojo.declare("gnr.GridChangeManager", null, {
         var formula = this.formulaColumns[formulaKey];
         var result;
         var pars = this.grid.rowFromBagNode(rowNode,true);
-
         if(formula.startsWith("+=") || formula.startsWith("%=")){
             var masterField = formula.slice(2).trim();
             var store = this.grid.collectionStore();
@@ -1939,17 +1949,9 @@ dojo.declare("gnr.GridChangeManager", null, {
         var cellmap = this.grid.cellmap;
         pars._currcell = cellmap[formulaKey];
         pars._rowNode = rowNode;
-        for (var cl in cellmap){
-            pars[cl] = pars[cl];
-        }
         var struct = this.grid.structBag.getItem('#0.#0');
         var bagcellattr = struct.getNode(cellmap[formulaKey]._nodelabel).attr;
         var dynPars = objectExtract(bagcellattr,'formula_*',true);
-       // for(var p in dynPars){
-       //     if(dynPars[p][0] == '.'){
-       //         dynPars[p] = rowNode.attr[p];
-       //     }
-       // }
         dynPars = this.sourceNode.evaluateOnNode(dynPars);
         objectUpdate(pars,dynPars);
         var values = {};
@@ -1964,7 +1966,6 @@ dojo.declare("gnr.GridChangeManager", null, {
         }
         values[formulaKey] = result;
         this.grid.collectionStore().updateRowNode(rowNode,values);
-        //rowNode.setAttribute(formulaKey,result,true);
     },
  
 
@@ -1977,9 +1978,6 @@ dojo.declare("gnr.GridChangeManager", null, {
 
 
     onDataChange:function(kw){
-        var dpath = kw.pathlist.slice(1).join('.');
-        var struct = this.grid.structBag.getItem('#0.#0');
-        var cellmap = this.grid.cellmap;
         var rebuildStructure = false;
         for(var p in this.cellpars){
             var trigger_reason = this.sourceNode.getTriggerReason(this.sourceNode.absDatapath(p),kw);
@@ -2021,7 +2019,6 @@ dojo.declare("gnr.GridChangeManager", null, {
         var changedPars = {};
         var k;
         var rowNode;
-        var idx;
         var sourceNode = this.sourceNode;
         var that = this;
         if(kw.updvalue && kw.value instanceof gnr.GnrBag ){

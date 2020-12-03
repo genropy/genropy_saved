@@ -505,6 +505,9 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         genro.setData(promptvalue_path,dflt || null);
         dlg_kw = objectUpdate({_showParent:true,width:'280px',datapath:prompt_datapath,_class:'dlg_prompt',autoSize:true},dlg_kw);
         var dlg = genro.dlg.quickDialog(title,dlg_kw,sourceNode);
+        if(!sourceNode){
+            sourceNode = dlg.getParentNode();
+        }
         var mandatory = objectPop(kw,'mandatory');
         var actionCb = function(command){
                         var error_message;
