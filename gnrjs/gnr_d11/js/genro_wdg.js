@@ -1388,7 +1388,8 @@ dojo.declare("gnr.GridEditor", null, {
                 p = p[p.length-1];
                 this.setCellValue(rowNode,p,kw[selected]);
             }
-        }if(valueCaption!=undefined) {
+        }
+        if(valueCaption!==undefined) {
             newAttr[cell.field_getter] = valueCaption
         }
         this.grid.collectionStore().updateRowNode(rowNode,newAttr);
@@ -1479,7 +1480,16 @@ dojo.declare("gnr.GridEditor", null, {
                                 }
                             }
                             if(attr.rowTemplate || attr.rowEdit === true){
-                                rowData.update(result);
+                                result.getNodes().forEach(function(n){
+                                    let v = n.getValue('static');
+                                    if(v instanceof gnr.GnrBag){
+                                        v = v.deepCopy();
+                                    }
+                                    else if(rowData.getItem(n.label)==v){
+                                        return;
+                                    }
+                                    that.setCellValue(row,n.label,v);
+                                });
                             }else{
                                 that.setCellValue(row,attr.field,result);
                             }
