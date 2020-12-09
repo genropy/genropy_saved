@@ -2183,7 +2183,7 @@ dojo.declare("gnr.GnrValidator", null, {
         }
     },
     validate_call: function(param, value, sourceNode, parameters) {
-        let result = funcApply(param, objectUpdate({'value':value}, parameters), sourceNode);
+        let result = funcApply(param, objectUpdate({'value':value}, parameters), sourceNode) || {};
         let data = objectPop(result,'data');
         if(data instanceof gnr.GnrBag){
             let sdata = sourceNode.getRelativeData();
