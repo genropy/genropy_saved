@@ -10,4 +10,3 @@ class Table(object):
         tbl.column('code' ,size=':15',name_long='!!Code',unmodifiable=True)
         tbl.column('description' ,name_long='!!Description')
         tbl.column('custom_menu', dtype='X', name_long='!!Custom menu')
-        tbl.column('rootpage', name_long='!![en]Root Page')
