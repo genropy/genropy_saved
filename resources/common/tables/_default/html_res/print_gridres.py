@@ -20,7 +20,7 @@ from gnr.core.gnrbag import Bag
 class Main(TableScriptToHtml):
     page_header_height = 0 #topHeight
     page_footer_height = 0 
-    doc_header_height = 10 #headerHeight
+    doc_header_height = 0 #headerHeight
     doc_footer_height = 0 #footerHeight
     grid_footer_height = 0 
     grid_header_height = 4.3
@@ -31,35 +31,37 @@ class Main(TableScriptToHtml):
 
     def onRecordLoaded(self):
         self.row_table = self.row_table or self.tblobj.fullname
-        userObjectIdOrCode = self.parameter('userobject')
+        #userObjectIdOrCode = self.parameter('userobject') #userobject si trova in extra_parameters
         struct = self.parameter('currentGridStruct')
         printParams = self.parameter('printParams') or Bag()
-        letterhead_id = self.parameter('letterhead_id') or printParams['letterhead_id']
+        letterhead_id = printParams['letterhead_id']
         currentQuery = self.parameter('currentQuery')
-        if userObjectIdOrCode:
-            data,metadata = self.page.db.table('adm.userobject'
-                                ).loadUserObject(userObjectIdOrCode=userObjectIdOrCode,
-                                                table=self.tblobj.fullname,objtype='gridprint')
-            if struct is None:
-                struct =  data.getItem('struct')
-            currentQuery = currentQuery or data.getItem('query')
-            printParams = printParams or data.getItem('printParams') or Bag()
-            printParams['print_title'] = printParams['print_title'] or metadata.get('description')
-            self.row_table = metadata.get('tbl') or self.row_table
-            letterhead_id = letterhead_id or data['letterhead_id']
+
+        #if userObjectIdOrCode: #Non è chiaro quando dovrebbe attivarsi questo caso.
+        #    data,metadata = self.page.db.table('adm.userobject'
+        #                        ).loadUserObject(userObjectIdOrCode=userObjectIdOrCode,
+        #                                        table=self.tblobj.fullname,objtype='gridprint')
+        #    if struct is None:
+        #        struct =  data.getItem('struct')
+        #    currentQuery = currentQuery or data.getItem('query')
+        #    printParams = printParams or data.getItem('printParams') or Bag()
+        #    printParams['print_title'] = printParams['print_title'] or metadata.get('description')
+        #    self.row_table = metadata.get('tbl') or self.row_table
+        #    letterhead_id = letterhead_id or data['letterhead_id']
+
         self.letterhead_id = letterhead_id
         self.setData('currentQuery',currentQuery)
-        totalize_mode = self.parameter('totalize_mode') or printParams['totalize_mode']
-        totalize_footer =  self.parameter('totalize_footer') or printParams['totalize_footer']
-        totalize_carry = self.parameter('totalize_carry') or printParams['totalize_carry']
+        totalize_mode = printParams['totalize_mode']
+        totalize_footer = printParams['totalize_footer']
+        totalize_carry =  printParams['totalize_carry']
         self.cell_characters_limit = {}
         if totalize_mode or totalize_footer or totalize_carry:
             self.totalize_mode = totalize_mode or 'doc'
             self.totalize_footer = totalize_footer or True
             self.totalize_carry = totalize_carry
-        self.page_orientation = printParams['orientation'] or self.parameter('orientation') or 'V'
+        self.page_orientation = printParams['orientation']
         self.setStruct(struct)
-        print_title = self.parameter('print_title') or printParams['print_title'] or 'Untitled'
+        print_title = printParams['print_title'] or 'Untitled'
         self.setData('print_title',print_title)
 
     def gridColumnsInfo(self):
