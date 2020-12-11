@@ -28,7 +28,7 @@ class Main(BaseResourcePrint):
     batch_prefix = 'pr_grid'
     batch_cancellable = True
     batch_delay = 0.5
-    batch_immediate = 'print'
+    #batch_immediate = 'print'
     batch_title = 'Print grid'
     print_mode = 'pdf'
     html_res = 'html_res/print_gridres'
@@ -45,15 +45,14 @@ class Main(BaseResourcePrint):
         where = None
         printParams = {}
         if userobject:
-            data,metadata = self.db.table('adm.userobject'
+            userobject_params,metadata = self.db.table('adm.userobject'
                                 ).loadUserObject(userObjectIdOrCode=userobject,
                                                 table=self.tblobj.fullname)
-            struct =  data['struct']
-            query = data['query']
-            queryPars = data['queryPars']
-            printParams = data['printParams'] or Bag()
-            for k,v in printParams.items():
-                fb.data('.{}'.format(k),v)
+            struct =  userobject_params['struct']
+            query = userobject_params['query']
+            queryPars = userobject_params['queryPars']
+            printParams = userobject_params['printParams'] or Bag()
+            fb.data('.printParams', printParams)
 
             fb.data('.currentGridStruct',struct)
             fb.data('.currentQuery',query) 
@@ -83,12 +82,12 @@ class Main(BaseResourcePrint):
                         SET .grid_datamode = grid.datamode;
                         SET .currentGridStruct = grid.getExportStruct();""",
                         _onBuilt=True,gridId=extra_parameters['gridId'])
-        fb.textbox(value='^.print_title',lbl='!!Title')
-        fb.filteringSelect(value='^.orientation',lbl='!!Orientation',values='H:Horizontal,V:Vertical')
-        fb.dbSelect(dbtable='adm.htmltemplate', value='^.letterhead_id',lbl='!!Letterhead',hasDownArrow=True)
-        fb.filteringSelect(value='^.totalize_mode', lbl='!!Totalize',values='doc:Document,page:Page')
-        fb.textbox(value='^.totalize_carry',lbl='!!Carry caption',hidden='^.totalize_mode?=#v!="page"')
-        fb.textbox(value='^.totalize_footer',lbl='!!Totals caption',hidden='^.totalize_mode?=!#v')
+        fb.textbox(value='^.printParams.print_title',lbl='!!Title')
+        fb.filteringSelect(value='^.printParams.orientation',lbl='!!Orientation',values='H:Horizontal,V:Vertical')
+        fb.dbSelect(dbtable='adm.htmltemplate', value='^.printParams.letterhead_id',lbl='!!Letterhead',hasDownArrow=True)
+        fb.filteringSelect(value='^.printParams.totalize_mode', lbl='!!Totalize',values='doc:Document,page:Page')
+        fb.textbox(value='^.printParams.totalize_carry',lbl='!!Carry caption',hidden='^.totalize_mode?=#v!="page"')
+        fb.textbox(value='^.printParams.totalize_footer',lbl='!!Totals caption',hidden='^.totalize_mode?=!#v')
         _cleanWhere(where)
         where = where or Bag()
         fb.data('.use_current_selection',len(where) == 0)
