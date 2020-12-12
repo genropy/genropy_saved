@@ -75,7 +75,7 @@ class BagToHtml(object):
     splittedPages = 0
     remainingLines = 1
     watermark_draft_class = 'document_draft'
-    subtotal_caption_prefix = 'Totals'
+    subtotal_caption_prefix = '!![en]Totals'
 
     def _flattenField(self,field):
         return field.replace('.','_').replace('@','_')
@@ -164,6 +164,7 @@ class BagToHtml(object):
                  htmlContent=None,page_debug=None, is_draft=None,orientation=None, **kwargs):
         """Return the html corresponding to a given record. The html can be loaded from
         a cached document or created as new if still doesn't exist"""
+
         if record is None:
             record = Bag()
         self.htmlContent = htmlContent

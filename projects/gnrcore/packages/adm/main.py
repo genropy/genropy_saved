@@ -23,7 +23,9 @@ class Package(GnrDboPackage):
         def cb(cache=None,identifier=None,**kwargs):
             if identifier in cache:
                 return cache[identifier],True
-            result = tblobj.query(columns='*,$all_tags,@group_code.custom_menu AS menubag',where='$username = :user',user=username, limit=1).fetch()
+            result = tblobj.query(columns="""*,$all_tags,@group_code.custom_menu AS menubag,
+                                                @group_code.rootpage AS group_rootpage""",
+                                        where='$username = :user',user=username, limit=1).fetch()
             kwargs = dict()
             if result:
                 user_record = dict(result[0])
@@ -35,7 +37,7 @@ class Package(GnrDboPackage):
                 kwargs['lastname'] = user_record['lastname']
                 kwargs['user_id'] = user_record['id']
                 kwargs['group_code'] = user_record['group_code']
-                kwargs['avatar_rootpage'] = user_record['avatar_rootpage']
+                kwargs['avatar_rootpage'] = user_record['avatar_rootpage']  or user_record['group_rootpage']
                 kwargs['locale'] = user_record['locale'] or self.application.config('default?client_locale')
                 kwargs['user_name'] = '%s %s' % (user_record['firstname'], user_record['lastname'])
                 kwargs['user_record'] = user_record
