@@ -459,7 +459,7 @@ class TableScriptToHtml(BagToHtml):
                 mm_width = None
                 hidden = True
             pars = dict(field=field,name=self.localize(attr.get('name')),field_getter=field_getter,
-                        mm_width=mm_width,format=attr.get('format'),
+                        align_class=attr.get('align_class'), mm_width=mm_width,format=attr.get('format'),
                         white_space=attr.get('white_space','nowrap'),
                         subtotal=attr.get('subtotal'),
                         subtotal_order_by=attr.get('subtotal_order_by'),

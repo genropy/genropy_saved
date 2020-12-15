@@ -768,7 +768,8 @@ class BagToHtml(object):
 
     def renderGridCell_default(self, col = None, rowData = None, parentRow = None, **cell_kwargs):
         value = self.getGridCellValue(col,rowData)
-        cell_kwargs['align_class'] = cell_kwargs.get('align_class') or self._guessAlign(value=value)
+        cell_kwargs['align_class'] = cell_kwargs.get('align_class') or self._guessAlign(value=value, dtype=cell_kwargs.get('dtype'))
+        
         ac = cell_kwargs['align_class']
         gridLayout_content_class = parentRow.layout.content_class
         cc = cell_kwargs.get('content_class', gridLayout_content_class)
