@@ -38,7 +38,8 @@ class PublicBase(BaseComponent):
             partition_path = partition_kw['path']
             partition_field = partition_kw['field']
             pane.dataController('SET current.%s = partition_value;' %partition_field,subscribe_public_changed_partition=True)
-            pane.data('current.%s' %partition_field,self.rootenv['current_%s' %partition_path],serverpath='rootenv.current_%s' %partition_path,dbenv=True)
+            pane.data('current.%s' %partition_field,self.rootenv['current_%s' %partition_path] or self.rootenv[partition_path],
+                            serverpath='rootenv.current_%s' %partition_path,dbenv=True)
         pane.data('gnr.workdate', self.workdate)
         
                               
@@ -358,6 +359,9 @@ class TableHandlerMain(BaseComponent):
         th_options.update(self.th_options())
         th_options.update(resource_options)
         th_options.update(th_kwargs)
+        defaultHardQueryLimit = self.application.config['db?hardQueryLimit']
+        if defaultHardQueryLimit and not 'hardQueryLimit' in th_options:
+            th_options['hardQueryLimit'] = defaultHardQueryLimit
         if current_kwargs:
             root.data('current',Bag(current_kwargs))
         return self._th_main(root,th_options=th_options,**kwargs)

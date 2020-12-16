@@ -81,7 +81,7 @@ class BagToHtml(object):
     splittedPages = 0
     remainingLines = 1
     watermark_draft_class = 'document_draft'
-    subtotal_caption_prefix = 'Totals'
+    subtotal_caption_prefix = '!![en]Totals'
 
     def _flattenField(self,field):
         return field.replace('.','_').replace('@','_')
@@ -170,6 +170,7 @@ class BagToHtml(object):
                  htmlContent=None,page_debug=None, is_draft=None,orientation=None, **kwargs):
         """Return the html corresponding to a given record. The html can be loaded from
         a cached document or created as new if still doesn't exist"""
+
         if record is None:
             record = Bag()
         self.htmlContent = htmlContent
@@ -773,7 +774,8 @@ class BagToHtml(object):
 
     def renderGridCell_default(self, col = None, rowData = None, parentRow = None, **cell_kwargs):
         value = self.getGridCellValue(col,rowData)
-        cell_kwargs['align_class'] = cell_kwargs.get('align_class') or self._guessAlign(value=value)
+        cell_kwargs['align_class'] = cell_kwargs.get('align_class') or self._guessAlign(value=value, dtype=cell_kwargs.get('dtype'))
+        
         ac = cell_kwargs['align_class']
         gridLayout_content_class = parentRow.layout.content_class
         cc = cell_kwargs.get('content_class', gridLayout_content_class)

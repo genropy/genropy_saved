@@ -4008,7 +4008,6 @@ dojo.declare("gnr.widgets.DynamicBaseCombo", gnr.widgets.BaseCombo, {
     creating: function(attributes, sourceNode) {
         var savedAttrs = {};
         attributes.httpMethod = attributes.httpMethod || genro.extraFeatures.wsk_dbselect?'WSK':null;
-        var hasDownArrow;
         if (attributes.hasDownArrow) {
             attributes.limit = attributes.limit || 0;
         } else {

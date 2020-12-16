@@ -698,6 +698,12 @@ class Bag(GnrObject):
                 result[k] = result.get(k,0) + n.attr.get(k,0)
         return result
 
+    def popAttributesFromNodes(self,blacklist):
+        def cb(n):
+            for attrname in blacklist:
+                n.attr.pop(attrname,None)
+        self.walk(cb)
+
 
     def get(self, label, default=None, mode=None):
         """TODO

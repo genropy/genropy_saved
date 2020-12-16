@@ -140,16 +140,15 @@ class Main(BaseResourceMail):
         if data.getItem('parameters'):
             parameters = data.getItem('parameters')
             fielddict = {'T':'Textbox','L':'NumberTextBox','D':'DateTextBox','B':'Checkbox','N':'NumberTextBox', 'TL':'Simpletextarea'}
-            for n in parameters:
-                attr = n.attr
-                values=attr.get('values')
-                mandatory = attr.get('mandatory') == 'T'
-                kwargs = dict(value='^.%s' %attr['code'],lbl=attr['description'] or attr['code'], validate_notnull=mandatory)
+            for v in parameters.values():
+                values=v['values']
+                mandatory = v['mandatory'] == 'T'
+                kwargs = dict(value='^.%(code)s' %v,lbl=v['description'] or v['code'], validate_notnull=mandatory)
                 if values:
                     tag = 'filteringSelect'
                     kwargs['values'] = values
                 else:
-                    tag = fielddict[attr.get('fieldtype') or 'T']
+                    tag = fielddict[v['fieldtype'] or 'T']
                 if tag == 'Simpletextarea':
                     kwargs['lbl_vertical_align']='top'
                     kwargs['colspan'] = 2

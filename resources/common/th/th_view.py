@@ -192,6 +192,9 @@ class TableHandlerView(BaseComponent):
         pageHooksSelector = 'pageHooksSelector' if page_hooks else False
         batchAssign =  self.th_batchAssignEnabled(self.db.table(table))
         statsEnabled = resourceOptions.get('stats')
+        calling_grid_kwargs = grid_kwargs
+        grid_kwargs = dictExtract(resourceOptions,'grid_')
+        grid_kwargs.update(calling_grid_kwargs)
         if statsEnabled is None:
             statsEnabled = True if extendedQuery else False
         statsSlot = 'stats' if statsEnabled else False
@@ -954,7 +957,7 @@ class TableHandlerView(BaseComponent):
             liveUpdate = True
         store_kwargs.setdefault('externalLiveUpdateDelay', externalLiveUpdateDelay)
         store_kwargs.setdefault('liveUpdate',liveUpdate)
-        hardQueryLimit = options.get('hardQueryLimit') or self.application.config['db?hardQueryLimit']
+        hardQueryLimit = options.get('hardQueryLimit')
         allowLogicalDelete = store_kwargs.pop('allowLogicalDelete',None) or options.get('allowLogicalDelete')
         frame.data('.hardQueryLimit',int(hardQueryLimit) if hardQueryLimit else None)
         frame.dataController("""

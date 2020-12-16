@@ -416,7 +416,7 @@ class TableBase(object):
         if draftField:
             draftField = '__is_draft' if draftField is True else draftField
             tbl.attributes['draftField'] = draftField
-            tbl.column(draftField, dtype='B', name_long='!![en]Is Draft',group=group,_sysfield=True)
+            tbl.column(draftField, dtype='B', name_long='!![en]Is Draft',group=group,_sysfield=True,_sendback=True)
         if invalidFields or invalidRelations:
             if invalidFields:
                 tbl.attributes['invalidFields'] = '__invalid_fields'
