@@ -182,7 +182,7 @@ class BaseResourcePrint(BaseResourceBatch):
         resultAttr['document_name'] = save_as
         resultAttr['url_print'] = 'javascript:genro.openWindow("%s","%s");' %(inlineurl,save_as)
         if immediate_mode:
-            resultAttr['autoDestroy'] = 5
+            resultAttr['autoDestroy'] = 600
         if immediate_mode=='print':
             self.page.setInClientData(path='gnr.clientprint',value=inlineurl,fired=True)
         elif immediate_mode=='download':
