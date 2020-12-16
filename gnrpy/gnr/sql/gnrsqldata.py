@@ -567,7 +567,7 @@ class SqlQueryCompiler(object):
             draftField = self.tblobj.draftField
             if draftField:
                 wherelist.append('${} IS NOT TRUE'.format(draftField))
-        where = ' AND '.join([w for w in wherelist if w])
+        where = ' AND '.join(['({where_chunk})'.format(where_chunk=w) for w in wherelist if w])
         columns = self.updateFieldDict(columns)
         where = self.embedFieldPars(where)
         where = self.updateFieldDict(where or '')
