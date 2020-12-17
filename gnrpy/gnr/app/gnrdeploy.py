@@ -1195,8 +1195,10 @@ class GunicornDeployBuilder(object):
             reserved_workers = self.site_config['taskworkers']
             tw_base.parameter('numprocs',taskworkers.pop('count','1'))
             for key,val in taskworkers.items():
-                key = key.split('_')[1]
-                subnice = taskworkers.pop('nice_%s' %key,nice)
+                command,key = key.split('_')
+                if command=='nice':
+                    continue
+                subnice = taskworkers.get('nice_%s' %key,nice)
                 subnicecommand = 'nice' if subnice is None else nicecommand
                 tw =  group.section('program','%s_taskworkers_%s' %(self.site_name,key))
                 tw.parameter('process_name',"%s_gnrtaskworker_%s_%%(process_num)s" %(self.site_name,key))
