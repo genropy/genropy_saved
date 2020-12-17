@@ -104,8 +104,8 @@ class BagToHtml(object):
     def defaultKwargs(self):
         return dict(border_color = '#e0e0e0',border_width = .3)
 
-    def __init__(self, locale='en', encoding='utf-8', templates=None, 
-                    templateLoader=None, 
+    def __init__(self, locale='en', encoding='utf-8', templates=None,
+                    templateLoader=None,
                     srcfactory=None,**kwargs):
         self.locale = locale
         self.encoding = encoding
@@ -118,9 +118,9 @@ class BagToHtml(object):
             self.templates = templates
         if templateLoader:
             self.templateLoader = templateLoader
-    
+
     def adaptGridColumns(self):
-        self.grid_columns = self.grid_columns or [] 
+        self.grid_columns = self.grid_columns or []
         if self.grid_col_widths:
             self.grid_columns = []
             headers = self.grid_col_headers or ''
@@ -145,17 +145,17 @@ class BagToHtml(object):
     def init(self, *args, **kwargs):
         """A ``init`` hook method"""
         pass
-        
+
     def outputDocName(self, ext=''):
         """Set the filename extension and return it
-        
+
         :param ext: the filename extension"""
         return 'temp.%s' % ext
-        
+
     def onRecordLoaded(self):
         """Hook method."""
         pass
-        
+
 
 
     def orientation(self):
@@ -165,7 +165,7 @@ class BagToHtml(object):
             return 'Landscape'
         else:
             return 'Portrait'
-            
+
     def __call__(self, record=None, filepath=None, folder=None, filename=None, hideTemplate=False, rebuild=True,
                  htmlContent=None,page_debug=None, is_draft=None,orientation=None, **kwargs):
         """Return the html corresponding to a given record. The html can be loaded from
@@ -188,7 +188,7 @@ class BagToHtml(object):
         if not filepath:
             folder = folder or tempfile.mkdtemp()
             filepath = os.path.join(folder, filename or self.outputDocName(ext='html'))
-        self.filepath = filepath        
+        self.filepath = filepath
         if not rebuild:
             with open(self.filepath, 'r') as f:
                 result = f.read()
@@ -200,10 +200,10 @@ class BagToHtml(object):
         self.print_button = kwargs.pop('print_button', self.print_button)
         self.grid_prev_running_totals = defaultdict(int)
         self.grid_running_totals = defaultdict(int)
-        
+
         if self.onRecordLoaded() is False:
             return False
-        
+
         if self.splittedPages:
             self.pages_folder = os.path.splitext(self.filepath)[0]
         self.showTemplate(hideTemplate is not True)
@@ -238,7 +238,7 @@ class BagToHtml(object):
     def fillLetterheadSourceData(self,node,**kwargs):
         if node.label=='html':
             node.value = templateReplace(node.value,self.letterhead_sourcedata or self.record)
-        
+
     def prepareTemplates(self):
         """Set the correct value of every measure of the page: height, width, header, footer, margins"""
         top_layer = Bag()
@@ -253,7 +253,7 @@ class BagToHtml(object):
         short_side,long_side = sorted((paper_height,paper_width))
         if not self.page_orientation:
             self.page_orientation = 'V' if paper_height>paper_width else 'H'
-        if self.page_orientation=='V': 
+        if self.page_orientation=='V':
             self.page_height = long_side
             self.page_width = short_side
         else:
@@ -270,7 +270,7 @@ class BagToHtml(object):
 
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None, **kwargs):
         """TODO
-        
+
         :param obj: TODO
         :param locale: the current locale (e.g: en, en_us, it)
         :param format: TODO
@@ -279,10 +279,10 @@ class BagToHtml(object):
         locale = locale or self.locale
         encoding = locale or self.encoding
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding, **kwargs)
-        
+
     def createHtml(self, filepath=None, body_attributes=None):
         """TODO
-        
+
         :param filepath: the path where html will be saved"""
         #filepath = filepath or self.filepath
         self.main()
@@ -293,34 +293,34 @@ class BagToHtml(object):
             pages = [os.path.join(self.pages_folder,p) for p in sorted(os.listdir(self.pages_folder))]
             self.builder = None
             return pages
-        
+
     def showTemplate(self, value):
         """TODO
-        
+
         :param value: TODO"""
         self.showTemplateContent = value
-        
+
     def setTemplates(self, templates):
         """Set a template.
-        
+
         :param templates: TODO"""
         self.templates = templates
-        
+
     def getTemplates(self, templates):
         """TODO
-        
+
         :param templates: TODO"""
         return self.templates
 
     def getNewPage(self):
         return self.builder.newPage()
-        
+
     def parameter(self, path, default=None):
         if not path:
             return self._parameters
         return self._parameters.getItem(path, default=default)
 
-    
+
 
     def getData(self, path, default=None):
         """Make a :meth:`getItem() <gnr.core.gnrbag.Bag.getItem>` on ._data
@@ -343,14 +343,14 @@ class BagToHtml(object):
         if path in self._parameters:
             return True, self._parameters[path]
         return False, default
-        
+
     @deprecated(message='Do not use: getData/setData for record, parameters or rows')
     def _legacyDeprecation(self):
         return
 
     def setData(self, path, value, **kwargs):
         """Make a :meth:`setItem() <gnr.core.gnrbag.Bag.setItem>` on ._data
-        
+
         :param path: the path of data (e.g: ``'period.from'``)
         :param default: the default return value for a not found item"""
         self._data.setItem(path, value, **kwargs)
@@ -367,17 +367,17 @@ class BagToHtml(object):
         if not gridName and not '_main_' in self._rows:
             self._rows['_main_'] = self.gridData()
         return self._rows[gridName or '_main_']
-        
+
     def onRecordExit(self, recordBag):
         """Hook method.
-        
+
         :param recordBag: a :ref:`bag` that contains the result of the batch"""
         return
-        
+
     def field(self, path, default=None, locale=None,
               format=None, mask=None, root=None, **kwargs):
         """TODO
-        
+
         :param path: TODO
         :param default: TODO
         :param locale: the current locale (e.g: en, en_us, it)
@@ -404,10 +404,10 @@ class BagToHtml(object):
         elif isinstance(value, Bag) and not format:
             return value
         return self.toText(value, locale, format, mask, self.encoding, **kwargs)
-        
+
     def main(self):
         """It can be overridden"""
-        
+
         self.adaptGridColumns()
         if self.htmlContent:
             page = self.getNewPage()
@@ -427,16 +427,16 @@ class BagToHtml(object):
     def pageCounter(self, mask=None):
         """Allow to automatically number the pages created in a :ref:`print`. You can choose
         the format output with the *mask* parameter
-        
+
         :param mask: format output of the pageCounter method. By default is ``'%s/%s'``
-        
+
                      **Example**: if you print three pages then they will be numbered
                      as `1/3`, `2/3` and `3/3`
-                     
+
                      **Syntax**: You can alternatively set it as ``'%s of %s'``,
                      ``'%s - %s'`` and so on"""
         mask = mask or '%s/%s'
-        
+
         def getPage(currPage=0):
             t = (currPage + 1 + self.starting_page_number,
                              self.current_page_number + 1 + self.starting_page_number)
@@ -445,13 +445,13 @@ class BagToHtml(object):
             else:
                 result = mask % t[0]
             return result
-            
+
         return BagCbResolver(getPage, currPage=self.current_page_number)
 
     @property
     def current_page_number(self):
         return self.copies[self.copykey]['currPage']
-    
+
     def gridColumnsInfo(self):
         return dict(columns=self.grid_columns,columnsets=self.grid_columnsets)
 
@@ -481,14 +481,14 @@ class BagToHtml(object):
                     sheet_columnsets[key] = colset
             result[self._sheetKey(s)] = Bag(dict(columns=sheet_columnsBag,columnsets=sheet_columnsets))
         return result
-    
+
     @property
     def columnsets(self):
         self.columnsBag #fix
         gridName = self.currentGrid or '_main_'
         if gridName in self._gridsColumnsBag:
             return self._gridsColumnsBag[gridName][self._sheetKey(self.sheet)]['columnsets']
-    
+
     def _sheetKey(self,sheetNumber):
         return 's_%02i' %sheetNumber
 
@@ -498,14 +498,14 @@ class BagToHtml(object):
         return old_div((self.page_height - self.page_margin_top - self.page_margin_bottom -\
                 self.page_header_height - self.page_footer_height -\
                 self.copy_extra_height * (self.copies_per_page - 1)), self.copies_per_page)
-                
+
     def copyWidth(self):
         """TODO"""
         return (self.page_width - self.page_margin_left - self.page_margin_right -\
                 self.page_leftbar_width - self.page_rightbar_width)
-                
+
     def lineIterator(self,nodes):
-        lastNode = nodes[-1] 
+        lastNode = nodes[-1]
         for lineno,rowDataNode in enumerate(nodes):
             self.lineno = lineno
             self.isLastRow = rowDataNode is lastNode
@@ -520,7 +520,7 @@ class BagToHtml(object):
                 self.copy = copy
                 yield (lineno,rowDataNode,rowheight,row_kw,extra_row_height,subtotal_rows)
         self.updateRunningTotals(rowData=None)
-    
+
     def checkSubtotals(self,nextRowData):
         result = []
         for col in reversed(self.subtotals_breakers):
@@ -584,13 +584,13 @@ class BagToHtml(object):
                 self.prepareRow(row)
                 for i,sr in enumerate(subtotal_rows):
                     self.prepareSubTotalRow(*sr,level=i)
-                
+
         for copy in range(self.copies_per_page):
             self.copy = copy
             for sheet in range(self.sheets_counter):
                 self.sheet = sheet
                 self._closePage(True)
-        
+
 
     def sortLines(self, lines):
         if self.subtotals_breakers:
@@ -607,7 +607,7 @@ class BagToHtml(object):
 
     def gridData(self):
         pass
-    
+
     def onNewRow(self):
         pass
 
@@ -628,7 +628,7 @@ class BagToHtml(object):
                 else:
                     result['{lastspanfield}_colspan'.format(lastspanfield=lastspanfield)] +=1
         return result
-    
+
     def gridRunningTotals(self,lastPage=None):
         captions_kw = getattr(self,'totalize_%s' %self.renderMode,None) if self.renderMode else {}
         if captions_kw is True:
@@ -645,7 +645,7 @@ class BagToHtml(object):
 
     def prepareSubTotalRow(self,col_breaker,breaker_value,breaker_totals,level=None):
         field_breaker = col_breaker.get('field_getter') or col_breaker['field']
-        row = self.copyValue('body_grid').row(height=self.grid_row_height, 
+        row = self.copyValue('body_grid').row(height=self.grid_row_height,
                             _class='totalizer_row subtotal_row subtotal_{:02d}'.format(level))
         self.currColumn = 0
         self.currRow = row
@@ -653,7 +653,7 @@ class BagToHtml(object):
         captions_kw = self.subtotalCaption(col_breaker,breaker_value)
         rowData = self._gridCommonTotals(totals=breaker_totals,captions_kw=captions_kw)
         self.renderGridRow(rowData)
-        
+
     def _gridCommonTotals(self,totals=None,captions_kw=None):
         rowData = self.runningTotalsDefaults()
         rowData.update(totals)
@@ -673,7 +673,7 @@ class BagToHtml(object):
                                             breaker_name = col_breaker.get('name'),
                                             breaker_value = breaker_value),
                     content_class=subtotal_class)
-    
+
     def onRunningTotals(self,rowData=None,lastPage=None):
         pass
 
@@ -703,14 +703,14 @@ class BagToHtml(object):
     @property
     def rowData(self):
         return self._rowDataCustomized(self.currRowDataNode)
-            
+
     @property
     def previousRowData(self):
         return self._rowDataCustomized(self.prevDataNode)
-    
+
     def rowField(self, path=None, **kwargs):
         """TODO
-        
+
         :param path: TODO"""
         #if self.row_mode=='attribute':
         #    data = self.currRowDataNode.attr
@@ -722,14 +722,14 @@ class BagToHtml(object):
     def getCellStyle(self,style):
         stylelist = style.split(';') if style else []
         return ';'.join(self.grid_style_cell_list+stylelist)
-    
+
     @property
     def grid_style_cell_list(self):
         if not hasattr(self,'_grid_style_cell_list'):
             self._grid_style_cell_list = self.grid_style_cell.split(';') if self.grid_style_cell else []
-        return self._grid_style_cell_list 
+        return self._grid_style_cell_list
 
-    
+
     def prepareRow(self,row):
         #overridable
         self.fillGridRow()
@@ -739,14 +739,14 @@ class BagToHtml(object):
         rowData = self.rowData
         self.renderMode = None
         self.renderGridRow(rowData=rowData)
-    
+
     fillRow = fillGridRow
 
     def renderGridRow(self,rowData=None):
         self._currSpanCell = None
         for colNode in self.columnsBag:
             self.renderGridCell(col=colNode.attr,rowData=rowData)
-        
+
     def renderGridCell(self,col=None,rowData=None,parentRow=None):
         cell_kwargs = self.getGridCellPars(col,rowData)
         if cell_kwargs.get('hidden'):
@@ -762,7 +762,7 @@ class BagToHtml(object):
             else:
                 self._currSpanCell.attributes['extra_width'] += mm_width
             self._currSpanCell.attributes['colspan_count'] -= 1
-            if not self._currSpanCell.attributes['colspan_count']: 
+            if not self._currSpanCell.attributes['colspan_count']:
                 self._currSpanCell = None
             return
         handler = getattr(self, 'renderGridCell_%s' % col['field'], self.renderGridCell_default)
@@ -779,17 +779,17 @@ class BagToHtml(object):
         ac = cell_kwargs['align_class']
         gridLayout_content_class = parentRow.layout.content_class
         cc = cell_kwargs.get('content_class', gridLayout_content_class)
-        cell_kwargs['content_class'] = '%s %s' %(cc,ac) if cc else ac    
+        cell_kwargs['content_class'] = '%s %s' %(cc,ac) if cc else ac
         cell_kwargs['white_space'] = cell_kwargs.get('white_space') or 'nowrap'
         cell_kwargs['width'] = cell_kwargs.pop('mm_width',None)
-        value = self.toText(value, locale =  cell_kwargs.pop('locale', None) or self.locale, 
+        value = self.toText(value, locale =  cell_kwargs.pop('locale', None) or self.locale,
                                    format = cell_kwargs.pop('format', None),
-                                   mask = cell_kwargs.pop('mask',None), 
-                                   encoding = self.encoding, 
+                                   mask = cell_kwargs.pop('mask',None),
+                                   encoding = self.encoding,
                                    currency=cell_kwargs.pop('currency',None))
         return parentRow.cell(value, overflow='hidden', **cell_kwargs)
-                        
-        
+
+
 
     def getGridCellPars(self,col=None,rowData=None):
         rowData = rowData or dict()
@@ -812,7 +812,7 @@ class BagToHtml(object):
         if self.renderMode:
             result.pop('hidden',False)
         return result
-    
+
     def cellFormulaValue(self,col=None,rowData=None):
         if not simple_eval:
             return
@@ -821,7 +821,7 @@ class BagToHtml(object):
             variables[k] = v
         variables['previousRowData'] = self.previousRowData
         variables['grid_running_totals'] = dict(self.grid_running_totals)
-        
+
         variables['record'] = self.record
 
         formula = col['formula']
@@ -836,7 +836,7 @@ class BagToHtml(object):
                 result = simple_eval(formula,names=variables)
         else:
             result = simple_eval(col['formula'],names=variables)
-        return result 
+        return result
 
     def getColTotal(self,field):
         field = self._flattenField(field)
@@ -862,13 +862,13 @@ class BagToHtml(object):
         if field_getter and not field_getter in rowData:
             field_getter = None
         return rowData.get(field_getter or field)
-        
+
     def rowCell(self, field=None, value=None, default=None, locale=None,
                 format=None, mask=None, currency=None,white_space='nowrap',align_class=None,
                 content_class=None, totalize=None,**kwargs):
-                
+
         """Allow to get data from record. You can use it in the :meth:`prepareRow` method
-        
+
         :param field: the name of the table :ref:`column`
         :param value: TODO
         :param default: TODO
@@ -892,7 +892,7 @@ class BagToHtml(object):
         self.currRow.cell(value, width=curr_attr['mm_width'],overflow='hidden',
                             white_space=white_space,content_class=content_class, **kwargs)
         return value
-    
+
     def _guessAlign(self,value=None,dtype=None):
         if not dtype:
             dtype = self.catalog.getType(value)
@@ -920,7 +920,7 @@ class BagToHtml(object):
 
     def _get_paperPage(self):
         return self._paperPages[self.sheet]
-       
+
     def _set_paperPage(self, paperPage):
         self._paperPages[self.sheet] = paperPage
 
@@ -931,18 +931,18 @@ class BagToHtml(object):
         object to which you have to append a :meth:`layout <gnr.core.gnrhtml.GnrHtmlSrc.layout>`
         :param page: the page object"""
         return page.layout(**self.mainLayoutParameters())
-    
+
     def mainLayoutParameters(self):
         return dict(font_family='Arial Narrow',font_size='11pt',
                     name='mainLayout',top=1,left=1,right=1,bottom=1,border_width=0)
-        
+
     def _openPage(self):
         #if self.page_header_height:
         #    self.pageHeader(self.copyValue('page_header')) #makeTop
         if self.doc_header_height:
             self.docHeader(self.copyValue('doc_header'))
         self._docBody(self.copyValue('doc_body'))
-        
+
     def _closePage(self, lastPage=None):
         if lastPage:
             self.lastPage = True
@@ -984,7 +984,7 @@ class BagToHtml(object):
             self.prepareColumnsets(colsetlayout.row())
             wrapper = extlayout.row().cell()
         grid = self.gridLayout(wrapper)
-        if header_height:    
+        if header_height:
             self.gridHeader(grid.row(height=header_height))
         totalizeCarryHeight = self.totalizeCarryHeight()
         if totalizeCarryHeight:
@@ -994,7 +994,7 @@ class BagToHtml(object):
             self.renderMode = 'carry'
             self.renderGridRow(self.gridRunningTotals(lastPage=self.lastPage))
         self.copies[self.copykey]['body_grid'] = grid
-    
+
     def prepareColumnsets(self,row):
         currentColsetCell = None
         for colNode in self.columnsBag:
@@ -1019,19 +1019,19 @@ class BagToHtml(object):
                 colsetattr.pop('tag',None)
                 colsetattr.pop('code',None)
                 name = colsetattr.pop('name','')
-                currentColsetCell = row.cell(self.toText(name), 
+                currentColsetCell = row.cell(self.toText(name),
                                             width=pars.get('mm_width'),
                                             _class=colsetattr.pop('_class',None) or 'gnrcolumnset',
                                             **colsetattr)
                 currentColsetCell.columnset = pars['columnset']
-        
+
     def gridLayout(self, body):
         """Hook method. if you define a :ref:`print_layout_grid` in
         your :ref:`print`. Through this method you receive the center of the page and you can
         define the layout of the grid
-        
+
         :param grid: the :ref:`print_layout_grid`"""
-        return body.layout(**self.gridLayoutParameters())  
+        return body.layout(**self.gridLayoutParameters())
 
     def gridLayoutParameters(self):
         return dict(name='gridLayout',um='mm',border_color='#e0e0e0',
@@ -1039,10 +1039,10 @@ class BagToHtml(object):
                             font_size='9pt',
                             border_width=.3,lbl_class='caption',
                             text_align='left')
- 
+
     def gridHeader(self, row):
         """It can be overridden
-        
+
         :param row: the grid row"""
         lbl_height = self.grid_col_headers_height
         for colNode in self.columnsBag:
@@ -1050,10 +1050,10 @@ class BagToHtml(object):
             if pars.get('hidden'):
                 continue
             row.cell(lbl=self.toText(pars.get('name','')), lbl_height=lbl_height, width=pars.get('mm_width'), style=pars.get('header_style'))
-            
+
     def gridFooter(self, row):
         """It can be overridden
-        
+
         :param row: the grid row"""
         return
 
@@ -1114,10 +1114,10 @@ class BagToHtml(object):
             if pars.get('hidden'):
                 continue
             row.cell(width=pars.get('mm_width'))
-            
+
     def copyValue(self, valuename):
         """TODO
-        
+
         :param valuename: the name of the value to copy"""
         return self.copies[self.copykey][valuename]
 
@@ -1138,7 +1138,7 @@ class BagToHtml(object):
                 for sheet in range(self.sheets_counter):
                     self._copies['%02i_%02i' %(sheet,copy)] = dict(grid_body_used=self.grid_height, currPage=-1)
         return self._copies
-       
+
     def _set_copies(self, copies):
         self._copies = copies #legacyprint compatibility
 
@@ -1148,24 +1148,24 @@ class BagToHtml(object):
     def copykey(self):
         if isinstance(self.copies,list):
             #legacymode
-            return self.copy 
+            return self.copy
         return '%02i_%02i' %(self.sheet,self.copy)
-        
+
     def calcRowHeight(self):
         """override for special needs"""
         return self.grid_row_height
-        
+
     def calcGridHeaderHeight(self):
         """override for special needs"""
         result = self.grid_header_height
         if self.columnsets:
             return result*2
         return result
-        
+
     def calcGridFooterHeight(self):
         """override for special needs"""
         return self.grid_footer_height
-        
+
     def calcDocHeaderHeight(self):
         """override for special needs"""
         return self.doc_header_height
@@ -1173,57 +1173,57 @@ class BagToHtml(object):
     def calcDocFooterHeight(self):
         """override for special needs"""
         return self.doc_footer_height
-        
+
     def defineCustomStyles(self):
         """override this for custom styles"""
         pass
-        
+
     def docFooter(self, footer, lastPage=None):
         """Hook method. Define the footer of the :ref:`print_layout_doc` in the :ref:`print_layout`
-        
+
         :param footer: the footer object
         :param lastPage: boolean. More information in the :ref:`lastpage` section
-        
+
         .. note:: the method is called only if the :ref:`bagtohtml_doc_footer_height`
                   has a value different from ``0``"""
         pass
-        
+
     def pageFooter(self, footer, lastPage=None):
         """Hook method. Define the footer of the :ref:`print_layout_page` in the :ref:`print_layout`
-        
+
         :param footer: the footer object
         :param lastPage: boolean. More information in the :ref:`lastpage` section
-        
+
         .. note:: the method is called only if the :ref:`bagtohtml_page_footer_height`
                   has a value different from ``0``"""
         pass
-        
+
     def pageHeader(self, header):
         """Hook method. Define the header of the :ref:`print_layout_page` in the :ref:`print_layout`
-        
+
         :param header: the header object
-        
+
         .. note:: the method is called only if the :ref:`bagtohtml_page_header_height`
                   has a value different from ``0``"""
         pass
-        
+
     def docHeader(self, header):
         """Hook method. Define the header of the :ref:`print_layout_doc` in the :ref:`print_layout`
-        
+
         :param header: the header object
-        
+
         The docHeader() method allows to receive an object called header to which you
         can append a layout structure made by :meth:`layouts <gnr.core.gnrhtml.GnrHtmlSrc.layout>`,
         :meth:`rows <gnr.core.gnrhtml.GnrHtmlSrc.row>`, and :meth:`cells <gnr.core.gnrhtml.GnrHtmlSrc.cell>`
-        
+
         .. note:: the method is called only if the :ref:`bagtohtml_doc_header_height`
                   has a value different from ``0``"""
         pass
-        
+
     def defineStandardStyles(self):
         """TODO"""
         self.body.style("""
-      
+
                         .caption{text-align:center;
                                  color:gray;
                                  font-size:8pt;
@@ -1241,12 +1241,12 @@ class BagToHtml(object):
                                   line-height:3mm;
                                   height:3mm;""")
 
-                                  
+
         self.body.style("""
                         .extrasmall {font-size:6pt;text-align:left;line-height:3mm;}
                         .textfield {text-indent:0mm;margin:1mm;line-height:3mm}
                         .dotted_bottom {border-bottom:1px dotted gray;}
-                                                
+
                         .aligned_right{
                             text-align:right;
                             margin-right:1.5mm;
@@ -1260,7 +1260,7 @@ class BagToHtml(object):
                         }
                         .gnrcolumnset{
                             text-align:center;
-                            background:#888; 
+                            background:#888;
                             color:white;
                             border-bottom-width:0;
                             font-size:8pt;
@@ -1279,20 +1279,20 @@ class BagToHtml(object):
                         }
 
                         .subtotal_00.totalizer_row{
-                            background:-webkit-linear-gradient(left, white, gray 30%); 
-                            background:linear-gradient(to right, white, gray 30%); 
+                            background:-webkit-linear-gradient(left, white, gray 30%);
+                            background:linear-gradient(to right, white, gray 30%);
 
                         }
                         .subtotal_01.totalizer_row{
                             background:-webkit-linear-gradient(left, white, gray 50%);
-                            background:linear-gradient(to right, white, gray 50%); 
+                            background:linear-gradient(to right, white, gray 50%);
                         }
                         .subtotal_02.totalizer_row{
-                            background:-webkit-linear-gradient(left, white, gray 80%); 
-                            background:linear-gradient(to right, white, gray 80%); 
+                            background:-webkit-linear-gradient(left, white, gray 80%);
+                            background:linear-gradient(to right, white, gray 80%);
                         }
                         .subtotal_03.totalizer_row{
-                            background:-webkit-linear-gradient(left, white, gray 90%); 
-                            background:linear-gradient(to right, white, gray 90%); 
+                            background:-webkit-linear-gradient(left, white, gray 90%);
+                            background:linear-gradient(to right, white, gray 90%);
                         }
                          """)
