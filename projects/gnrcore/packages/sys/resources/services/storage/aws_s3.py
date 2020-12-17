@@ -263,7 +263,6 @@ class Service(StorageService):
         _download = kwargs.get('_download')
         if _download:
             kwargs['_content_disposition'] = "attachment; filename=%s" % self.basename(*args)
-        download_name = self.basename(*args)
         internal_path = self.internal_path(*args)
         _content_type = mimetypes.guess_type(internal_path)[0]
         expiration = kwargs.pop('expiration', self.url_expiration)
