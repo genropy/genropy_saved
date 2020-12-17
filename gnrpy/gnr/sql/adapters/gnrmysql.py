@@ -26,12 +26,10 @@ from builtins import str
 import re
 import select
 
-try:
-    import MySQLdb
-    from MySQLdb.cursors import DictCursor
-except:
-    class DictCursor(object):
-        pass
+
+import MySQLdb
+from MySQLdb.cursors import DictCursor
+
 #from psycopg2.extras import DictConnection, DictCursor, DictCursorBase
 #from psycopg2.extensions import cursor as _cursor
 #from psycopg2.extensions import connection as _connection
@@ -56,7 +54,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
 
     revTypesDict = {'A': 'varchar', 'T': 'text', 'C': 'char',
                     'X': 'text', 'P': 'text', 'Z': 'text',
-                    'B': 'boolean', 'D': 'date', 'H': 'time', 'DH': 'datetime',
+                    'B': 'tinyint', 'D': 'date', 'H': 'time', 'DH': 'datetime',
                     'I': 'int', 'L': 'bigint', 'R': 'real','N':'decimal',
                     'serial': 'serial', 'O': 'longblob'}
 
@@ -284,22 +282,44 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 ORDER BY k.ordinal_position"""
         return [r['col'] for r in self.dbroot.execute(sql, dict(schema=schema, table=table)).fetchall()]
 
-    def getIndexesForTable(self, table, schema):
-        return []
+    def alterColumnSql(self, table, column, dtype):
+        return 'ALTER TABLE %s MODIFY %s %s' % (table, column, dtype)
 
-    #        """Get a (list of) dict containing details about all the indexes of a table.
-    #        Each dict has those info: name, primary (bool), unique (bool), columns (comma separated string)
-    #        @param table: table name
-    #        @param schema: schema name
-    #        @return: list of index infos"""
-    #        sql = """SELECT indcls.relname AS name, indisunique AS unique, indisprimary AS primary, indkey AS columns
-    #                    FROM pg_index
-    #               LEFT JOIN pg_class AS indcls ON indexrelid=indcls.oid
-    #               LEFT JOIN pg_class AS tblcls ON indrelid=tblcls.oid
-    #               LEFT JOIN pg_namespace ON pg_namespace.oid=tblcls.relnamespace
-    #                   WHERE nspname=:schema AND tblcls.relname=:table;"""
-    #        indexes = self.dbroot.execute(sql, dict(schema=schema, table=table)).fetchall()
-    #        return indexes
+    def getIndexesForTable(self, table, schema):
+        #return []
+        """Get a (list of) dict containing details about all the indexes of a table.
+        #        Each dict has those info: name, primary (bool), unique (bool), columns (comma separated string)
+        #        @param table: table name
+        #        @param schema: schema name
+        #        @return: list of index infos"""
+        sql = """SELECT DISTINCT INDEX_NAME as name,(NON_UNIQUE IS TRUE) AS un,
+            (INDEX_NAME = 'PRIMARY') AS pri, COLUMN_NAME as columns 
+            FROM INFORMATION_SCHEMA.STATISTICS 
+            WHERE TABLE_SCHEMA = :schema AND TABLE_NAME = :table;"""
+        indexes = self.dbroot.execute(sql, dict(schema=schema, table=table)).fetchall()
+        return indexes
+
+    def createIndex(self, index_name, columns, table_sql, sqlschema=None, unique=None):
+        return ''
+
+    def _dropForeignKey(self, referencing_package, referencing_table, referencing_field, actual_name=None):
+        """Prepare the sql statement for dropping the givent constraint from the given table and return it"""
+        constraint_name = actual_name or 'fk_%s_%s' % (referencing_table, referencing_field)
+        statement = 'ALTER TABLE %s.%s DROP CONSTRAINT %s' % (referencing_package, referencing_table, constraint_name)
+        return statement
+
+    def addForeignKeySql(self, c_name, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del, init_deferred):
+        return ''
+        statement = 'ALTER TABLE %s.%s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s.%s (%s)' % (
+        m_pkg, m_tbl, c_name, m_fld, o_pkg, o_tbl, o_fld)
+        #drop_statement = 'ALTER TABLE %s.%s DROP CONSTRAINT %s;' % (m_pkg, m_tbl, c_name)
+
+        #for on_command, on_value in (('ON DELETE', on_del), ('ON UPDATE', on_up)):
+        #    if init_deferred:
+        #        on_value = 'NO ACTION'  
+        #    if on_value: statement += ' %s %s' % (on_command, on_value)
+        #statement = '%s %s' % (drop_statement,statement) # MSSQL doesn't support DEFERRED
+        return statement
 
     def getTableContraints(self, table=None, schema=None):
         """Get a (list of) dict containing details about a column or all the columns of a table.
@@ -326,6 +346,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             row=dict(row)
             res_bag.setItem('%(table_schema)s.%(table_name)s.%(column_name)s'%row,row['constraint_name'])
         return res_bag
+
 
     def getColInfo(self, table, schema, column=None):
         """Get a (list of) dict containing details about a column or all the columns of a table.
@@ -397,7 +418,7 @@ class GnrDictCursor(DictCursor):
             self.index = dict()
             self._rows = _rows
         self._result = None
-            
+
 #    def __init__(self, *args, **kwargs):
 #        kwargs['row_factory'] = GnrDictRow
 #        DictCursorBase.__init__(self, *args, **kwargs)
@@ -411,6 +432,7 @@ class GnrDictCursor(DictCursor):
 #            self._build_index()
 #        return res
             
+    
 class GnrWhereTranslator(GnrWhereTranslator_base):
     def op_startswith(self, column, value, dtype, sqlArgs,tblobj):
         "Starts with"
