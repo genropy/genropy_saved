@@ -89,7 +89,7 @@
 <en_do_summary base="Do summary" en="Do summary" it="Fare sintesi"></en_do_summary>
 <en_mandatory base="Mandatory" de="Verpflichtend" en="Mandatory" fr="Obligatoire" it="Obbligatorio"></en_mandatory></gnrdbo_legacy></app>
 <core><gnrbag ext="py" path="gnrpy/gnr/core/gnrbag.py"><en_s_s _tag="en__s_s" base="%s %s" en="[0] [1]" it="%s %s"></en_s_s></gnrbag>
-<gnrbaghtml ext="py" path="gnrpy/gnr/core/gnrbaghtml.py"><en_totals base="Totals" it="Totalozzi"></en_totals></gnrbaghtml>
+<gnrbaghtml ext="py" path="gnrpy/gnr/core/gnrbaghtml.py"><en_totals base="Totals" it="Totali"></en_totals></gnrbaghtml>
 <gnrlang ext="py" path="gnrpy/gnr/core/gnrlang.py"><en_genro_base_exception base="Genro base exception" de="Genro Basis Ausnahme" en="Genro base exception" fr="Genro exception de base" it="Genro eccezione di base"></en_genro_base_exception>
 <en_error_code_code_s_description_s_ base="Error code %(code)s : %(description)s." de="Fehlercode   %(code)s :  %(description)s." en="Error code [0] : [1]." fr="Code d'erreur  %(code)s :  %(description)s." it="Codice di errore  %(code)s :  %(description)s."></en_error_code_code_s_description_s_></gnrlang>
 <gnrprinthandler ext="py" path="gnrpy/gnr/core/gnrprinthandler.py"><en_a4 base="A4" de="A4" en="A4" fr="A4" it="A4"></en_a4>
@@ -103,7 +103,7 @@
 <en_upper base="Upper" de="Obere" en="Upper" fr="Supérieur" it="Superiore"></en_upper>
 <en_lower base="Lower" de="Niedriger" en="Lower" fr="Inférieur" it="Inferiore"></en_lower>
 <en_largecapacity base="LargeCapacity" de="Largecapacity" en="LargeCapacity" fr="LargeCapacity" it="LargeCapacity"></en_largecapacity></gnrprinthandler>
-<gnrrlab ext="py" path="gnrpy/gnr/core/gnrrlab.py"><en_totals base="Totals" it="Totalozzi"></en_totals></gnrrlab></core>
+<gnrrlab ext="py" path="gnrpy/gnr/core/gnrrlab.py"><en_totals base="Totals" it="Totali"></en_totals></gnrrlab></core>
 <lib><services><networkprint ext="py" path="gnrpy/gnr/lib/services/networkprint.py"><en_a4 base="A4" de="A4" en="A4" fr="A4" it="A4"></en_a4>
 <en_legal base="Legal" de="Rechts-" en="Legal" fr="Juridique" it="Legale"></en_legal>
 <en_a4_with_margins base="A4 with margins" en="A4 with margins" it="A4 con margini"></en_a4_with_margins>
@@ -165,7 +165,7 @@
 <batch><btcbase ext="py" path="gnrpy/gnr/web/batch/btcbase.py"><en_cancel base="Cancel" de="Stornieren" en="Cancel" fr="Annuler" it="Annulla"></en_cancel>
 <en_confirm base="Confirm" de="Bestätigen" en="Confirm" fr="Confirmer" it="Conferma"></en_confirm></btcbase>
 <btcmail ext="py" path="gnrpy/gnr/web/batch/btcmail.py"><en_cc base="CC" de="CC" en="CC" fr="CC" it="CC"></en_cc>
-<en_subject base="Subject" de="Gegenstand" en="Subject" fr="Sujet" it="Soggetto"></en_subject>
+<en_subject base="Subject" de="Gegenstand" en="Subject" fr="Sujet" it="Oggetto"></en_subject>
 <en_previous base="Previous" de="Früher" en="Previous" fr="Précédent" it="Precedente"></en_previous>
 <en_next base="Next" de="Nächste" en="Next" fr="Prochaine" it="Il Prossimo"></en_next></btcmail>
 <btcprint ext="py" path="gnrpy/gnr/web/batch/btcprint.py"><en_print_options base="Print Options" de="Druckoptionen" en="Print options" fr="Les options d'impression" it="Opzioni di stampa"></en_print_options>
@@ -178,14 +178,14 @@
 <en_pdf_by_email base="Pdf by email" de="Pdf per E-Mail" en="Pdf by email" fr="Pdf par email" it="Pdf via e-mail"></en_pdf_by_email>
 <en_to base="To" de="Bis" en="To" fr="À" it="A"></en_to>
 <en_cc base="CC" de="CC" en="CC" fr="CC" it="CC"></en_cc>
-<en_subject base="Subject" de="Gegenstand" en="Subject" fr="Sujet" it="Soggetto"></en_subject>
+<en_subject base="Subject" de="Gegenstand" en="Subject" fr="Sujet" it="Oggetto"></en_subject>
 <en_body base="Body" de="Körper" en="Body" fr="Corps" it="Corpo"></en_body>
 <en_deliver_mail base="Deliver mail" de="Geben Sie mail" en="Deliver mail" fr="Distribuer le courrier" it="Consegna posta"></en_deliver_mail>
 <en_cancel base="Cancel" de="Stornieren" en="Cancel" fr="Annuler" it="Annulla"></en_cancel>
 <en_print base="Print" de="Druck" en="Print" fr="Imprimer" it="Stampa"></en_print>
 <en_download base="Download" de="Herunterladen" en="Download" fr="Télécharger" it="Scarica"></en_download>
 <en_confirm base="Confirm" de="Bestätigen" en="Confirm" fr="Confirmer" it="Conferma"></en_confirm></btcprint></batch>
-<gnrbaseclasses ext="py" path="gnrpy/gnr/web/gnrbaseclasses.py"><en_totals base="Totals" it="Totalozzi"></en_totals></gnrbaseclasses>
+<gnrbaseclasses ext="py" path="gnrpy/gnr/web/gnrbaseclasses.py"><en_totals base="Totals" it="Totali"></en_totals></gnrbaseclasses>
 <gnrwebpage ext="py" path="gnrpy/gnr/web/gnrwebpage.py"><en_genro_not_allowed_public_call base="Genro Not Allowed Public call" de="Genro erlaubt Öffentlicher Aufruf" en="Genro Not Allowed Public call" fr="Genro non autorisés Appel public" it="Genro non sono ammessi chiamata pubblica"></en_genro_not_allowed_public_call>
 <en_user_user_s_is_not_allowed_to_call_method_method_s base="User %(user)s is not allowed to call method %(method)s" de="Benutzer  %(user)s ist nicht erlaubt, Methode  %(Methode) aufrufens" en="User [0] is not allowed to call method [1]" fr="L'utilisateur  %(utilisateur)s est pas autorisé à appeler la méthode  %(méthode)s" it="Utente  %(utente)s non è permesso di chiamare il metodo  %(metodo)s"></en_user_user_s_is_not_allowed_to_call_method_method_s>
 <en_print base="Print" de="Druck" en="Print" fr="Imprimer" it="Stampa"></en_print></gnrwebpage>
@@ -493,7 +493,7 @@
 <en_resource base="Resource"></en_resource>
 <en_condition base="Condition"></en_condition>
 <en_email_metadata base="Email metadata" de="E-Mail-Metadaten" en="Email metadata" fr="Email métadonnées" it="Metadati Email"></en_email_metadata>
-<en_subject base="Subject" de="Gegenstand" en="Subject" fr="Sujet" it="Soggetto"></en_subject>
+<en_subject base="Subject" de="Gegenstand" en="Subject" fr="Sujet" it="Oggetto"></en_subject>
 <en_to base="To" de="Bis" en="To" fr="À" it="A"></en_to>
 <en_from base="From" de="Von" en="From" fr="À partir de" it="Da"></en_from>
 <en_cc base="CC" de="CC" en="CC" fr="CC" it="CC"></en_cc>
@@ -538,7 +538,7 @@
 <en_edit_dataset base="Edit dataset"></en_edit_dataset>
 <en_new_pivot_table base="New Pivot table"></en_new_pivot_table>
 <en_out_dataframe base="Out dataframe"></en_out_dataframe>
-<en_totals base="Totals" it="Totalozzi"></en_totals>
+<en_totals base="Totals" it="Totali"></en_totals>
 <en_out_html base="Out HTML"></en_out_html>
 <en_out_xls base="Out XLS"></en_out_xls>
 <en_report_title base="Report Title"></en_report_title>

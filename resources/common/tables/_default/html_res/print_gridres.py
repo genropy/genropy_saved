@@ -19,8 +19,10 @@ from gnr.core.gnrbag import Bag
 
 class Main(TableScriptToHtml):
     page_header_height = 0 #topHeight
-    page_footer_height = 0 
-    doc_header_height = 0 #headerHeight
+    page_footer_height = 0
+    doc_header_height = 10 #headerHeight
+    page_width = 292    #da utilizzare per letterhead che poi sovrascrive
+    page_height = 198   #da utilizzare per letterhead che poi sovrascrive
     doc_footer_height = 0 #footerHeight
     grid_footer_height = 0 
     grid_header_height = 4.3
