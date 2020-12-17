@@ -1954,7 +1954,7 @@ dojo.declare("gnr.GnrValidator", null, {
     },
     _validate: function(sourceNode, value, validations, validationTags, userChange) {
         var validation, validreturn;
-        var result = {'warnings':[]};
+        var result = {'warnings':[],'datachanges':new gnr.GnrBag()};
         result['value'] = value;
         var parameters = objectUpdate({}, validations);
         parameters.userChange = userChange; //added by sporcari userChange was not in _validate params
@@ -1979,10 +1979,12 @@ dojo.declare("gnr.GnrValidator", null, {
                             break;
                         }
                     }
+                    if(validreturn.data && validreturn.data instanceof gnr.GnrBag){
+                        result.datachanges.update(validreturn.data);
+                    }
                 }
             }
         }
-        ;
         return result;
     },
     
@@ -2061,6 +2063,11 @@ dojo.declare("gnr.GnrValidator", null, {
             if (validations['onAccept']) {
                 func = funcCreate(validations['onAccept'], 'value,result,validations,rowIndex,userChange');
             }
+        }
+        if(result.datachanges){
+            let data = objectPop(result,'datachanges');
+            let sdata = sourceNode.getRelativeData();
+            sdata.update(data); 
         }
         if (func) {
             sourceNode._exitValidation = true;
@@ -2183,13 +2190,7 @@ dojo.declare("gnr.GnrValidator", null, {
         }
     },
     validate_call: function(param, value, sourceNode, parameters) {
-        let result = funcApply(param, objectUpdate({'value':value}, parameters), sourceNode);
-        if(typeof(result)=='object' && result.data instanceof gnr.GnrBag){
-            let data = objectPop(result,'data');
-            let sdata = sourceNode.getRelativeData();
-            sdata.update(data); 
-        }
-        return result;
+        return funcApply(param, objectUpdate({'value':value}, parameters), sourceNode);
     },
     
     validate_remote: function(param, value, sourceNode, parameters) {
