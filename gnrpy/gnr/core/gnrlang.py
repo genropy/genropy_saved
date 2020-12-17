@@ -48,6 +48,7 @@ thread_ws = dict()
 _mixincount = 0
 
 from functools import total_ordering
+import time
 
 @total_ordering
 class MinType(object):
