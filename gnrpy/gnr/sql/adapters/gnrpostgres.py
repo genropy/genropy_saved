@@ -494,6 +494,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                                  init_defer]
         return list(ref_dict.values())
 
+    def alterColumnSql(self, table, column, dtype):
+        return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s  USING %s::%s' % (table, column, dtype,column,dtype)
+
+
     def getPkey(self, table, schema):
         """:param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
                       (packageName is the name of the :ref:`package <packages>` to which the table

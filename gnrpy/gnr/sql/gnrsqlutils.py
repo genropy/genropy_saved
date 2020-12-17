@@ -454,14 +454,14 @@ class SqlModelChecker(object):
         sqlType = self.db.adapter.columnSqlType(new_dtype, new_size)
         usedColumn = col.table.dbtable.query(where='$%s IS NOT NULL' %col.sqlname).count()>0
         if usedColumn or (col.dtype in ('T','A','C')) and (new_dtype in ('T','A','C')):
-            return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s  USING %s::%s' % (col.table.sqlfullname, col.sqlname, sqlType,col.sqlname,sqlType)
+            return self.db.adapter.alterColumnSql(col.table.sqlfullname, col.sqlname, sqlType)
         else:
             return '; '.join(['ALTER TABLE %s DROP COLUMN %s' % (col.table.sqlfullname, col.sqlname) ,self._buildColumn(col)])
         
     def _alterUnique(self, col, new_unique=None, old_unique=None):
         alter_unique=''
         if old_unique:
-            alter_unique+=' DROP CONSTRAINT IF EXISTS %s CASCADE'%old_unique
+            alter_unique+=' DROP CONSTRAINT IF EXISTS %s '%old_unique
         if new_unique:
             alter_unique+=' ADD CONSTRAINT un_%s_%s UNIQUE(%s)'%(col.table.sqlfullname.replace('"','').replace('.','_'), col.sqlname,col.sqlname)
         return 'ALTER TABLE %s %s' % (col.table.sqlfullname, alter_unique)

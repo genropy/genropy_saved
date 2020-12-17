@@ -610,6 +610,9 @@ class SqlDbAdapter(object):
         else:
             return self.revTypesDict[dtype]
 
+    def alterColumnSql(self, table, column, dtype):
+        return 'ALTER TABLE %s ALTER TABLE %s TYPE %s' % (table, column, dtype)
+
     def dropEmptyTables(self,schema=None):
         tables = self.listElements('tables',schema=schema)
         for tbl in tables:
