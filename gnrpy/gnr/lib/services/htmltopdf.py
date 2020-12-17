@@ -52,7 +52,7 @@ class HtmlToPdfService(GnrBaseService):
             htmlTemplate = htmlTemplate or self.standardPageHtmlTemplate(bodyStyle)
             htmlText = htmlTemplate %htmlText
         tmp = tempfile.NamedTemporaryFile(prefix='temp', suffix='.html',delete=False)
-        tmp.write(htmlText)
+        tmp.write(htmlText.encode())
         url = tmp.name
         tmp.close()
         return url
