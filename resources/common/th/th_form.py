@@ -95,7 +95,6 @@ class TableHandlerForm(BaseComponent):
                 if handler:
                     kwargs = handler(f)
             if kwargs is False:
-                print 'avoid plugtoform'
                 continue
             fbname = kwargs.pop('fbname',None)
             if fbname:
