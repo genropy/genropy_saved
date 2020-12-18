@@ -503,7 +503,7 @@ class MultidbTable(object):
             fkeyname = tblsub.tableFkey(self)
             pkey = record[self.pkey]
             subscribedStores = tblsub.query(where='$tablename=:tablename AND $%s=:pkey AND $dbstore IN :allstores' %fkeyname,
-                                    columns='$dbstore',addPkeyColumn=False,allstores=self.db.dbstores.keys(),
+                                    columns='$dbstore',addPkeyColumn=False,allstores=list(self.db.dbstores.keys()),  # keys() returns an iterable, in Python 3
                                     tablename=tablename,pkey=pkey,distinct=True).fetch()                
             return [s['dbstore'] for s in subscribedStores]
         else:
