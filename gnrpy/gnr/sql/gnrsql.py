@@ -644,10 +644,11 @@ class GnrSqlDb(GnrObject):
         if not deferredId:
             deferredId = getUuid()
         deferkw = kwargs
+        deferredKey = '{}/{}'.format(id(cb),deferredId)
         if deferredId not in deferreds:
-            deferreds.setItem(deferredId,(cb,args,deferkw))
+            deferreds.setItem(deferredKey,(cb,args,deferkw))
         else:
-            cb,args,deferkw = deferreds[deferredId]
+            cb,args,deferkw = deferreds[deferredKey]
         return deferkw
         
 
