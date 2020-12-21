@@ -2064,7 +2064,7 @@ dojo.declare("gnr.GnrValidator", null, {
                 func = funcCreate(validations['onAccept'], 'value,result,validations,rowIndex,userChange');
             }
         }
-        if(result.datachanges){
+        if(result.datachanges && result.datachanges.len()){
             let data = objectPop(result,'datachanges');
             let sdata = sourceNode.getRelativeData();
             sdata.update(data); 
