@@ -20,7 +20,7 @@ from gnr.core.gnrbag import Bag
 class Main(TableScriptToHtml):
     page_header_height = 0 #topHeight
     page_footer_height = 0 
-    doc_header_height = 0 #headerHeight
+    doc_header_height = 10 #headerHeight
     doc_footer_height = 0 #footerHeight
     grid_footer_height = 0 
     grid_header_height = 4.3
