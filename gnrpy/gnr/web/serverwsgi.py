@@ -38,7 +38,8 @@ wsgi_options = dict(
         remote_edit=None,
         remotesshdb=None,
         gzip=None,
-        websocket=True
+        websocket=True,
+        tornado=None
         )
 
 DNS_SD_PID = None
@@ -173,6 +174,11 @@ class Server(object):
                       dest='websocket',
                       action='store_true',
                       help="Use websocket")
+    parser.add_option('-t','--tornado',
+                      dest='tornado',
+                      action='store_true',
+                      help="Serve using tornado")
+
     parser.add_option('--reload-interval',
                       dest='reload_interval',
                       default=1,
@@ -322,18 +328,29 @@ class Server(object):
         self.serve()
 
     def serve(self):
+        port = int(self.options.port)
+        host = '127.0.0.1' if self.options.host == '0.0.0.0' else self.options.host
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')
         site_name='%s:%s' %(self.site_name,self.remote_db) if self.remote_db else self.site_name
-        gnrServer = GnrWsgiSite(self.site_script, site_name=site_name, _config=self.siteconfig,
+        if self.options.tornado:
+            from gnr.web.gnrasync import GnrAsyncServer
+            site_options= dict(_config=self.siteconfig,_gnrconfig=self.gnr_config,
+                counter=getattr(self.options, 'counter', None), 
+                noclean=self.options.noclean, options=self.options)
+            print(f'[{now}]\tStarting Tornado server - listening on http://127.0.0.1:{port}')
+            server=GnrAsyncServer(port=port,instance=site_name,
+                web=True, autoreload=self.options.reload, site_options=site_options)
+            server.start()
+        else:
+            gnrServer = GnrWsgiSite(self.site_script, site_name=site_name, _config=self.siteconfig,
                                     _gnrconfig=self.gnr_config,
                                     counter=getattr(self.options, 'counter', None), noclean=self.options.noclean,
                                     options=self.options)
-        atexit.register(gnrServer.on_site_stop)
-        if self.debug:
-            gnrServer = GnrDebuggedApplication(gnrServer, evalex=True, pin_security=False)
-        port = int(self.options.port)
-        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')
-        print(f'[{now}]\tStarting server - listening on http://127.0.0.1:{port}')
-        run_simple(self.options.host, port, gnrServer, use_reloader=self.reloader, threaded=True,
-            reloader_type='stat')
+            atexit.register(gnrServer.on_site_stop)
+            if self.debug:
+                gnrServer = GnrDebuggedApplication(gnrServer, evalex=True, pin_security=False)
+            print(f'[{now}]\tStarting server - listening on http://127.0.0.1:{port}')
+            run_simple(host, port, gnrServer, use_reloader=self.reloader, threaded=True,
+                reloader_type='stat')
         
         
