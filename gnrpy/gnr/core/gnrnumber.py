@@ -37,6 +37,17 @@ def floatToDecimal(f,places=None,rounding=None):
         return decimalRound(result,places=places,rounding=rounding)
     return result
 
+
+def calculateMultiPerc(multiperc):
+    if not multiperc:
+        return
+    multiperc = multiperc.split('+')
+    t = 100
+    while multiperc:
+        s = Decimal(multiperc.pop(0))
+        t -= t*s/100
+    return decimalRound(100-t)
+
 def partitionTotals(totals,quotes,places=2,rounding=None):
     if not isinstance(totals,list):
         totals = [totals]
