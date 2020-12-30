@@ -894,7 +894,11 @@ dojo.declare("gnr.GridEditor", null, {
             action:function(result){
                 grid.getSelectedRowidx().forEach(function(idx){
                     result.forEach(function(node){
-                        grid.gridEditor.setCellValue(idx,node.label,node.getValue());
+                        let val = node.getValue();
+                        if (isNullOrBlank(val)){
+                            return
+                        }
+                        grid.gridEditor.setCellValue(idx,node.label,val);
                     });
                 });
             }

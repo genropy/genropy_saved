@@ -1251,8 +1251,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if c:
                 for n in c:
                     if n.label in row:
-                        oldvalue = row[n.label]
-                        if isinstance(oldvalue,Bag) or isinstance(n.value,Bag):
+                        if isinstance(n.value,Bag):
                             n.value.popAttributesFromNodes(['_loadedValue','dtype','__old'])
                         elif '_loadedValue' in n.attr and row[n.label] != n.attr['_loadedValue']:
                             wrongUpdates[key] = row

@@ -1460,9 +1460,9 @@ dojo.declare("gnr.GnrBag", null, {
     },
     
     update:function(bagOrObj,mode,reason){
-        var kwargs;
+        var kwargs = {};
         if (reason){
-            kwargs = {doTrigger:reason}
+            kwargs.doTrigger = reason;
         }
         if(!(bagOrObj instanceof gnr.GnrBag)){
             for(var k in bagOrObj){
@@ -1481,7 +1481,7 @@ dojo.declare("gnr.GnrBag", null, {
             var currNode = that.getNode(n.label);
             if(currNode){
                  currNode.updAttributes(n.attr,reason);
-                 currNodeValue = currNode.getValue();
+                 let currNodeValue = currNode.getValue();
                  if (node_resolver){
                      currNode.setResolver(node_resolver);
                  }

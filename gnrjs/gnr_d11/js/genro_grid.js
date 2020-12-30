@@ -1373,7 +1373,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var ranges = objectExtract(cell,'range_*',true);
             
             if(objectNotEmpty(ranges)){
-                var rangepars = objectUpdate({},renderedRow);
+                var rangepars = {}; 
+                for (let k in sourceNode.widget.cellmap){
+                    rangepars[k] = null;
+                }
+                objectUpdate(rangepars,renderedRow);
                 rangepars.value = v;
                 rangepars._kwargs = rangepars;
                 for(var rng in ranges){
