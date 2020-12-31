@@ -92,6 +92,7 @@ class MasterDetail(BaseComponent):
         pane = parent.contentPane(**kwargs)
         pane.bagGrid(storepath='#FORM.record.%s' %field,pbl_classes=True,title='!!Grid input configurator',
                    datapath='.gridInputCostomizer',
+                    grid_selfDragRows=True,
                    struct=self.inputCustomizer_struct,addrow=False,delrow=False)
 
     def printCustomizer(self, parent,field=None,table=None,datapath=None,**kwargs):
