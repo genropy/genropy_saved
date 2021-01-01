@@ -2335,6 +2335,7 @@ class SqlTable(GnrObject):
 
     def updateTotalizers(self,record=None,old_record=None,evt=None,
                         _raw=None,_ignore_totalizer=None,**kwargs):
+        _ignore_totalizer = _ignore_totalizer or self.db.currentEnv('ignore_totalizer')
         if _raw and _ignore_totalizer:
             return
         totalizers = dictExtract(self.attributes,'totalizer_')
