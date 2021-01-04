@@ -1303,7 +1303,6 @@ dojo.declare("gnr.GridEditor", null, {
             },1,this,'callRemoteControllerBatch_'+this.grid.sourceNode._id);
             return;
         }
-        var that = this;
         var row = rowNode.getValue().deepCopy();
         objectUpdate(kw,{field:field,row:row,row_attr:objectUpdate({},rowNode.attr)});
         kw['_sourceNode'] = this.grid.sourceNode;
