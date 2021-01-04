@@ -160,6 +160,7 @@ class FrameGridTools(BaseComponent):
         else:
             m = self.mangledHook('filterset_%s' %filterset,mangler=frameCode,defaultCb=False)
         filterlist = None
+        dflt=None
         if m:
             filterlist = m()
             dflt = getattr(m,'default',None)
@@ -177,7 +178,7 @@ class FrameGridTools(BaseComponent):
                     dflt.append(code)
                 filtersetBag.setItem(code,None,**kw)
             pane.data('.data',filtersetBag)
-            pane.data('.current',','.join(dflt) if dflt else None)
+        pane.data('.current',','.join(dflt) if dflt else None)
         multiButton = multiButton is True or multiButton is None or multiButton and len(filtersetBag)<=multiButton
         if multiButton:
             pane.multiButton(items='^.data',value='^.current',multivalue=multivalue,mandatory=mandatory,
