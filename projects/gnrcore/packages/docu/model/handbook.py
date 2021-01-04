@@ -27,3 +27,4 @@ class Table(object):
         tbl.column('examples_directory',name_long='Examples dir')
         tbl.column('last_exp_ts', dtype='DH', name_long='Last export ts')
         tbl.column('custom_styles',name_long='Custom styles')
+        tbl.column('examples_pars',dtype='X', name_long='Examples parameters')
