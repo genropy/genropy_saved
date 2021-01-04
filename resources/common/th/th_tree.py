@@ -438,7 +438,7 @@ class TableHandlerHierarchicalView(BaseComponent):
                 
         vstoreattr['condition'] = ' OR '.join(condlist)
         if condition:
-            vstoreattr['condition'] ='{} AND {}'.format(vstoreattr['condition'],condition)
+            vstoreattr['condition'] ='( {} ) AND ( {} )'.format(vstoreattr['condition'],condition)
         if condition_kwargs:
             vstoreattr.update(condition_kwargs)
 
