@@ -34,9 +34,8 @@ class Main(BaseResourceBatch):
     batch_steps = 'prepareRstDocs,buildHtmlDocs'
 
     def pre_process(self):
-        handbook_id = self.batch_parameters['extra_parameters']['handbook_id']
-        self.handbook_record = self.tblobj.record(handbook_id).output('bag')
-        self.handbook_record_toupdate = self.tblobj.recordToUpdate(handbook_id)
+        self.handbook_id = self.batch_parameters['extra_parameters']['handbook_id']
+        self.handbook_record = self.tblobj.record(self.handbook_id).output('bag')
         self.doctable=self.db.table('docu.documentation')
         self.doc_data = self.doctable.getHierarchicalData(root_id=self.handbook_record['docroot_id'], condition='$is_published IS TRUE')['root']['#0']
         self.handbookNode= self.page.site.storageNode(self.handbook_record['sphinx_path']) #or default_path
@@ -129,8 +128,8 @@ class Main(BaseResourceBatch):
     #    self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
 
     #DP202101 Once completed, save last export date in handbook record
-        with self.handbook_record_toupdate as record:
-            record['last_exp_ts'] = datetime.now().isoformat()
+        with self.tblobj.recordToUpdate(self.handbook_id) as record:
+            record['last_exp_ts'] = datetime.now()
         self.db.commit()
         
     def prepare(self, data, pathlist):
