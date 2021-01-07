@@ -28,3 +28,6 @@ webob
 werkzeug
 webob
 six
+sphinx
+sphinx_rtd_theme
+sphinx-sitemap

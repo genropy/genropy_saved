@@ -6,6 +6,7 @@
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
 from json import dumps
+from datetime import datetime
 import re
 import os
 import sys
@@ -35,6 +36,7 @@ class Main(BaseResourceBatch):
     def pre_process(self):
         handbook_id = self.batch_parameters['extra_parameters']['handbook_id']
         self.handbook_record = self.tblobj.record(handbook_id).output('bag')
+        self.handbook_record_toupdate = self.tblobj.recordToUpdate(handbook_id)
         self.doctable=self.db.table('docu.documentation')
         self.doc_data = self.doctable.getHierarchicalData(root_id=self.handbook_record['docroot_id'], condition='$is_published IS TRUE')['root']['#0']
         self.handbookNode= self.page.site.storageNode(self.handbook_record['sphinx_path']) #or default_path
@@ -122,9 +124,14 @@ class Main(BaseResourceBatch):
         self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
 
 
-    #def post_process(self):
+    def post_process(self):
     #    self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
     #    self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
+
+    #DP202101 Once completed, save last export date in handbook record
+        with self.handbook_record_toupdate as record:
+            record['last_exp_ts'] = datetime.now().isoformat()
+        self.db.commit()
         
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./:-]+)")
