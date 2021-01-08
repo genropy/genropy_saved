@@ -29,6 +29,16 @@ class AppPref(object):
         fb = pane.formbuilder(cols=1,border_spacing='3px')
         fb.textbox('^.sphinx_path', lbl='Sphinx project path')
         fb.textbox('^.sphinx_baseurl', lbl='Sphinx baseurl')
+        if self.db.package('genrobot'):
+            fb.checkBox(value='^.telegram_notification', lbl='Enable Telegram Notification')
+            fb.dbselect('^.bot_token', lbl='Default BOT', table='genrobot.bot', columns='$bot_name', alternatePkey='bot_token',
+                            colspan=3, hasDownArrow=True, hidden='^.telegram_notification?=!#v')
+            if self.db.package('social'):
+                fb.dbselect('^.page_id_code', lbl='Default Telegram User/Group/Channel', table='social.page', columns='$page_name', 
+                            alternatePkey='page_id_code', condition="$service_channel='telegram'", colspan=3, 
+                            hasDownArrow=True, hidden='^.telegram_notification?=!#v')      
+            else:
+                fb.textbox('^.page_id_code', lbl='Default Telegram User/Group/Channel', hidden='^.telegram_notification?=!#v')  
 
 class UserPref(object):
     pass

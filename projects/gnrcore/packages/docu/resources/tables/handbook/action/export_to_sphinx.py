@@ -38,7 +38,7 @@ class Main(BaseResourceBatch):
         self.handbook_record = self.tblobj.record(self.handbook_id).output('bag')
         self.doctable=self.db.table('docu.documentation')
         self.doc_data = self.doctable.getHierarchicalData(root_id=self.handbook_record['docroot_id'], condition='$is_published IS TRUE')['root']['#0']
-        self.handbookNode= self.page.site.storageNode(self.handbook_record['sphinx_path']) #or default_path
+        self.handbookNode= self.page.site.storageNode(self.handbook_record['sphinx_path'])
         self.sphinxNode = self.handbookNode.child('sphinx')
         self.sphinxNode.delete()
         self.sourceDirNode = self.sphinxNode.child('source')
@@ -66,6 +66,17 @@ class Main(BaseResourceBatch):
             self.examples_root_local = '%(examples_local_site)s/webpages/%(examples_directory)s' %self.handbook_record
         self.imagesDirNode = self.sourceDirNode.child(self.imagesPath)
         self.examplesDirNode = self.sourceDirNode.child(self.examplesPath)
+        if self.batch_parameters['send_notification']:
+            #DP202101 Send notification message via Telegram (gnrextra genrobot required)
+            notification_message = self.batch_parameters['notification_message'].format(handbook_title=self.handbook_record['title'], 
+                                        timestamp=datetime.now(), handbook_site=html_baseurl + self.handbook_record['name'])
+            notification_bot = self.batch_parameters['bot_token']
+            notification_recipient = self.batch_parameters['page_id_code']
+            socialservice = self.page.site.getService(service_type='telegram', service_name='telegram')
+            assert socialservice,'set in siteconfig the service social/telegram'
+            result = socialservice.publishPost(message=notification_message, 
+                                                bot_token=notification_bot, page_id_code=notification_recipient)
+            print(result)
 
     def step_prepareRstDocs(self):
         "Prepare Rst docs"
@@ -282,9 +293,27 @@ class Main(BaseResourceBatch):
             f.write(content.encode())
 
 
-    #def table_script_parameters_pane(self,pane,**kwargs):   
-    #    fb = pane.formbuilder(cols=1, border_spacing='5px')
-    #    fb.checkbox(lbl='Download Zip', value='^.download_zip')
+    def table_script_parameters_pane(self,pane,**kwargs):   
+        fb = pane.formbuilder(cols=1, border_spacing='5px')
+        #fb.checkbox(lbl='Download Zip', value='^.download_zip')
+        
+        #DP202101 Ask for Telegram notification option if enabled in docu settings
+        if self.db.application.getPreference('.telegram_notification',pkg='docu'):
+            fb.checkbox(lbl='Send notification via Telegram', value='^.send_notification', default=True)
+            fb.dbselect('^.bot_token', lbl='BOT', table='genrobot.bot', columns='$bot_name', alternatePkey='bot_token',
+                        colspan=3, hasDownArrow=True, default=self.db.application.getPreference('.bot_token',pkg='docu'),
+                        hidden='^.send_notification?=!#v')
+            if self.db.package('social'):
+                fb.dbselect('^.page_id_code', lbl='Telegram User/Group/Channel', table='social.page', columns='$page_name', 
+                        alternatePkey='page_id_code', condition="$service_channel='telegram'", colspan=3, 
+                        hasDownArrow=True, default=self.db.application.getPreference('.page_id_code',pkg='docu'),
+                        hidden='^.send_notification?=!#v')
+            else:
+                fb.textbox('^.page_id_code', lbl='Default Telegram User/Group/Channel', hidden='^.send_notification?=!#v',
+                            default=self.db.application.getPreference('.page_id_code',pkg='docu'))                  
+            fb.simpleTextArea(lbl='Notification content', value='^.notification_message', hidden='^.send_notification?=!#v',
+                    default="Genropy Documentation updated: {handbook_title} was modified @ {timestamp}. Check out what's new on {handbook_site}", 
+                    height='60px', width='200px')
 
 
 

@@ -32,6 +32,9 @@ class Form(BaseComponent):
                                                     max_width='1000px',
                                                     width='100%',colswidth='auto')
         fb.field('name')
+        fb.dataController("SET .sphinx_path=current_path+'/'+handbook_name;", 
+                            current_path=self.db.application.getPreference('.sphinx_path',pkg='docu'),
+                            handbook_name='^.name', _userChanges=True)
         fb.br()
         fb.field('title')
         fb.field('docroot_id', hasDownArrow=True, validate_notnull=True, tag='hdbselect', folderSelectable=True)

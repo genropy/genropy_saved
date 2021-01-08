@@ -47,7 +47,10 @@ class Service(SftpService):
             pars['port'] = port
         if self.root:
             pars['default_path'] = self.root
-        connection = pysftp.Connection(host or self.host,**pars)
+        #DP202101 Added cnopts.hostkeys = None to avoid "SSHException: No hostkey for host" error in case of new connections
+        cnopts = pysftp.CnOpts()
+        cnopts.hostkeys = None  
+        connection = pysftp.Connection(host or self.host,cnopts=cnopts,**pars)
         return connection
 
     def downloadFilesIntoFolder(self,sourcefiles=None,destfolder=None,
