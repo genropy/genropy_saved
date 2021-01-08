@@ -71,12 +71,7 @@ class Main(BaseResourceBatch):
             notification_message = self.batch_parameters['notification_message'].format(handbook_title=self.handbook_record['title'], 
                                         timestamp=datetime.now(), handbook_site=html_baseurl + self.handbook_record['name'])
             notification_bot = self.batch_parameters['bot_token']
-            notification_recipient = self.batch_parameters['page_id_code']
-            socialservice = self.page.site.getService(service_type='telegram', service_name='telegram')
-            assert socialservice,'set in siteconfig the service social/telegram'
-            result = socialservice.publishPost(message=notification_message, 
-                                                bot_token=notification_bot, page_id_code=notification_recipient)
-            print(result)
+            self.sendNotification(notification_message=notification_message, notification_bot=notification_bot)
 
     def step_prepareRstDocs(self):
         "Prepare Rst docs"
@@ -282,7 +277,15 @@ class Main(BaseResourceBatch):
 
         return '\n%s\n%s\n\n\n   %s' % (".. toctree::", '\n'.join(toc_options),'\n   '.join(elements))
 
-
+    def sendNotification(self, notification_bot=None, notification_message=None):
+        notification_recipients = self.db.table('genrobot.bot_contact').query(columns='@contact_id.username AS username', 
+                        where='@bot_id.bot_token=:bot_token', bot_token=notification_bot).fetchAsDict('username')
+        socialservice = self.page.site.getService(service_type='telegram', service_name='telegram')
+        assert socialservice,'set in siteconfig the service social/telegram'
+        for recipient in notification_recipients:
+            result = socialservice.publishPost(message=notification_message, 
+                                            bot_token=notification_bot, page_id_code=recipient)
+            print(result)
              
     def createFile(self, pathlist=None, name=None, title=None, rst=None, hname=None, tocstring=None, footer=''):
         reference_label='.. _%s:\n' % hname if hname else ''
@@ -302,20 +305,13 @@ class Main(BaseResourceBatch):
             fb.checkbox(lbl='Send notification via Telegram', value='^.send_notification', default=True)
             fb.dbselect('^.bot_token', lbl='BOT', table='genrobot.bot', columns='$bot_name', alternatePkey='bot_token',
                         colspan=3, hasDownArrow=True, default=self.db.application.getPreference('.bot_token',pkg='docu'),
-                        hidden='^.send_notification?=!#v')
-            if self.db.package('social'):
-                fb.dbselect('^.page_id_code', lbl='Telegram User/Group/Channel', table='social.page', columns='$page_name', 
-                        alternatePkey='page_id_code', condition="$service_channel='telegram'", colspan=3, 
-                        hasDownArrow=True, default=self.db.application.getPreference('.page_id_code',pkg='docu'),
-                        hidden='^.send_notification?=!#v')
-            else:
-                fb.textbox('^.page_id_code', lbl='Default Telegram User/Group/Channel', hidden='^.send_notification?=!#v',
-                            default=self.db.application.getPreference('.page_id_code',pkg='docu'))                  
+                        hidden='^.send_notification?=!#v')                
             fb.simpleTextArea(lbl='Notification content', value='^.notification_message', hidden='^.send_notification?=!#v',
                     default="Genropy Documentation updated: {handbook_title} was modified @ {timestamp}. Check out what's new on {handbook_site}", 
                     height='60px', width='200px')
-
-
+            #pane.inlineTableHandler(table='genrobot.bot_contact', datapath='.notification_recipients',
+            #                title='!![en]Notification recipients', 
+            #                margin='2px', pbl_classes=True, addrow=False, delrow=False, height='200px')
 
     def defaultCssCustomization(self):
         return """/* override table width restrictions */
