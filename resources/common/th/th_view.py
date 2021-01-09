@@ -70,8 +70,9 @@ class TableHandlerView(BaseComponent):
         self._th_view_printEditorDialog(view)
 
         if structure_field:
-            
-            view.left.borderContainer(closable=True,width='300px',
+            bar = view.top.bar.replaceSlots('#','#,structPalette,5')
+            scode = structure_field.replace('.','_').replace('@','_')
+            bar.structPalette.palettePane(paletteCode=scode,title='!![en]Structure',dockButton=True).borderContainer(closable=True,width='300px',
                                     border_right='1px solid silver'
                                     ).contentPane(region='center'
                                     ).structureTree(structure_field=structure_field,view=view,**structure_field_kwargs)
