@@ -33,8 +33,9 @@ class Main(BaseResourceBatch):
     batch_steps = 'prepareRstDocs,buildHtmlDocs'
 
     def pre_process(self):
-        handbook_id = self.batch_parameters['extra_parameters']['handbook_id']
-        self.handbook_record = self.tblobj.record(handbook_id).output('bag')
+
+        self.handbook_id = self.batch_parameters['extra_parameters']['handbook_id']
+        self.handbook_record = self.tblobj.record(self.handbook_id).output('bag')
         self.doctable=self.db.table('docu.documentation')
         self.doc_data = self.doctable.getHierarchicalData(root_id=self.handbook_record['docroot_id'], condition='$is_published IS TRUE')['root']['#0']
         self.handbookNode= self.page.site.storageNode(self.handbook_record['sphinx_path']) #or default_path
@@ -123,10 +124,13 @@ class Main(BaseResourceBatch):
         self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
 
 
-    #def post_process(self):
+    def post_process(self):
     #    self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
     #    self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
-        
+        with self.tblobj.recordToUpdate(self.handbook_id) as record:
+            record['last_exp_ts'] = datetime.now()
+        self.db.commit()
+
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./:-]+)")
         LINKFINDER = re.compile(r"`([^`]*) <([\w./]+)>`_\b")
