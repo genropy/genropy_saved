@@ -302,7 +302,7 @@ class SqlTable(GnrObject):
         if not kw:
             return
         result = dict()
-        result['field'] = kw.keys()[0]
+        result['field'] = list(kw.keys())[0]
         result['path'] = kw[result['field']]
         col = self.column(result['field'])
         if col.relatedColumn() is None:
