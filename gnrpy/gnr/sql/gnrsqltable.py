@@ -1464,7 +1464,7 @@ class SqlTable(GnrObject):
         
         :param record: a dictionary, bag or pkey (string)"""
         if isinstance(record, basestring):
-            record = self.recordAs(record, 'dict')
+            record = self.record(pkey=record,for_update=True).output('dict')
         self.db.delete(self, record, **kwargs)
     
     def updateRelated(self, record,old_record=None):
