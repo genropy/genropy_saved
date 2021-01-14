@@ -207,7 +207,6 @@ class TableHandlerView(BaseComponent):
                 base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5','filterSelected,menuUserSets','15','export','importer','resourcePrints','resourceMails','resourceActions',batchAssign,'5',templateManager,'stats','advancedTools','10',pageHooksSelector,'*']
                 if self.deviceScreenSize=='phone':
                     base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu',statsSlot,'export','resourcePrints','resourceMails,5',pageHooksSelector,'*']
-                    print ('phone', base_slots)
             elif extendedQuery is True:
                 base_slots = ['5','fastQueryBox','runbtn','queryMenu','viewsMenu','5',statsSlot,'advancedTools','10',pageHooksSelector,'*','count','5']
             else:
