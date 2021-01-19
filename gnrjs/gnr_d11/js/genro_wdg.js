@@ -1369,6 +1369,9 @@ dojo.declare("gnr.GridEditor", null, {
         var cellmap = this.grid.cellmap;
         genro.assert(cellname in cellmap,'cell '+cellname,+' does not exist');
         var cell = cellmap[cellname];
+        if (!cell){
+            return;
+        }
         if(cell.edit || cell.counter || cell.isCheckBoxCell){
             var n = rowEditor.data.setItem(cellname,value);
             delete n.attr._validationError //trust the programmatical value
