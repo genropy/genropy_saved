@@ -1312,7 +1312,8 @@ class SqlTable(GnrObject):
         if(condition_field and condition_value):
             where = '%s %s :condition_value' % (condition_field, condition_op)
             kwargs['condition_value'] = condition_value
-            
+        if not where:
+            return
         q = self.query(where=where,
                        excludeLogicalDeleted=excludeLogicalDeleted,
                        addPkeyColumn=False,excludeDraft=excludeDraft,
