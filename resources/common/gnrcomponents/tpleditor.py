@@ -23,6 +23,8 @@ except:
 
 
 class TemplateEditorBase(BaseComponent):
+    py_requires='public:Public'
+
     @public_method
     def te_getPreviewPkeys(self, maintable=None):
         path = self.userStore().getItem('current.table.%s.last_selection_path' % maintable.replace('.', '_'))
@@ -187,7 +189,7 @@ class TemplateEditorBase(BaseComponent):
         return result
 
 class TemplateEditor(TemplateEditorBase):
-    py_requires='gnrcomponents/framegrid:FrameGrid'
+    py_requires='gnrcomponents/framegrid:FrameGrid,public:Public'
     css_requires='public'
     @struct_method
     def te_templateEditor(self,pane,storepath=None,maintable=None,editorConstrain=None,**kwargs):
