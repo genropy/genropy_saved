@@ -7,9 +7,11 @@ from smtplib import SMTPException,SMTPConnectError
 from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import templateReplace
+from gnr.core.gnrstring import slugify
 import re
 import os
 import email
+import base64
 from datetime import datetime
 
 
@@ -118,6 +120,76 @@ class Table(object):
     def spamChecker(self,msgrec):
         return
     
+    def newReceivedMessage(self, email_bytes, email_id=None, account_id=None, mailbox_id=None):
+        from mailparser import parse_from_bytes
+        new_mail = self.newrecord(assignId=True, 
+            account_id=account_id, mailbox_id=mailbox_id, in_out='I')
+        mail = parse_from_bytes(email_bytes)
+        new_mail['email_bag'] = Bag(mail.message)
+        new_mail['message_id'] = mail.message_id
+        new_mail['uid'] = email_id
+        onCreatingCallbacks = [fname for fname in dir(self) if fname.startswith('onCreatingMessage_')]
+        if onCreatingCallbacks:
+            make_message = False
+            for fname in onCreatingCallbacks:
+                make_message = make_message or getattr(self,fname)(mail) is not False
+            if make_message is False:
+                return False
+        self.fillHeaders(mail, new_mail)
+        if self.spamChecker(new_mail) is True:
+            return False
+        new_mail['body_plain'] = ' '.join(mail.text_plain)
+        new_mail['body'] = ' '.join(mail.text_html) or new_mail['body_plain']
+        for atc_counter, attachment in enumerate(mail.attachments):
+            self.parseAttachment(attachment, new_mail, atc_counter)
+        return new_mail
+
+    def fillHeaders(self, mail, new_mail):
+        def fill_address(addr_list):
+            if not addr_list:
+                return
+            return ",".join([f"{addr_tuple[0]} <{addr_tuple[1]}>" if addr_tuple[0] \
+                                else addr_tuple[1] \
+                            for addr_tuple in addr_list])
+            
+        new_mail['from_address'] = fill_address(mail.from_)
+        new_mail['to_address'] = fill_address(mail.to)
+        new_mail['cc_address'] = fill_address(mail.cc)
+        new_mail['bcc_address'] = fill_address(mail.bcc)
+        new_mail['subject'] = mail.subject
+        new_mail['send_date'] = mail.date or datetime.today()
+
+
+    def parseAttachment(self, attachment, new_mail, atc_counter):
+        new_attachment = dict(message_id = new_mail['id'])
+        filename = attachment['filename']
+        binary = attachment['binary']
+        payload = attachment['payload']
+        fname,ext = os.path.splitext(filename)
+        fname = fname.replace('.','_').replace('~','_').replace('#','_').replace(' ','').replace('/','_')
+        fname = slugify(fname)
+        filename = fname+ext
+        date = new_mail.get('send_date') or  datetime.datetime.today()
+        attachmentNode =  self.getAttachmentNode(date=date,filename=filename, new_mail=new_mail, atc_counter=atc_counter)
+        new_attachment['path'] = attachmentNode.fullpath
+        new_attachment['filename'] = attachmentNode.basename
+        if binary:
+            file_content = base64.b64decode(payload)
+            file_mode = 'wb'
+        else:
+            file_content = payload
+            file_mode = 'w'
+        with attachmentNode.open(file_mode) as attachment_file:
+            attachment_file.write(file_content)
+
+        self.db.table('email.attachment').insert(new_attachment)
+
+
+    def getAttachmentNode(self,date=None,filename=None, new_mail = None, atc_counter=None):
+        return self.db.table('email.attachment').getAttachmentNode(date=date,filename=filename,
+                                            message_id = new_mail['id'],account_id=new_mail['account_id'],
+                                            atc_counter=atc_counter)
+
     @public_method
     def newMessage(self, account_id=None,to_address=None,from_address=None,
                   subject=None, body=None, cc_address=None, 
