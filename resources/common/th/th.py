@@ -782,7 +782,7 @@ class ThLinker(BaseComponent):
     @struct_method 
     def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,
                     openIfEmpty=None,embedded=True,excludeLinked=False,dialog_kwargs=None,
-                    default_kwargs=None,auxColumns=None,hiddenColumns=None,addEnabled=None,**kwargs):
+                    default_kwargs=None,auxColumns=None,hiddenColumns=None,addEnabled=None,selectvisible=None,**kwargs):
         fkeyfield = None
         if not table:
             if '.' in field:
@@ -844,7 +844,6 @@ class ThLinker(BaseComponent):
                                    linker.linkerManager.openLinker(false);""",linker=linker,
                                 currvalue='^#FORM.record.%s' %field,_if='!currvalue',
                                 _else='linker.linkerManager.closeLinker()')          
-        selectvisible = None
         if newRecordOnly:
             selectvisible = '^#FORM.record?_newrecord'
         if fkeyfield==field:

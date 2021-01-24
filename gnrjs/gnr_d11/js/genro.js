@@ -842,9 +842,9 @@ dojo.declare('gnr.GenroClient', null, {
             this.setInStorage('local','tooltipHelpModifier',value);
         }else{
             var modifier = this.getFromStorage('local','tooltipHelpModifier') || 'Shift';
-            if(modifier=='*'){
+            /*if(modifier=='*'){
                 modifier = null;
-            }
+            }*/
             return modifier;
         }
     },

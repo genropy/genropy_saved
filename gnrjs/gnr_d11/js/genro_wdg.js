@@ -49,7 +49,7 @@ function inlineWidget(evt){
     if('related_table' in colattr){
         colattr['tag'] = 'dbselect';
         colattr['dbtable'] = colattr['related_table'];
-        if(colattr['related_table_lookup'] && !'hasDownArrow' in colattr){
+        if(colattr['related_table_lookup'] && !('hasDownArrow' in colattr)){
             colattr['hasDownArrow'] = true;
         }
     }if('values' in colattr){
@@ -529,7 +529,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         }
     },
     doMixin:function(obj, handler, tag, sourceNode) {
-        var oldfunc, funcname, prefix,newfunc;
+        var oldfunc, funcname;
         var versionpatch = 'versionpatch_' + dojo.version.major + dojo.version.minor + '_';
         var ispatch;
         for (var prop in handler) {
@@ -639,7 +639,7 @@ dojo.declare("gnr.RowEditor", null, {
         data = data || new gnr.GnrBag();
         this.data = data;
         var cellmap = this.grid.cellmap;
-        default_kwargs = objectUpdate({},this.gridEditor.editorPars.default_kwargs);
+        let default_kwargs = objectUpdate({},this.gridEditor.editorPars.default_kwargs);
         var k;
         for(k in cellmap){
             objectPop(default_kwargs,k);
@@ -975,7 +975,11 @@ dojo.declare("gnr.GridEditor", null, {
 
     enabled:function(){
         var gridSourceNode = this.grid.sourceNode;
+
         var form = gridSourceNode.form;
+        if(this.storeInForm){
+            return !form.isDisabled();
+        }
         var gridstore = this.grid.collectionStore?this.grid.collectionStore():null;
         if(gridstore){
             return !gridstore.locked;
@@ -1303,7 +1307,6 @@ dojo.declare("gnr.GridEditor", null, {
             },1,this,'callRemoteControllerBatch_'+this.grid.sourceNode._id);
             return;
         }
-        var that = this;
         var row = rowNode.getValue().deepCopy();
         objectUpdate(kw,{field:field,row:row,row_attr:objectUpdate({},rowNode.attr)});
         kw['_sourceNode'] = this.grid.sourceNode;
@@ -1366,6 +1369,9 @@ dojo.declare("gnr.GridEditor", null, {
         var cellmap = this.grid.cellmap;
         genro.assert(cellname in cellmap,'cell '+cellname,+' does not exist');
         var cell = cellmap[cellname];
+        if (!cell){
+            return;
+        }
         if(cell.edit || cell.counter || cell.isCheckBoxCell){
             var n = rowEditor.data.setItem(cellname,value);
             delete n.attr._validationError //trust the programmatical value

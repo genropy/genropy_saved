@@ -34,6 +34,7 @@ class Main(BaseResourceBatch):
     batch_steps = 'prepareRstDocs,buildHtmlDocs'
 
     def pre_process(self):
+
         self.handbook_id = self.batch_parameters['extra_parameters']['handbook_id']
         self.handbook_record = self.tblobj.record(self.handbook_id).output('bag')
         self.doctable=self.db.table('docu.documentation')
@@ -132,12 +133,10 @@ class Main(BaseResourceBatch):
     def post_process(self):
     #    self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
     #    self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
-
-    #DP202101 Once completed, save last export date in handbook record
         with self.tblobj.recordToUpdate(self.handbook_id) as record:
             record['last_exp_ts'] = datetime.now()
         self.db.commit()
-        
+
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./:-]+)")
         LINKFINDER = re.compile(r"`([^`]*) <([\w./]+)>`_\b")

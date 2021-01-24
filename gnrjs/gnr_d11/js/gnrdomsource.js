@@ -199,6 +199,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 genro.dlg.ask(currentAttributes._ask_title || 'Warning',currentAttributes._ask,null,
                             {confirm:function(){that.setDataNodeValueDo(nodeOrRunKwargs, kw, trigger_reason, subscription_args);},
                             cancel:function(){_ask_onCancel(currentAttributes)}});
+            }else{
+                this.setDataNodeValueDo(nodeOrRunKwargs, kw, trigger_reason, subscription_args);
             }
         }
         else{

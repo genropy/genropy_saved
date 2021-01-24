@@ -1065,7 +1065,8 @@ class SqlTable(GnrObject):
             
     def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, 
                     autocommit=False,_pkeys=None,pkey=None,_raw_update=None,
-                    _onUpdatedCb=None,updater_kwargs=None,for_update=None,**kwargs):
+                    _onUpdatedCb=None,updater_kwargs=None,for_update=None,
+                    deferredTotalize=None,**kwargs):
         """A :ref:`batch` used to update a database. For more information, check the :ref:`batchupdate` section
         
         :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
@@ -1092,8 +1093,24 @@ class SqlTable(GnrObject):
         if _wrapper:
             _wrapperKwargs = _wrapperKwargs or dict()
             fetch = _wrapper(fetch, **(_wrapperKwargs or dict()))
-        pkeycol = self.pkey
+        deferredTotalize = set(deferredTotalize.split(',')) if deferredTotalize else None
+        with self.db.tempEnv(deferredTotalize=deferredTotalize):
+            updatedKeys = self._batchUpdate_rows(rows=fetch,updater=updater,
+                                            _raw_update=_raw_update,
+                                            autocommit=autocommit,
+                                            updater_kwargs=updater_kwargs,
+                                            _onUpdatedCb=_onUpdatedCb)
+        if deferredTotalize:
+            for t in deferredTotalize:
+                self.db.table(t).realignRelatedTotalizers()
+        return updatedKeys
+    
+    def _batchUpdate_rows(self,rows=None,updater=None,_raw_update=None,
+                                autocommit=None,
+                                updater_kwargs=None,
+                                _onUpdatedCb=None):
         updatedKeys = []
+        pkeycol = self.pkey
         updatercb,updaterdict = None,None
         commit_every = False 
         if autocommit and autocommit is not True:
@@ -1107,7 +1124,7 @@ class SqlTable(GnrObject):
                 updatercb = updater
         elif isinstance(updater,dict):
             updaterdict = updater
-        for i,row in enumerate(fetch):
+        for i,row in enumerate(rows):
             new_row = dict(row)
             if not _raw_update:
                 self.expandBagFields(row)
@@ -1305,7 +1322,8 @@ class SqlTable(GnrObject):
         if(condition_field and condition_value):
             where = '%s %s :condition_value' % (condition_field, condition_op)
             kwargs['condition_value'] = condition_value
-            
+        if not where:
+            return
         q = self.query(where=where,
                        excludeLogicalDeleted=excludeLogicalDeleted,
                        addPkeyColumn=False,excludeDraft=excludeDraft,
@@ -1457,7 +1475,9 @@ class SqlTable(GnrObject):
         
         :param record: a dictionary, bag or pkey (string)"""
         if isinstance(record, basestring):
-            record = self.recordAs(record, 'dict')
+            record = self.record(pkey=record,for_update=True,ignoreMissing=True).output('dict')
+            if not record:
+                return
         self.db.delete(self, record, **kwargs)
     
     def updateRelated(self, record,old_record=None):
@@ -1958,7 +1978,8 @@ class SqlTable(GnrObject):
             fields = [f.lstrip('$') for f in fields]
             if not isinstance(record, Bag):
                 fields = [self.db.colToAs(f) for f in fields]
-            cols = [(c, gnrstring.toText(record[c], locale=self.db.locale)) for c in fields]
+            tblname = self.name
+            cols = [(c, gnrstring.toText(record.get(c,tblname), locale=self.db.locale)) for c in fields]
             if '$' in mask:
                 caption = gnrstring.templateReplace(mask, dict(cols))
             else:
@@ -2340,17 +2361,27 @@ class SqlTable(GnrObject):
     
     def onLogChange(self,evt,record,old_record=None):
         pass
+    
+    @property
+    def totalizers(self):
+        totalizers = dictExtract(self.attributes,'totalizer_')
+        return totalizers.values()
 
+    def realignRelatedTotalizers(self):
+        for tbl in self.totalizers:
+            self.db.table(tbl).totalize_realign_sql(empty=True)
 
     def updateTotalizers(self,record=None,old_record=None,evt=None,
                         _raw=None,_ignore_totalizer=None,**kwargs):
         if _raw and _ignore_totalizer:
             return
-        totalizers = dictExtract(self.attributes,'totalizer_')
+        deferredTotalize = self.db.currentEnv.get('deferredTotalize') 
+        if deferredTotalize and self.fullname in deferredTotalize:
+            return
         if evt=='D':
             old_record = record
             record = None
-        for tbl in totalizers.values():
+        for tbl in self.totalizers:
             self.db.table(tbl).tt_totalize(record=record,old_record=old_record)
             
 if __name__ == '__main__':

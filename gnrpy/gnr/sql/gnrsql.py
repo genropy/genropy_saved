@@ -531,7 +531,8 @@ class GnrSqlDb(GnrObject):
 
 
     def _onDbChange(self,tblobj,evt,record,old_record=None,**kwargs):
-        tblobj.updateTotalizers(record,old_record=old_record,evt=evt,**kwargs)
+        if tblobj.totalizers:
+            tblobj.updateTotalizers(record,old_record=old_record,evt=evt,**kwargs)
         if tblobj.attributes.get('logChanges'):
             tblobj.onLogChange(evt,record,old_record=old_record)
             self.table(self.changeLogTable).logChange(tblobj,evt=evt,record=record)
@@ -657,7 +658,7 @@ class GnrSqlDb(GnrObject):
             deferredId = getUuid()
         deferkw = kwargs
         deferredKey = '{}/{}'.format(id(cb),deferredId)
-        if deferredId not in deferreds:
+        if deferredKey not in deferreds:
             deferreds.setItem(deferredKey,(cb,args,deferkw))
         else:
             cb,args,deferkw = deferreds[deferredKey]

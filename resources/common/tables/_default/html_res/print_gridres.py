@@ -33,23 +33,23 @@ class Main(TableScriptToHtml):
 
     def onRecordLoaded(self):
         self.row_table = self.row_table or self.tblobj.fullname
-        #userObjectIdOrCode = self.parameter('userobject') #userobject si trova in extra_parameters
+        userObjectIdOrCode = self.parameter('userobject') #userobject si trova in extra_parameters
         struct = self.parameter('currentGridStruct')
         printParams = self.parameter('printParams') or Bag()
         letterhead_id = printParams['letterhead_id']
         currentQuery = self.parameter('currentQuery')
 
-        #if userObjectIdOrCode: #Non è chiaro quando dovrebbe attivarsi questo caso.
-        #    data,metadata = self.page.db.table('adm.userobject'
-        #                        ).loadUserObject(userObjectIdOrCode=userObjectIdOrCode,
-        #                                        table=self.tblobj.fullname,objtype='gridprint')
-        #    if struct is None:
-        #        struct =  data.getItem('struct')
-        #    currentQuery = currentQuery or data.getItem('query')
-        #    printParams = printParams or data.getItem('printParams') or Bag()
-        #    printParams['print_title'] = printParams['print_title'] or metadata.get('description')
-        #    self.row_table = metadata.get('tbl') or self.row_table
-        #    letterhead_id = letterhead_id or data['letterhead_id']
+        if userObjectIdOrCode: #Non è chiaro quando dovrebbe attivarsi questo caso.
+            data,metadata = self.page.db.table('adm.userobject'
+                                ).loadUserObject(userObjectIdOrCode=userObjectIdOrCode,
+                                                table=self.tblobj.fullname,objtype='gridprint')
+            if struct is None:
+                struct =  data.getItem('struct')
+            currentQuery = currentQuery or data.getItem('query')
+            printParams = printParams or data.getItem('printParams') or Bag()
+            printParams['print_title'] = printParams['print_title'] or metadata.get('description')
+            self.row_table = metadata.get('tbl') or self.row_table
+            letterhead_id = letterhead_id or data['letterhead_id']
 
         self.letterhead_id = letterhead_id
         self.setData('currentQuery',currentQuery)

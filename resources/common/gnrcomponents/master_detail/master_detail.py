@@ -92,6 +92,7 @@ class MasterDetail(BaseComponent):
         pane = parent.contentPane(**kwargs)
         pane.bagGrid(storepath='#FORM.record.%s' %field,pbl_classes=True,title='!!Grid input configurator',
                    datapath='.gridInputCostomizer',
+                    grid_selfDragRows=True,
                    struct=self.inputCustomizer_struct,addrow=False,delrow=False)
 
     def printCustomizer(self, parent,field=None,table=None,datapath=None,**kwargs):
@@ -155,16 +156,16 @@ class MasterDetail(BaseComponent):
         table = grid.attributes['table']
         tblobj = self.db.table(table)
         controller = grid.dataController(datapath='.md_customizer')
-        md_mode = md_mode or DEFAULT_MD_MODE
+        default_md_mode = tblobj.attributes.get('default_md_mode') or  DEFAULT_MD_MODE
+        md_mode = md_mode or default_md_mode
         md_structures = self.getStructures(table=table,resource=resource)['struct_grid']
         md_fkeys = tblobj.md_fkeys()
         controller.data('.md_fkeys',Bag(md_fkeys))
         controller.data('.md_structures',md_structures)
-        controller.data('.main_column',md_fkeys[DEFAULT_MD_MODE])
-
-        grid.data(grid.attributes.get('structpath','.struct'),md_structures[DEFAULT_MD_MODE])
+        controller.data('.main_column',md_fkeys[default_md_mode])
+        grid.data(grid.attributes.get('structpath','.struct'),md_structures[default_md_mode])
         controller.dataFormula('.main_column',"md_fkeys.getItem(md_mode)",
-                                md_mode=md_mode or DEFAULT_MD_MODE,
+                                md_mode=md_mode or default_md_mode,
                                 md_fkeys='=.md_fkeys')
         controller.dataController("""var md_struct = md_structures.getItem(md_mode).deepCopy();
                                     if(struct_customizer){
@@ -186,7 +187,7 @@ class MasterDetail(BaseComponent):
                                     grid.setRelativeData(grid.attr.structpath,md_struct);
                                   """,md_structures='=.md_structures',grid=grid,md_mode=md_mode,
                                   struct_customizer=struct_customizer,
-                                    default_md_mode=DEFAULT_MD_MODE,_delay=1)
+                                    default_md_mode=default_md_mode,_delay=1)
 
     def getStructures(self,table=None,resource=None):
         tblobj = self.db.table(table)
