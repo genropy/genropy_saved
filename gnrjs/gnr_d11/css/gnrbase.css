@@ -69,6 +69,14 @@ body.tundra{
 body.touchDevice{
     -webkit-text-size-adjust:none;
 }
+.progressCell .cellContent{
+    height: 1px;
+    padding-bottom: 0;
+    padding-top:0;
+}
+.progressCell progress{
+    height:16px;
+}
 
 body.workInProgress{
     border-left:2px solid red;

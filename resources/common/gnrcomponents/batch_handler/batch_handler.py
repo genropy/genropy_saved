@@ -257,6 +257,8 @@ class TableScriptRunner(TableScriptHandler):
                                        SET .selectionFilterCb =  objectPop(params,'selectionFilterCb'); 
                                        SET .selectedRowidx =  copyArray(objectPop(params,'selectedRowidx') || []);
                                        SET .sortBy =  objectPop(params,'sortBy');
+                                       SET .lockScreen =  objectPop(params,'lockScreen');
+
                                        SET .onCalling = objectPop(params,'onCalling');
                                        SET .context_dbstore = objectPop(params,'context_dbstore');
                                        var pkey =  objectPop(params,'pkey');
@@ -293,6 +295,7 @@ class TableScriptRunner(TableScriptHandler):
                             res_type='=.res_type',
                             table='=.table',
                             gridId='=.gridId',
+                            _lockScreen='=.lockScreen',
                             selectionCount='=.selectionCount',
                             _publishOnResult='=.publishOnResult',
                             selectionName='=.selectionName',
