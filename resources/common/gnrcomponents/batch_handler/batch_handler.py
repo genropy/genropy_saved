@@ -295,7 +295,7 @@ class TableScriptRunner(TableScriptHandler):
                             res_type='=.res_type',
                             table='=.table',
                             gridId='=.gridId',
-                            _lockScreen='=.lockScreen',
+                            #_lockScreen='=.lockScreen',
                             selectionCount='=.selectionCount',
                             _publishOnResult='=.publishOnResult',
                             selectionName='=.selectionName',
