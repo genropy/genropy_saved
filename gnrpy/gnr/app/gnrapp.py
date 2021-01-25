@@ -1384,11 +1384,15 @@ class GnrApp(object):
         :param caller: TODO
         :param package: TODO"""
         raise e
+
         
     def onDbCommitted(self):
         """Hook method called during the database commit"""
         pass
 
+    def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
+        pass
+    
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         pass
 

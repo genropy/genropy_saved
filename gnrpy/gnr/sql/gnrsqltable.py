@@ -1299,7 +1299,7 @@ class SqlTable(GnrObject):
             
     #Jeff added the support to deleteSelection for passing no condition so that all records would be deleted
     def deleteSelection(self, condition_field=None, condition_value=None, excludeLogicalDeleted=False, excludeDraft=False,condition_op='=',
-                        where=None, **kwargs):
+                        where=None, _wrapper=None, _wrapperKwargs=None, **kwargs):
         """TODO
         
         :param condition_field: TODO
@@ -1319,6 +1319,9 @@ class SqlTable(GnrObject):
                        addPkeyColumn=False,excludeDraft=excludeDraft,
                        for_update=True, **kwargs)
         sel = q.fetch()
+        if _wrapper:
+            _wrapperKwargs = _wrapperKwargs or dict()
+            sel = _wrapper(sel, **(_wrapperKwargs or dict()))
         for r in sel:
             self.delete(r)
         return sel
@@ -1515,6 +1518,7 @@ class SqlTable(GnrObject):
                                          excludeLogicalDeleted=False).fetch()
                 if sel:
                     if onDelete in ('r', 'raise'):
+                        print('mfld',mfld,record['id'])
                         raise self.exception('delete', record=record, msg='!!Record referenced in table %(reltable)s',
                                              reltable=relatedTable.fullname)
                     elif onDelete in ('c', 'cascade'):
