@@ -274,7 +274,7 @@ class Table(object):
                 return self._getCounter(tblobj=tblobj,field=field,record=record,update=update,counter_pars=counter_pars)
         return self._getCounter(tblobj=tblobj,field=field,record=record,update=update,counter_pars=counter_pars)
 
-    def _recicleCounter(self,holes,date,counterInfo):
+    def _recycleCounter(self,holes,date,counterInfo):
         holes.sort('#a.cnt_from')
         for hole_key,cnt_from,cnt_to,date_from,date_to in holes.digest('#k,#a.cnt_from,#a.cnt_to,#a.date_from,#a.date_to'):
             if isinstance(date_from,datetime):
@@ -310,7 +310,7 @@ class Table(object):
         counter = None
         holes = counter_record['holes']
         if holes and recycle:
-            counterInfo = self._recicleCounter(holes,date,counterInfo)
+            counterInfo = self._recycleCounter(holes,date,counterInfo)
             counter = counterInfo.get('cnt')
         if counter is None:
             counter = (counter_record['counter'] or counter_pars.get('starting_value') or  0) + 1
