@@ -97,8 +97,9 @@ class GnrWebUtils(GnrBaseProxy):
         self.page.setInClientData(path,thermo,idx=maxidx,maxidx=maxidx,lbl=lbl)
     
     def thermoMessage(self,title=None,message=None):
-        thermo = """<div class="quickthermo_box"> %(title)s 
-                        <div class="form_waiting"></div> 
+        thermo = """<div class="quickthermo_box thermo_message"> 
+                        <div class="quickthermo_title">%(title)s </div> 
+                        <div class="form_waiting"></div>
                         <div class="quickthermo_caption">%(message)s</div> 
                     </div>"""  %dict(title=title,message=message)
         self.page.setInClientData(self.default_thermo_path,thermo)

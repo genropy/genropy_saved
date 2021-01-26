@@ -1518,7 +1518,6 @@ class SqlTable(GnrObject):
                                          excludeLogicalDeleted=False).fetch()
                 if sel:
                     if onDelete in ('r', 'raise'):
-                        print('mfld',mfld,record['id'])
                         raise self.exception('delete', record=record, msg='!!Record referenced in table %(reltable)s',
                                              reltable=relatedTable.fullname)
                     elif onDelete in ('c', 'cascade'):
