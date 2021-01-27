@@ -274,6 +274,24 @@ class Table(object):
                 return self._getCounter(tblobj=tblobj,field=field,record=record,update=update,counter_pars=counter_pars)
         return self._getCounter(tblobj=tblobj,field=field,record=record,update=update,counter_pars=counter_pars)
 
+    def _recycleCounter(self,holes,date,counterInfo):
+        holes.sort('#a.cnt_from')
+        for hole_key,cnt_from,cnt_to,date_from,date_to in holes.digest('#k,#a.cnt_from,#a.cnt_to,#a.date_from,#a.date_to'):
+            if isinstance(date_from,datetime):
+                date_from = date_from.date()
+            if isinstance(date_to,datetime):
+                date_to = date_to.date()
+            if (date_from is None or date >= date_from) and (date_to is None or date<=date_to):
+                counter = cnt_from
+                cnt_from += 1
+                if cnt_from>cnt_to:
+                    holes.pop(hole_key)
+                else:
+                    holes.setAttr(hole_key,dict(cnt_from=cnt_from,date_from=date_from))
+                counterInfo.update(recycled=True,cnt=counter)
+                break
+        return counterInfo
+
     def _getCounter(self,tblobj,field=None,record=None,update=None,counter_pars=None):
         counterInfo = dict()
         codekey = self.getCounterPkey(tblobj=tblobj,field=field,record=record)
@@ -292,17 +310,8 @@ class Table(object):
         counter = None
         holes = counter_record['holes']
         if holes and recycle:
-            holes.sort('#a.cnt_from')
-            for hole_key,cnt_from,cnt_to,date_from,date_to in holes.digest('#k,#a.cnt_from,#a.cnt_to,#a.date_from,#a.date_to'):
-                if (date_from is None or date >= date_from) and (date_to is None or date<=date_to):
-                    counter = cnt_from
-                    cnt_from += 1
-                    if cnt_from>cnt_to:
-                        holes.pop(hole_key)
-                    else:
-                        holes.setAttr(hole_key,dict(cnt_from=cnt_from,date_from=date_from))
-                    counterInfo.update(recycled=True,cnt=counter)
-                    break
+            counterInfo = self._recycleCounter(holes,date,counterInfo)
+            counter = counterInfo.get('cnt')
         if counter is None:
             counter = (counter_record['counter'] or counter_pars.get('starting_value') or  0) + 1
             counter_record['last_used'] = date
