@@ -759,7 +759,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     waitingStatus:function(waiting){
-        this.sourceNode.setHiderLayer(waiting,{message:'<div class="form_waiting"></div>',z_index:999999});
+        genro.lockScreen(waiting,this.formId,{nodeId:this.formId,thermo:true});
+        //this.sourceNode.setHiderLayer(waiting,{message:'<div class="form_waiting"></div>',z_index:999999});
     },
 
     setFormError:function(errorcode,message,showMessage){
