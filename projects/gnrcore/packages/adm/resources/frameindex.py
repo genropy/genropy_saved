@@ -241,21 +241,25 @@ class FrameIndex(BaseComponent):
         sb.devlink.a(href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame').div(_class="iconbox flash",tip='!!Open the page outside frame',_tags='_DEV_')
         sb.manageDocumentation.slotButton("!!Help",iconClass='iconbox help',
                             action='genro.framedIndexManager.openHelpForCurrentIframe();')
-        if not self.isMobile :
-            self.electronAppDownload(sb)
+
+        #SP: electronAppDownload is still not tested and working fine.
+        #if not self.isMobile :
+        #    self.electronAppDownload(sb)
+
         sb.openGnrIDE.div().slotButton("!!Open Genro IDE",iconClass='iconbox laptop',
                             action='genro.framedIndexManager.openGnrIDE();',_tags='_DEV_')
         sb.debugping.div(_class='ping_semaphore')
     
-    def electronAppDownload(self,bar):
-        electron_pars = self.site.config.getAttr('electron') or {}
-        name = electron_pars.get('name') or self.site.site_name
-        platform = {'windows':('windows',''),'linux':('linux',''),'mac':('osx','.app')}.get(self.connection.user_device.split(':')[0])
-        bar.appdownload.slotButton('!!Download desktop app',iconClass="iconbox inbox",
-                                action='genro.download(appurl,{_lazydoc:"service:download_app"})',
-                                appurl=self.site.getStaticUrl('site:application',
-                                                             platform[0],'%s%s.zip' %(name,platform[1])))
-                            
+    #def electronAppDownload(self,bar):
+    #    electron_pars = self.site.config.getAttr('electron') or {}
+    #    name = electron_pars.get('name') or self.site.site_name
+    #    platform = {'windows':('windows',''),'linux':('linux',''),'mac':('osx','.app')}.get(self.connection.user_device.split(':')[0])
+    #    bar.appdownload.slotButton('!!Download desktop app',iconClass="iconbox inbox",
+    #                            action='genro.download(appurl,{_lazydoc:"service:download_app"})',
+    #                            appurl=self.site.getStaticUrl('site:application',
+    #                                                         platform[0],'%s%s.zip' %(name,platform[1])))
+    #                        
+    
     def prepareCenter(self,bc):
         sc = bc.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',region='center',
                                 #border_left='1px solid silver',
