@@ -140,6 +140,8 @@ class Table(object):
             return False
         new_mail['body_plain'] = ' '.join(mail.text_plain)
         new_mail['body'] = ' '.join(mail.text_html) or new_mail['body_plain']
+        for key in ('body', 'body_plain'):
+            new_mail[key] = new_mail[key].replace('\x00', '')
         for atc_counter, attachment in enumerate(mail.attachments):
             self.parseAttachment(attachment, new_mail, atc_counter)
         return new_mail
