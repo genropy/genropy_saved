@@ -2635,7 +2635,7 @@ dojo.declare("gnr.formstores.Base", null, {
         pkey = pkey || form.getCurrentPkey();
         this.handlers.del.rpcmethod = this.handlers.del.rpcmethod || 'deleteDbRow';
         var deferred = genro.rpc.remoteCall(this.handlers.del.rpcmethod,
-                                            objectUpdate({'pkey':pkey,
+                                            objectUpdate({'pkey':pkey,'timeout':0,
                                                           'table':this.table,'_sourceNode':form.sourceNode},kw),null,'POST',
                                                           null,function(){});
         var cb = function(result){
