@@ -415,7 +415,9 @@ class FormHandler(BaseComponent):
 
     @struct_method          
     def fh_slotbar_form_duplicate(self,pane,parentForm=True,**kwargs):
-        pane.formButton('!!Duplicate',iconClass='iconbox copy duplicate_record',
+        pane.formButton('!!Duplicate',iconClass='iconbox copy duplicate_record',opt_howmany=1,
+                        ask=dict(title='How many copies',askOn='Shift',
+                                        fields=[dict(name='opt_howmany',lbl='How many')]),
                        topic='navigationEvent',command='duplicate',parentForm=parentForm)
 
     @struct_method          
@@ -468,7 +470,10 @@ class FormHandler(BaseComponent):
     @struct_method           
     def fh_formButton(self,pane,label=None,iconClass=None,topic=None,command=True,**kwargs):
         pane.slotButton(label, lbl=label,iconClass=iconClass,topic=topic,
-                    action='this.form.publish(topic,{command:command,modifiers:genro.dom.getEventModifiers(event)});',command=command,
+                    action="""let opt = objectExtract(_kwargs,'opt_*',true);
+                                let kw = {command:command,modifiers:genro.dom.getEventModifiers(event)};
+                                objectUpdate(kw,opt)
+                                this.form.publish(topic,kw);""",command=command,
                     **kwargs)
     
     @struct_method 
