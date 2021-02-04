@@ -914,6 +914,7 @@ class SqlTable(GnrObject):
     def duplicateRecord(self,recordOrKey=None, howmany=None,destination_store=None,**kwargs):
         duplicatedRecords=[]
         howmany = howmany or 1
+        howmany = str(howmany)
         original_record = self.recordAs(recordOrKey,mode='dict')
         record = dict(original_record)
         pkey = record.get(self.pkey,None)
@@ -925,9 +926,15 @@ class SqlTable(GnrObject):
                 record[colname] = None
         if hasattr(self,'onDuplicating'):
             self.onDuplicating(record)
-        for i in range(howmany):
+        if howmany.isdigit():
+            labels = [str(k) for k in range(int(howmany))]
+        else:
+            labels = howmany.split(',')
+        for i,label in enumerate(labels):
             r=dict(record)
             r.update(kwargs)
+            if hasattr(self,'onDuplicating_many'):
+                self.onDuplicating_many(r, copy_number=i,copy_label=label)
             if destination_store:
                 with self.db.tempEnv(storename=destination_store):
                     self.insert(r)
