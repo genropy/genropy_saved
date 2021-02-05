@@ -643,6 +643,9 @@ class GnrDomSrc(GnrStructData):
 
     def lightbutton(self, innerHTML=None, **kwargs):
         return self.child('lightbutton', innerHTML=innerHTML, **kwargs)
+
+    def semaphore(self, value=None,  **kwargs):
+        return self.child('div', innerHTML=value, dtype='B', format='semaphore', **kwargs)
         
    #def column(self, label='', field='', expr='', name='', **kwargs):
    #    if not 'columns' in self:
@@ -1010,7 +1013,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'tinyMCE', 'protovis','codemirror','fullcalendar','dygraph','chartjs','MultiButton','PaletteGroup','DocumentFrame','DownloadButton','bagEditor','PagedHtml',
              'DocItem','UserObjectLayout','UserObjectBar', 'PalettePane','PaletteMap','PaletteImporter','DropUploader','DropUploaderGrid','VideoPickerPalette','GeoCoderField','StaticMap','ImgUploader','TooltipPane','MenuDiv', 'BagNodeEditor','FlatBagEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree','TreeFrame','CheckBoxText','RadioButtonText','GeoSearch','ComboArrow','ComboMenu','ChartPane','PaletteChart','ColorTextBox','ColorFiltering', 'SearchBox', 'FormStore',
-             'FramePane', 'FrameForm','BoxForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid',"GridGallery","VideoPlayer",'MultiValueEditor','MultiLineTextbox','QuickTree','SharedObject','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton']
+             'FramePane', 'FrameForm','BoxForm','QuickEditor','CodeEditor','TreeGrid','QuickGrid',"GridGallery","VideoPlayer",'MultiValueEditor','MultiLineTextbox','QuickTree','SharedObject','IframeDiv','FieldsTree', 'SlotButton','TemplateChunk','LightButton','Semaphore']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -1318,7 +1321,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """
         self.data('.store',Bag(),caption=caption)
         self.dataRpc(storepath,'app.tableAnalyzeStore',table=table,where=where,group_by=group_by,**kwargs)
-
         
     def dataRecord(self, path, table, pkey=None, method='app.getRecord', **kwargs):
         """Create a :ref:`datarecord` and returns it. dataRecord allows... TODO
