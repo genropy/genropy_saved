@@ -201,7 +201,8 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'protovis':'',
             'codemirror':'',
             'fullcalendar':'',
-            'LightButton':''
+            'LightButton':'',
+            'Semaphore':'',
         };
         this.updateWidgetCatalog();
     },
