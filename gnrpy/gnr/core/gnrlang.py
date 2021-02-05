@@ -1055,7 +1055,7 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         for mname in dir(proxyclass):
             proxyitem = getattr(proxyclass,mname)
             if callable(proxyitem) and mname not in dir(type)+['__weakref__', '__onmixin__','mixin','proxy_class','proxy_class_']:
-                method = proxyitem.im_func
+                method = proxyitem
                 method.__mixin_pkg = __mixin_pkg
                 method.__mixin_path = __mixin_path
         setattr(obj,k.replace('_proxyclass',''),proxyclass(obj))
