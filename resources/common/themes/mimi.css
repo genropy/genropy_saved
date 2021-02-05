@@ -1241,6 +1241,31 @@ body.tundra.mimi {
     cursor: pointer;
     background: url(/_rsrc/common/css_icons/svg/16/popup.svg) no-repeat right !important;
 }
+/*/_rsrc/common/css_icons/svg/16/form_status_red.svg)*/
+
+
+.greenLight, .semaphoreCheck{
+    background: url(/_rsrc/common/css_icons/svg/16/form_status_green.svg) no-repeat center center;
+    width: 14px;
+    height: 14px;
+}
+.grayLight , .graySemaphore.semaphoreCheck {
+    background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat center center;
+    width: 14px;
+    height: 14px;
+}
+
+.redLight ,.invalidSemaphore.semaphoreCheck{
+    background: url(/_rsrc/common/css_icons/svg/16/form_status_red.svg) no-repeat center center;
+    width: 14px;
+    height: 14px;
+}
+
+.yellowLight {
+    background: url(/_rsrc/common/css_icons/svg/16/form_status_yellow.svg) no-repeat center center;
+    width: 14px;
+    height: 14px;
+}
 
 .popupLabel:hover {
     background:rgba(234, 203, 110, 1.00);

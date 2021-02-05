@@ -375,7 +375,7 @@ class GnrWebUtils(GnrBaseProxy):
         for row in self.quickThermo(reader(),maxidx=reader.nrows if hasattr(reader,'nrows') else None,
                         labelfield=tblobj.attributes.get('caption_field') or tblobj.name):
             r = dict(constants) if constants else dict()
-            f =  {v:row[k] for k,v in match_index.items() if v is not ''}
+            f =  {v:row[k] for k,v in match_index.items() if v != ''}
             r.update(f)
             tblobj.recordCoerceTypes(r)
             if sql_mode:
