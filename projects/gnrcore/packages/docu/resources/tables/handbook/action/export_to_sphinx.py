@@ -121,15 +121,15 @@ class Main(BaseResourceBatch):
             cssfile.write(customStyles)
         with self.sourceDirNode.child(self.customJSPath).open('wb') as jsfile:
             jsfile.write(self.defaultJSCustomization())
-        print('calling sphinx-build',self.sourceDirNode.internal_path,self.resultNode.internal_path,args)
         self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
-        print('after call tuttobbbene')
+
 
 
     def post_process(self):
         if self.batch_parameters['download_zip']:
             self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
             self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
+
         with self.tblobj.recordToUpdate(self.handbook_id) as record:
             record['last_exp_ts'] = datetime.now()
         self.db.commit()
