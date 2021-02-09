@@ -805,7 +805,7 @@ class StorageResolver(BagResolver):
                 caption = '!!%s %s' % (str(int(m.group(1))),m.group(2).capitalize()) if m else caption.capitalize()
                 nodeattr = dict(file_name=fname, file_ext=ext, storage=storagenode.service.service_name,
                                abs_path=fullpath,url=storagenode.url(), mtime=mtime, nodecaption=nodecaption,
-                               caption=caption,size=size, 
+                               caption=caption,size=size,
                                internal_url=storagenode.internal_url())
                 if self.callback:
                     cbres = self.callback(nodeattr=nodeattr)
