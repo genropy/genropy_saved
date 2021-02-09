@@ -215,6 +215,7 @@ class BagToHtml(object):
         return result
 
     def newBuilder(self):
+        
         self.builder = GnrHtmlBuilder(page_width=self.page_width, page_height=self.page_height,
                                     page_margin_top=self.page_margin_top, page_margin_bottom=self.page_margin_bottom,
                                     page_margin_left=self.page_margin_left, page_margin_right=self.page_margin_right,
@@ -225,6 +226,8 @@ class BagToHtml(object):
                                     srcfactory=self.srcfactory)
         self.builder.initializeSrc(body_attributes=self.body_attributes)
         self.builder.styleForLayout()
+        self.defineStandardStyles()
+        self.defineCustomStyles()
 
     @property
     def body(self):
@@ -539,8 +542,6 @@ class BagToHtml(object):
         self.copy = 0
         self.sheet = 0
         self.lastPage = False
-        self.defineStandardStyles()
-        self.defineCustomStyles()
         self.currGrid = None
         lines = self.getRows()
         if not lines and hasattr(self,'empty_row'):
