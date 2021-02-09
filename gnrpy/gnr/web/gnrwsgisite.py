@@ -1553,8 +1553,9 @@ class GnrWsgiSite(object):
             if n.attr.get('file_ext')!='directory':
                 fpath = self.storageNode(n.attr['abs_path'])
                 with fpath.local_path(mode='r') as local_path:
-                    zip_archive.write(local_path,n.attr['rel_path'])
-        dirres = StorageResolver(path)
+                    zip_archive.write(local_path,n.attr['abs_path'].replace(path.fullpath,''))
+                    
+        dirres = StorageResolver(path, _page=self.dummyPage)
         dirres().walk(cb,_mode='')
 
         

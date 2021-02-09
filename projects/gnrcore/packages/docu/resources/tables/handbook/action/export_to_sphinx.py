@@ -9,6 +9,7 @@ from json import dumps
 import re
 import os
 import sys
+from datetime import datetime
 
 if sys.version_info[0] == 3:
     from urllib.request import urlopen
@@ -122,11 +123,13 @@ class Main(BaseResourceBatch):
             jsfile.write(self.defaultJSCustomization())
         print('calling sphinx-build',self.sourceDirNode.internal_path,self.resultNode.internal_path,args)
         self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
+        print('after call tuttobbbene')
 
 
     def post_process(self):
-    #    self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
-    #    self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
+        if self.batch_parameters['download_zip']:
+            self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
+            self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
         with self.tblobj.recordToUpdate(self.handbook_id) as record:
             record['last_exp_ts'] = datetime.now()
         self.db.commit()
@@ -281,9 +284,9 @@ class Main(BaseResourceBatch):
             f.write(content)
 
 
-    #def table_script_parameters_pane(self,pane,**kwargs):   
-    #    fb = pane.formbuilder(cols=1, border_spacing='5px')
-    #    fb.checkbox(lbl='Download Zip', value='^.download_zip')
+    def table_script_parameters_pane(self,pane,**kwargs):   
+        fb = pane.formbuilder(cols=1, border_spacing='5px')
+        fb.checkbox(lbl='Download Zip', value='^.download_zip')
 
 
 
