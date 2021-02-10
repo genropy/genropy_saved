@@ -102,8 +102,9 @@ class GnrWebUtils(GnrBaseProxy):
         self.page.setInClientData(path,thermo,idx=maxidx,maxidx=maxidx,lbl=lbl)
     
     def thermoMessage(self,title=None,message=None):
-        thermo = """<div class="quickthermo_box"> %(title)s 
-                        <div class="form_waiting"></div> 
+        thermo = """<div class="quickthermo_box thermo_message"> 
+                        <div class="quickthermo_title">%(title)s </div> 
+                        <div class="form_waiting"></div>
                         <div class="quickthermo_caption">%(message)s</div> 
                     </div>"""  %dict(title=title,message=message)
         self.page.setInClientData(self.default_thermo_path,thermo)
@@ -379,7 +380,7 @@ class GnrWebUtils(GnrBaseProxy):
         for row in self.quickThermo(reader(),maxidx=reader.nrows if hasattr(reader,'nrows') else None,
                         labelfield=tblobj.attributes.get('caption_field') or tblobj.name):
             r = dict(constants) if constants else dict()
-            f =  {v:row[k] for k,v in list(match_index.items()) if v != ''}
+            f =  {v:row[k] for k,v in match_index.items() if v != ''}
             r.update(f)
             tblobj.recordCoerceTypes(r)
             if sql_mode:

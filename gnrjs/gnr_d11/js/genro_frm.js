@@ -759,7 +759,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     waitingStatus:function(waiting){
-        this.sourceNode.setHiderLayer(waiting,{message:'<div class="form_waiting"></div>',z_index:999999});
+        genro.lockScreen(waiting,this.formId,{nodeId:this.formId,thermo:true});
+        //this.sourceNode.setHiderLayer(waiting,{message:'<div class="form_waiting"></div>',z_index:999999});
     },
 
     setFormError:function(errorcode,message,showMessage){
@@ -2634,7 +2635,7 @@ dojo.declare("gnr.formstores.Base", null, {
         pkey = pkey || form.getCurrentPkey();
         this.handlers.del.rpcmethod = this.handlers.del.rpcmethod || 'deleteDbRow';
         var deferred = genro.rpc.remoteCall(this.handlers.del.rpcmethod,
-                                            objectUpdate({'pkey':pkey,
+                                            objectUpdate({'pkey':pkey,'timeout':0,
                                                           'table':this.table,'_sourceNode':form.sourceNode},kw),null,'POST',
                                                           null,function(){});
         var cb = function(result){

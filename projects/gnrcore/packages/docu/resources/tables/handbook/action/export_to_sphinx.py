@@ -134,6 +134,7 @@ class Main(BaseResourceBatch):
         if self.batch_parameters['download_zip']:
             self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
             self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
+
         with self.tblobj.recordToUpdate(self.handbook_id) as record:
             record['last_exp_ts'] = datetime.now()
         self.db.commit()
@@ -295,6 +296,9 @@ class Main(BaseResourceBatch):
         with storageNode.child('%s.rst' % name).open('wb') as f:
             f.write(content.encode())
 
+    def table_script_parameters_pane(self,pane,**kwargs):   
+        fb = pane.formbuilder(cols=1, border_spacing='5px')
+        fb.checkbox(lbl='Download Zip', value='^.download_zip')
 
     def table_script_parameters_pane(self,pane,**kwargs):   
         fb = pane.formbuilder(cols=1, border_spacing='5px')

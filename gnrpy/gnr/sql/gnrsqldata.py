@@ -461,9 +461,11 @@ class SqlQueryCompiler(object):
                 if v.startswith('@'):
                     doreplace = v.split('.')[0] in self.tblobj.relations
                 elif v.startswith('$'):
-                    doreplace = v[:1] in self.tblobj.columns
+                    doreplace = v[1:] in self.tblobj.columns.keys() + self.tblobj.virtual_columns.keys()
                 if doreplace:
-                    sql = re.sub(r'(:%s)(\W|$)' % k, lambda m: '%s%s' %(v,m.group(2)), sql)
+                    sql = re.sub('(:%s)(\W|$)' % k, lambda m: '%s%s' %(v,m.group(2)), sql)
+                #else:
+                #    print(x)
         return sql
                     
     def compiledQuery(self, columns='', where='', order_by='',

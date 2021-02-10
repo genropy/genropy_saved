@@ -322,6 +322,17 @@ class GnrSqlAppDb(GnrSqlDb):
     def currentPage(self):
         return self.application.site.currentPage if hasattr(self.application,'site') else None
 
+    def quickThermo(self,iterable,*args,**kwargs):
+        if not self.currentPage:
+            return iterable
+        return self.currentPage.utils.quickThermo(iterable,*args,**kwargs)
+
+    def thermoMessage(self,*args,**kwargs):
+        if not self.currentPage:
+            return
+        return self.currentPage.utils.thermoMessage(*args,**kwargs)
+
+
     @property
     def currentUser(self):
         return self.currentEnv.get('user') or (self.currentPage and self.currentPage.user)
@@ -1394,9 +1405,13 @@ class GnrApp(object):
         :param caller: TODO
         :param package: TODO"""
         raise e
+
         
     def onDbCommitted(self):
         """Hook method called during the database commit"""
+        pass
+
+    def notifyDbUpdate(self,tblobj,recordOrPkey=None,**kwargs):
         pass
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None):

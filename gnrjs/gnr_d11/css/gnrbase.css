@@ -69,6 +69,14 @@ body.tundra{
 body.touchDevice{
     -webkit-text-size-adjust:none;
 }
+.progressCell .cellContent{
+    height: 1px;
+    padding-bottom: 0;
+    padding-top:0;
+}
+.progressCell progress{
+    height:16px;
+}
 
 body.workInProgress{
     border-left:2px solid red;
@@ -2470,7 +2478,14 @@ div.dojoxDock {
     border-radius: 4px;
     border-left: 1px solid #efefef;
     box-shadow: 2px 2px 3px #666;
+    min-width: 360px;
 }
+.quickthermo_box.thermo_message .form_waiting{
+    width: 100%;
+    border-width: 0;
+    box-shadow: none;
+}
+
 .quickthermo_title{
     font-variant: normal;
     font-size: 14px;
