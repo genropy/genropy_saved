@@ -42,7 +42,7 @@ from gnr.core.gnrbag import Bag, BagResolver, BagAsXml
 from gnr.core.gnranalyzingbag import AnalyzingBag
 from gnr.sql.gnrsql_exceptions import GnrSqlException,SelectionExecutionError, RecordDuplicateError,\
     RecordNotExistingError, RecordSelectionError,\
-    GnrSqlMissingField, GnrSqlMissingColumn
+    GnrSqlMissingField, GnrSqlMissingColumn,GnrSqlAlreadyExisting_AS
 
 COLFINDER = re.compile(r"(\W|^)\$(\w+)")
 RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
@@ -570,6 +570,7 @@ class SqlQueryCompiler(object):
 
         col_list = uniquify([col for col in gnrstring.split(columns, ',') if col])
         new_col_list = []
+        check_AS_set = set()
         for col in col_list:
             col = col.strip()
             if re.search("(sum|count) *?\\(", col, re.I):
@@ -584,7 +585,12 @@ class SqlQueryCompiler(object):
             else:
                 colbody, as_ = col.split(' AS ', 1)
                 # leave the col as is, but save the AS name to recover the db column original name from selection result
-                self.cpl.aliasDict[as_.strip()] = colbody.strip()
+                as_ = as_.strip()
+                self.cpl.aliasDict[as_] = colbody.strip()
+            if as_ in check_AS_set:
+                raise GnrSqlAlreadyExisting_AS(as_)
+            else:
+                check_AS_set.add(as_)
             new_col_list.append(col)
         # build the clean and complete sql string for the columns, but still all fields are expressed as $fieldname
         columns = ',\n'.join(new_col_list)
