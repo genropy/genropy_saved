@@ -96,5 +96,3 @@ class GnrSqlMissingColumn(GnrException):
 class GnrSqlRelationError(GnrException):
     pass
         
-class GnrSqlAlreadyExisting_AS(GnrException):
-    pass
