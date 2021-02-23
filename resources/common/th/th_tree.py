@@ -294,7 +294,14 @@ class TableHandlerHierarchicalView(BaseComponent):
     def ht_htreeCreateChildren(self,maintable=None,typetable=None,types=None,type_field=None,parent_id=None,how_many=None):
         if not types:
             return
-        how_many = how_many or 1
+        
+        how_many = how_many or '1'
+        if how_many.isdigit():
+            how_many = int(how_many)
+            children_names=[]
+        else:
+            children_names = [n.strip() for n in how_many.split(',')]
+            how_many = len(children_names)
         tblobj = self.db.table(maintable)
         typetable = self.db.table(typetable)
         caption_field = tblobj.attributes['hierarchical'].split(',')[0]
@@ -305,20 +312,26 @@ class TableHandlerHierarchicalView(BaseComponent):
         for type_id in types:
             type_record = typetable.cachedRecord(pkey=type_id,virtual_columns=type_caption_field)
             type_caption = typetable.readColumns(columns=type_caption_field,pkey=type_id)
-            last_child = tblobj.query(where=where ,p_id=parent_id,
-                                 order_by='$%s desc' %caption_field,
-                                 type_caption=type_caption,limit=1,suffix=' %%').fetch()
-            offset = 0
-            if last_child:
-                last_child = last_child[0]
-                offset = int(last_child[caption_field].replace(type_caption,'').replace(' ','') or '0')
+            if not children_names:
+                last_child = tblobj.query(where=where ,p_id=parent_id,
+                                     order_by='$%s desc' %caption_field,
+                                     type_caption=type_caption,limit=1,suffix=' %%').fetch()
+                offset = 0
+                if last_child:
+                    last_child = last_child[0]
+                    offset = int(last_child[caption_field].replace(type_caption,'').replace(' ','') or '0')
+                    
             for i in range(how_many):
                 record = tblobj.newrecord()
-                kk = offset+1+i
-                record.update({type_field:type_id,'parent_id':parent_id or None,caption_field:'%s %i' %(type_caption,kk)})
+                if children_names:
+                    suffix = children_names[i]
+                else:
+                    suffix = offset+1+i
+                c_field = '{type_caption} {suffix}'.format(type_caption=type_caption,suffix=suffix)
+                record.update({type_field:type_id,'parent_id':parent_id or None,caption_field:c_field})
                 for fld in tblobj.attributes.get('hierarchical').split(','):
                     if fld!=caption_field and type_record.get(fld) is not None: #exists a field with the same name in type table
-                        record[fld] = '%s_%s' %(type_record[fld],kk) 
+                        record[fld] = '%s_%s' %(type_record[fld],suffix) 
                 tblobj.insert(record)
         self.db.commit()
     
