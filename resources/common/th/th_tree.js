@@ -122,7 +122,8 @@ var THTree = {
                                 type_field:kw.type_field,maintable:kw.maintable,typetable:kw.typetable,how_many:count},onResult,null,'POST');
             }
         if(dropInfo.modifiers=='Shift'){
-            genro.dlg.prompt("How Many",{msg:'How many copies do you want to insert?',widget:'numberTextBox',action:cb});
+            genro.dlg.prompt("New children elements",{msg:'Type the number of elements you need to add or a text separated by commas.<br/> Each text chunk will be used as suffix for the new children elements',
+                                                     widget:'textbox',action:cb});
         }else{
             cb();
         }
