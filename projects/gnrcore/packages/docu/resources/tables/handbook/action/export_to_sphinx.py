@@ -68,12 +68,13 @@ class Main(BaseResourceBatch):
             self.examples_root_local = '%(examples_local_site)s/webpages/%(examples_directory)s' %self.handbook_record
         self.imagesDirNode = self.sourceDirNode.child(self.imagesPath)
         self.examplesDirNode = self.sourceDirNode.child(self.examplesPath)
-        if self.batch_parameters['send_notification']:
-            #DP202101 Send notification message via Telegram (gnrextra genrobot required)
-            notification_message = self.batch_parameters['notification_message'].format(handbook_title=self.handbook_record['title'], 
-                                        timestamp=datetime.now(), handbook_site=html_baseurl + self.handbook_record['name'])
-            notification_bot = self.batch_parameters['bot_token']
-            self.sendNotification(notification_message=notification_message, notification_bot=notification_bot)
+        if self.db.package('genrobot'):
+            if self.batch_parameters['send_notification']:
+                #DP202101 Send notification message via Telegram (gnrextra genrobot required)
+                notification_message = self.batch_parameters['notification_message'].format(handbook_title=self.handbook_record['title'], 
+                                            timestamp=datetime.now(), handbook_site=html_baseurl + self.handbook_record['name'])
+                notification_bot = self.batch_parameters['bot_token']
+                self.sendNotification(notification_message=notification_message, notification_bot=notification_bot)
 
     def step_prepareRstDocs(self):
         "Prepare Rst docs"
