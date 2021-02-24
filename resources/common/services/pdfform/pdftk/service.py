@@ -23,6 +23,7 @@ class Service(PdfFormService):
         templateSn = self.parent.storageNode(template)
         outputSn = self.parent.storageNode(output)
         with templateSn.local_path() as template_path, outputSn.local_path() as output_path:
+            print (template, template_path)
             pypdftk.fill_form(template_path, datas=values, out_file=output_path)
 
     def fillFromUserObject(self, userObject=None, table=None, record_id=None, output=None):
