@@ -300,11 +300,6 @@ class Main(BaseResourceBatch):
     def table_script_parameters_pane(self,pane,**kwargs):   
         fb = pane.formbuilder(cols=1, border_spacing='5px')
         fb.checkbox(lbl='Download Zip', value='^.download_zip')
-
-    def table_script_parameters_pane(self,pane,**kwargs):   
-        fb = pane.formbuilder(cols=1, border_spacing='5px')
-        #fb.checkbox(lbl='Download Zip', value='^.download_zip')
-        
         #DP202101 Ask for Telegram notification option if enabled in docu settings
         if self.db.application.getPreference('.telegram_notification',pkg='docu'):
             fb.checkbox(lbl='Send notification via Telegram', value='^.send_notification', default=True)
