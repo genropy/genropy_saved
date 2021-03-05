@@ -69,7 +69,7 @@ class Main(BaseResourceBatch):
         self.imagesDirNode = self.sourceDirNode.child(self.imagesPath)
         self.examplesDirNode = self.sourceDirNode.child(self.examplesPath)
         if self.db.package('genrobot'):
-            if self.batch_parameters['send_notification']:
+            if self.batch_parameters.get('send_notification'):
                 #DP202101 Send notification message via Telegram (gnrextra genrobot required)
                 notification_message = self.batch_parameters['notification_message'].format(handbook_title=self.handbook_record['title'], 
                                             timestamp=datetime.now(), handbook_site=html_baseurl + self.handbook_record['name'])
