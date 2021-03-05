@@ -67,11 +67,13 @@ class Main(BaseResourceBatch):
             self.examples_root_local = '%(examples_local_site)s/webpages/%(examples_directory)s' %self.handbook_record
         self.imagesDirNode = self.sourceDirNode.child(self.imagesPath)
         self.examplesDirNode = self.sourceDirNode.child(self.examplesPath)
+        self.handbook_url = html_baseurl + self.handbook_record['name']
+
         if self.db.package('genrobot'):
             if self.batch_parameters.get('send_notification'):
                 #DP202101 Send notification message via Telegram (gnrextra genrobot required)
                 notification_message = self.batch_parameters['notification_message'].format(handbook_title=self.handbook_record['title'], 
-                                            timestamp=datetime.now(), handbook_site=html_baseurl + self.handbook_record['name'])
+                                            timestamp=datetime.now(), handbook_url=self.handbook_url)
                 notification_bot = self.batch_parameters['bot_token']
                 self.sendNotification(notification_message=notification_message, notification_bot=notification_bot)
 
@@ -140,6 +142,7 @@ class Main(BaseResourceBatch):
             self.result_url = self.page.site.getStaticUrl(self.zipNode.fullpath)
         with self.tblobj.recordToUpdate(self.handbook_id) as record:
             record['last_exp_ts'] = datetime.now()
+            record['handbook_url'] = self.handbook_url
         self.db.commit()
 
     def result_handler(self):
@@ -306,7 +309,7 @@ class Main(BaseResourceBatch):
                         colspan=3, hasDownArrow=True, default=self.db.application.getPreference('.bot_token',pkg='docu'),
                         hidden='^.send_notification?=!#v')                
             fb.simpleTextArea(lbl='Notification content', value='^.notification_message', hidden='^.send_notification?=!#v',
-                    default="Genropy Documentation updated: {handbook_title} was modified @ {timestamp}. Check out what's new on {handbook_site}", 
+                    default="Genropy Documentation updated: {handbook_title} was modified @ {timestamp}. Check out what's new on {handbook_url}", 
                     height='60px', width='200px')
             #pane.inlineTableHandler(table='genrobot.bot_contact', datapath='.notification_recipients',
             #                title='!![en]Notification recipients', 
