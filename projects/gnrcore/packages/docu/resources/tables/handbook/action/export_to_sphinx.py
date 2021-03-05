@@ -67,6 +67,13 @@ class Main(BaseResourceBatch):
             self.examples_root_local = '%(examples_local_site)s/webpages/%(examples_directory)s' %self.handbook_record
         self.imagesDirNode = self.sourceDirNode.child(self.imagesPath)
         self.examplesDirNode = self.sourceDirNode.child(self.examplesPath)
+        if self.db.package('genrobot'):
+            if self.batch_parameters.get('send_notification'):
+                #DP202101 Send notification message via Telegram (gnrextra genrobot required)
+                notification_message = self.batch_parameters['notification_message'].format(handbook_title=self.handbook_record['title'], 
+                                            timestamp=datetime.now(), handbook_site=html_baseurl + self.handbook_record['name'])
+                notification_bot = self.batch_parameters['bot_token']
+                self.sendNotification(notification_message=notification_message, notification_bot=notification_bot)
 
     def step_prepareRstDocs(self):
         "Prepare Rst docs"
@@ -292,8 +299,18 @@ class Main(BaseResourceBatch):
     def table_script_parameters_pane(self,pane,**kwargs):   
         fb = pane.formbuilder(cols=1, border_spacing='5px')
         fb.checkbox(lbl='Download Zip', value='^.download_zip')
-
-
+        #DP202101 Ask for Telegram notification option if enabled in docu settings
+        if self.db.application.getPreference('.telegram_notification',pkg='docu'):
+            fb.checkbox(lbl='Send notification via Telegram', value='^.send_notification', default=True)
+            fb.dbselect('^.bot_token', lbl='BOT', table='genrobot.bot', columns='$bot_name', alternatePkey='bot_token',
+                        colspan=3, hasDownArrow=True, default=self.db.application.getPreference('.bot_token',pkg='docu'),
+                        hidden='^.send_notification?=!#v')                
+            fb.simpleTextArea(lbl='Notification content', value='^.notification_message', hidden='^.send_notification?=!#v',
+                    default="Genropy Documentation updated: {handbook_title} was modified @ {timestamp}. Check out what's new on {handbook_site}", 
+                    height='60px', width='200px')
+            #pane.inlineTableHandler(table='genrobot.bot_contact', datapath='.notification_recipients',
+            #                title='!![en]Notification recipients', 
+            #                margin='2px', pbl_classes=True, addrow=False, delrow=False, height='200px')
 
     def defaultCssCustomization(self):
         return """/* override table width restrictions */
