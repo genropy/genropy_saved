@@ -1764,7 +1764,7 @@ dojo.declare("gnr.GridFilterManager", null, {
     isInFilterSet:function(row){
         var gridNode = this.grid.sourceNode;
         var cb_attr,cb;
-        return this.activeFilters().some(function(kw){
+        return this.activeFilters().every(function(kw){
             cb_attr = gridNode.evaluateOnNode(kw.cb_attr);
            
             objectUpdate(cb_attr,row);
