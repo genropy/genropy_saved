@@ -1765,9 +1765,6 @@ dojo.declare("gnr.GridFilterManager", null, {
         var gridNode = this.grid.sourceNode;
         var cb_attr,cb;
         return this.activeFilters().every(function(or_conditions){
-            if (or_conditions.length===0){
-                return true;
-            }
             return or_conditions.some(function(kw){
                 cb_attr = gridNode.evaluateOnNode(kw.cb_attr);
                 objectUpdate(cb_attr,row);
@@ -1798,7 +1795,9 @@ dojo.declare("gnr.GridFilterManager", null, {
                     or_condition.push({cb:fn.attr.cb,cb_attr:objectExtract(fn.attr,'cb_*',true)})
                 }
             });
-            result.push(or_condition);
+            if(or_condition.length){
+                result.push(or_condition);
+            }
         });
         return result;
     },
