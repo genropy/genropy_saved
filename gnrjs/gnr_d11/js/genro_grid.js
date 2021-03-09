@@ -2330,9 +2330,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var colType;
         if (this.filterColumn){
             var col = this.cellmap[this.filterColumn];
-            var colType = 'A';
+            colType = 'A';
             if(col){
-                colType = (this.filterColumn.indexOf('+') > 0) ? 'T':(this.cellmap[this.filterColumn]['dtype'] || 'A');
+                colType = (this.filterColumn.includes('+')) ? 'T':(this.cellmap[this.filterColumn]['dtype'] || 'A');
             }
             }
         this.createFiltered(this.currentFilterValue,this.filterColumn,colType);
@@ -2340,7 +2340,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             this.updateRowCount('*');
         }
         if(this.changeManager && objectNotEmpty(this.changeManager.totalizeColumns)){
-            if(isNullOrBlank(this.currentFilterValue)){
+            if(!this.isFiltered()){
                 this.sourceNode.setRelativeData('.filtered_totalize',null);
             }else{
                 this.changeManager.calculateFilteredTotals();
