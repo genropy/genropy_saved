@@ -1764,14 +1764,18 @@ dojo.declare("gnr.GridFilterManager", null, {
     isInFilterSet:function(row){
         var gridNode = this.grid.sourceNode;
         var cb_attr,cb;
-        return this.activeFilters().every(function(kw){
-            cb_attr = gridNode.evaluateOnNode(kw.cb_attr);
-           
-            objectUpdate(cb_attr,row);
-            for (var k in gridNode.widget.cellmap){
-                cb_attr[k] = cb_attr[k] || null;
+        return this.activeFilters().every(function(or_conditions){
+            if (or_conditions.length===0){
+                return true;
             }
-            return funcApply("return "+kw.cb,cb_attr,gridNode);
+            return or_conditions.some(function(kw){
+                cb_attr = gridNode.evaluateOnNode(kw.cb_attr);
+                objectUpdate(cb_attr,row);
+                for (var k in gridNode.widget.cellmap){
+                    cb_attr[k] = cb_attr[k] || null;
+                }
+                return funcApply("return "+kw.cb,cb_attr,gridNode);
+            });
         });
     },
 
@@ -1784,15 +1788,17 @@ dojo.declare("gnr.GridFilterManager", null, {
             if(!(current && data  && data.len())){
                 return;
             }
+            var or_condition = []
             current.split(',').forEach(function(f){
                 fn = data.getNode(f);
                 if(!fn){
                     console.error('missing filter',n.label+'.'+f)
                 }
                 if(fn.attr.cb){
-                    result.push({cb:fn.attr.cb,cb_attr:objectExtract(fn.attr,'cb_*',true)})
+                    or_condition.push({cb:fn.attr.cb,cb_attr:objectExtract(fn.attr,'cb_*',true)})
                 }
             });
+            result.push(or_condition);
         });
         return result;
     },
