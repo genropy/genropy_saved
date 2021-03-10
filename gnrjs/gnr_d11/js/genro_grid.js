@@ -1614,9 +1614,16 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(cell.semaphore){
                 formats['trueclass'] = 'greenLight';
                 formats['falseclass'] = 'redLight';
+                if(cell.three_state){
+                    formats['nullclass'] = 'yellowLight';
+                }
+                
             }else if(cell.inv_semaphore){
                 formats['falseclass'] = 'greenLight';
                 formats['trueclass'] = 'redLight';
+                if(cell.three_state){
+                    formats['nullclass'] = 'yellowLight';
+                }
             }else if(cell.highlight_semaphore){
                 formats['falseclass'] = ' ';
                 formats['trueclass'] = 'yellowLight';
