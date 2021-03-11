@@ -885,7 +885,11 @@ dojo.declare("gnr.GridEditor", null, {
             if(!c){return;}
             if(c.attr.batch_assign){
                 var wdgkw = objectUpdate({lbl:c.attr.original_name,value:'^.'+c.attr.field},c.attr);
-                objectExtract(wdgkw,'selectedSetter,selectedCb')
+                objectExtract(wdgkw,'selectedSetter,selectedCb');
+                if(c.attr.batch_assign=='delta'){
+                    wdgkw.tag = 'textbox';
+                    wdgkw.placeholder = 'f(x)';
+                }
                 fields.push(wdgkw);
             }
         });
@@ -898,6 +902,19 @@ dojo.declare("gnr.GridEditor", null, {
                         let val = node.getValue();
                         if (isNullOrBlank(val)){
                             return
+                        }
+                        if(editable_cols[node.label].attr.batch_assign=='delta'){
+                            var textval = val;
+                            val = function(kw){
+                                let op = textval[0];
+                                if(op=='+' || op=='-'){
+                                    let isperc = textval[textval.length-1] == '%';
+                                    let incrdecr = isperc? kw.currvalue*parseFloat(textval.slice(1,textval.length-1))/100 :parseFloat(textval.slice(1));
+                                    return op=='+'?kw.currvalue+incrdecr:kw.currvalue-incrdecr;
+                                }else{
+                                    return parseFloat(textval);
+                                }
+                            }
                         }
                         grid.gridEditor.setCellValue(idx,node.label,val);
                     });
@@ -1372,6 +1389,13 @@ dojo.declare("gnr.GridEditor", null, {
         var cell = cellmap[cellname];
         if (!cell){
             return;
+        }
+        if(typeof(value)=='function'){
+            value = value.apply(this.grid.sourceNode,[{currvalue:row[cellname],row:row}]);
+            if(value.valueCaption){
+                value = value.value;
+                valueCaption = value.valueCaption;
+            }
         }
         if(cell.edit || cell.counter || cell.isCheckBoxCell){
             var n = rowEditor.data.setItem(cellname,value);
