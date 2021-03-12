@@ -68,12 +68,15 @@ class Main(BaseResourceBatch):
             self.examples_root_local = '%(examples_local_site)s/webpages/%(examples_directory)s' %self.handbook_record
         self.imagesDirNode = self.sourceDirNode.child(self.imagesPath)
         self.examplesDirNode = self.sourceDirNode.child(self.examplesPath)
-        if self.batch_parameters['send_notification']:
-            #DP202101 Send notification message via Telegram (gnrextra genrobot required)
-            notification_message = self.batch_parameters['notification_message'].format(handbook_title=self.handbook_record['title'], 
-                                        timestamp=datetime.now(), handbook_site=html_baseurl + self.handbook_record['name'])
-            notification_bot = self.batch_parameters['bot_token']
-            self.sendNotification(notification_message=notification_message, notification_bot=notification_bot)
+        self.handbook_url = html_baseurl + self.handbook_record['name']
+
+        if self.db.package('genrobot'):
+            if self.batch_parameters.get('send_notification'):
+                #DP202101 Send notification message via Telegram (gnrextra genrobot required)
+                notification_message = self.batch_parameters['notification_message'].format(handbook_title=self.handbook_record['title'], 
+                                            timestamp=datetime.now(), handbook_url=self.handbook_url)
+                notification_bot = self.batch_parameters['bot_token']
+                self.sendNotification(notification_message=notification_message, notification_bot=notification_bot)
 
     def step_prepareRstDocs(self):
         "Prepare Rst docs"
@@ -134,10 +137,17 @@ class Main(BaseResourceBatch):
         if self.batch_parameters['download_zip']:
             self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
             self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
-
+            self.result_url = self.page.site.getStaticUrl(self.zipNode.fullpath)
         with self.tblobj.recordToUpdate(self.handbook_id) as record:
             record['last_exp_ts'] = datetime.now()
+            record['handbook_url'] = self.handbook_url
         self.db.commit()
+    
+    def result_handler(self):
+        resultAttr = dict()
+        if self.batch_parameters['download_zip']:
+            resultAttr['url'] = self.result_url
+        return 'Export done', resultAttr
 
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./:-]+)")
@@ -303,11 +313,6 @@ class Main(BaseResourceBatch):
     def table_script_parameters_pane(self,pane,**kwargs):   
         fb = pane.formbuilder(cols=1, border_spacing='5px')
         fb.checkbox(lbl='Download Zip', value='^.download_zip')
-
-    def table_script_parameters_pane(self,pane,**kwargs):   
-        fb = pane.formbuilder(cols=1, border_spacing='5px')
-        #fb.checkbox(lbl='Download Zip', value='^.download_zip')
-        
         #DP202101 Ask for Telegram notification option if enabled in docu settings
         if self.db.application.getPreference('.telegram_notification',pkg='docu'):
             fb.checkbox(lbl='Send notification via Telegram', value='^.send_notification', default=True)
@@ -315,7 +320,7 @@ class Main(BaseResourceBatch):
                         colspan=3, hasDownArrow=True, default=self.db.application.getPreference('.bot_token',pkg='docu'),
                         hidden='^.send_notification?=!#v')                
             fb.simpleTextArea(lbl='Notification content', value='^.notification_message', hidden='^.send_notification?=!#v',
-                    default="Genropy Documentation updated: {handbook_title} was modified @ {timestamp}. Check out what's new on {handbook_site}", 
+                    default="Genropy Documentation updated: {handbook_title} was modified @ {timestamp}. Check out what's new on {handbook_url}", 
                     height='60px', width='200px')
             #pane.inlineTableHandler(table='genrobot.bot_contact', datapath='.notification_recipients',
             #                title='!![en]Notification recipients', 

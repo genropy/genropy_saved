@@ -12,9 +12,10 @@ class View(BaseComponent):
         r.fieldcell('name', name='!!Name', width='20em')
         r.fieldcell('title', name='!!Title', width='20em')
         r.fieldcell('docroot_id', name='!!Doc root', width='20em')
-        r.fieldcell('language', name='!!Language', width='5')
-        r.fieldcell('version', name='!!Version', width='20em')
-        r.fieldcell('last_exp_ts')
+        r.fieldcell('language', name='!!Language', width='5em')
+        r.fieldcell('version', name='!!Version', width='8em')
+        r.fieldcell('last_exp_ts', width='12em')
+        r.fieldcell('handbook_url', width='auto', template="<a href='#' target='_blank'>#</a>")
         
     def th_order(self):
         return 'name'
@@ -35,7 +36,7 @@ class Form(BaseComponent):
         fb.dataController("SET .sphinx_path=current_path+'/'+handbook_name;", 
                             current_path=self.db.application.getPreference('.sphinx_path',pkg='docu'),
                             handbook_name='^.name', _userChanges=True)
-        fb.br()
+        fb.a('^.handbook_url', lbl='Doc url:', href='^.handbook_url', target='_blank', hidden='^.handbook_url?=!#v')
         fb.field('title')
         fb.field('docroot_id', hasDownArrow=True, validate_notnull=True, tag='hdbselect', folderSelectable=True)
         fb.checkBoxText(value='^.toc_roots',
@@ -74,9 +75,7 @@ class Form(BaseComponent):
                                     action="""genro.publish("table_script_run",{table:"docu.handbook",
                                                                                res_type:'action',
                                                                                resource:'export_to_sphinx',
-                                                                               handbook_id: pkey});""",
+                                                                               handbook_id: pkey,
+                                                                               publishOnResult:"btc_eseguito"})""",
                                                                                pkey='=#FORM.pkey')
-
-    
-        
-               
+        bar.dataController("this.form.reload();", subscribe_btc_eseguito=True)
