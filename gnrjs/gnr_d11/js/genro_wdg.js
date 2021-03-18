@@ -1523,7 +1523,9 @@ dojo.declare("gnr.GridEditor", null, {
                                     else if(rowData.getItem(n.label)==v){
                                         return;
                                     }
-                                    that.setCellValue(row,n.label,v);
+                                    if(n.label in grid.cellmap){
+                                        that.setCellValue(row,n.label,v);
+                                    }
                                 });
                             }else{
                                 that.setCellValue(row,attr.field,result);

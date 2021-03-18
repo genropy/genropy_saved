@@ -27,7 +27,12 @@ var th_unifyrecord = function(kw){
 var th_view_batch_caller = function(kw){
     var grid = genro.wdgById(kw.gridId);
     objectUpdate(kw,grid.currentSelectionPars());
-    genro.publish("table_script_run",kw);
+    if(kw.resource){
+        genro.publish("table_script_run",kw);
+    }else if(kw.rpcmethod){
+        genro.serverCall(objectPop(kw,'rpcmethod'),kw);
+    }
+   
 };
 
 var th_usersettings = function(th){
