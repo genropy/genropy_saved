@@ -30,6 +30,7 @@ var th_view_batch_caller = function(kw){
     if(kw.resource){
         genro.publish("table_script_run",kw);
     }else if(kw.rpcmethod){
+        kw._sourceNode = grid.sourceNode.getParentNode();
         genro.serverCall(objectPop(kw,'rpcmethod'),kw);
     }
    
