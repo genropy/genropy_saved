@@ -426,6 +426,15 @@ class GnrWebUtils(GnrBaseProxy):
             permissions = getattr(handler, 'permissions', None)
             if permissions and not page.checkTablePermission(table=table,permissions=permissions):
                 return
+            handler_topic = getattr(handler, 'topic', None)
+            if topic:
+                if not handler_topic:
+                    return
+                handler_topic = set(handler_topic.split(','))
+                if not set(topic.split(',')).intersection(handler_topic):
+                    return
+            elif handler_topic:
+                return
             handler_kwargs = dict(caption=getattr(handler, 'caption', k),
                                     description = getattr(handler, 'description', ''),
                                     tip=getattr(handler, 'tip', None),
@@ -447,6 +456,8 @@ class GnrWebUtils(GnrBaseProxy):
         pkg = tblobj.pkg.name
         tblname = tblobj.name
         result = Bag()
+        if topic is True:
+            topic = None
         self._handleMenuMethods(result,tblobj=tblobj, res_type=res_type,topic=topic)
         resources = page.site.resource_loader.resourcesAtPath(page=page,pkg=None,path='tables/_default/%s' % res_type)
         resources_pkg = page.site.resource_loader.resourcesAtPath(page=page,pkg=pkg, path='tables/%s/%s' % (tblname, res_type))
@@ -463,13 +474,15 @@ class GnrWebUtils(GnrBaseProxy):
 
                 tags = getattr(resmodule, 'tags', '')
                 permissions = getattr(resmodule, 'permissions', None)
+                module_topic = getattr(resmodule, 'topic', None)
                 if _menutopic:
-                    module_topic = getattr(resmodule, 'topic', None)
                     if not module_topic:
                         return
                     module_topic = set(module_topic.split(','))
                     if not set(_menutopic.split(',')).intersection(module_topic):
                         return
+                elif module_topic:
+                    return
                 if (tags and not page.application.checkResourcePermission(tags, page.userTags)) or \
                     permissions and not page.checkTablePermission(table=table,permissions=permissions):
                     if node.label == '_doc':
