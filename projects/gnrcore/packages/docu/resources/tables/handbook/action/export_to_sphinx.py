@@ -132,13 +132,10 @@ class Main(BaseResourceBatch):
             jsfile.write(self.defaultJSCustomization())
         self.page.site.shellCall('sphinx-build', self.sourceDirNode.internal_path , self.resultNode.internal_path, *args)
 
-
-
     def post_process(self):
         if self.batch_parameters['download_zip']:
             self.zipNode = self.handbookNode.child('%s.zip' % self.handbook_record['name'])
             self.page.site.zipFiles([self.resultNode.internal_path], self.zipNode.internal_path)
-            #url1 = self.zipNode.url()
             self.result_url = self.page.site.getStaticUrl(self.zipNode.fullpath)
         with self.tblobj.recordToUpdate(self.handbook_id) as record:
             record['last_exp_ts'] = datetime.now()
@@ -146,7 +143,9 @@ class Main(BaseResourceBatch):
         self.db.commit()
 
     def result_handler(self):
-        resultAttr = dict(url=self.result_url)
+        resultAttr = dict()
+        if self.batch_parameters['download_zip']:
+            resultAttr['url'] = self.result_url
         return 'Export done', resultAttr
 
     def prepare(self, data, pathlist):
