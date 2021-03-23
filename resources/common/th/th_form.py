@@ -373,17 +373,26 @@ class TableHandlerForm(BaseComponent):
                     action="""
                             var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
                             kw.pkey = this.form.getCurrentPkey();
-                            if($1.rpcmethod){
-                                objectUpdate(kw,objectExtract($1,'rpc_*',true));
-                                kw._sourceNode = this;
-                                return genro.serverCall($1.rpcmethod,kw,function(){});
+                            var sourceNode = this;
+                            var menuattr = $1;
+                            var finalize = function(){
+                                if(menuattr.rpcmethod){
+                                    objectUpdate(kw,objectExtract($1,'rpc_*',true));
+                                    kw._sourceNode = sourceNode;
+                                    return genro.serverCall(menuattr.rpcmethod,kw,function(){});
+                                }
+                                kw.resource = menuattr.resource;
+                                if(menuattr.template_id){
+                                    kw.extra_parameters = new gnr.GnrBag({template_id:menuattr.template_id,table:kw.table});
+                                    kw.table = null;
+                                } 
+                                genro.publish("table_script_run",kw)
                             }
-                            kw.resource = $1.resource;
-                            if($1.template_id){
-                                kw.extra_parameters = new gnr.GnrBag({template_id:$1.template_id,table:kw.table});
-                                kw.table = null;
-                            } 
-                            genro.publish("table_script_run",kw)
+                            if($1.askParameters){
+                                return genro.dlg.askParameters(finalize,$1.askParameters,kw,this)
+                            }else{
+                                finalize();
+                            }
                             """,
                     batch_table=table,batch_res_type='print')
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,table=table,res_type='action',topic=form_action,cacheTime=5)

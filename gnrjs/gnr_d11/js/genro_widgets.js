@@ -2877,8 +2877,7 @@ dojo.declare("gnr.widgets._ButtonLogic",null, {
         if (action) {
             var action_attributes = sourceNode.currentAttributes();
             var ask_params = sourceNode._ask_params;
-            
-            var skipOn,askOn,doAsk,_if;
+            var skipOn,askOn,doAsk,askIf;
             if(ask_params){
                 skipOn = ask_params.skipOn;
                 askOn = ask_params.askOn;
@@ -2889,30 +2888,10 @@ dojo.declare("gnr.widgets._ButtonLogic",null, {
                 doAsk = askIf || !(askOn || skipOn) || (askOn && askOn==modifiers) || (skipOn && skipOn!=modifiers);
             }
             if(ask_params && doAsk){
-                var promptkw = objectUpdate({},sourceNode._ask_params);
-                promptkw.fields = promptkw.fields.map(function(kw){
-                    kw = objectUpdate({},kw);
-                    if(kw['name'] in action_attributes){
-                        kw['default_value'] = action_attributes[kw['name']];
-                    }
-                    kw['value'] = '^.'+kw['name'];
-                    return kw;
-                })
-                promptkw.widget = objectPop(promptkw,'fields');
-                promptkw.action = function(result){
-                    if(result && result.len()){
-                        result = result.asDict();
-                        objectUpdate(action_attributes,result);
-                        action_attributes._askResult = result;
-                    }
-                    funcApply(action, objectUpdate(action_attributes, {}), sourceNode,argnames,argvalues);
-                }
-
-                genro.dlg.prompt(objectPop(promptkw,'title','Parameters'),promptkw,sourceNode);
+                return genro.dlg.askParameters(action,sourceNode._ask_params,action_attributes,sourceNode,argnames,argvalues);
             }else{
                 funcApply(action, objectUpdate(action_attributes, {}), sourceNode,argnames,argvalues);
             }
-            return;
         }
         if (sourceNode.attr.fire) {
             var s = eventToString(e) || true;
