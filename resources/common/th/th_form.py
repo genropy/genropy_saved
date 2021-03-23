@@ -375,14 +375,28 @@ class TableHandlerForm(BaseComponent):
                             kw.pkey = this.form.getCurrentPkey();
                             var sourceNode = this;
                             var menuattr = $1;
+                            var onResult,onCalling;
+                            if (menuattr.onResult) {
+                                onResult = funcCreate(menuattr.onResult, 'result,kwargs,old', this);
+                            }
+                            if (menuattr.onCalling) {
+                                onCalling = funcCreate(menuattr.onCalling, 'kwargs', this);
+                            }
                             var finalize = function(){
+                                
                                 if(menuattr.rpcmethod){
                                     objectUpdate(kw,objectExtract($1,'rpc_*',true));
                                     kw._sourceNode = sourceNode;
+                                    if(onCalling){
+                                        onCalling(kw);
+                                    }
                                     if(menuattr.lockScreen){
                                         genro.lockScreen(true,sourceNode.getStringId(),menuattr.lockScreen);
                                     }
-                                    return genro.serverCall(menuattr.rpcmethod,kw,function(){
+                                    return genro.serverCall(menuattr.rpcmethod,kw,function(result){
+                                        if(onResult){
+                                            onResult(result,kw);
+                                        }
                                         if(menuattr.lockScreen){
                                             genro.lockScreen(false,sourceNode.getStringId());
                                         }
