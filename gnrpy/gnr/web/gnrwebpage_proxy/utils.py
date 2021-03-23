@@ -439,7 +439,8 @@ class GnrWebUtils(GnrBaseProxy):
                                     description = getattr(handler, 'description', ''),
                                     tip=getattr(handler, 'tip', None),
                                     disabled=getattr(handler,'disabled',None),
-                                    askParameters=getattr(handler,'askParameters',None))
+                                    askParameters=getattr(handler,'askParameters',None),
+                                    lockScreen=getattr(handler,'lockScreen',None))
             for k,v in objectExtract(handler,'rpc_').items():
                 handler_kwargs['rpc_{}'.format(k)] = v
             handler_kwargs['rpcmethod'] = catalog.asText(handler)

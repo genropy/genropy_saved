@@ -379,7 +379,14 @@ class TableHandlerForm(BaseComponent):
                                 if(menuattr.rpcmethod){
                                     objectUpdate(kw,objectExtract($1,'rpc_*',true));
                                     kw._sourceNode = sourceNode;
-                                    return genro.serverCall(menuattr.rpcmethod,kw,function(){});
+                                    if(kw.lockScreen){
+                                        genro.lockScreen(true,sourceNode.getStringId(),lockScreen);
+                                    }
+                                    return genro.serverCall(menuattr.rpcmethod,kw,function(){
+                                        if(kw.lockScreen){
+                                            genro.lockScreen(false,sourceNode.getStringId());
+                                        }
+                                    });
                                 }
                                 kw.resource = menuattr.resource;
                                 if(menuattr.template_id){
