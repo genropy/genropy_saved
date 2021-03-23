@@ -379,11 +379,11 @@ class TableHandlerForm(BaseComponent):
                                 if(menuattr.rpcmethod){
                                     objectUpdate(kw,objectExtract($1,'rpc_*',true));
                                     kw._sourceNode = sourceNode;
-                                    if(kw.lockScreen){
-                                        genro.lockScreen(true,sourceNode.getStringId(),lockScreen);
+                                    if(menuattr.lockScreen){
+                                        genro.lockScreen(true,sourceNode.getStringId(),menuattr.lockScreen);
                                     }
                                     return genro.serverCall(menuattr.rpcmethod,kw,function(){
-                                        if(kw.lockScreen){
+                                        if(menuattr.lockScreen){
                                             genro.lockScreen(false,sourceNode.getStringId());
                                         }
                                     });
