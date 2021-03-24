@@ -15,17 +15,18 @@ class ModelExtractor(object):
     def __init__(self, dbroot):
         self.dbroot = dbroot
         
-    def extractModelSrc(self, root):
+    def extractModelSrc(self, root,tablesOnly=False):
         """Call the :meth:`buildSchemata()` and :meth:`buildRelations()` methods.
         Return the root
         
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` documentation section."""
-        self.buildSchemata(root)
-        self.buildRelations(root)
+        self.buildSchemata(root,tablesOnly=tablesOnly)
+        if not tablesOnly:
+            self.buildRelations(root)
         return root
         
-    def buildSchemata(self, root):
+    def buildSchemata(self, root,tablesOnly=None):
         """TODO
         
         :param root: the root of the page. For more information, check the
@@ -33,9 +34,9 @@ class ModelExtractor(object):
         elements = self.dbroot.adapter.listElements('schemata')
         for pkg_name in elements:
             pkg = root.package(pkg_name, sqlschema=pkg_name, sqlprefix='')
-            self.buildTables(pkg, pkg_name)
+            self.buildTables(pkg, pkg_name,tablesOnly=tablesOnly)
             
-    def buildTables(self, pkg, pkg_name):
+    def buildTables(self, pkg, pkg_name,tablesOnly=None):
         """TODO
         
         :param pkg: the :ref:`package <packages>` object
@@ -43,6 +44,8 @@ class ModelExtractor(object):
         elements = self.dbroot.adapter.listElements('tables', schema=pkg_name)
         for tbl_name in elements:
             tbl = pkg.table(tbl_name)
+            if tablesOnly:
+                continue
             self.buildColumns(tbl, pkg_name, tbl_name)
             self.buildIndexes(tbl, pkg_name, tbl_name)
             

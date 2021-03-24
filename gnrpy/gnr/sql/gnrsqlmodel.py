@@ -257,10 +257,10 @@ class DbModel(object):
         :param source: XML model (diskfile or text or url). """
         self.src.update(source)
         
-    def importFromDb(self):
+    def importFromDb(self,tablesOnly=False):
         exporter = ModelExtractor(self.db)
         root = DbModelSrc.makeRoot()
-        exporter.extractModelSrc(root=root)
+        exporter.extractModelSrc(root=root,tablesOnly=tablesOnly)
         self.src.update(root)
         
     def save(self, path):

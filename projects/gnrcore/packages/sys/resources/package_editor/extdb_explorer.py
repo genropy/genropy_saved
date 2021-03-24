@@ -247,7 +247,7 @@ class ExtDbExplorer(BaseComponent):
                             host=connection_params['host'],user=connection_params['user'],
                             password = connection_params['password'],
                             port=connection_params['port'])
-        externaldb.importModelFromDb()
+        externaldb.importModelFromDb(tablesOnly=True)
         return externaldb
 
     @public_method
@@ -294,6 +294,7 @@ class ExtDbExplorer(BaseComponent):
                 tblattr['name'] = table
                 tableval = Bag()
                 pkgval.setItem(table,tableval,**tblattr)
+                continue
                 for column,colattr,colval in tblval['columns'].digest('#k,#a,#v'):
                     cv = dict(colattr)
                     for t,v in tblattr.items():

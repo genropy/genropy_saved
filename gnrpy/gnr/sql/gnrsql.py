@@ -282,10 +282,10 @@ class GnrSqlDb(GnrObject):
         """
         self.model.load(source)
         
-    def importModelFromDb(self):
+    def importModelFromDb(self,tablesOnly=None):
         """Load the model.src extracting it from the database's information schema.
         """
-        self.model.importFromDb()
+        self.model.importFromDb(tablesOnly=tablesOnly)
         
     def saveModel(self, path):
         """Save the current model in the path as an XML file
