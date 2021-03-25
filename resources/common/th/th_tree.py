@@ -469,8 +469,9 @@ class TableHandlerHierarchicalView(BaseComponent):
                     genro.dom.removeClass(that,'treeShowTrash');
                 });
             """,dropTarget=True,**{'onDrop_%s' %dragCode:"""
-                genro.serverCall("ht_removeAliasRows",{aliastable:"%s",dragtable:'%s',fkeys:data.alias_pkeys});
-            """ %(relation_table,dragTable)})
+                let tree_selected_pkey = GET #FORM.pkey;
+                genro.serverCall("ht_removeAliasRows",{aliastable:"%s",dragtable:'%s',droptable:'%s',fkeys:data.alias_pkeys,tree_selected_pkey:tree_selected_pkey});
+            """ %(relation_table,dragTable,maintable)})
         gridattr.update(draggable_row=True,
                         onDrag="""  if(!dragValues.gridrow){return;}
                                     var sourceNode = dragInfo.sourceNode;
@@ -577,10 +578,14 @@ class TableHandlerHierarchicalView(BaseComponent):
         self.db.commit()
         
     @public_method
-    def ht_removeAliasRows(self,aliastable=None,dragtable=None,fkeys=None):
+    def ht_removeAliasRows(self,aliastable=None,dragtable=None,droptable=None,tree_selected_pkey=None,fkeys=None):
         dragtblobj = self.db.table(dragtable)
         fkey_name = dragtblobj.model.getJoiner(aliastable)['many_relation'].split('.')[-1]
-        self.db.table(aliastable).deleteSelection(where='$%s IN :fkeys' %fkey_name,fkeys=fkeys)
+        where = '$%s IN :fkeys' %fkey_name
+        if tree_selected_pkey:
+            tree_fkey_name = dragtblobj.model.getJoiner(droptable)['many_relation'].split('.')[-1]
+            where = '%s AND $%s=:tree_selected_pkey'%(where,tree_fkey_name)
+        self.db.table(aliastable).deleteSelection(where=where,fkeys=fkeys,tree_selected_pkey=tree_selected_pkey)
         dragtblobj.touchRecords(_pkeys=fkeys)
         self.db.commit()
 

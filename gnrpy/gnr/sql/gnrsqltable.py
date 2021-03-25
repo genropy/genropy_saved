@@ -1719,8 +1719,10 @@ class SqlTable(GnrObject):
                 wherekwargs = dict()
                 for cond in identifier.split(','):
                     codeField,codeVal = cond.split(':')
-                    wherelist.append('$%s=:v_%s' %(codeField,codeField))
-                    wherekwargs['v_%s' %codeField] = codeVal
+                    cf = '${}'.format(codeField) if not (codeField.startswith('$') or codeField.startswith('@')) else codeField
+                    vf = codeField.replace('@','_').replace('.','_').replace('$','')
+                    wherelist.append('%s=:v_%s' %(cf,vf))
+                    wherekwargs['v_%s' %vf] = codeVal
                 result = self.readColumns(columns='$%s' %self.pkey,where=' AND '.join(wherelist),
                                         subtable='*',**wherekwargs)
             elif hasattr(self,'sysRecord_%s' %identifier):

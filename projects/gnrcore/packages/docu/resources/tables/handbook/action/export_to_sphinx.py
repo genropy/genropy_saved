@@ -149,6 +149,12 @@ class Main(BaseResourceBatch):
             resultAttr['url'] = self.result_url
         return 'Export done', resultAttr
 
+    def result_handler(self):
+        resultAttr = dict()
+        if self.batch_parameters['download_zip']:
+            resultAttr['url'] = self.result_url
+        return 'Export done', resultAttr
+
     def prepare(self, data, pathlist):
         IMAGEFINDER = re.compile(r"\.\. image:: ([\w./:-]+)")
         LINKFINDER = re.compile(r"`([^`]*) <([\w./]+)>`_\b")
@@ -306,10 +312,7 @@ class Main(BaseResourceBatch):
         with storageNode.child('%s.rst' % name).open('wb') as f:
             f.write(content.encode())
 
-    def table_script_parameters_pane(self,pane,**kwargs):   
-        fb = pane.formbuilder(cols=1, border_spacing='5px')
-        fb.checkbox(lbl='Download Zip', value='^.download_zip')
-
+    
     def table_script_parameters_pane(self,pane,**kwargs):   
         fb = pane.formbuilder(cols=1, border_spacing='5px')
         fb.checkbox(lbl='Download Zip', value='^.download_zip')

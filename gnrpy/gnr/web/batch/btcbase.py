@@ -246,21 +246,17 @@ class BaseResourceBatch(object):
         if columns:
             selection_kwargs['columns'] = columns
         if self.batch_selection_savedQuery:
-            print ('savedQuery')
             selection = self._selection_from_savedQuery(selection_kwargs)
 
-        elif self.batch_selection_where:
-            print ('batch_selection_where')          
+        elif self.batch_selection_where:       
             selection = self.tblobj.query(where=self.batch_selection_where,**selection_kwargs).selection()
 
-        elif hasattr(self,'selectionName'):
-            print ('selectionName')   
+        elif hasattr(self,'selectionName'): 
             selection = self.page.getUserSelection(selectionName=self.selectionName,
                                                     selectedRowidx=self.selectedRowidx if not ignoreGridSelectedRow else None, 
                                                     filterCb=self.selectionFilterCb,
                                                     table=self.tblobj,**selection_kwargs)
         elif self.selectedPkeys:
-            print ('selectedPkeys')
             pkeys = self.selectedPkeys if not ignoreGridSelectedRow else extra_parameters['allPkeys']
             selection = self.tblobj.query(where='$%s IN :selectedPkeys' %self.tblobj.pkey,selectedPkeys=pkeys,
                                             excludeDraft=False,excludeLogicalDeleted=False,

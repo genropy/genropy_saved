@@ -580,7 +580,7 @@ class SqlQueryCompiler(object):
         columns = BAGCOLSEXPFINDER.sub(self.expandBagcols,columns)
 
         col_list = uniquify([col for col in gnrstring.split(columns, ',') if col])
-        new_col_list = []
+        col_dict = OrderedDict()
         for col in col_list:
             col = col.strip()
             if re.search("(sum|count) *?\\(", col, re.I):
@@ -596,10 +596,12 @@ class SqlQueryCompiler(object):
             else:
                 colbody, as_ = col.split(' AS ', 1)
                 # leave the col as is, but save the AS name to recover the db column original name from selection result
-                self.cpl.aliasDict[as_.strip()] = colbody.strip()
-            new_col_list.append(col)
+                as_ = as_.strip()
+                self.cpl.aliasDict[as_] = colbody.strip()
+            col_dict[as_] = col
         # build the clean and complete sql string for the columns, but still all fields are expressed as $fieldname
-        columns = ',\n'.join(new_col_list)
+        as_col_values = col_dict.values()
+        columns = ',\n'.join(as_col_values)
         
         # translate all fields and related fields from $fldname to t0.fldname, t1.fldname... and prepare the JOINs
         colPars = {}

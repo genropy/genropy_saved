@@ -485,6 +485,28 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         dlgNode.widget.show();
     },
     
+    askParameters:function(cb,ask_params,parameters,sourceNode,argnames,argvalues){
+        var promptkw = objectUpdate({},ask_params);
+        promptkw.fields = promptkw.fields.map(function(kw){
+            kw = objectUpdate({},kw);
+            if(kw['name'] in parameters){
+                kw['default_value'] = parameters[kw['name']];
+            }
+            kw['value'] = '^.'+kw['name'];
+            return kw;
+        })
+        promptkw.widget = objectPop(promptkw,'fields');
+        promptkw.action = function(result){
+            if(result && result.len()){
+                result = result.asDict();
+                objectUpdate(parameters,result);
+                parameters._askResult = result;
+            }
+            funcApply(cb, objectUpdate(parameters, {}), sourceNode,argnames,argvalues);
+        }
+        genro.dlg.prompt(objectPop(promptkw,'title','Parameters'),promptkw,sourceNode);
+    },
+
     prompt: function(title, kw,sourceNode) {
         kw = kw || {};
         var dlg_kw = objectExtract(kw,'dlg_*');

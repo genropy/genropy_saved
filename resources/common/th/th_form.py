@@ -250,6 +250,11 @@ class TableHandlerForm(BaseComponent):
             if options.pop('printMenu',False):
                 #default_slots = default_slots.replace('form_delete','form_print,100,form_delete')
                 extra_slots.append('form_print')
+            actionMenu = options.pop('actionMenu',False)
+            if actionMenu:
+                #default_slots = default_slots.replace('form_delete','form_print,100,form_delete')
+                extra_slots.append('form_action')
+                options['form_action'] = actionMenu
             if options.pop('audit',False):
                 extra_slots.append('form_audit')
             if options.pop('copypaste',False):
@@ -358,3 +363,57 @@ class TableHandlerForm(BaseComponent):
                             """,
                     batch_table=table,batch_res_type='print')
         pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,cacheTime=5)
+
+
+    @struct_method          
+    def th_slotbar_form_action(self,pane,form_action=None,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        table = inattr['table']
+        pane.div(_class='iconbox gear').menu(modifiers='*',storepath='.resources.action.menu',_class='smallmenu',
+                    action="""
+                            var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
+                            kw.pkey = this.form.getCurrentPkey();
+                            var sourceNode = this;
+                            var menuattr = $1;
+                            var onResult,onCalling;
+                            if (menuattr.onResult) {
+                                onResult = funcCreate(menuattr.onResult, 'result,kwargs,old', this);
+                            }
+                            if (menuattr.onCalling) {
+                                onCalling = funcCreate(menuattr.onCalling, 'kwargs', this);
+                            }
+                            var finalize = function(){
+                                
+                                if(menuattr.rpcmethod){
+                                    objectUpdate(kw,objectExtract($1,'rpc_*',true));
+                                    kw._sourceNode = sourceNode;
+                                    if(onCalling){
+                                        onCalling(kw);
+                                    }
+                                    if(menuattr.lockScreen){
+                                        genro.lockScreen(true,sourceNode.getStringId(),menuattr.lockScreen);
+                                    }
+                                    return genro.serverCall(menuattr.rpcmethod,kw,function(result){
+                                        if(onResult){
+                                            onResult(result,kw);
+                                        }
+                                        if(menuattr.lockScreen){
+                                            genro.lockScreen(false,sourceNode.getStringId());
+                                        }
+                                    });
+                                }
+                                kw.resource = menuattr.resource;
+                                if(menuattr.template_id){
+                                    kw.extra_parameters = new gnr.GnrBag({template_id:menuattr.template_id,table:kw.table});
+                                    kw.table = null;
+                                } 
+                                genro.publish("table_script_run",kw)
+                            }
+                            if($1.askParameters){
+                                return genro.dlg.askParameters(finalize,$1.askParameters,kw,this)
+                            }else{
+                                finalize();
+                            }
+                            """,
+                    batch_table=table,batch_res_type='print')
+        pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,table=table,res_type='action',topic=form_action,cacheTime=5)

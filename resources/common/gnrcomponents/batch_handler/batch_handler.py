@@ -214,9 +214,9 @@ class TableScriptHandler(BaseComponent):
         res_obj(parameters=parameters, **kwargs)
         
     @public_method
-    def table_script_resource_tree_data(self, table=None, res_type=None):
+    def table_script_resource_tree_data(self, table=None, res_type=None,topic=None):
         #pkg,tblname = table.split('.')
-        return self.utils.tableScriptResourceMenu(table=table,res_type=res_type)
+        return self.utils.tableScriptResourceMenu(table=table,res_type=res_type,topic=topic)
 
 
 

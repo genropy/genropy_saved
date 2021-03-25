@@ -219,17 +219,20 @@ class FrameGridTools(BaseComponent):
 
     @struct_method
     def fg_viewGrouper(self,view,table=None,region=None,closable='close',width=None,**kwargs):
+       
         bc = view.grid_envelope.borderContainer(region='left',
                                         width=width or '300px',
                                         closable=closable,
                                         splitter=True,border_right='1px solid silver',
                                         selfsubscribe_closable_change="""SET .use_grouper = $1.open;""",
                                         **kwargs)
+        if closable !='close':
+            bc.data('.use_grouper',True)
         inattr = view.getInheritedAttributes()
         bc.contentPane(region='center',datapath='.grouper').remote(self.fg_remoteGrouper,
                                                 groupedTh=inattr.get('frameCode'),
                                                 groupedThViewResource=inattr.get('th_viewResource'),
-                                                table=table)
+                                                table=table,store_is_grouper=True)
         
     @public_method
     def fg_remoteGrouper(self,pane,table=None,groupedTh=None,groupedThViewResource=None,**kwargs):

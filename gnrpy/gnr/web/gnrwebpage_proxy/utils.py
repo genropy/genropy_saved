@@ -22,6 +22,7 @@ from gnr.core.gnrbag import Bag, DirectoryResolver
 from gnr.core.gnrlist import getReader
 from gnr.core.gnrstring import slugify
 from gnr.core.gnrlang import gnrImport, objectExtract
+from gnr.core.gnrclasses import GnrClassCatalog
 
 EXPORT_PDF_TEMPLATE = """
 <html lang="en">
@@ -139,12 +140,6 @@ class GnrWebUtils(GnrBaseProxy):
 
     def diskPathToUri(self, tofile, fromfile=None):
         return self.page.diskPathToUri(tofile, fromfile=fromfile)
-        fromfile = fromfile or self.filename
-        basepath = os.path.normpath(os.path.join(self.directory, '..'))
-        relUrl = tofile.replace(basepath, '').lstrip('/')
-        path = fromfile.replace(basepath, '')
-        rp = '../' * (len(path.split('/')) - 2)
-        return '%s%s' % (rp, relUrl)
 
     def readFile(self, path):
         if not path.startswith('/'):
@@ -421,13 +416,59 @@ class GnrWebUtils(GnrBaseProxy):
                                   fired=True)
         
 
-    def tableScriptResourceMenu(self, table=None, res_type=None,module_parameters=None):
+    def _handleMenuMethods(self,result,tblobj=None,res_type=None,topic=None):
+        tableMethods = objectExtract(tblobj,'{res_type}Menu_'.format(res_type=res_type))
+        page = self.page
+        table = tblobj.fullname
+        pageMethods = objectExtract(self.page,'{res_type}Menu_'.format(res_type=res_type))
+        catalog = GnrClassCatalog()
+        def cb(k,handler):
+            if not getattr(handler,'is_rpc',None):
+                return
+            tags = getattr(handler,'tags',None)
+            if tags and not self.application.checkResourcePermission(tags, page.userTags):
+                return
+            permissions = getattr(handler, 'permissions', None)
+            if permissions and not page.checkTablePermission(table=table,permissions=permissions):
+                return
+            handler_topic = getattr(handler, 'topic', None)
+            if topic:
+                if not handler_topic:
+                    return
+                handler_topic = set(handler_topic.split(','))
+                if not set(topic.split(',')).intersection(handler_topic):
+                    return
+            elif handler_topic:
+                return
+            handler_kwargs = dict(caption=getattr(handler, 'caption', k),
+                                    description = getattr(handler, 'description', ''),
+                                    tip=getattr(handler, 'tip', None),
+                                    disabled=getattr(handler,'disabled',None),
+                                    askParameters=getattr(handler,'askParameters',None),
+                                    lockScreen=getattr(handler,'lockScreen',None),
+                                    onResult=getattr(handler,'onResult',None),
+                                    onCalling=getattr(handler,'onCalling',None)
+                                    )
+            for k,v in objectExtract(handler,'rpc_').items():
+                handler_kwargs['rpc_{}'.format(k)] = v
+            handler_kwargs['rpcmethod'] = catalog.asText(handler)
+            result.addItem(k,None,**handler_kwargs)
+
+        for k,handler in pageMethods.items():
+            cb(k,handler)
+        for k,handler in tableMethods.items():
+            cb(k,handler)
+
+    def tableScriptResourceMenu(self, table=None, res_type=None,module_parameters=None,topic=None):
         #pkg,tblname = table.split('.')
         page = self.page
         tblobj = page.db.table(table)
         pkg = tblobj.pkg.name
         tblname = tblobj.name
         result = Bag()
+        if topic is True:
+            topic = None
+        self._handleMenuMethods(result,tblobj=tblobj, res_type=res_type,topic=topic)
         resources = page.site.resource_loader.resourcesAtPath(page=page,pkg=None,path='tables/_default/%s' % res_type)
         resources_pkg = page.site.resource_loader.resourcesAtPath(page=page,pkg=pkg, path='tables/%s/%s' % (tblname, res_type))
         resources_custom = page.site.resource_loader.resourcesAtPath(page=page, path='tables/_packages/%s/%s/%s' % (pkg,tblname, res_type))
@@ -436,13 +477,22 @@ class GnrWebUtils(GnrBaseProxy):
         forbiddenNodes = []
         module_parameters = module_parameters or []
 
-        def cb(node, _pathlist=None):
+        def cb(node, _pathlist=None,_menutopic=None):
             has_parameters = False
             if node.attr['file_ext'] == 'py':
                 resmodule = gnrImport(node.attr['abs_path'])
 
                 tags = getattr(resmodule, 'tags', '')
                 permissions = getattr(resmodule, 'permissions', None)
+                module_topic = getattr(resmodule, 'topic', None)
+                if _menutopic:
+                    if not module_topic:
+                        return
+                    module_topic = set(module_topic.split(','))
+                    if not set(_menutopic.split(',')).intersection(module_topic):
+                        return
+                elif module_topic:
+                    return
                 if (tags and not page.application.checkResourcePermission(tags, page.userTags)) or \
                     permissions and not page.checkTablePermission(table=table,permissions=permissions):
                     if node.label == '_doc':
@@ -450,10 +500,10 @@ class GnrWebUtils(GnrBaseProxy):
                     return
                 #needSelection = getattr(resmodule, 'needSelection', True)
                 module_kwargs = dict(caption=getattr(resmodule, 'caption', node.label),
-                                    description = getattr(resmodule, 'description', ''))
+                                    description = getattr(resmodule, 'description', ''),
+                                    tip=getattr(resmodule, 'tip', None))
                 for mpar in module_parameters:
                     module_kwargs[mpar] = getattr(resmodule,mpar,None)
-
                 if  node.label == '_doc':
                     result.setAttr('.'.join(_pathlist), dict(caption=module_kwargs['caption'], description=module_kwargs['description'], tags=tags,
                                                              has_parameters=has_parameters))
@@ -461,11 +511,12 @@ class GnrWebUtils(GnrBaseProxy):
                     mainclass = getattr(resmodule, 'Main', None)
                     assert mainclass, 'Main class is mandatory in tablescript resource'
                     has_parameters = hasattr(mainclass, 'parameters_pane')
+                    tip = module_kwargs.pop('tip',None)                   
                     result.setItem('.'.join(_pathlist + [node.label]), None,
                                    resource=node.attr['rel_path'][:-3], has_parameters=has_parameters,
-                                   table=table,**module_kwargs)
+                                   table=table,tip=tip,**module_kwargs)
         pl=[]     
-        resources.walk(cb,_pathlist=pl)
+        resources.walk(cb,_pathlist=pl,_menutopic=topic)
         if '_common' in result:
             n = result.popNode('_common')
             if len(result):

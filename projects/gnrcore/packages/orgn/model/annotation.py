@@ -94,7 +94,7 @@ class Table(object):
             CASE WHEN :env_orgn_author_only IS NOT TRUE THEN string_to_array(:env_userTags,',') @> string_to_array(COALESCE(:env_orgn_superuser_tag,''),',')
             ELSE $author_user_id!=:env_user_id END
             """,dtype='B')
-        tbl.pyColumn('calc_description',name_long='!!Calc description',required_columns='calculated_date_due,time_due,$action_type_description,$following_actions')
+        tbl.pyColumn('calc_description',name_long='!!Calc description',required_columns='$calculated_date_due,$time_due,$action_type_description,$following_actions')
 
         tbl.pyColumn('countdown',name_long='!!Countdown',required_columns='$calculated_date_due,$time_due,$rec_type,$done_ts')
         tbl.pyColumn('zoomlink',name_long='!!Zoomlink',required_columns='$connected_description,$linked_table,$linked_fkey,$linked_entity')

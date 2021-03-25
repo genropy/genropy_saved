@@ -937,10 +937,10 @@ class GnrWebAppHandler(GnrBaseProxy):
             columns = templateReplace(columns, expr_dict, safeMode=True)
         hasProtectionColumns = tblobj.hasProtectionColumns()
         if hasProtectionColumns:
-            columns = '%s,$__is_protected_row AS _is_readonly_row' %columns
+            columns = '%s,$__is_protected_row AS _is_readonly_row,$__protecting_reasons' %columns
 
         if tblobj.hasInvalidCheck():
-            columns = '%s,$__is_invalid_row AS _is_invalid_row' %columns
+            columns = '%s,$__is_invalid_row AS _is_invalid_row,$__invalid_reasons' %columns
 
         return columns,external_queries
     

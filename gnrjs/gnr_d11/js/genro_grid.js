@@ -1614,9 +1614,16 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(cell.semaphore){
                 formats['trueclass'] = 'greenLight';
                 formats['falseclass'] = 'redLight';
+                if(cell.three_state){
+                    formats['nullclass'] = 'yellowLight';
+                }
+                
             }else if(cell.inv_semaphore){
                 formats['falseclass'] = 'greenLight';
                 formats['trueclass'] = 'redLight';
+                if(cell.three_state){
+                    formats['nullclass'] = 'yellowLight';
+                }
             }else if(cell.highlight_semaphore){
                 formats['falseclass'] = ' ';
                 formats['trueclass'] = 'yellowLight';
@@ -1695,8 +1702,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                         if(!rowBag.getNode('_protectionStatus')){
                             rowBag.setItem('_protectionStatus',null,{
                                 field:'_protectionStatus',name:' ',width:'20px',
-                                calculated:true,_customGetter:function(){
-                                    return '<div class="_statusIcon"></div>'
+                                calculated:true,_customGetter:function(r){
+                                    let reasons = r.__protecting_reasons || r.__invalid_reasons || '';
+                                    return '<div class="_statusIcon" title="'+reasons+'"></div>'
                                 }
                             },{_position:0});
                         }
@@ -2330,9 +2338,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var colType;
         if (this.filterColumn){
             var col = this.cellmap[this.filterColumn];
-            var colType = 'A';
+            colType = 'A';
             if(col){
-                colType = (this.filterColumn.indexOf('+') > 0) ? 'T':(this.cellmap[this.filterColumn]['dtype'] || 'A');
+                colType = (this.filterColumn.includes('+')) ? 'T':(this.cellmap[this.filterColumn]['dtype'] || 'A');
             }
             }
         this.createFiltered(this.currentFilterValue,this.filterColumn,colType);
@@ -2340,7 +2348,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             this.updateRowCount('*');
         }
         if(this.changeManager && objectNotEmpty(this.changeManager.totalizeColumns)){
-            if(isNullOrBlank(this.currentFilterValue)){
+            if(!this.isFiltered()){
                 this.sourceNode.setRelativeData('.filtered_totalize',null);
             }else{
                 this.changeManager.calculateFilteredTotals();

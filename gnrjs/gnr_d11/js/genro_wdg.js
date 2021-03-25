@@ -885,7 +885,11 @@ dojo.declare("gnr.GridEditor", null, {
             if(!c){return;}
             if(c.attr.batch_assign){
                 var wdgkw = objectUpdate({lbl:c.attr.original_name,value:'^.'+c.attr.field},c.attr);
-                objectExtract(wdgkw,'selectedSetter,selectedCb')
+                objectExtract(wdgkw,'selectedSetter,selectedCb');
+                if(c.attr.batch_assign=='delta'){
+                    wdgkw.tag = 'textbox';
+                    wdgkw.placeholder = 'f(x)';
+                }
                 fields.push(wdgkw);
             }
         });
@@ -898,6 +902,19 @@ dojo.declare("gnr.GridEditor", null, {
                         let val = node.getValue();
                         if (isNullOrBlank(val)){
                             return
+                        }
+                        if(editable_cols[node.label].attr.batch_assign=='delta'){
+                            var textval = val;
+                            val = function(kw){
+                                let op = textval[0];
+                                if(op=='+' || op=='-'){
+                                    let isperc = textval[textval.length-1] == '%';
+                                    let incrdecr = isperc? kw.currvalue*parseFloat(textval.slice(1,textval.length-1))/100 :parseFloat(textval.slice(1));
+                                    return op=='+'?kw.currvalue+incrdecr:kw.currvalue-incrdecr;
+                                }else{
+                                    return parseFloat(textval);
+                                }
+                            }
                         }
                         grid.gridEditor.setCellValue(idx,node.label,val);
                     });
@@ -1373,6 +1390,13 @@ dojo.declare("gnr.GridEditor", null, {
         if (!cell){
             return;
         }
+        if(typeof(value)=='function'){
+            value = value.apply(this.grid.sourceNode,[{currvalue:row[cellname],row:row}]);
+            if(value.valueCaption){
+                value = value.value;
+                valueCaption = value.valueCaption;
+            }
+        }
         if(cell.edit || cell.counter || cell.isCheckBoxCell){
             var n = rowEditor.data.setItem(cellname,value);
             delete n.attr._validationError //trust the programmatical value
@@ -1499,7 +1523,9 @@ dojo.declare("gnr.GridEditor", null, {
                                     else if(rowData.getItem(n.label)==v){
                                         return;
                                     }
-                                    that.setCellValue(row,n.label,v);
+                                    if(n.label in grid.cellmap){
+                                        that.setCellValue(row,n.label,v);
+                                    }
                                 });
                             }else{
                                 that.setCellValue(row,attr.field,result);
@@ -1764,14 +1790,15 @@ dojo.declare("gnr.GridFilterManager", null, {
     isInFilterSet:function(row){
         var gridNode = this.grid.sourceNode;
         var cb_attr,cb;
-        return this.activeFilters().some(function(kw){
-            cb_attr = gridNode.evaluateOnNode(kw.cb_attr);
-           
-            objectUpdate(cb_attr,row);
-            for (var k in gridNode.widget.cellmap){
-                cb_attr[k] = cb_attr[k] || null;
-            }
-            return funcApply("return "+kw.cb,cb_attr,gridNode);
+        return this.activeFilters().every(function(or_conditions){
+            return or_conditions.some(function(kw){
+                cb_attr = gridNode.evaluateOnNode(kw.cb_attr);
+                objectUpdate(cb_attr,row);
+                for (var k in gridNode.widget.cellmap){
+                    cb_attr[k] = cb_attr[k] || null;
+                }
+                return funcApply("return "+kw.cb,cb_attr,gridNode);
+            });
         });
     },
 
@@ -1784,15 +1811,19 @@ dojo.declare("gnr.GridFilterManager", null, {
             if(!(current && data  && data.len())){
                 return;
             }
+            var or_condition = []
             current.split(',').forEach(function(f){
                 fn = data.getNode(f);
                 if(!fn){
                     console.error('missing filter',n.label+'.'+f)
                 }
                 if(fn.attr.cb){
-                    result.push({cb:fn.attr.cb,cb_attr:objectExtract(fn.attr,'cb_*',true)})
+                    or_condition.push({cb:fn.attr.cb,cb_attr:objectExtract(fn.attr,'cb_*',true)})
                 }
             });
+            if(or_condition.length){
+                result.push(or_condition);
+            }
         });
         return result;
     },
