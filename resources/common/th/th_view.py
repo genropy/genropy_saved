@@ -261,7 +261,8 @@ class TableHandlerView(BaseComponent):
             self._th_view_confMenues(frame,statsEnabled=statsEnabled,configurable=configurable)
         if virtualStore:    
             self._extTableRecords(frame)
-        frame.dataController("""if(!firedkw.res_type){return;}
+        frame.dataController("""
+                            if(!firedkw.res_type && !firedkw.rpcmethod){return;}
                             var kw = {selectionName:batch_selectionName,gridId:batch_gridId,table:batch_table};
                             objectUpdate(kw,firedkw);
                             if(kw.template_id){
@@ -856,7 +857,15 @@ class TableHandlerView(BaseComponent):
         pane.menudiv(iconClass='iconbox gear',storepath='.resources.action.menu',
                             _tablePermissions=dict(table=pane.frame.grid.attributes.get('table'),
                                                         permissions='action'),action="""
-                            FIRE .th_batch_run = {resource:$1.resource,res_type:"action"};
+                           
+                            let batch_kw;
+                            if($1.resource){
+                                batch_kw = {resource:$1.resource,res_type:"action"};
+                            }else{
+                                batch_kw = {rpcmethod:$1.rpcmethod};
+                                objectUpdate(batch_kw,objectExtract($1,'rpc_*',true));
+                            }
+                            FIRE .th_batch_run = batch_kw;
                             """,_class='smallmenu')
     @struct_method
     def th_slotbar_resourceMails(self,pane,from_resource=None,flags=None,**kwargs):

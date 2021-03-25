@@ -28,14 +28,16 @@ class Form(BaseComponent):
         fb = top.formbuilder(cols=2, border_spacing='4px')
         fb.field('code')
         fb.field('name')
+        legacydb = self.db.application.config['legacy_db']
+        if legacydb is not None:
+            fb.field('legacy_db',values=','.join(legacydb.keys()),tag='filteringSelect')
+            fb.field('legacy_schema')
         fb.field('description')
-        fb.button('Fill Pkg description', action='FIRE fillPackage')
+        fb.button('Fill Pkg description', action='FIRE #FORM.fillPackage;')
         center = bc.contentPane(region='center')
         top.dataRpc('import_result', self.importPackage,
-                     _fired='^fillPackage', 
-                     pkg_code='=.code')
-       
-        
+                     legacy_db='=.legacy_db', legacy_schema='=.legacy_schema',
+                     pkg_code='=.code',_fired='^#FORM.fillPackage')
         center.dialogTableHandler(relation='@lg_tables', viewResource='ViewFromPackage')
 
 
@@ -43,6 +45,6 @@ class Form(BaseComponent):
         return dict(dialog_height='400px', dialog_width='600px' )
 
     @public_method
-    def importPackage(self, pkg_code):
-        self.tblobj.importPackage(pkg_code=pkg_code)
+    def importPackage(self, pkg_code=None,legacy_db=None,legacy_schema=None):
+        self.tblobj.importPackage(pkg_code=pkg_code,legacy_db=legacy_db,legacy_schema=legacy_schema)
         self.db.commit()

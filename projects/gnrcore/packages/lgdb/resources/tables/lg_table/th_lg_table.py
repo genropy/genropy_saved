@@ -55,6 +55,9 @@ class ViewFromPackage(BaseComponent):
     def th_order(self):
         return 'lg_pkg'
 
+    def th_top_custom(self,top):
+        top.bar.replaceSlots('delrow','resourceActions,10,delrow')
+
 
 
 class Form(BaseComponent):
