@@ -42,7 +42,7 @@ class Form(BaseComponent):
 
 
     def th_options(self):
-        return dict(dialog_height='400px', dialog_width='600px' )
+        return dict(dialog_height='400px', dialog_width='600px' ,actionMenu='form_batch')
 
     @public_method
     def importPackage(self, pkg_code=None,legacy_db=None,legacy_schema=None):
