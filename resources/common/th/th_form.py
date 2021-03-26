@@ -415,5 +415,5 @@ class TableHandlerForm(BaseComponent):
                                 finalize();
                             }
                             """,
-                    batch_table=table,batch_res_type='print')
+                    batch_table=table,batch_res_type='action')
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,table=table,res_type='action',topic=form_action,cacheTime=5)
