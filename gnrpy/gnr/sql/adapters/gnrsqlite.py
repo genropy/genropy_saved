@@ -71,10 +71,11 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         r = re.compile(expr, re.U)
         return r.match(item) is not None
 
-    def connect(self,*args,**kwargs):
+    def connect(self,storename=None,**kwargs):
         """Return a new connection object: provides cursors accessible by col number or col name
         @return: a new connection object"""
-        dbpath = self.dbroot.dbname
+        connection_parameters = self.dbroot.get_connection_params(storename=storename)
+        dbpath = connection_parameters.get('database')
         if not os.path.exists(dbpath):
             dbdir = os.path.dirname(dbpath) or os.path.join('..','data')
             if not os.path.isdir(dbdir):

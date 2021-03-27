@@ -2,7 +2,7 @@
 #--------------------------------------------------------------------------
 # package       : GenroPy sql - see LICENSE for details
 # module gnrpostgres : Genro postgres db connection.
-# Copyright (c) : 2004 - 2007 Softwell sas - Milano 
+# Copyright (c) : 2004 - 2007 Softwell sas - Milano
 # Written by    : Giovanni Porcari, Michele Bertoldi
 #                 Saverio Porcari, Francesco Porcari , Francesco Cavazzana
 #--------------------------------------------------------------------------
@@ -23,9 +23,8 @@
 from builtins import range
 import re
 
-import _mssql
-import pymssql
-from pymssql import Connection, Cursor
+import pyodbc
+from pyodbc import Connection, Cursor
 from gnr.sql.adapters._gnrbaseadapter import SqlDbAdapter as SqlDbBaseAdapter
 from gnr.sql.adapters._gnrbaseadapter import GnrWhereTranslator as GnrWhereTranslator_base
 from gnr.core.gnrlist import GnrNamedList
@@ -34,36 +33,52 @@ from gnr.sql.gnrsql_exceptions import GnrNonExistingDbException
 #DBAPI.paramstyle = 'pyformat'
 RE_SQL_PARAMS = re.compile(":(\w*)(\W|$)")
 
-class DictCursorWrapper(Cursor):
-    def __init__(self, *args, **kwargs):
-        super(DictCursorWrapper, self).__init__(*args, **kwargs)
+class DictCursorWrapper(object):
+
+    def __init__(self, connection_wrapper=None):
+        self.connection = connection_wrapper
+        self.cursor = self.connection._connection.cursor()
         self._query_executed = 0
+        self.index = {}
+
+    def __getattr__(self, attr):
+        return getattr(self.cursor, attr)
+
+
+    def tables(self):
+        self._query_executed = 1
+        self.cursor.tables()
+
+    def columns(self, table=None):
+        self._query_executed = 1
+        self.cursor.columns(table=table)
 
     def fetchone(self, no_index=False):
         if self._query_executed and not no_index:
             self._build_index()
-        return GnrNamedList(self.index, values=self.cursor.read_tuple())
+        result = self.cursor.fetchone()
+        if result:
+            return GnrNamedList(self.index, values=result)
 
     def fetchall(self):
         if self._query_executed:
             self._build_index()
-        return [GnrNamedList(self.index, values=values) for values in [tuple([row[r] for r in sorted(row.keys(), key=lambda k:str(k)) if \
-                    type(r) == int]) for row in self._source._conn]]
-        #GnrNamedList(obj.index,values=obj.cursor.read_tuple())
+
+        resultset = self.cursor.fetchall()
+        return [GnrNamedList(self.index, values=values) for values in resultset]
+
 
     def fetchmany(self, size=None):
-        if size == None:
-            res = super(DictCursorWrapper, self).fetchmany()
-        else:
-            res = super(DictCursorWrapper, self).fetchmany(size)
         if self._query_executed:
             self._build_index()
-        return res
+        resultset = self.cursor.fetchmany(size=size)
+        return [GnrUpperNamedList(self.index, values=values) for values in resultset]
+
 
     def __next__(self):
         if self._query_executed:
             self._build_index()
-        res = super(DictCursorWrapper, self).fetchone()
+        res = self.cursor.fetchone()
         if res is None:
             raise StopIteration()
         return res
@@ -73,7 +88,8 @@ class DictCursorWrapper(Cursor):
     def execute(self, operation, args=()):
         self.index = {}
         self._query_executed = 1
-        return super(DictCursorWrapper, self).execute(operation, args)
+        self.cursor.execute(operation, args)
+        return self
 
     def _build_index(self):
         if self._query_executed == 1 and self.description:
@@ -81,63 +97,75 @@ class DictCursorWrapper(Cursor):
                 self.index[self.description[i][0]] = i
             self._query_executed = 0
 
-class DictConnectionWrapper(Connection):
+
+class DictConnectionWrapper(object):
+
+    def __init__(self, connection=None):
+        self._connection = connection
+
+    def __getattr__(self, attr):
+        return getattr(self._connection, attr)
+
     def cursor(self):
-        return DictCursorWrapper(self, False)
+        return DictCursorWrapper(self)
 
 class SqlDbAdapter(SqlDbBaseAdapter):
-    typesDict = {'nvarchar': 'A', 'nchar': 'C', 'ntext': 'T',
-                 'BIT': 'B', 'datetime': 'D', 'datetime': 'H', 'datetime': 'DH',
-                 'datetime': 'DH', 'decimal':'N',
+    typesDict = {'CHAR': 'A', 'DECIMAL':'N',
                  'int': 'I', 'bigint': 'L', 'smallint': 'I','tinyint': 'I', 'real': 'R', 'float': 'R', 'binary': 'O'}
 
-    revTypesDict = {'A': 'nvarchar', 'T': 'ntext', 'C': 'nchar',
-                    'X': 'ntext', 'P': 'ntext', 'Z': 'ntext', 'serial':'int',
-                    'N':'decimal',
+    revTypesDict = {'A': 'CHAR', 'T': 'CHAR', 'C': 'CHAR',
+                    'X': 'CHAR', 'P': 'CHAR', 'Z': 'CHAR', 'serial':'int',
+                    'N':'DECIMAL',
                     'B': 'BIT', 'D': 'datetime', 'H': 'datetime', 'DH': 'datetime',
                     'I': 'int', 'L': 'bigint', 'R': 'real', 'O': 'binary'}
 
 
     def defaultMainSchema(self):
-        return 'dbo'
+        return 'main'
 
     def connect(self, storename=None):
         """Return a new connection object: provides cursors accessible by col number or col name
         @return: a new connection object"""
         dbroot = self.dbroot
         kwargs = self.dbroot.get_connection_params(storename=storename)
-        #kwargs['as_dict']=True
-        #kwargs = dict(host=dbroot.host, database=dbroot.dbname, user=dbroot.user, password=dbroot.password,
-        #              port=dbroot.port, as_dict=True)
         kwargs = dict(
                 [(k, v) for k, v in list(kwargs.items()) if v != None]) # remove None parameters, psycopg can't handle them
-        #kwargs['charset']='utf8'
-        #conn = pymssql.connect(**kwargs)
         kwargs['server']=kwargs.pop('host')
+        dsn = kwargs.get('dsn') or kwargs.get('database')
         try:
-            conn = _mssql.connect(**kwargs)
+            conn = pyodbc.connect(dsn=dsn)
         except Exception as e:
-            raise GnrNonExistingDbException(kwargs['database'])
-        return DictConnectionWrapper(conn, False, False)
-        
+            raise GnrNonExistingDbException(dsn)
+        return DictConnectionWrapper(connection=conn)
+
     def adaptSqlName(self,name):
-        return '[{name}]'.format(name=name)
+        return name
+        return '{name}'.format(name=name)
 
 
     def adaptSqlSchema(self,name):
-        name = self.schemaName(name)
-        if name.lower() == 'sys':
-            name = 'gnrsys'
-        return name
+        pass
+
+    def use_schemas(self):
+        return False
 
     def prepareSqlText(self, sql, kwargs):
         """Change the format of named arguments in the query from ':argname' to '%(argname)s'.
         Replace the 'REGEXP' operator with '~*'
-        
+
         :param sql: the sql string to execute
         :param kwargs: the params dict
         :returns: tuple (sql, kwargs)"""
-        return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
+        sqlargs = []
+        def subArgs(m):
+            key = m.group(1)
+            sqlargs.append(kwargs[key])
+            return '? '
+        #sql = RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*')
+        sql = RE_SQL_PARAMS.sub(subArgs, sql)
+        sql= sql.replace('REGEXP', '~*')
+
+        return sql, tuple(sqlargs)
 
     def columnSqlDefinition(self, sqlname, dtype, size, notnull, pkey, unique):
         """Return the statement string for creating a table's column
@@ -160,95 +188,83 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         conn_kwargs = dict(host=dbroot.host, database='master', user=dbroot.user,
                       password=dbroot.password, port=dbroot.port, as_dict=True, **kwargs)
         conn_kwargs = dict([(k, v) for k, v in list(conn_kwargs.items()) if v != None])
-        conn = pymssql.connect(**conn_kwargs)
+        conn = pyodbc.connect(**conn_kwargs)
         return conn
 
     def createDb(self, dbname=None, encoding='unicode'):
-        if not dbname:
-            dbname = self.dbroot.get_dbname()
-        conn = self._managerConnection(autocommit=True)
-        curs = conn.cursor()
-        curs.execute(self.createDbSql(dbname, encoding))
-        curs.close()
-        conn.close()
+        pass
+        #if not dbname:
+        #    dbname = self.dbroot.get_dbname()
+        #conn = self._managerConnection(autocommit=True)
+        #curs = conn.cursor()
+        #curs.execute(self.createDbSql(dbname, encoding))
+        #curs.close()
+        #conn.close()
 
     def createDbSql(self, dbname, encoding):
-        return """CREATE DATABASE "%s";""" % (dbname)
+        pass
+        #return """CREATE DATABASE "%s";""" % (dbname)
 
     def dropDb(self, name):
-        conn = self._managerConnection()
-        curs = conn.cursor()
-        curs.execute("DROP DATABASE %s;" % name)
-        curs.close()
-        conn.close()
+        pass
+        #conn = self._managerConnection()
+        #curs = conn.cursor()
+        #curs.execute("DROP DATABASE %s;" % name)
+        #curs.close()
+        #conn.close()
 
     def createTableAs(self, sqltable, query, sqlparams):
-        self.dbroot.execute("CREATE TABLE %s WITH OIDS AS %s;" % (sqltable, query), sqlparams)
-
-    def vacuum(self, table='', full=False): #TODO: TEST IT, SEEMS TO LOCK SUBSEQUENT TRANSACTIONS!!!
-        """Perform analyze routines on the db"""
         pass
+        #self.dbroot.execute("CREATE TABLE %s WITH OIDS AS %s;" % (sqltable, query), sqlparams)
 
-    def listen(self, msg, timeout=10, onNotify=None, onTimeout=None):
-        """Listen for message 'msg' on the current connection using the Postgres LISTEN - NOTIFY method.
-        onTimeout callbacks are executed on every timeout, onNotify on messages.
-        Callbacks returns False to stop, or True to continue listening.
-        @param msg: name of the message to wait for
-        @param timeout: seconds to wait for the message
-        @param onNotify: function to execute on arrive of message
-        @param onTimeout: function to execute on timeout
-        """
-        pass
 
-    def notify(self, msg, autocommit=False):
-        """Notify a message to listener processes using the Postgres LISTEN - NOTIFY method.
-        @param msg: name of the message to notify
-        @param autocommit: if False (default) you have to commit transaction, and the message is actually sent on commit"""
-        pass
 
     def listElements(self, elType, **kwargs):
         """Get a list of element names.
         @param elType: one of the following: schemata, tables, columns, views.
         @param kwargs: schema, table
         @return: list of object names"""
-        query = getattr(self, '_list_%s' % elType)()
-        query_generator = getattr(self, '_list_%s' % elType,None)
-        if not query_generator:
+        lister = getattr(self, '_list_db2_400_%s' % elType,None)
+        if not lister:
             return []
-        query = query_generator()
-        result = self.dbroot.execute(query, kwargs).fetchall()
-        return [r[0] for r in result]
+        return lister(**kwargs)
+
 
     def _list_enabled_extensions(self):
         return ''
 
-    def _list_schemata(self):
-        return """SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA 
-              WHERE SCHEMA_NAME != 'INFORMATION_SCHEMA' AND SCHEMA_NAME != 'sys' AND SCHEMA_NAME NOT LIKE 'db__%%'"""
+    def _list_db2_400_schemata(self, schema=None, comment=None):
+        if comment:
+            return [('_main_','')]
+        return ['_main_']
 
-    def _list_tables(self):
-        return """SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES
-                                    WHERE TABLE_SCHEMA=:schema"""
+    def _list_db2_400_tables(self, schema=None, comment=None):
+        cursor = self.cursor(self.dbroot.connection)
+        cursor.tables()
+        rows = cursor.fetchall()
+        if comment:
+            return [(r['table_name'],r['remarks']) for r in rows]
+        return [r['table_name'] for r in rows]
 
-    def _list_views(self):
-        return """SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA=:schema"""
 
-    def _list_columns(self):
-        return """SELECT COLUMN_NAME AS col
-                                  FROM INFORMATION_SCHEMA.COLUMNS 
-                                  WHERE TABLE_SCHEMA=:schema 
-                                  AND TABLE_NAME=:table 
-                                  ORDER BY ORDINAL_POSITION"""
+    def _list_db2_400_columns(self, table=None, schema=None, comment=None):
+        cursor = self.cursor(self.dbroot.connection)
+        cursor.colums(table=table)
+        rows = cursor.fetchall()
+        if comment:
+            return [(r['column_name'],r['remarks']) for r in rows]
+        return [r['column_name'] for r in rows]
 
     def relations(self):
-        """Get a list of all relations in the db. 
+        return []
+        """Get a list of all relations in the db.
         Each element of the list is a list (or tuple) with this elements:
         [foreign_constraint_name, many_schema, many_tbl, [many_col, ...], unique_constraint_name, one_schema, one_tbl, [one_col, ...]]
         @return: list of relation's details
         """
         sql = """SELECT R.CONSTRAINT_NAME AS ref,
                 C1.TABLE_SCHEMA AS ref_schema,
-                C1.TABLE_NAME AS ref_tbl, 
+                C1.TABLE_NAME AS ref_tbl,
                 MCOLS.COLUMN_NAME AS ref_col,
                 R.UNIQUE_CONSTRAINT_NAME AS un_ref,
                 C2.TABLE_SCHEMA AS un_schema,
@@ -257,23 +273,24 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 R.UPDATE_RULE AS upd_rule,
                 R.DELETE_RULE AS del_rule,
                 C1.INITIALLY_DEFERRED AS init_defer
- 
+
                 FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS R
                         JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS C1
-                                ON C1.CONSTRAINT_CATALOG = R.CONSTRAINT_CATALOG 
+                                ON C1.CONSTRAINT_CATALOG = R.CONSTRAINT_CATALOG
                                         AND C1.CONSTRAINT_SCHEMA = R.CONSTRAINT_SCHEMA
-                                        AND C1.CONSTRAINT_NAME = R.CONSTRAINT_NAME 
+                                        AND C1.CONSTRAINT_NAME = R.CONSTRAINT_NAME
                         JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS C2
-                                ON C2.CONSTRAINT_CATALOG = R.UNIQUE_CONSTRAINT_CATALOG 
+                                ON C2.CONSTRAINT_CATALOG = R.UNIQUE_CONSTRAINT_CATALOG
                                         AND C2.CONSTRAINT_SCHEMA = R.UNIQUE_CONSTRAINT_SCHEMA
                                         AND C2.CONSTRAINT_NAME = R.UNIQUE_CONSTRAINT_NAME
                         JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS MCOLS
-                                ON MCOLS.CONSTRAINT_SCHEMA = R.CONSTRAINT_SCHEMA 
+                                ON MCOLS.CONSTRAINT_SCHEMA = R.CONSTRAINT_SCHEMA
                                         AND MCOLS.CONSTRAINT_NAME= R.CONSTRAINT_NAME
                         JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS UCOLS
                                 ON UCOLS.CONSTRAINT_SCHEMA = R.UNIQUE_CONSTRAINT_SCHEMA
                                         AND UCOLS.CONSTRAINT_NAME= R.UNIQUE_CONSTRAINT_NAME
                                         """
+
         ref_constraints = self.dbroot.execute(sql).fetchall()
         ref_dict = {}
         for (ref, schema, tbl, col, un_ref, un_schema, un_tbl, un_col, upd_rule, del_rule, init_defer) in ref_constraints:
@@ -289,20 +306,20 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         return list(ref_dict.values())
 
     def getPkey(self, table, schema):
+        print(table)
         """
         @param table: table name
         @param schema: schema name
         @return: list of columns which are the primary key for the table"""
-        sql = """SELECT k.COLUMN_NAME        AS col
-                FROM   INFORMATION_SCHEMA.KEY_COLUMN_USAGE      AS k 
-                JOIN   INFORMATION_SCHEMA.TABLE_CONSTRAINTS     AS c
-                ON     c.CONSTRAINT_CATALOG = k.CONSTRAINT_CATALOG 
-                AND    c.CONSTRAINT_SCHEMA  = k.CONSTRAINT_SCHEMA
-                AND    c.CONSTRAINT_NAME    = k.CONSTRAINT_NAME         
-                WHERE  k.TABLE_SCHEMA       =:schema
-                AND    k.TABLE_NAME         =:table 
-                AND    c.CONSTRAINT_TYPE    ='PRIMARY KEY'
-                ORDER BY k.ORDINAL_POSITION"""
+        sql = """WITH xx (CST_NAME, CST_COL_CNT, CST_SCHEMA, CST_TABLE) AS
+                (
+                    SELECT CONSTRAINT_NAME, CONSTRAINT_KEYS, CONSTRAINT_SCHEMA, TABLE_NAME FROM QSYS2.SYSCST A
+                    WHERE CONSTRAINT_TYPE = 'PRIMARY KEY' AND TABLE_NAME=:table
+                )
+                SELECT CONSTRAINT_SCHEMA, TABLE_NAME, CONSTRAINT_NAME, COLUMN_NAME AS "col" FROM QSYS2.SYSCSTCOL, xx where
+                xx.CST_SCHEMA = CONSTRAINT_SCHEMA AND
+                xx.CST_TABLE = TABLE_NAME AND
+                xx.CST_NAME = CONSTRAINT_NAME"""
         return [r['col'] for r in self.dbroot.execute(sql, dict(schema=schema, table=table)).fetchall()]
 
     def getIndexesForTable(self, table, schema):
@@ -313,9 +330,9 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @return: list of index infos"""
         sql = """SELECT INDCLS.RELNAME AS name, INDISUNIQUE AS unq, INDISPRIMARY AS prim, INDKEY AS columns
                     FROM PG_INDEX
-               LEFT JOIN PG_CLASS AS indcls ON INDEXRELID=INDCLS.OID 
-               LEFT JOIN PG_CLASS AS tblcls ON INDRELID=TBLCLS.OID 
-               LEFT JOIN PG_NAMESPACE ON PG_NAMESPACE.OID=TBLCLS.RELNAMESPACE 
+               LEFT JOIN PG_CLASS AS indcls ON INDEXRELID=INDCLS.OID
+               LEFT JOIN PG_CLASS AS tblcls ON INDRELID=TBLCLS.OID
+               LEFT JOIN PG_NAMESPACE ON PG_NAMESPACE.OID=TBLCLS.RELNAMESPACE
                    WHERE NSPNAME=:schema AND TBLCLS.RELNAME=:table;"""
         #indexes = self.dbroot.execute(sql, dict(schema=schema, table=table)).fetchall()
         indexes = []
@@ -326,9 +343,9 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         Each dict has those info: name, position, default, dtype, length, notnull
         Every other info stored in information_schema.columns is available with the prefix '_pg_'"""
         sql = """SELECT CONSTRAINT_TYPE,COLUMN_NAME,TC.TABLE_NAME,TC.TABLE_SCHEMA,TC.CONSTRAINT_NAME
-            FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc 
-            JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE AS CU 
-                ON CU.CONSTRAINT_NAME=TC.CONSTRAINT_NAME  
+            FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS "tc"
+            JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE AS "CU"
+                ON CU.CONSTRAINT_NAME=TC.CONSTRAINT_NAME
                 WHERE CONSTRAINT_TYPE='UNIQUE'
                 %s%s;"""
         filtertable = ""
@@ -347,84 +364,63 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             res_bag.setItem('%(TABLE_SCHEMA)s.%(TABLE_NAME)s.%(COLUMN_NAME)s'%row,row['CONSTRAINT_NAME'])
         return res_bag
 
-    def _filterColInfo(self, colinfo, prefix):
-        """Utility method to be used by getColInfo implementations.
-        Prepend each non-standard key in the colinfo dict with prefix.
 
-        :param colinfo: dict of column infos
-        :param prefix: adapter specific prefix
-        :returns: a new colinfo dict"""
-        d = dict([(k, v) for k, v in list(colinfo.items()) if
-                  k in ('name', 'dflt', 'notnull', 'dtype', 'position', 'length')])
-        default = d.pop('dflt',None)
-        if default:
-            d['default']=default
-        d.update(dict([(prefix + k, v) for k, v in list(colinfo.items()) if
-                       k not in ('name', 'dflt', 'notnull', 'dtype', 'position', 'length')]))
-        return d
 
     def getColInfo(self, table, schema, column=None):
         """Get a (list of) dict containing details about a column or all the columns of a table.
         Each dict has those info: name, position, default, dtype, length, notnull
         Every other info stored in information_schema.columns is available with the prefix '_pg_'"""
-        sql = """SELECT COLUMN_NAME AS name,
-                        ORDINAL_POSITION AS position, 
-                        COLUMN_DEFAULT AS dflt, 
-                        IS_NULLABLE AS notnull, 
-                        DATA_TYPE AS dtype, 
-                        CHARACTER_MAXIMUM_LENGTH AS length,
-                        *
-                      FROM INFORMATION_SCHEMA.COLUMNS 
-                      WHERE TABLE_SCHEMA=:schema 
-                      AND TABLE_NAME=:table 
-                      %s
-                      ORDER BY position"""
-        filtercol = ""
-        if column:
-            filtercol = "AND COLUMN_NAME=:column"
-        columns = self.dbroot.execute(sql % filtercol,
-                                      dict(schema=schema,
-                                           table=table,
-                                           column=column)).fetchall()
+        cursor = self.cursor(self.dbroot.connection)
+        cursor.columns(table=table)
+        rows = cursor.fetchall()
         result = []
-        for col in columns:
-            col = dict(col)
-            col = self._filterColInfo(col, '_ms_')
-            col['dtype'] = self.typesDict.get(col['dtype'], 'T') #for unrecognized types default dtype is T
-            col['notnull'] = (col['notnull'] == 'NO')
-            result.append(col)
+        for row in rows:
+            if column and row['column_name']!= column:
+                continue
+            result.append(dict(
+                dtype = self.typesDict.get(row['type_name'], 'T') ,
+                name = row['column_name'],
+                length = row['column_size'],
+                position = row['ordinal_position'],
+                dflt = row['column_def'],
+                default = row['column_def'],
+                description = row['remarks'],
+                notnull = not row['is_nullable']
+                ))
+        
         if column:
             result = result[0]
         return result
 
     def addForeignKeySql(self, c_name, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del, init_deferred):
-        statement = 'ALTER TABLE %s.%s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s.%s (%s)' % (
-        m_pkg, m_tbl, c_name, m_fld, o_pkg, o_tbl, o_fld)
-        drop_statement = 'ALTER TABLE %s.%s DROP CONSTRAINT IF EXISTS %s;' % (m_pkg, m_tbl, c_name)
+        pass
+        #statement = 'ALTER TABLE %s.%s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s.%s (%s)' % (
+        #m_pkg, m_tbl, c_name, m_fld, o_pkg, o_tbl, o_fld)
+        #drop_statement = 'ALTER TABLE %s.%s DROP CONSTRAINT IF EXISTS %s;' % (m_pkg, m_tbl, c_name)
 
-        #for on_command, on_value in (('ON DELETE', on_del), ('ON UPDATE', on_up)):
-        #    if init_deferred:
-        #        on_value = 'NO ACTION'  
-        #    if on_value: statement += ' %s %s' % (on_command, on_value)
-        statement = '%s %s' % (drop_statement,statement) # MSSQL doesn't support DEFERRED
-        return statement
+        ##for on_command, on_value in (('ON DELETE', on_del), ('ON UPDATE', on_up)):
+        ##    if init_deferred:
+        ##        on_value = 'NO ACTION'
+        ##    if on_value: statement += ' %s %s' % (on_command, on_value)
+        #statement = '%s %s' % (drop_statement,statement) # MSSQL doesn't support DEFERRED
+        #return statement
 
     def getWhereTranslator(self):
         return GnrWhereTranslator(self.dbroot)
-    
+
     def compileSql(self, maintable, columns, distinct='', joins=None, where=None,
                    group_by=None, having=None, order_by=None, limit=None, offset=None, for_update=None,maintable_as=None):
         def _smartappend(x, name, value):
             if value:
                 x.append('%s %s' % (name, value))
-        
+
         if limit:
             limit= 'TOP %i '%limit
         else:
             limit=''
         maintable_as = maintable_as or 't0'
         result = ['SELECT  %s%s%s' % (limit,distinct, columns)]
-        result.append(' FROM %s AS %s' % (maintable, maintable_as))
+        result.append(' FROM %s AS "%s"' % (maintable, maintable_as))
         joins = joins or []
         for join in joins:
             result.append('       %s' % join)
@@ -437,7 +433,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         if for_update:
             result.append(self._selectForUpdate(maintable_as=maintable_as))
         return '\n'.join(result)
-        
+
 
 class GnrWhereTranslator(GnrWhereTranslator_base):
     def op_startswith(self, column, value, dtype, sqlArgs,tblobj):
