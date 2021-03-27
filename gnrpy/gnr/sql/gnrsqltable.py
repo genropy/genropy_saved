@@ -699,8 +699,7 @@ class SqlTable(GnrObject):
 
     
     def opTranslate(self,column,op,value,dtype=None,sqlArgs=None):
-        translator = self.db.adapter.getWhereTranslator()
-        return translator.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=self)
+        return self.db.whereTranslator.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=self)
 
     def cachedKey(self,topic):
         if self.multidb=='*' or not self.use_dbstores() is False:
@@ -765,6 +764,9 @@ class SqlTable(GnrObject):
                                :meth:`setJoinCondition() <gnr.sql.gnrsqldata.SqlQuery.setJoinCondition()>` method
         :param sqlContextName: TODO
         :param for_update: TODO"""
+        packageStorename = self.pkg.attributes.get('storename')
+        if packageStorename:
+            _storename = packageStorename
         record = SqlRecord(self, pkey=pkey, where=where,
                            lazy=lazy, eager=eager,
                            relationDict=relationDict,
@@ -1043,6 +1045,9 @@ class SqlTable(GnrObject):
                 one_one = True
                 rel = rel[0:-1]
             joinConditions[rel] = dict(condition=cond,params=dict(),one_one=one_one)
+        packageStorename = self.pkg.attributes.get('storename')
+        if packageStorename:
+            _storename = packageStorename
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,
                          distinct=distinct, limit=limit, offset=offset,
                          group_by=group_by, having=having, for_update=for_update,
@@ -1056,6 +1061,11 @@ class SqlTable(GnrObject):
                          subtable=subtable,**kwargs)
         return query
 
+    @property
+    def dbImplementation(self):
+        packageStorename = self.pkg.attributes.get('storename')
+        if packageStorename:
+            return self.db.dbstores[packageStorename].get('implementation')
 
     def recordToUpdate(self, pkey=None,updater=None,**kwargs):
         """Return a TempEnv class"""

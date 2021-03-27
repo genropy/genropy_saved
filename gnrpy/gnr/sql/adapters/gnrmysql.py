@@ -112,8 +112,8 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         return sql
 
 
-    def getWhereTranslator(self):
-        return GnrWhereTranslator(self.dbroot)
+    #def getWhereTranslator(self):
+    #    return GnrWhereTranslator(self.dbroot)
 
         #def _managerConnection(self):
         #dbroot=self.dbroot

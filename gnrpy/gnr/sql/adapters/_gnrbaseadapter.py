@@ -69,6 +69,7 @@ class SqlDbAdapter(object):
     def __init__(self, dbroot, **kwargs):
         self.dbroot = dbroot
         self.options = kwargs
+        self._whereTranslator = None
 
     def connect(self, storename=None):
         """-- IMPLEMENT THIS --
@@ -639,6 +640,12 @@ class SqlDbAdapter(object):
 
     def unaccentFormula(self, field):
         return field
+    
+    @property
+    def whereTranslator(self):
+        if not self._whereTranslator:
+            self._whereTranslator = self.getWhereTranslator()
+        return self._whereTranslator
 
     def getWhereTranslator(self):
         return GnrWhereTranslator(self.dbroot)

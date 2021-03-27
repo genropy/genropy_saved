@@ -1016,8 +1016,9 @@ class SqlQuery(object):
                                                                   
     def cursor(self):
         """Get a cursor of the current selection."""
-        
-        return self.db.execute(self.sqltext, self.sqlparams, dbtable=self.dbtable.fullname,storename=self.storename)
+        with self.db.tempEnv(currentImplementation=self.dbtable.dbImplementation):
+            cursor = self.db.execute(self.sqltext, self.sqlparams, dbtable=self.dbtable.fullname,storename=self.storename)
+        return cursor
         
     def fetch(self):
         """Get a cursor of the current selection and fetch it"""
@@ -1218,8 +1219,9 @@ class SqlQuery(object):
         
     def count(self):
         """Return rowcount. It does not save a selection"""
-        compiledQuery = self.compileQuery(count=True)
-        cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams, dbtable=self.dbtable.fullname,storename=self.storename)
+        with self.db.tempEnv(currentImplementation=self.dbtable.dbImplementation):
+            compiledQuery = self.compileQuery(count=True)
+            cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams, dbtable=self.dbtable.fullname,storename=self.storename)
         if isinstance(cursor, list):
             n = 0
             for c in cursor:
@@ -2218,7 +2220,8 @@ class SqlRecord(object):
             if self.pkey is not None:
                 params['pkey'] = self.pkey
                 #raise '%s \n\n%s' % (str(params), str(self.compiled.get_sqltext(self.db)))
-            cursor = self.db.execute(self.compiled.get_sqltext(self.db), params, dbtable=self.dbtable.fullname,storename=self.storename)
+            with self.db.tempEnv(currentImplementation=self.dbtable.dbImplementation):
+                cursor = self.db.execute(self.compiled.get_sqltext(self.db), params, dbtable=self.dbtable.fullname,storename=self.storename)
             data = cursor.fetchall()
             index = cursor.index
             cursor.close()

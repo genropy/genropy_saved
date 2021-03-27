@@ -360,9 +360,6 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def adaptSqlName(self,name):
         return '[{name}]'.format(name=name)
         
-    def getWhereTranslator(self):
-        return GnrWhereTranslator(self.dbroot)
-    
     def compileSql(self, maintable, columns, distinct='', joins=None, where=None,
                    group_by=None, having=None, order_by=None, limit=None, offset=None, for_update=None,maintable_as=None):
         def _smartappend(x, name, value):
