@@ -45,10 +45,10 @@ class Table(object):
         connection_params = self.db.application.config['legacy_db'].getAttr(legacy_db)
         dbname=connection_params['dbname'] or connection_params['filename']
         if connection_params['implementation']!='sqlite':
-            connection_params['host'] = connection_params['host'] or 'localhost'
+            connection_params['host'] = connection_params.get('host') or 'localhost'
         return GnrSqlDb(implementation=connection_params['implementation'],
                             dbname=dbname,
-                            host=connection_params['host'],user=connection_params['user'],
-                            password = connection_params['password'],
-                            port=connection_params['port'])
+                            host=connection_params.get('host'),user=connection_params.get('user'),
+                            password = connection_params.get('password'),
+                            port=connection_params.get('port'))
 
