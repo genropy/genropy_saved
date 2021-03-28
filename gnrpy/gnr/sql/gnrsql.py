@@ -160,6 +160,7 @@ class GnrSqlDb(GnrObject):
 
     @property
     def whereTranslator(self):
+        print('wt',self.adapter)
         return self.adapter.whereTranslator 
    
     @property

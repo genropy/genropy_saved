@@ -130,7 +130,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         kwargs = self.dbroot.get_connection_params(storename=storename)
         kwargs = dict(
                 [(k, v) for k, v in list(kwargs.items()) if v != None]) # remove None parameters, psycopg can't handle them
-        kwargs['server']=kwargs.pop('host')
+        kwargs['server']=kwargs.pop('host',None)
         dsn = kwargs.get('dsn') or kwargs.get('database')
         try:
             conn = pyodbc.connect(dsn=dsn)
