@@ -104,7 +104,7 @@ class Table(object):
             elif dtype == 'C':
                 col_dict['dtype'] = 'A'
                 col_dict['size'] = length
-            lg_column.insert(lg_column.newrecord(name=colname,data_type=col_dict['dtype'],
+            lg_column.insert(lg_column.newrecord(name=colname,data_type=col_dict['dtype'], description=col_dict.get('description'),
                                                 full_name='{pkg}.{tbl}.{name}'.format(pkg=legacy_schema,tbl=tbl_name,name=colname),
                                                 lg_table_id=tbl['id']))
 
