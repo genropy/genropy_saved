@@ -36,7 +36,7 @@ class Table(object):
                 continue
             tables = externaldb.adapter.listElements('tables', schema=schema)
             for tbl in tables:
-                primary_key = externaldb.adapter.getPkey(schema=legacy_schema, table=tbl)
+                primary_key = externaldb.adapter.getPkey(schema=legacy_schema, table=tbl) or None
                 lg_table.insert(lg_table.newrecord(lg_pkg=pkg_code,primary_key=primary_key,
                                             name=tbl,sqlname='{}.{}'.format(schema,tbl)))
             return
