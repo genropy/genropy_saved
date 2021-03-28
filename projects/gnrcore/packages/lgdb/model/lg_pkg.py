@@ -34,10 +34,11 @@ class Table(object):
         for schema in schemadata:
             if legacy_schema!=schema:
                 continue
-            tables = externaldb.adapter.listElements('tables', schema=schema)
-            for tbl in tables:
-                primary_key = externaldb.adapter.getPkey(schema=legacy_schema, table=tbl) or None
-                lg_table.insert(lg_table.newrecord(lg_pkg=pkg_code,primary_key=primary_key,
+            tables = externaldb.adapter.listElements('tables', schema=schema, comment=True)
+            for tbl,comment in tables:
+                primary_key = externaldb.adapter.getPkey(schema=legacy_schema, table=tbl)
+                lg_table.insert(lg_table.newrecord(lg_pkg=pkg_code,primary_key=primary_key or None,
+                                            description=comment,
                                             name=tbl,sqlname='{}.{}'.format(schema,tbl)))
             return
 

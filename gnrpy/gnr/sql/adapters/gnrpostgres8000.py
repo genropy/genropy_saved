@@ -193,13 +193,15 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         if autocommit:
             self.dbroot.commit()
 
-    def listElements(self, elType, **kwargs):
+    def listElements(self, elType, comment=None, **kwargs):
         """Get a list of element names.
         @param elType: one of the following: schemata, tables, columns, views.
         @param kwargs: schema, table
         @return: list of object names"""
         query = getattr(self, '_list_%s' % elType)()
         result = self.dbroot.execute(query, kwargs).fetchall()
+        if comment:
+            return [(r[0],None) for r in result]
         return [r[0] for r in result]
 
     def _list_schemata(self):

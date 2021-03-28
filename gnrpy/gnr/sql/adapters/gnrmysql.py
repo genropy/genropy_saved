@@ -184,7 +184,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def _selectForUpdate(self,maintable_as=None,**kwargs):
         return 'FOR UPDATE'
 
-    def listElements(self, elType, **kwargs):
+    def listElements(self, elType, comment=None, **kwargs):
         """Get a list of element names
         
         :param elType: one of the following: schemata, tables, columns, views.
@@ -195,6 +195,8 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             return []
         query = handler()
         result = self.dbroot.execute(query, kwargs).fetchall()
+        if comment:
+            return [(r[0],None) for r in result]
         return [r[0] for r in result]
 
     def _list_schemata(self):

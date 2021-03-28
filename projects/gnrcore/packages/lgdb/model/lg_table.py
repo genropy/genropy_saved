@@ -89,7 +89,7 @@ class Table(object):
     
     def _importColumnsFromTbl(self,extdb,legacy_schema,tbl):
         tbl_name = tbl['name']
-        columns = list(extdb.adapter.getColInfo(schema=legacy_schema, table=tbl_name)) 
+        columns = list(extdb.adapter.getColInfo(schema=legacy_schema, table=tbl_name))
         gnrlist.sortByItem(columns, 'position')
         lg_column = self.db.table('lgdb.lg_column')
         lg_column.deleteSelection('lg_table_id',tbl['id'])
@@ -98,12 +98,14 @@ class Table(object):
             colname = col_dict.pop('name')
             length = col_dict.pop('length', 0)
             decimals = col_dict.pop('decimals', 0)
+            description = col_dict.pop('description', None)
             dtype = col_dict['dtype']
             if dtype == 'A':
                 col_dict['size'] = '0:%s' % length
             elif dtype == 'C':
                 col_dict['dtype'] = 'A'
                 col_dict['size'] = length
+            lg_column.insert(lg_column.newrecord(name=colname,data_type=col_dict['dtype'], description=description, name_long=description,
             lg_column.insert(lg_column.newrecord(name=colname,data_type=col_dict['dtype'], description=col_dict.get('description'),
                                                 full_name='{pkg}.{tbl}.{name}'.format(pkg=legacy_schema,tbl=tbl_name,name=colname),
                                                 lg_table_id=tbl['id']))

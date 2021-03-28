@@ -206,7 +206,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         @param autocommit: if False (default) you have to commit transaction, and the message is actually sent on commit"""
         pass
 
-    def listElements(self, elType, **kwargs):
+    def listElements(self, elType, comment=None, **kwargs):
         """Get a list of element names.
         @param elType: one of the following: schemata, tables, columns, views.
         @param kwargs: schema, table
@@ -217,6 +217,8 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             return []
         query = query_generator()
         result = self.dbroot.execute(query, kwargs).fetchall()
+        if comment:
+            return [(r[0],None) for r in result]
         return [r[0] for r in result]
 
     def _list_enabled_extensions(self):

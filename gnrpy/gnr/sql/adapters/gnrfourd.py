@@ -158,15 +158,18 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def asTranslator(self, as_):
         return f'[{as_}]'
 
-    def listElements(self, elType, **kwargs):
+    def listElements(self, elType, comment=None, **kwargs):
         """Get a list of element names
         
         :param elType: one of the following: schemata, tables, columns, views.
         :param kwargs: schema, table
         :returns: list of object names"""
         query = getattr(self, '_list_%s' % elType)()
+        comment = kwargs.pop('comment', None)
         cursor = self.dbroot.execute(query, kwargs)
         result= cursor.fetchall()
+        if comment:
+            return [(r[0],None) for r in result]
         return [r[0] for r in result]
         
     def dbExists(self, dbname):

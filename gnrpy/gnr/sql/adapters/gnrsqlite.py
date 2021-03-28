@@ -143,21 +143,33 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         return []
 
 
-    def _list_schemata(self):
-        return [r[1] for r in self.dbroot.execute("PRAGMA database_list;").fetchall()]
+    def _list_schemata(self, comment=None):
+        result = self.dbroot.execute("PRAGMA database_list;").fetchall()
+        if comment:
+            return [(r[1],None) for r in result]
+        return [r[1] for r in result]
 
-    def _list_tables(self, schema):
+    def _list_tables(self, schema=None, comment=None):
         query = "SELECT name FROM %s.sqlite_master WHERE type='table';" % (schema,)
-        return [r[0] for r in self.dbroot.execute(query).fetchall()]
+        result = self.dbroot.execute(query).fetchall()
+        if comment:
+            return [(r[0],None) for r in result]
+        return [r[0] for r in result]
 
-    def _list_views(self, schema):
+    def _list_views(self, schema=None, comment=None):
         query = "SELECT name FROM %s.sqlite_master WHERE type='view';" % (schema,)
-        return [r[0] for r in self.dbroot.execute(query).fetchall()]
+        result = self.dbroot.execute(query).fetchall()
+        if comment:
+            return [(r[0],None) for r in result]
+        return [r[0] for r in result]
 
-    def _list_columns(self, schema, table):
+    def _list_columns(self, schema=None, table=None, comment=None):
         """cid|name|type|notnull|dflt_value|pk"""
         query = "PRAGMA %s.table_info(%s);" % (schema, table)
-        return [r[1] for r in self.dbroot.execute(query).fetchall()]
+        result = self.dbroot.execute(query).fetchall()
+        if comment:
+            return [(r[1],None) for r in result]
+        return [r[1] for r in result]
 
     def relations(self):
         """Get a list of all relations in the db. 

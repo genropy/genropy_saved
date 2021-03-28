@@ -21,9 +21,10 @@ class Main(BaseResourceAction):
         pkg = self.get_selection_pkeys()[0]
         self.resultNode= self.page.site.storageNode('page:{}'.format(pkg))
         self.zipNode= self.page.site.storageNode('page:{}.zip'.format(pkg))
-        self.tables_records = self.db.table('lgdb.lg_table').query(where='$lg_pkg=:pkg',pkg=pkg).fetch()
         self.columns_records = self.db.table('lgdb.lg_column'
                                 ).query(where='@lg_table_id.lg_pkg=:pkg',pkg=pkg).fetchGrouped('lg_table_id')
+        self.tables_records = self.db.table('lgdb.lg_table').query(where='$id=:pkeys',pkeys=list(self.columns_records.keys())).fetch()
+
         self.relations_records = self.db.table('lgdb.lg_relation'
                                 ).query(where='@relation_column.@lg_table_id.lg_pkg=:pkg',pkg=pkg).fetchGrouped('relation_column')
     
@@ -123,7 +124,7 @@ class Main(BaseResourceAction):
         for k,v in arguments.items():
             if v in ('',None):
                 continue
-            if isinstance(v,basestring):
+            if isinstance(v,str):
                 v = ("'%s'" if not "'" in v else 'u"%s"') %v
             elif isinstance(v, Bag):
                 v = "dict(%s)" %self.bagToArgString(v,prefix='')
