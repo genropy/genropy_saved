@@ -47,7 +47,7 @@ class Table(object):
         if connection_params['implementation']!='sqlite':
             connection_params['host'] = connection_params.get('host') or 'localhost'
         return GnrSqlDb(implementation=connection_params['implementation'],
-                            dbname=dbname,
+                            dbname=dbname,application=self.db.application,
                             host=connection_params.get('host'),user=connection_params.get('user'),
                             password = connection_params.get('password'),
                             port=connection_params.get('port'))
