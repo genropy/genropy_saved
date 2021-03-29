@@ -23,7 +23,7 @@ class Main(BaseResourceAction):
         self.zipNode= self.page.site.storageNode('page:{}.zip'.format(pkg))
         self.columns_records = self.db.table('lgdb.lg_column'
                                 ).query(where='@lg_table_id.lg_pkg=:pkg',pkg=pkg).fetchGrouped('lg_table_id')
-        self.tables_records = self.db.table('lgdb.lg_table').query(where='$id=:pkeys',pkeys=list(self.columns_records.keys())).fetch()
+        self.tables_records = self.db.table('lgdb.lg_table').query(where='$id IN :pkeys',pkeys=list(self.columns_records.keys())).fetch()
 
         self.relations_records = self.db.table('lgdb.lg_relation'
                                 ).query(where='@relation_column.@lg_table_id.lg_pkg=:pkg',pkg=pkg).fetchGrouped('relation_column')

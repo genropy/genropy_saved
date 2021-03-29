@@ -25,8 +25,10 @@ class Table(object):
         tbl.column('group', name_long='Group', batch_assign=True)
     
         tbl.column('multidb', name_long='Multi DB', values='*:Replicated on all databases,one:Replicated on one specific database,true:Only subscripted records')
+        tbl.column('legacy_count',dtype='L')
         tbl.aliasColumn('legacy_db','@lg_pkg.legacy_db',static=True)
         tbl.aliasColumn('legacy_schema','@lg_pkg.legacy_schema',static=True)
+
 
     @public_method
     def importTable(self, pkg_code=None,  tblobj=None, import_mode=None):
@@ -53,7 +55,28 @@ class Table(object):
 
         for col_obj in tblobj.columns.values():
             self.db.table('lgdb.lg_column').importColumn(tbl_record['id'], col_obj, import_mode=None)
-            
+
+
+    @public_method(caption='Update legacy count',_lockScreen=dict(thermo=True))
+    def actionMenu_updateLegacyCount(self,pkey=None,selectedPkeys=None,**kwargs):            
+        f = self.query(where='$id IN :selectedPkeys',selectedPkeys=selectedPkeys,for_update=True).fetch()  
+        legacy_db = f[0]['legacy_db']
+        legacy_schema = f[0]['legacy_schema']
+        if not legacy_db:
+            return
+        extdb = self.db.table('lgdb.lg_pkg').getLegacyDb(legacy_db)
+        for tbl in self.db.quickThermo(f,labelfield='tbl',
+                                        title='get count',
+                                        maxidx=len(f)):
+            self._updateLegCount(extdb,legacy_schema,tbl)
+            self.db.commit()
+    
+    def _updateLegCount(self,extdb,legacy_schema,tbl):
+        f = extdb.execute("""SELECT COUNT(*) AS "cnt" FROM {}""".format(tbl['name'])).fetchall()
+        cnt = 0 if not f else f[0]['cnt']
+        oldtbl = dict(tbl)
+        tbl['legacy_count'] = cnt
+        self.update(tbl,oldtbl)
 
     @public_method(caption='Import columns and relations')
     def actionMenu_importColumns(self,pkey=None,selectedPkeys=None,**kwargs):

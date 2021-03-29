@@ -119,7 +119,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 if not isinstance(v,tuple):
                     sqlargs[k] = tuple(v)
                 if len(v)==0:
-                    re_pattern = """((t\\d+)(_t\\d+)*.\\"?\\w+\\"?" +)(NOT +)*(IN) *:%s""" %k
+                    re_pattern = r"""((\"?t\d+)(_t\d+)*\"?.\"?\w+\"?" +)(NOT +)*(IN) *:%s""" %k
                     sql = re.sub(re_pattern,lambda m: 'TRUE' if m.group(4) else 'FALSE',sql,flags=re.I)
         return sql
 

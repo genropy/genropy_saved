@@ -49,7 +49,7 @@ class GetInfoPage(BaseComponent):
 
 class QuickQueryTool(object):
     def qqt_prepareConditions(self, table, customColumns=None, **kwargs):
-        return self.db.whereTranslator.whereFromDict(table, whereDict=kwargs, customColumns=customColumns)
+        return self.db.table(table).whereTranslator.whereFromDict(table, whereDict=kwargs, customColumns=customColumns)
 
     def _prepareColumnsAndGroupBy(self, columns, group_by):
         columns = columns.replace(' (', '(')

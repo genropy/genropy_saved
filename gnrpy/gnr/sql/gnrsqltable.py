@@ -709,7 +709,12 @@ class SqlTable(GnrObject):
 
     
     def opTranslate(self,column,op,value,dtype=None,sqlArgs=None):
-        return self.db.whereTranslator.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=self)
+        return self.whereTranslator.prepareCondition(column, op, value, dtype, sqlArgs,tblobj=self)
+    
+    @property
+    def whereTranslator(self):
+        with self.db.tempEnv(currentImplementation=self.dbImplementation):
+            return self.db.whereTranslator
 
     def cachedKey(self,topic):
         if self.multidb=='*' or not self.use_dbstores() is False:
@@ -1282,7 +1287,7 @@ class SqlTable(GnrObject):
         if sqlArgs is None:
             sqlArgs = {}
         self.model.virtual_columns
-        result = self.db.whereTranslator(self, wherebag, sqlArgs, **kwargs)
+        result = self.whereTranslator(self, wherebag, sqlArgs, **kwargs)
         return result, sqlArgs
     
 

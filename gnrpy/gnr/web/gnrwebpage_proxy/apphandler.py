@@ -892,7 +892,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             keys = list(prevSelectedDict.keys())
             resultAttributes['prevSelectedIdx'] = [m['rowidx'] for m in [r for r in selection.data if r['pkey'] in keys]]
         if wherebag:
-            resultAttributes['whereAsPlainText'] = self.db.whereTranslator.toHtml(tblobj,wherebag)
+            
+            resultAttributes['whereAsPlainText'] = tblobj.whereTranslator.toHtml(tblobj,wherebag)
         resultAttributes['hardQueryLimitOver'] = hardQueryLimit and resultAttributes['totalrows'] == hardQueryLimit
         if self.page.pageStore().getItem('slaveSelections.%s' %selectionName):
             with self.page.pageStore() as store:

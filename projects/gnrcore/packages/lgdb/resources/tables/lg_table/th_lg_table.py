@@ -31,10 +31,16 @@ class View(BaseComponent):
                     isDefault=True)
 
     def th_top_sup(self,top):
-        top.slotToolbar('5,sections@lg_pkg,*,sections@groups,5',
+        top.slotToolbar('5,sections@lg_pkg,*,sections@legcount,sections@groups,5',
                        childname='superiore',
                        sections_groups_remote=self.sectionGroups,
                        _position='<bar',gradient_from='#999',gradient_to='#666')
+
+    def th_sections_legcount(self):
+        return [dict(code='with_rows',caption='Not empty',condition='$legacy_count>0'),
+                dict(code='empty',caption='Empty',condition='$legacy_count=0'),
+                dict(code='to_check',caption='To check',condition='$legacy_count IS NULL'),
+                dict(code='all',caption='All')]
 
     @public_method
     def sectionGroups(self):
@@ -66,6 +72,15 @@ class ViewFromPackage(BaseComponent):
     def th_top_custom(self,top):
         top.bar.replaceSlots('delrow','resourceActions,10,delrow')
 
+
+    def th_top_sup(self,top):
+        top.bar.replaceSlots('vtitle','sections@legcount')
+
+    def th_sections_legcount(self):
+        return [dict(code='with_rows',caption='Not empty',condition='$legacy_count>0'),
+                dict(code='empty',caption='Empty',condition='$legacy_count=0'),
+                dict(code='to_check',caption='To check',condition='$legacy_count IS NULL'),
+                dict(code='all',caption='All')]
 
 class Form(BaseComponent):
     py_requires = 'gnrcomponents/attachmanager/attachmanager:AttachManager'

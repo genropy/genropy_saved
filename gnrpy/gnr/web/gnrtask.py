@@ -50,9 +50,10 @@ class GnrTaskScheduler(object):
     def writeTaskExecutions(self):
         now = datetime.now()
         task_to_schedule = self.tasktbl.findTasks()
+        reasonskeys = ['%s_%s' %t for t in task_to_schedule if t[1]!='*']
         existing_executions = self.exectbl.query(columns='$reasonkey,$status',
                                                 where='$reasonkey IN :reasonkeys',
-                                                reasonkeys=['%s_%s' %t for t in task_to_schedule if t[1]!='*']).fetchAsDict('reasonkey')
+                                                reasonkeys=reasonskeys).fetchAsDict('reasonkey')
         taskToUpdate = []
         for t,reason in task_to_schedule:
             reasonkey = None

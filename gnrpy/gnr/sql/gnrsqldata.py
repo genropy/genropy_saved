@@ -621,9 +621,9 @@ class SqlQueryCompiler(object):
             elif distinct:
                 pass            # leave columns as is to calculate distinct values
             else:
-                columns = 'count(*) AS gnr_row_count'  # use the sql count function istead of load all data
+                columns = 'count(*) AS "gnr_row_count"'  # use the sql count function istead of load all data
         elif addPkeyColumn and self.tblobj.pkey and not aggregate:
-            columns = columns + ',\n' + '%s.%s AS pkey' % (self.aliasCode(0),self.tblobj.pkey)  # when possible add pkey to all selections
+            columns = columns + ',\n' + '"%s".%s AS "pkey"' % (self.aliasCode(0),self.tblobj.pkey)  # when possible add pkey to all selections
             columns = columns.lstrip(',')                                   # if columns was '', now it starts with ','
         else:
             columns = columns.strip('\n').strip(',')

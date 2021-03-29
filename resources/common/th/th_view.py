@@ -865,7 +865,10 @@ class TableHandlerView(BaseComponent):
                             }else{
                                 batch_kw = {rpcmethod:$1.rpcmethod};
                                 objectUpdate(batch_kw,objectExtract($1,'rpc_*',true));
+                                objectUpdate(batch_kw,objectExtract($1,'_lockScreen,_onCalling,_onResult',true));
+
                             }
+                            console.log('batch_kw',batch_kw)
                             FIRE .th_batch_run = batch_kw;
                             """,_class='smallmenu')
     @struct_method
@@ -1229,7 +1232,7 @@ class TableHandlerView(BaseComponent):
         pane.dataRemote(fmenupath,self.relationExplorer,item_type='QTREE',
                         branch=options.get('branch'),
                         table=table,omit='_*')
-        pane.data('gnr.qb.sqlop',self.getSqlOperators())   
+        pane.data('gnr.qb.sqlop',self.getSqlOperators(table=table))   
         pane.dataController("""var th=TH(th_root).querymanager.onQueryCalling(querybag,filteringPkeys);
                               """,th_root=th_root,_fired="^.runQuery",
                            querybag='=.query.where',
@@ -1395,7 +1398,7 @@ class THViewUtils(BaseComponent):
         return querymenu
             
     @public_method
-    def getSqlOperators(self):
+    def getSqlOperators(self,table=None):
         result = Bag()
         listop = ('equal', 'startswith', 'wordstart', 'contains','similar', 'startswithchars', 'greater', 'greatereq',
                   'less', 'lesseq', 'between', 'isnull', 'istrue', 'isfalse', 'nullorempty', 'in', 'regex')
@@ -1410,7 +1413,7 @@ class THViewUtils(BaseComponent):
                            boolean=['istrue', 'isfalse', 'isnull'],
                            others=['equal', 'greater', 'greatereq', 'less', 'lesseq', 'in'])
         queryModes = (('S','!!Search'),('U','!!Union'),('I','!!Intersect'),('D','!!Difference'))
-        wt = self.db.whereTranslator
+        wt = self.db.table(table).whereTranslator
         for op,caption in queryModes:
             result.setItem('queryModes.%s' % op, None, caption=caption)
         for op in listop:

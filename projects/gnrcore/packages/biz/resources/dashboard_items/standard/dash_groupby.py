@@ -101,7 +101,7 @@ class Main(BaseDashboardItem):
             z = [self.localize(n.attr.get('name')) for n in struct['view_0.rows_0'].nodes if not n.attr.get('hidden')]
             result.append('<div class="di_pr_subcaption" >Fields</div><div class="di_content">%s</div>' %','.join(z))
         if where:
-            result.append('<div class="di_pr_subcaption">Where</div><div class="di_content">%s</div>' %self.db.whereTranslator.toHtml(self.db.table(table),where))
+            result.append('<div class="di_pr_subcaption">Where</div><div class="di_content">%s</div>' %self.db.table(table).whereTranslator.toHtml(self.db.table(table),where))
         
         queryPars = userObjectData['queryPars']
         configurations = []

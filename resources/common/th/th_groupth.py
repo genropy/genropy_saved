@@ -354,7 +354,7 @@ class TableHandlerGroupBy(BaseComponent):
                         group_list.append(caption_field)
                         columns_list.append(caption_field)
             columns_list.append(col)
-        columns_list.append('count(*) AS _grp_count_sum')
+        columns_list.append('count(*) AS "_grp_count_sum"')
         if not group_list:
             return False
         kwargs['columns'] = ','.join(columns_list)

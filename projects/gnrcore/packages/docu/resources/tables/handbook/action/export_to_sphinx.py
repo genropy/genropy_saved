@@ -143,11 +143,6 @@ class Main(BaseResourceBatch):
             record['handbook_url'] = self.handbook_url
         self.db.commit()
     
-    def result_handler(self):
-        resultAttr = dict()
-        if self.batch_parameters['download_zip']:
-            resultAttr['url'] = self.result_url
-        return 'Export done', resultAttr
 
     def result_handler(self):
         resultAttr = dict()

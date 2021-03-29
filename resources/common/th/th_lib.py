@@ -164,7 +164,7 @@ class TableHandlerCommon(BaseComponent):
         not_caption = '&nbsp;' if op_not == 'yes' else '!!not'
         result.setItem('c_0', val,
                        {'op': querybase.get('op'), 'column': column,
-                        'op_caption': self.db.whereTranslator.opCaption(querybase.get('op')),
+                        'op_caption': self.db.table(table).whereTranslator.opCaption(querybase.get('op')),
                         'not': op_not, 'not_caption': not_caption,
                         'column_dtype': column_dtype,
                         'column_caption': self.app._relPathToCaption(table, column),

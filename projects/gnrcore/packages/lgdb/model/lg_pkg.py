@@ -26,6 +26,16 @@ class Table(object):
         for tblobj in pkg.tables.values():
             lg_table.importTable(pkg_code, tblobj, import_mode=import_mode)
 
+
+    @public_method(caption='Update tables legacy count',topic='form_batch',_lockScreen=dict(thermo=True))
+  # def actionMenu_updateTableLegacyCount(self,pkey=None,**kwargs):   
+  #     #SELECT NUMBER_ROWS, DATA_SIZE FROM qsys2.systablestat 
+  #     lg_table = self.db.table('lgdb.lg_table')
+  #     record = self.record(pkey).output('dict')
+  #     externaldb = self.getLegacyDb(record['legacy_db'])
+  #     z = externaldb.execute('SELECT table_name,NUMBER_ROWS, DATA_SIZE FROM qsys2.systablestat').fetchall()
+  #     print(x)
+
     def importFromLegacyDb(self,legacy_db,pkg_code,legacy_schema=None):
         externaldb = self.getLegacyDb(legacy_db)
         schemadata = externaldb.adapter.listElements('schemata')
