@@ -25,9 +25,14 @@ class Table(object):
         tbl.column('group', name_long='Group', batch_assign=True)
     
         tbl.column('multidb', name_long='Multi DB', values='*:Replicated on all databases,one:Replicated on one specific database,true:Only subscripted records')
-        tbl.column('legacy_count',dtype='L')
+        tbl.column('legacy_count',dtype='L',name_long='Leg.Count')
         tbl.aliasColumn('legacy_db','@lg_pkg.legacy_db',static=True)
         tbl.aliasColumn('legacy_schema','@lg_pkg.legacy_schema',static=True)
+        tbl.formulaColumn('n_columns',dtype='L',
+            select=dict(table='lgdb.lg_column',
+            columns='COUNT(*)', where='$lg_table_id = #THIS.id'),
+            name_long='!!N.Column')
+        
 
 
     @public_method
@@ -78,7 +83,7 @@ class Table(object):
         tbl['legacy_count'] = cnt
         self.update(tbl,oldtbl)
 
-    @public_method(caption='Import columns and relations')
+    @public_method(caption='Import columns and relations',_lockScreen=dict(thermo=True))
     def actionMenu_importColumns(self,pkey=None,selectedPkeys=None,**kwargs):
         selectedPkeys = selectedPkeys or [pkey]
         f = self.query(where='$id IN :selectedPkeys',selectedPkeys=selectedPkeys).fetch()
@@ -88,9 +93,12 @@ class Table(object):
             return
         extdb = self.db.table('lgdb.lg_pkg').getLegacyDb(legacy_db)
         tblpkeys = []
-        for tbl in f:
+        for tbl in self.db.quickThermo(f,labelfield='tbl',
+                                        title='get count',
+                                        maxidx=len(f)):
             self._importColumnsFromTbl(extdb,legacy_schema,tbl)
             tblpkeys.append(tbl['id'])
+            self.db.commit()
         lg_rel_tbl = self.db.table('lgdb.lg_relation')
         lg_columns = self.db.table('lgdb.lg_column').query(where='$lg_table_id IN :tblpkeys',
                                                             tblpkeys=tblpkeys).fetchAsDict('full_name')

@@ -14,6 +14,7 @@ class View(BaseComponent):
         r.fieldcell('description')
         r.fieldcell('notes')
         r.fieldcell('group')
+        r.fieldcell('legacy_count')
         r.fieldcell('multidb')
 
     def th_order(self):
@@ -61,9 +62,11 @@ class ViewFromPackage(BaseComponent):
         r = struct.view().rows()
         r.fieldcell('name')
         r.fieldcell('sqlname')
-        r.fieldcell('description')
+        r.fieldcell('description',width='30em')
         r.fieldcell('notes')
         r.fieldcell('group')
+        r.fieldcell('legacy_count')
+        r.fieldcell('n_columns')
         r.fieldcell('multidb')
 
     def th_order(self):
