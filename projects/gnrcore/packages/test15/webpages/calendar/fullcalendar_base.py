@@ -41,7 +41,7 @@ class GnrCustomWebPage(object):
         footer = bottom.contentPane(region='bottom')
         footer.button('Set',fire='.set')
   
-    def test_2_event_store(self, pane):
+    def test_3_event_store(self, pane):
         bc = pane.borderContainer(height='900px')
         bc.contentPane(region='center').fullCalendar(initialView='dayGridMonth',     
         headerToolbar={
