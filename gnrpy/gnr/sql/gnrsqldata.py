@@ -956,7 +956,7 @@ class SqlQuery(object):
         self.excludeLogicalDeleted = excludeLogicalDeleted
         self.excludeDraft = excludeDraft
         self.ignorePartition = ignorePartition
-        self.addPkeyColumn = addPkeyColumn
+        self.addPkeyColumn = addPkeyColumn and dbtable.pkey is not None
         self.ignoreTableOrderBy = ignoreTableOrderBy
         self.locale = locale
         self.storename = _storename
@@ -1471,6 +1471,8 @@ class SqlSelection(object):
                 self._data = pickle.load(f)
 
     def _freeze_pkeys(self, readwrite):
+        if not self.dbtable.pkey:
+            return
         pik_path = '%s_pkeys.pik' % self.freezepath
         if readwrite == 'w':
             dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection_data',suffix='.pik')
