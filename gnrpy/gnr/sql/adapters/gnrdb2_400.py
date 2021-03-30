@@ -160,7 +160,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         def subArgs(m):
             key = m.group(1)
             sqlargs.append(kwargs[key])
-            return '? '
+            return '?{}'.format(m.group(2))
         #sql = RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*')
         sql = RE_SQL_PARAMS.sub(subArgs, sql)
         sql= sql.replace('REGEXP', '~*')
