@@ -2634,12 +2634,14 @@ dojo.declare("gnr.formstores.Base", null, {
         var kw =form.sourceNode.evaluateOnNode(this.handlers.del.kw);
         pkey = pkey || form.getCurrentPkey();
         this.handlers.del.rpcmethod = this.handlers.del.rpcmethod || 'deleteDbRow';
+        this.form.waitingStatus(true);
         var deferred = genro.rpc.remoteCall(this.handlers.del.rpcmethod,
                                             objectUpdate({'pkey':pkey,'timeout':0,
                                                           'table':this.table,'_sourceNode':form.sourceNode},kw),null,'POST',
                                                           null,function(){});
         var cb = function(result){
             that.deleted(result,callkw);
+            that.form.waitingStatus(false);
             return result;
         };
         deferred.addCallback(cb);

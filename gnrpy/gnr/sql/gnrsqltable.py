@@ -1528,10 +1528,10 @@ class SqlTable(GnrObject):
                         raise self.exception('delete', record=record, msg='!!Record referenced in table %(reltable)s',
                                              reltable=relatedTable.fullname)
                     elif onDelete in ('c', 'cascade'):
-                        for row in sel:
+                        for row in self.db.quickThermo(sel,labelfield='Deleting {}'.format(relatedTable.name)):
                             relatedTable.delete(row)
                     elif onDelete in ('n','setnull'):
-                        for row in sel:
+                        for row in self.db.quickThermo(sel,labelfield='Updating {}'.format(relatedTable.name)):
                             rel_rec = dict(row)
                             rel_rec.pop('pkey',None)
                             oldrec = dict(rel_rec)
