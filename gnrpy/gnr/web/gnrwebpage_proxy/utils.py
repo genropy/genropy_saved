@@ -439,6 +439,7 @@ class GnrWebUtils(GnrBaseProxy):
                                     description = getattr(handler, 'description', ''),
                                     tip=getattr(handler, 'tip', None),
                                     disabled=getattr(handler,'disabled',None),
+                                    hidden=getattr(handler,'hidden',None),
                                     askParameters=getattr(handler,'askParameters',None),
                                     lockScreen=getattr(handler,'lockScreen',None),
                                     onResult=getattr(handler,'onResult',None),
