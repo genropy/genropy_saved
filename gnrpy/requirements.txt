@@ -31,3 +31,4 @@ six
 sphinx
 sphinx_rtd_theme
 sphinx-sitemap
+tzlocal

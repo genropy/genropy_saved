@@ -35,7 +35,7 @@ from gnr.core.gnrdate import decodeOneDate, decodeDatePeriod
 from gnr.core.gnrlang import gnrImport, serializedFuncName
 from decimal import Decimal
 from dateutil.parser import parse as dateutil_parse
-from dateutil.tz import tzlocal
+import tzlocal  # from dateutil.tz import tzlocal
 from gnr.core.gnrlang import GnrException
 import types
 
@@ -402,7 +402,9 @@ class GnrClassCatalog(object):
 
     def serialize_datetime(self,ts):
         if not ts.tzinfo:
-            ts = ts.replace(tzinfo=tzlocal())
+            tz = tzlocal.get_localzone()
+            ts = tz.localize(ts)
+            # ts = ts.replace(tzinfo=tzlocal())
         return ts.isoformat()
         
     def parse_timedelta(self, txt, workdate=None):
