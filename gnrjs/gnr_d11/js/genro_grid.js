@@ -955,6 +955,45 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         menu.setItem('#id',null,{caption:_T('Copy cell'),action:copycell});
     },
 
+    cm_plugin_copyRows:function(sourceNode,menu){
+        var that = sourceNode;
+        var copyrows = function(){
+            let rows = that.widget.getSelectedRows();
+            let b = new gnr.GnrBag();
+            rows.forEach(function(attrs){
+                b.setItem('#id',null,attrs);
+            })
+            navigator.clipboard.writeText(b.toXml());
+        }
+        menu.setItem('#id',null,{caption:_T('Copy selected rows'),action:copyrows});
+    },
+
+
+    cm_plugin_pasteRows:function(sourceNode,menu){
+        var grid = sourceNode.widget;
+        var pasterows = function(){
+            navigator.clipboard.readText().then(function(txt){
+                if(!txt || txt[0]!='<'){
+                    return;
+                }
+                var rows = new gnr.GnrBag(txt);
+                grid.gridEditor.addNewRows(
+                    rows._nodes.map(function(n){
+                            let r = {};
+                            for(let k in n.attr){
+                                if(k in grid.cellmap){
+                                    r[k] = n.attr[k];
+                                }
+                            }
+                            return r
+                        }
+                    )
+                )
+            });
+        }
+        menu.setItem('#id',null,{caption:_T('Paste rows from clipboard'),action:pasterows});
+    },
+
    // cm_plugin_print:function(sourceNode,menu){
    //     menu.setItem('#id',null,{caption:_T('Print'),action:"$2.widget.serverAction({command:'print',allRows:true,opt:{rawData:true,downloadAs:$2.attr.nodeId+'_print',respath:'print/_common/print_gridres'}});"});
    // },
@@ -989,7 +1028,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 gridplugins = 'configurator,'+gridplugins;
             }
         }
-        gridplugins+=',copyCell';
+        gridplugins+=',copyCell,copyRows,pasteRows';
         var contextMenuBag = sourceNode.getRelativeData('.contextMenu') || new gnr.GnrBag();
         gridplugins = gridplugins?gridplugins.split(','):[];
         var that = this;
@@ -1315,6 +1354,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
         bagnode.setAttr(attributes);
     },
+
+
     mixin_getSelectedPkeys: function(caption_field) {
         var sel = this.selection.getSelected();
         var result = [];
@@ -1327,6 +1368,18 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         } 
         return result;
     },
+
+    mixin_getSelectedRows: function(caption_field) {
+        var sel = this.selection.getSelected();
+        var result = [];
+        if (sel.length > 0) {
+            for (var i = 0; i < sel.length; i++) {
+                result.push(this.rowByIndex(sel[i]))
+            }
+        } 
+        return result;
+    },
+
     mixin_getAllPkeys:function(caption_field){ 
         if(this.collectionStore){
             return this.collectionStore().currentPkeys(caption_field);

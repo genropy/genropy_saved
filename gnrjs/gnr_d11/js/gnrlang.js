@@ -816,7 +816,7 @@ function objectFromString(values,sep,mode){
     values = values.split(ch);
     var result = {};
     for (var i = 0; i < values.length; i++) {
-        val = values[i];
+        let val = values[i];
         if (val.indexOf(':') > 0) {
             val = val.split(':');
             result[val[0]] = val[1];

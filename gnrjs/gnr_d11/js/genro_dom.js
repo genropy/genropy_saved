@@ -1419,19 +1419,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
     copyInClipboard:function(what){
         var whatDomNode = this.getDomNode(what);
         let str = whatDomNode.textContent;
-        const el = document.createElement('textarea');
-        el.value = str;
-        el.setAttribute('readonly', '');
-        el.style.position = 'absolute';
-        el.style.left = '-9999px';
-        document.body.appendChild(el);
-        el.select();
         genro.dom.addClass(whatDomNode,'copyingContent');
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        setTimeout(function(){
-            genro.dom.removeClass(whatDomNode,'copyingContent');
-        },500);
+        navigator.clipboard.writeText(str).then(function(){
+            setTimeout(function(){
+                genro.dom.removeClass(whatDomNode,'copyingContent');
+            },500);
+        })
     },
 
     isDisabled:function(domNode,inherited){
