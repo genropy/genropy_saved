@@ -977,18 +977,20 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                     return;
                 }
                 var rows = new gnr.GnrBag(txt);
-                grid.gridEditor.addNewRows(
-                    rows._nodes.map(function(n){
-                            let r = {};
-                            for(let k in n.attr){
-                                if(k in grid.cellmap){
-                                    r[k] = n.attr[k];
-                                }
-                            }
-                            return r
+                rows._nodes.forEach(function(n){
+                    let r = {};
+                    let label = '#id';
+                    if(grid.rowIdentity(r)){
+                        label = flattenString(grid.rowIdentity(r),['.',' '])
+                    }
+                    for(let k in n.attr){
+                        if(k in grid.cellmap){
+                            r[k] = n.attr[k];
                         }
-                    )
-                )
+                    }
+                    grid.addBagRow(label, '*', grid.newBagRow(r));
+                });
+                //grid.gridEditor.callRemoteControllerBatch('*');
             });
         }
         menu.setItem('#id',null,{caption:_T('Paste rows from clipboard'),action:pasterows});
