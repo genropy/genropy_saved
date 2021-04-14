@@ -322,8 +322,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         buttons = buttons || {confirm:'OK'};
         //var kw = objectUpdate({'width':'20em'}, kw);
         kw = kw || {};
-        confirmCb = objectPop(kw,'confirmCb');
-        resultPath = resultPath;
+        var confirmCb = objectPop(kw,'confirmCb');
         var that = this;
         var node = genro.src.getNode(alertCode).clearValue().freeze();
         var dlg = node._('dialog', objectUpdate({nodeId:alertCode, title:title, _class:'dlg_alert',
