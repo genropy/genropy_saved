@@ -902,6 +902,7 @@ label.ghostlabel span {
 .dlg_ask_msg {
     min-height: 10ex;
     min-width: 25em;
+    max-width:40em;
     padding: 10px;
     border: 1px solid silver;
     border-radius: 6px;
