@@ -330,9 +330,6 @@ class Main(BaseResourceBatch):
    }
 }
 
-.gnrexamplebox{
-
-}
 .gnrexamplebox_title{
     color:#2980B9;
     cursor:pointer;
