@@ -1289,17 +1289,24 @@ dojo.declare("gnr.GridEditor", null, {
         if(rows=='*'){
             rows = this.grid.storebag().deepCopy();
         }
-        var result = genro.serverCall('remoteRowControllerBatch',
-                                    objectUpdate(kw,{handlerName:this.remoteRowController,
-                                    rows:rows,_sourceNode:this.grid.sourceNode})
-                                    );
         var grid = this.grid;
-        result.forEach(function(n){
-            that.updateRowFromRemote(grid.rowIdentity(grid.rowFromBagNode(n)) || n.label,n.getValue());
-        },'static');
-        this.updateStatus();
-        this.grid.sourceNode.publish('remoteRowControllerDone',{result:result})
-        return result
+        let reason = 'callRemoteControllerBatch_' +grid.sourceNode.attr.nodeId;
+        genro.lockScreen(true,reason,{thermo:true});
+        var onResult = function(result){
+            result.forEach(function(n){
+                that.updateRowFromRemote(grid.rowIdentity(grid.rowFromBagNode(n)) || n.label,n.getValue());
+            },'static');
+            genro.lockScreen(false,reason,{thermo:true});
+            that.updateStatus();
+            that.grid.sourceNode.publish('remoteRowControllerDone',{result:result})
+            return result;
+        }
+        kw.timeout = 0;
+        return genro.serverCall('remoteRowControllerBatch',
+                                    objectUpdate(kw,{handlerName:this.remoteRowController,
+                                    rows:rows,_sourceNode:this.grid.sourceNode}),
+                                        onResult
+                                    );
     },
 
     callRemoteController:function(rowNode,field,oldvalue,batchmode){
@@ -1319,9 +1326,11 @@ dojo.declare("gnr.GridEditor", null, {
                         rows.setItem(n.label,n.getValue(),objectUpdate({},n.attr));
                     }
                 });
-                var result = this.callRemoteControllerBatch(rows,kw);
-                this._pendingRemoteController = null;
-                this.grid.sourceNode.publish('remoteRowControllerDone',{result:result});
+                var that = this;
+                this.callRemoteControllerBatch(rows,kw).addCallback(function(result){
+                    that._pendingRemoteController = null;
+                    that.grid.sourceNode.publish('remoteRowControllerDone',{result:result});
+                });
             },1,this,'callRemoteControllerBatch_'+this.grid.sourceNode._id);
             return;
         }

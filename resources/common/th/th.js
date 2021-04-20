@@ -31,7 +31,11 @@ var th_view_batch_caller = function(kw){
         genro.publish("table_script_run",kw);
     }else if(kw.rpcmethod){
         kw._sourceNode = grid.sourceNode.getParentNode();
-        genro.serverCall(objectPop(kw,'rpcmethod'),kw);
+        genro.lockScreen(true,kw.gridId,{thermo:true});
+        kw.timeout = 0;
+        genro.serverCall(objectPop(kw,'rpcmethod'),kw,function(){
+            genro.lockScreen(false,kw.gridId);
+        });
     }
    
 };

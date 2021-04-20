@@ -477,7 +477,7 @@ class FrameGrid(BaseComponent):
         result = Bag()
         if not handler:
             return
-        for r in rows:
+        for r in self.utils.quickThermo(rows,maxidx=len(rows)):
             result.setItem(r.label,handler(row=r.value,row_attr=r.attr,**kwargs))
         return result
 

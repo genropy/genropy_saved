@@ -1510,6 +1510,11 @@ background: url(/_rsrc/common/css_icons/svg/16/form_status_grey.svg) no-repeat c
     background: url(/_rsrc/common/css_icons/svg/16/switch_off.svg) no-repeat center center;
 }
 
+
+.mimi .wrench{
+    background: url(/_rsrc/common/css_icons/svg/16/wrench.svg) no-repeat center center;
+}
+
 .mimi .chat, .mimi .chat_plugin_icon{
     background: url(/_rsrc/common/css_icons/svg/16/chat.svg) no-repeat center center;
 }

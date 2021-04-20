@@ -154,6 +154,9 @@
 	.unlocked_padlock{
 		background: url(16/unlocked_padlock.svg) no-repeat center center;
 	}
+	.wrench{
+		background: url(16/wrench.svg) no-repeat center center;
+	}
 /* @end */
 
 

@@ -184,6 +184,7 @@ class TableHandlerForm(BaseComponent):
         draftIfInvalid= options.pop('draftIfInvalid',False)
         allowSaveInvalid= options.pop('allowSaveInvalid',draftIfInvalid)
         form_add = options.pop('form_add',True)
+        form_save = options.pop('form_save',True)
         form_delete = options.pop('form_delete',True)
         form_archive = options.pop('form_archive',False)
         selector = options.pop('selector',False)
@@ -235,6 +236,8 @@ class TableHandlerForm(BaseComponent):
                 default_slots = default_slots.replace('form_add','')
             if form_delete is False:
                 default_slots = default_slots.replace('form_delete','')
+            if form_save is False:
+                default_slots = default_slots.replace('form_save','')
             if form_archive is False:
                 default_slots = default_slots.replace('form_archive','')
             if options.pop('duplicate',False):
