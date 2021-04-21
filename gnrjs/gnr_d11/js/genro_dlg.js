@@ -486,15 +486,17 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     
     askParameters:function(cb,ask_params,parameters,sourceNode,argnames,argvalues){
         var promptkw = objectUpdate({},ask_params);
-        promptkw.fields = promptkw.fields.map(function(kw){
-            kw = objectUpdate({},kw);
-            if(kw['name'] in parameters){
-                kw['default_value'] = parameters[kw['name']];
-            }
-            kw['value'] = '^.'+kw['name'];
-            return kw;
-        })
-        promptkw.widget = objectPop(promptkw,'fields');
+        if(promptkw.fields){
+            promptkw.fields = promptkw.fields.map(function(kw){
+                kw = objectUpdate({},kw);
+                if(kw['name'] in parameters){
+                    kw['default_value'] = parameters[kw['name']];
+                }
+                kw['value'] = '^.'+kw['name'];
+                return kw;
+            })
+            promptkw.widget = objectPop(promptkw,'fields');
+        }
         promptkw.action = function(result){
             if(result && result.len()){
                 result = result.asDict();
