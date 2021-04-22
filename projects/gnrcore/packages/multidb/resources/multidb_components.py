@@ -7,6 +7,11 @@ from gnrpkg.multidb.utility import getSyncTables
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrbag import Bag
 
+ALL_RECORDS_KWARGS = dict(excludeLogicalDeleted=False,
+                     excludeDraft=False,
+                     subtable='*',
+                     bagFields=True)
+
 class MultidbCheckUtils(BaseComponent):
     py_requires='th/th_dynamic:DynamicTableHandler'
     @struct_method
@@ -39,7 +44,7 @@ class MultidbCheckUtils(BaseComponent):
         bar = masterframe.top.bar.replaceSlots('#','#,touchrec')
         bar.touchrec.slotButton('!!Align',fire='#FORM.mdb_alignCurrent')
         bar.dataRpc(None,self.mdb_reTouchAllSync,_fired='^#FORM.mdb_alignCurrent',tbl='=#FORM.mdb_checkTbl',
-                    _onResult='FIRE #FORM.mdb_doCheck',_lockScreen=True)
+                    _onResult='FIRE #FORM.mdb_doCheck',dbstore='=#FORM.record.dbstore',_lockScreen=True)
 
         slaveframe = bc.roundedGroupFrame(title='!!Slave',region='center')
         slaveframe.dynamicTableHandler(table='^#FORM.mdb_checkTbl',datapath='#FORM.mdb_dbext',
@@ -94,9 +99,13 @@ class MultidbCheckUtils(BaseComponent):
         #r.cell('diff_master',width='30em',name='Diff.Master')
 
     @public_method
-    def mdb_reTouchAllSync(self,tbl=None,**kwargs):
+    def mdb_reTouchAllSync(self,tbl=None,dbstore=None,**kwargs):
         tblobj = self.db.table(tbl)
-        tblobj.touchRecords(where='$%s IS NOT NULL' %tblobj.pkey)
+        tblsub = self.db.table('multidb.subscription')
+        f = tblobj.query(**ALL_RECORDS_KWARGS).fetch()
+        for r in f:
+            tblsub.syncStore(event='U',storename=dbstore,tblobj=tblobj,pkey=r['pkey'],
+                            master_record=r,master_old_record=dict(r),mergeUpdate=False)
         self.db.commit()
 
     @public_method
@@ -125,11 +134,10 @@ class MultidbCheckUtils(BaseComponent):
                 continue
             tblobj = self.db.table(tbl)
             resrow = {'pkg':tbl.split('.')[0],'tbl':tbl}
-            
-            master_f = tblobj.query().fetchAsDict(tblobj.pkey)
+            master_f = tblobj.query(**ALL_RECORDS_KWARGS).fetchAsDict(tblobj.pkey)
             resrow['count_master'] = len(master_f)
             with self.db.tempEnv(storename=currdbstore):
-                slave_f = tblobj.query(order_by='$%s' %tblobj.pkey).fetch()
+                slave_f = tblobj.query(order_by='$%s' %tblobj.pkey,**ALL_RECORDS_KWARGS).fetch()
             resrow['count_slave'] = len(slave_f)
             missing_master = []
             diff_master = []
