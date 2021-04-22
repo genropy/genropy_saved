@@ -102,7 +102,8 @@ class Table(object):
                 return
         with self.db.tempEnv(storename=storename,_systemDbEvent=True,_multidbSync=True):
             f = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,for_update=True,
-                            addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False).fetch()
+                            addPkeyColumn=False,bagFields=True,excludeLogicalDeleted=False,
+                            subtable='*').fetch()
             if event == 'I':
                 if not f:
                     tblobj.insert(data_record)
