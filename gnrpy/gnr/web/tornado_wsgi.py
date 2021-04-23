@@ -94,7 +94,7 @@ class WSGIHandler(web.RequestHandler):
                     self.body_chunks[:] = []
                 yield self.executor.submit(copy_to_file)
 
-    @web.asynchronous
+    #@web.asynchronous
     @gen.coroutine
     def get(self):
         data = {}
