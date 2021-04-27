@@ -51,9 +51,8 @@ class Main(BaseResourceAction):
             if not self.application.checkResourcePermission(kw.pop('tags',None),self.userTags):
                 continue
             do_trigger = kw.pop('do_trigger',False) or do_trigger
-            replace = kw.get('replace',False)
+            replace = kw.get('replace',None)
             mandatory = kw.get('mandatory',False)
-
             fb.field(k,value='^.value',validate_notnull=False,html_label=True,zoom=False,lbl_fieldname=k, datapath='.%s' %k,
                         validate_onAccept='if(!isNullOrBlank(value)){SET .forced_null=false;}', **kw)
             if not mandatory:
