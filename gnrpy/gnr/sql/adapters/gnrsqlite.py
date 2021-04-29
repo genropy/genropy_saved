@@ -46,7 +46,7 @@ class GnrSqliteConnection(pysqlite.Connection):
 class SqlDbAdapter(SqlDbBaseAdapter):
     typesDict = {'charactervarying': 'A','nvarchar':'A', 'character varying': 'A', 'character': 'C','char': 'C', 'text': 'T','varchar':'A', 'blob': 'X',
                  'boolean': 'B','bool':'B', 'date': 'D', 'time': 'H', 'datetime':'DH','timestamp': 'DH', 'numeric': 'N',
-                 'integer': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'smallint unsigned':'I',
+                 'integer': 'I','int': 'I', 'bigint': 'L', 'smallint': 'I', 'double precision': 'R', 'real': 'R', 'smallint unsigned':'I',
                  'integer unsigned':'L',
                  'decimal':'N','serial8': 'L'}
 
@@ -209,6 +209,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                 col['length'] = colType[colType.find('(') + 1:colType.find(')')]
                 col['size'] = col['length']
                 colType = colType[:colType.find('(')]
+            colType = colType.strip()
             col['dtype'] = self.typesDict[colType] if colType else 'T'
             col['notnull'] = (col['notnull'] == 'NO')
             col = self._filterColInfo(col, '_sl_')
