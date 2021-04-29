@@ -1013,6 +1013,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                               excludeLogicalDeleted=True,excludeDraft=True,_aggregateRows=True,
                               **kwargs):
         sqlContextBag = None
+        _qmpkeys = None
         if sqlContextName:
             sqlContextBag = self._getSqlContextConditions(sqlContextName)
 
@@ -1036,16 +1037,6 @@ class GnrWebAppHandler(GnrBaseProxy):
             where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
         if condition and not pkeys:
             where = ' ( %s ) AND ( %s ) ' % (where, condition) if where else condition
-        if queryMode in ('U','I','D'):
-            _qmpkeys = self.page.freezedPkeys(tblobj,selectionName)
-            queryModeCondition = '( $%s IN :_qmpkeys )' %tblobj.pkey
-            kwargs['_qmpkeys'] = _qmpkeys
-            if queryMode == 'U':
-                where =' ( %s ) OR ( %s ) ' % (where, queryModeCondition)
-            elif queryMode == 'I':
-                where =' ( %s ) AND ( %s ) ' % (where, queryModeCondition)
-            elif queryMode == 'D':
-                where =' ( %s ) AND NOT ( %s ) ' % (queryModeCondition,where)  
         if filteringPkeys:
             if isinstance(filteringPkeys,basestring):
                 filteringWhere = None
@@ -1081,6 +1072,22 @@ class GnrWebAppHandler(GnrBaseProxy):
         if sqlContextName:
             self._joinConditionsFromContext(query, sqlContextName)
         selection = query.selection(sortedBy=sortedBy, _aggregateRows=_aggregateRows)
+        if queryMode in ('U','I','D'):
+            _qmpkeys = set(self.page.freezedPkeys(tblobj,selectionName))
+            currentpkeys = set(selection.output('pkeylist'))
+            if queryMode=='U':
+                rpkeys = _qmpkeys.union(currentpkeys)
+            elif queryMode=='I':
+                rpkeys = _qmpkeys.intersection(currentpkeys)
+            else:
+                rpkeys = _qmpkeys.difference(currentpkeys)
+            query = tblobj.query(columns=columns, distinct=distinct, where='${} IN :_rpkeys'.format(tblobj.pkey),
+                              _rpkeys=rpkeys,
+                             order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
+                             relationDict=relationDict, sqlparams=sqlparams, locale=self.page.locale,
+                             excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft, **kwargs)
+            selection = query.selection(sortedBy=sortedBy, _aggregateRows=_aggregateRows)
+
         #if sqlContextBag:
         #    THIS BLOCK SHOULD ALLOW US TO HAVE AN APPLYMETHOD INSIDE SQLCONTEXT.
         #    IT DOES NOT WORK BUT WE THINK IT'S USELESS
@@ -1152,6 +1159,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if _addClassesDict:
                 for fld, _class in list(_addClassesDict.items()):
                     if row[fld]:
+                        _class = row[fld] if _class is True else _class
                         _customClasses.append(_class)
 
             if numberedRows or not pkey:

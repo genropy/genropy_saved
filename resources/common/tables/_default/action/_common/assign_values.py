@@ -45,20 +45,27 @@ class Main(BaseResourceAction):
             batch_assign = attr.get('batch_assign')
             if not batch_assign:
                 continue
-            auth = 'user'
             kw = {}
             if batch_assign is not True:
                 kw.update(batch_assign)
             if not self.application.checkResourcePermission(kw.pop('tags',None),self.userTags):
                 continue
             do_trigger = kw.pop('do_trigger',False) or do_trigger
+            replace = kw.get('replace',None)
+            mandatory = kw.get('mandatory',False)
             fb.field(k,value='^.value',validate_notnull=False,html_label=True,zoom=False,lbl_fieldname=k, datapath='.%s' %k,
                         validate_onAccept='if(!isNullOrBlank(value)){SET .forced_null=false;}', **kw)
-            fb.checkbox(value='^.forced_null',label='SET NULL', validate_onAccept="""if(userChange && value){
-                SET .value = null;
-            }""" ,datapath='.%s' %k)
+            if not mandatory:
+                fb.checkbox(value='^.forced_null',label='SET NULL', validate_onAccept="""if(userChange && value){
+                    SET .value = null;
+                }""" ,datapath='.%s' %k)
+            else:
+                fb.div()
             fb.data('.%s.dtype' %k,attr.get('dtype'))
-            fb.checkbox(value='^.replace',label='!!Replace',datapath='.%s' %k)
+            if replace is None:
+                fb.checkbox(value='^.replace',label='!![en]Replace',datapath='.%s' %k)
+            else:
+                fb.div(datapath='.%s' %k).data('.replace',replace)
         box.data('.do_trigger',do_trigger)
 
 
