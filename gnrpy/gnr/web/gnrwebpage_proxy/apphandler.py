@@ -1148,6 +1148,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if _addClassesDict:
                 for fld, _class in _addClassesDict.items():
                     if row[fld]:
+                        _class = row[fld] if _class is True else _class
                         _customClasses.append(_class)
 
             if numberedRows or not pkey:
