@@ -45,7 +45,7 @@ from gnr.core.gnrclasses import GnrClassCatalog
 #                                      GnrSqlSaveException,GnrSqlDeleteException
 #
 #from gnr.sql.adapters import *
-from datetime import datetime
+from datetime import datetime, date
 import re
 import _thread
 import locale
@@ -340,7 +340,7 @@ class GnrSqlDb(GnrObject):
 
     def _get_workdate(self):
         """currentEnv TempEnv. Return the workdate used in the current thread"""
-        return self.currentEnv.get('workdate') or datetime.today()
+        return self.currentEnv.get('workdate') or date.today()
         
     def _set_workdate(self, workdate):
         """Allow to set the workdate"""
