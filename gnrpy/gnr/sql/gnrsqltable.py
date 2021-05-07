@@ -2082,7 +2082,7 @@ class SqlTable(GnrObject):
                     and relatedTable.relations_one.getAttr('#0','onDelete')=="cascade"):
                 continue
             many_history_set = history[tablename]['many']
-            sel = relatedTable.query(columns='*', where='%s in :rkeys AND $%s NOT IN :pklist' % (mfld,relatedTable.pkey),
+            sel = relatedTable.query(columns='*', where='$%s in :rkeys AND $%s NOT IN :pklist' % (mfld,relatedTable.pkey),
                                         pklist = list(many_history_set),
                                          rkeys=[r[ofld] for r in records],excludeDraft=False,excludeLogicalDeleted=False).fetch()
             if sel:

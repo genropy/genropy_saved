@@ -34,9 +34,12 @@ class Main(BaseResourceAction):
         self.result_url = self.page.site.getStaticUrl('site:archived_records','results','%s.zip' %name)
         self.tableDependencies = self.tblobj.dependenciesTree(self.curr_records)
         self.index_tables = list(self.db.tablesMasterIndex(hard=True)['_index_'].keys())
+        self.mode = self.batch_parameters.get('mode')
 
     def step_archive(self):
         "Prepare Archive file"
+        if self.mode == 'D':
+            return
         archive = Bag()
         for t in self.index_tables:
             tablename = t.replace('/','.')
@@ -60,12 +63,13 @@ class Main(BaseResourceAction):
                     destfolder = os.path.join(self.files_to_copy,tablename,pkey)
                     if not os.path.exists(destfolder):
                         os.makedirs(destfolder)
-                    for path in pathlist:
-                        if not os.path.exists(path):
+                    for sn in pathlist:
+                        if not sn.exists:
                             continue
-                        basename = os.path.basename(path)
+                        basename = sn.basename
                         destpath = os.path.join(destfolder,basename)
-                        shutil.copy(path,destpath)        
+                        sn.copy(destpath)
+                        #shutil.copy(sn,destpath)        
         archive.makePicklable()
         archive.pickle('%s.pik' %self.archive_path)
         self.page.site.zipFiles(self.source_folder,self.result_path)
@@ -80,7 +84,7 @@ class Main(BaseResourceAction):
 
     def step_delete_archived(self):
         "Delete archived"
-        if not self.batch_parameters.get('delete_archived'):
+        if self.mode == 'A':
             return
         for t in reversed(self.index_tables):
             t = t.replace('/','.')
@@ -92,11 +96,15 @@ class Main(BaseResourceAction):
         self.db.commit()
 
     def result_handler(self):
+        if self.mode == 'D':
+            return 'Completed', None
         resultAttr = dict(url=self.result_url)
         return 'Archived %s' %self.tblobj.name_plural, resultAttr
-
+    
+    
     def table_script_parameters_pane(self, pane, table=None,**kwargs):
         fb = pane.div(padding='10px').formbuilder(cols=1,border_spacing='3px')
-        fb.textbox(value='^.name',lbl='Name')
-        fb.checkbox(value='^.delete_archived',label='Delete archived')
+        fb.filteringSelect(value='^.mode', lbl='Mode', values='D:Delete only,A:Archive only,AD:Archive and delete',validate_notnull=True)
+        fb.textbox(value='^.name', lbl='Filename', disabled="^.mode?=(#v=='D' || #v==null)")
+        # fb.checkbox(value='^.delete_archived',label='Delete archived')
 
